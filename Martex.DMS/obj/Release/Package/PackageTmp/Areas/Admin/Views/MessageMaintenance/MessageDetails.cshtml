@@ -1,0 +1,211 @@
+﻿@model Martex.DMS.DAL.Message
+@using Kendo.Mvc.UI
+@{
+    bool IsEnabled = true;
+
+    if (ViewBag.PageMode != null && "View".Equals(ViewBag.PageMode))
+    {
+        IsEnabled = false;
+    }
+}
+<script type="text/javascript">
+    function startDateChange() {
+        var endPicker = $("#EndDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function endDateChange() {
+        var startPicker = $("#StartDate").data("kendoDatePicker"),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+</script>
+
+<form method="post" action="javascript:void(0);" id="formMessageMaintenanceDetails">
+@Html.HiddenFor(u => u.ID)
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Message Details</legend>
+        <div>
+            <label for="ProgramID" class="label-no-inline">
+                Message Scope <span class="spanstar">*</span></label>
+            @(Html.Kendo().ComboBoxFor(u => u.MessageScope)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MessageScope.ToString()] as IEnumerable<SelectListItem>)
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                          .Events(events => events.Change("ValidateInputForKendoCombo"))
+                          .Value(string.IsNullOrEmpty(Model.MessageScope) ? string.Empty : Model.MessageScope)
+                          .Enable(IsEnabled))
+        </div>
+        <br />
+        <div>
+            <label for="ProgramID" class="label-no-inline">
+                Message Type <span class="spanstar">*</span></label>
+            @(Html.Kendo().ComboBoxFor(u => u.MessageTypeID)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MessageType.ToString()] as IEnumerable<SelectListItem>)
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                          .Events(events => events.Change("ValidateInputForKendoCombo"))
+                          .Value(!Model.MessageTypeID.HasValue ? string.Empty : Model.MessageTypeID.GetValueOrDefault().ToString())
+                          .Enable(IsEnabled))
+        </div>
+        <br />
+        <p class="inline-label">
+            <label class="label">
+                Subject <span class="spanstar">*</span></label>
+            @if (IsEnabled)
+            {
+                @Html.TextBoxFor(u => Model.Subject, new { @class = "validate[required], input full-width2", @error_required = "Please type subject.", @maxLength = "510" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Subject, new { @class = "validate[required], input full-width2", @error_required = "Please type subject.", @maxLength = "510", @readonly = true })
+            }
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Message Text <span class="spanstar">*</span></label>
+            @if (IsEnabled)
+            {
+                @Html.TextAreaFor(u => Model.MessageText, new { @class = "validate[required], input full-width2", @error_required = "Please type message." })
+            }
+            else
+            {
+                @Html.TextAreaFor(u => Model.MessageText, new { @class = "validate[required], input full-width2", @error_required = "Please type message.", @readonly = true })
+            }
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Start Date <span class="spanstar">*</span></label>
+            @Html.Kendo().DatePickerFor(u => u.StartDate).Events(e => e.Change("startDateChange")).Format("MM/dd/yyyy").Enable(IsEnabled)
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                End Date</label>
+            @Html.Kendo().DatePickerFor(u => u.EndDate).Events(e => e.Change("endDateChange")).Enable(IsEnabled)
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Sequence <span class="spanstar">*</span></label>
+            @if (IsEnabled)
+            {
+                @Html.TextBoxFor(u => Model.Sequence, new { @class = "validate[required,custom[integer,min[1]]], input full-width2", @error_required = "Please type sequence." })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Sequence, new { @class = "validate[required,custom[integer,min[1]]], input full-width2", @error_required = "Please type sequence.", @readonly = true })
+            }
+        </p>
+        @if (Model.ID > 0)
+        {
+            <p class="inline-label">
+                <label for="LastUpdated" class="label">
+                    Last update:</label>
+                @Html.DisplayFor(u => Model.ModifyBy) &nbsp;
+                @Html.DisplayFor(u => Model.ModifyDate)
+            </p>
+        }
+        <div class="field-block button-height">
+            @if (IsEnabled)
+            {
+                <button id="btnSaveMessageDetails" class="button green-gradient glossy float-right mid-margin-left"
+                    type="button">
+                    Save
+                </button>
+            }
+            <button id="btnCancelMessageDetails" class="button gray-gradient glossy  float-right"
+                type="button">
+                Cancel
+            </button>
+        </div>
+    </fieldset>
+</div>
+</form>
+
+<script type="text/javascript">
+    $(function () {
+
+        $('#formMessageMaintenanceDetails').validationEngine();
+
+        CleanMyContainer('formMessageMaintenanceDetails');
+        WatchMyContainer('formMessageMaintenanceDetails');
+
+        $('#btnCancelMessageDetails').click(function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#formMessageMaintenanceDetails').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                messageMaintenanceWindow.data('kendoWindow').close();
+            }
+            return false;
+        });
+
+        $('#btnSaveMessageDetails').click(function () {
+            var IsFormValid = true;
+
+            if ($("#MessageScope").data('kendoComboBox').value() == "") {
+                ShowValidationMessage($('input[name="MessageScope_input"]'), "Please select Message Scope");
+                IsFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="MessageScope_input"]'));
+            }
+
+            if ($("#MessageTypeID").data('kendoComboBox').value() == "") {
+                ShowValidationMessage($('input[name="MessageTypeID_input"]'), "Please select Message Type");
+                IsFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="MessageTypeID_input"]'));
+            }
+
+            if ($("#formMessageMaintenanceDetails").validationEngine('validate') == false) {
+                IsFormValid = false;
+            }
+
+            var startDate = $('#StartDate').val();
+            if ($.trim(startDate).length > 0) {
+                var test = Date.parseExact(startDate, "MM/dd/yyyy");
+                if (!test) {
+                    IsFormValid = false;
+                    ShowValidationMessage($("input[name='StartDate']"), "Start Date is required");
+                }
+            }
+            else {
+                IsFormValid = false;
+                ShowValidationMessage($("input[name='StartDate']"), "Start Date is required");
+            }
+
+
+            if (IsFormValid) {
+                $.ajax({
+                    url: '@Url.Action("SaveMessageDetails", "MessageMaintenance", new { area = "Admin" })',
+                    type: 'POST',
+                    data: $("#formMessageMaintenanceDetails").serializeArray(),
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            CleanMyContainer('formMessageMaintenanceDetails');
+                            openAlertMessage('Message Updated Successfully');
+                            messageMaintenanceWindow.data('kendoWindow').close();
+                            $('#GrdMessageMaintenance').data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+            }
+            return false;
+        });
+    }); 
+</script>

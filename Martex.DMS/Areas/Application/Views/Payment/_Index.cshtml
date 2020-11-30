@@ -1,0 +1,561 @@
+﻿@using Martex.DMS.Models
+@model Martex.DMS.BLL.Model.PaymentInformation
+@using Kendo.Mvc.UI
+@using Martex.DMS.Areas.Application.Models
+@{
+    ViewBag.Title = "Index";
+    bool canProcessUseCard = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_USE_CARD) == AccessType.ReadWrite;
+    bool canProcessCreditCard = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_CREDIT) == AccessType.ReadWrite;
+    string cssDisplayForUseCard = string.Empty;
+    string cssDisplayForCreditCard = string.Empty;
+    if (!canProcessUseCard)
+    {
+        cssDisplayForUseCard = "hidden";
+    }
+
+    if (!canProcessCreditCard)
+    {
+        cssDisplayForCreditCard = "hidden";
+    }
+
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+
+    function IsPaymentPageDirty() {
+        var index = $.inArray("pagecontainer", dirtyForms);
+        return (index >= 0);
+    }
+    function MemberPaymentMethod_onDataBound(e) {
+        $(".k-grid-copyMemberPaymentDetails").addClass("with-tooltip").html("<span class='k-icon k-edit @cssDisplayForUseCard'/>");
+        var grid = e.sender;
+        e.sender.table.find('tr').each(function () {
+            var expirationMonthColumn = $(this).find(".expirationMonth");
+            var expirationYearColumn = $(this).find(".expirationYear");
+            var expirationDateColumn = $(this).find(".expirationDate");
+
+            var expirationYear = parseInt(expirationYearColumn.html());
+            var expirationMonth = parseInt(expirationMonthColumn.html());
+            var cardExpired = false;
+            var presentDate = new Date();
+            if (expirationYear < presentDate.getFullYear()) {
+                cardExpired = true;
+            }
+            else if (expirationYear == presentDate.getFullYear()) {
+
+                if (expirationMonth < (presentDate.getMonth() + 1)) {
+                    cardExpired = true;
+                }
+            }
+
+            var expirationDate = (expirationMonth < 10 ? "0" : "" )+ expirationMonth.toString() + "/" + expirationYear.toString();
+            if (cardExpired) {
+                expirationDate += " - Expired";
+            }
+            expirationDateColumn.html(expirationDate);
+            if (cardExpired) {
+                expirationDateColumn.addClass("red redalert");
+            }
+        });
+    }
+    function Payment_onDataBound(e) {
+        $(".k-grid-viewPaymentDetails").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-copyPaymentDetails").addClass("with-tooltip").html("<span class='k-icon k-edit @cssDisplayForUseCard'/>");
+        $(".k-grid-creditPaymentDetails").addClass("with-tooltip").html("<span class='k-icon k-i-restore @cssDisplayForCreditCard'/>");
+
+
+        // 1. Hide / show buttons in action columns.
+        // 2. Calculate the amount in the footer.
+        var totalAmount = 0;
+        $('tr:has(td)', e.sender.table).each(function (e) {
+            var transactionType = $(this).find(".colType");
+            var colAmount = $(this).find(".colAmount");
+            var colFormattedAmount = $(this).find(".colFormattedAmount");
+            var sAmount = colAmount.text();
+            var fAmount = parseFloat(sAmount);
+            if (!isNaN(fAmount)) {
+                if (transactionType.length > 0) {
+                    if (transactionType.text() == "Sale") {
+                        totalAmount += fAmount;
+                    }
+                    else {
+                        totalAmount -= fAmount;
+                    }
+                }
+            }
+            if (transactionType.length > 0) {
+                var btnView = $(this).find(".k-grid-viewPaymentDetails");
+                var btnCopy = $(this).find(".k-grid-copyPaymentDetails");
+                var btnCredit = $(this).find(".k-grid-creditPaymentDetails");
+
+                if (transactionType.text() != "Sale") {
+                    btnCopy.css("display", "none");
+                    btnCredit.css("display", "none");
+                    //CR:
+                    colFormattedAmount.css("color", "#FF0000");
+                }
+                if (transactionType.text() == "Card Info" || transactionType.text() == "Information") {
+                    btnCopy.show();
+                    btnView.show();
+                }
+            }
+
+        });
+
+        var footerCell = $(".ftAmount");
+        if (footerCell.length > 0) {
+            if (totalAmount >= 0) {
+                footerCell.html("Payment Balance : $" + totalAmount.toFixed(2));
+            }
+            else {
+                footerCell.html("Payment Balance : ($" + Math.abs(totalAmount.toFixed(2)) + ")");
+            }
+        }
+    }
+
+    function GetMemberPaymentMethodDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).PaymentID;
+            if (e.data.commandName == 'copyMemberPaymentDetails') {
+                if (IsMyContainerDirty('frmPaymentInformation')) {
+                    var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+                    $.modal.confirm(notificationMsg, function () {
+
+                        LoadPaymentTabWithMemberPaymentInformation(recordID, 'copy');
+                        CleanMyContainer('frmPaymentInformation');
+                    }, function () {
+                        // Do Nothing
+                    });
+                }
+                else {
+                    LoadPaymentTabWithMemberPaymentInformation(recordID, 'copy');
+                }
+
+            }
+        }
+    }
+    function LoadPaymentTabWithMemberPaymentInformation(recordID, modeName) {
+        $('#frmPaymentInformation').validationEngine('hideAll');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMemberPaymentDetailsForm", "Payment", new { area = "Application" })',
+            data: { recordId: recordID, mode: modeName },
+            cache: false,
+            success: function (msg) {
+                $('#div_PaymentDetails').html(msg);
+                if (modeName == 'add') {
+                    SetFocusOnField("Payment.PaymentTypeID");
+                }
+            }
+        });
+    }
+    function GetPaymentDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).PaymentID;
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetPaymentID", "Payment", new { area = "Application" })',
+                traditional: true,
+                async: false,
+                data: { paymentID: recordID },
+                success: function (msg) {
+                    // Do Nothing
+                }
+            });
+
+            if (e.data.commandName == 'viewPaymentDetails') {
+                if (IsMyContainerDirty('frmPaymentInformation')) {
+                    var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+                    $.modal.confirm(notificationMsg, function () {
+                        LoadPaymentForm('view');
+                        CleanMyContainer('frmPaymentInformation');
+                    }, function () {
+                        // Do Nothing
+                    });
+                }
+                else {
+                    LoadPaymentForm('view');
+                }
+
+            }
+            else if (e.data.commandName == 'copyPaymentDetails') {
+                if (IsMyContainerDirty('frmPaymentInformation')) {
+                    var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+                    $.modal.confirm(notificationMsg, function () {
+                        LoadPaymentForm('copy');
+                        CleanMyContainer('frmPaymentInformation');
+                    }, function () {
+                        // Do Nothing
+                    });
+                }
+                else {
+                    LoadPaymentForm('copy');
+                }
+
+            }
+            else if (e.data.commandName == 'creditPaymentDetails') {
+                if (IsMyContainerDirty('frmPaymentInformation')) {
+                    var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+                    $.modal.confirm(notificationMsg, function () {
+                        $.ajax({
+                            type: 'GET',
+                            url: '@Url.Action("_GetRemainingBalance", "Payment", new { area = "Application" })',
+                            cache: false,
+                            async: false,
+                            success: function (msg) {
+                                if (msg.Data.Amount == 0) {
+                                    openAlertMessage('This payment has already been credited back to the Member');
+                                }
+                                else {
+                                    LoadPaymentForm('credit');
+                                }
+                                CleanMyContainer('frmPaymentInformation');
+                            }
+                        });
+                    }, function () {
+                        // Do Nothing
+                    });
+                }
+                else {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("_GetRemainingBalance", "Payment", new { area = "Application" })',
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            if (msg.Data.Amount == 0) {
+                                openAlertMessage('This payment has already been credited back to the Member');
+                            }
+                            else {
+                                LoadPaymentForm('credit');
+                            }
+                        }
+                    });
+                }
+
+            }
+        }
+    }
+    function GrdPaymentDetails_OnLoad(e) {
+
+        // 1. Hide / show buttons in action columns.
+        // 2. Calculate the amount in the footer.
+        var totalAmount = 0;
+        $('tr:has(td)', this).each(function (e) {
+            var transactionType = $(this).find(".colType");
+            var colAmount = $(this).find(".colAmount");
+            var colFormattedAmount = $(this).find(".colFormattedAmount");
+            var sAmount = colAmount.text();
+            var fAmount = parseFloat(sAmount);
+            if (!isNaN(fAmount)) {
+                if (transactionType.length > 0) {
+                    if (transactionType.text() == "Sale") {
+                        totalAmount += fAmount;
+                    }
+                    else {
+                        totalAmount -= fAmount;
+                    }
+                }
+            }
+            if (transactionType.length > 0) {
+                var btnView = $(this).find(".t-grid-viewPaymentDetails");
+                var btnCopy = $(this).find(".t-grid-copyPaymentDetails");
+                var btnCredit = $(this).find(".t-grid-creditPaymentDetails");
+
+                if (transactionType.text() != "Sale") {
+                    btnCopy.css("display", "none");
+                    btnCredit.css("display", "none");
+                    //CR:
+                    colFormattedAmount.css("color", "#FF0000");
+                }
+                if (transactionType.text() == "Card Info" || transactionType.text() == "Information") {
+                    btnCopy.show();
+                    btnView.show();
+                }
+            }
+
+        });
+
+        var footerCell = $(this).find(".ftAmount");
+        if (footerCell.length > 0) {
+            if (totalAmount >= 0) {
+                footerCell.html("Payment Balance : $" + totalAmount.toFixed(2));
+            }
+            else {
+                footerCell.html("Payment Balance : ($" + Math.abs(totalAmount.toFixed(2)) + ")");
+            }
+        }
+
+
+    }
+
+    function LoadPaymentForm(modeName) {
+        $('#frmPaymentInformation').validationEngine('hideAll');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetPaymentForm", "Payment", new { area = "Application" })',
+            data: { mode: modeName },
+            cache: false,
+            success: function (msg) {
+                $('#div_PaymentDetails').html(msg);
+                if (modeName == 'add') {
+                    SetFocusOnField("Payment.PaymentTypeID");
+                }
+            }
+        });
+    }
+
+</script>
+<form method="post" action="" id="frmPaymentInformation">
+    <div class="with-padding">
+        <fieldset class="fieldset">
+            <legend class="legend">Charge Credit Card</legend>
+            <div id="div_PaymentDetails" class="columns">
+                @Html.Partial("_PaymentDetails", Model)
+            </div>
+        </fieldset>
+        <div class="new-row twelve-columns boxed emboss glow silver-gradient">
+            <h3 class="underline">
+                Payment and Transaction History
+            </h3>
+            <div id="paymentTabs" class="standard-tabs">
+                <ul class="tabs">
+                    <li><a href="#tabs-1"><span>Payments</span></a></li>
+                    <li><a href="#tabs-2"><span>Transactions</span></a></li>
+                    <li><a href="#tabs-3"><span>Payment Methods</span></a></li>
+                </ul>
+                <div id="tabs-1">
+                    <div class="with-padding">
+                        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_ADD_PAYMENT) == AccessType.ReadWrite)
+                        {
+                            <p class="inline-label small-margin-top">
+                                <button id="btnAddNewPayment" class="button green-gradient float-right small-margin-right small-margin-bottom"
+                                        type="button">
+                                    Add New Payment
+                                </button>
+                            </p>
+                        }
+                        @(Html.Kendo().Grid(Model.PaymentDetails)
+                    .Name("GrdPaymentDetails")
+                    .DataSource(dataBinding =>
+                    {
+                        dataBinding.Ajax().Read("_GetPaymentDetails", "Payment", new { area = "Application" });
+                    })
+                    .Columns(columns =>
+                    {
+                        columns.Bound(a => a.PaymentID).Visible(false);
+                        columns.Bound(a => a.PaymentDate).Title("Date").Filterable(false).Sortable(false).Format("{0:MM/dd/yyyy hh:mm:ss tt}").Width(120);
+                        columns.Bound(a => a.TransactionType).Title("Type").Filterable(false).Sortable(false).Width(80).HtmlAttributes(new { @class = "colType" });
+                        columns.Bound(a => a.PaymentReason).Title("Reason").Filterable(false).Sortable(false).Width(80);
+                        columns.Bound(a => a.PaymentStatus).Title("Status").Filterable(false).Sortable(false).Width(80);
+                        columns.Bound(a => a.Amount).Hidden().HtmlAttributes(new { @class = "colAmount" });
+                        columns.Bound(a => a.Amount).Title("Amount").Filterable(false).Sortable(false).Format("{0:c}").FooterTemplate(@<text>
+                            Payment Balance:@string.Format("{0:c}", (Model.PaymentDetails.Count > 0 ? Model.PaymentDetails[0].TotalAmount : (decimal)0))
+                        </text>).HtmlAttributes(new { @class = "align-right colFormattedAmount" }).HeaderHtmlAttributes(new { style = "text-align:right;" }).FooterHtmlAttributes(new { @class = "ftAmount", style = "text-align:right" }).Width(100);
+                        columns.Bound(a => a.PaymentType).Title("CCType").Filterable(false).Sortable(false).Width(80);
+                        columns.Bound(a => a.CCPartial).Title("CCPartial").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.CCOrderID).Title("CCOrderID").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.CCTransactionReference).Title("CCTransactionReference").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.CCAuthCode).Title("AuthCode").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.Username).Title("UserName").Filterable(false).Sortable(false).Width(80);
+                        columns.Command(commands =>
+                        {
+                            commands.Custom("viewPaymentDetails").Click("GetPaymentDetails").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                            commands.Custom("copyPaymentDetails").Click("GetPaymentDetails").HtmlAttributes(new { style = "min-width:auto;", title = "Use this card" });
+                            commands.Custom("creditPaymentDetails").Click("GetPaymentDetails").HtmlAttributes(new { style = "min-width:auto;", title = "Credit" });
+                        })
+                        .Title("Actions").Width(125);
+                    })
+                                                                                                            .Events(events =>
+                                                                                                            {
+                                                                                                                events.DataBound("Payment_onDataBound");
+                                                                                                            })
+                                                                                                            .Sortable()
+                                                                                                            .Filterable(filterable => filterable
+                                                                                                                .Extra(false)
+                                                                                                            )
+                                                                                                            .Selectable()
+                                                                                                            .Resizable(a => a.Columns(true))
+                                                                                                            .Scrollable()
+                                                                                                            .Pageable(page =>
+                                                                                                            {
+                                                                                                                page.Refresh(true);
+                                                                                                                page.Info(false);
+                                                                                                                page.PageSizes(false);
+                                                                                                                page.PreviousNext(false);
+                                                                                                                page.Numeric(false);
+                                                                                                            })
+                        )
+                    </div>
+                </div>
+                <div id="tabs-2">
+                    <div class="with-padding">
+                        @(Html.Kendo().Grid(Model.PaymentTransactions)
+                    .Name("GrdPaymentTransactions")
+                    .DataSource(dataBinding =>
+                    {
+                        dataBinding.Ajax().Read("_GetPaymentTransactionDetails", "Payment", new { area = "Application" });
+                    })
+                    .Columns(columns =>
+                    {
+                        columns.Bound(a => a.TransType).Title("Transaction Type").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.Reason).Title("Reason").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.Amount).Title("Amount").Filterable(false).Sortable(false).Format("{0:c}");
+                        columns.Bound(a => a.Card).Title("Card Type").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.Number).Title("Card Number").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.Status).Title("Status").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.AuthCodeError).Title("Authorization Code / Error").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.User).Title("User").Filterable(false).Sortable(false);
+                        columns.Bound(a => a.Date).Title("Date").Filterable(false).Sortable(false).Format("{0:MM/dd/yyyy hh:mm:ss tt}");
+                        columns.Bound(a => a.Comments).Title("Comments").Filterable(false).Sortable(false);
+                    })
+                    .Sortable()
+                            .Filterable(filterable => filterable
+                            .Extra(false)
+                        )
+                    .Selectable()
+                    .Resizable(a => a.Columns(true))
+                    .Scrollable()
+                    .Pageable(page =>
+                    {
+                        page.Refresh(true);
+                        page.Info(false);
+                        page.PageSizes(false);
+                        page.PreviousNext(false);
+                        page.Numeric(false);
+                    })
+                        )
+                    </div>
+                </div>
+                <div id="tabs-3">
+                    <div class="with-padding">
+                        @(Html.Kendo().Grid(Model.MemberPaymentMethods)
+                    .Name("GrdMemberPaymentMethodDetails")
+                    .DataSource(dataBinding =>
+                    {
+                        dataBinding.Ajax().Read("_GetMemberPaymentMethodList", "Payment", new { area = "Application" });
+                    })
+                    .Columns(columns =>
+                    {
+                        columns.Bound(a => a.PaymentID).Visible(false);
+                        columns.Bound(a => a.NameOnCard).Title("Name on Card").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.PaymentType).Title("Payment Type").Filterable(false).Sortable(false).Width(80);
+                        columns.Bound(a => a.Last4OfCC).Title("Last 4 Of CC").Filterable(false).Sortable(false).Width(100);
+                        columns.Bound(a => a.ExpirationDate).Title("Expires").Filterable(false).Sortable(false).Width(100).HtmlAttributes(new { @class = "expirationDate" });
+                        columns.Bound(a => a.BillingAddress).Title("Billing Address").Filterable(false).Sortable(false).Width(200);
+                        columns.Bound(a => a.ExpirationMonth).Hidden().HtmlAttributes(new { @class = "expirationMonth" });
+                        columns.Bound(a => a.ExpirationYear).Hidden().HtmlAttributes(new { @class = "expirationYear" });
+                        columns.Command(commands =>
+                        {
+                            commands.Custom("copyMemberPaymentDetails").Click("GetMemberPaymentMethodDetails").HtmlAttributes(new { style = "min-width:auto;", title = "Use this card" });
+                        })
+                        .Title("Actions").Width(75);
+                    })
+                                    .Events(events =>
+                                    {
+                                        events.DataBound("MemberPaymentMethod_onDataBound");
+                                    })
+                                    .Sortable()
+                                    .Filterable(filterable => filterable
+                                        .Extra(false)
+                                    )
+                                    .Selectable()
+                                    .Resizable(a => a.Columns(true))
+                                    .Scrollable()
+                                    .Pageable(page =>
+                                    {
+                                        page.Refresh(true);
+                                        page.Info(false);
+                                        page.PageSizes(false);
+                                        page.PreviousNext(false);
+                                        page.Numeric(false);
+                                    })
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+
+
+    function SetPaymentID(paymentID) {
+    }
+
+    var errorVerifier = null;
+    function LeavePaymentTabStore() {
+        $('#frmPaymentInformation').validationEngine('hideAll');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LeavePaymentTab", "Payment", new { area = "Application" })',
+            traditional: true,
+            async: false,
+            success: function (msg) {
+                StyleTabAfterValidation("payment", false);
+            }
+        });
+    }
+
+
+    function LeavePaymentTab() {
+        var retVal = true;
+        if (IsMyContainerDirty('frmPaymentInformation')) {
+            var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+
+            retVal = window.confirm(notificationMsg);
+            if (retVal) {
+                HideStatus();
+                LeavePaymentTabStore();
+            }
+            else {
+                retVal = false;
+            }
+        }
+        else {
+            LeavePaymentTabStore();
+        }
+        return retVal;
+
+    }
+    fnSaveTab = LeavePaymentTab;
+
+    $(function () {
+        $("#paymentTabs").tabs();
+
+    });
+
+
+
+    $(function () {
+        $('#btnAddNewPayment').click(function () {
+
+            if (IsMyContainerDirty('frmPaymentInformation')) {
+                var notificationMsg = 'The payment information entered on the screen will be lost.  Do you want to continue ?';
+                $.modal.confirm(notificationMsg, function () {
+                    // Write the code to Load Payment Details in Add mode.
+                    LoadPaymentForm('add');
+                    CleanMyContainer('frmPaymentInformation');
+                }, function () {
+                    // Do Nothing When User Selects No.
+                });
+            }
+            else {
+                LoadPaymentForm('add');
+                CleanMyContainer('frmPaymentInformation');
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        CleanMyContainer('frmPaymentInformation');
+        WatchMyContainer('frmPaymentInformation');
+    });
+</script>

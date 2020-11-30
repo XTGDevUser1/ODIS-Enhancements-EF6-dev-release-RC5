@@ -1,0 +1,111 @@
+﻿@using Martex.DMS.Areas.Admin.Models
+@using Kendo.Mvc.UI
+@model ProgramInfoModel
+@{
+    string coverageGridId = "GrdCoverageInformation_" + System.Guid.NewGuid().ToString();
+}
+<ul class="list spaced">
+    @{int idx = 0;}
+    @foreach (var info in Model.ProgramInformation)
+    {
+        <li>
+            <label class="label blue">
+                <strong>@info.Name</strong></label>
+            <div class="absolute-right">
+                @if ("Phone".Equals(info.ControlType, StringComparison.InvariantCultureIgnoreCase) || "PhoneViewOnlly".Equals(info.ControlType, StringComparison.InvariantCultureIgnoreCase))
+                { 
+                    @Html.Editor("PROG" + idx.ToString(), "Phone", new { Value = info.Value, ReadOnly = true, CallType = "System" })
+                }
+                else
+                { 
+                    @info.Value
+                }
+            </div>
+        </li>
+                idx++;
+    }
+</ul>
+<ul class="list spaced">
+    @foreach (var service in Model.ProgramServices)
+    {
+        if (service.LowerLimit == service.UpperLimit)
+        {
+        <li>
+            <p class="button-height">
+                <label class="label">@service.Name @service.LowerLimit.GetValueOrDefault().ToString("C")</label></p>
+        </li>    
+        }
+        else
+        {
+        <li>
+            <p class="button-height">
+                <label class="label">@service.Name @service.LowerLimit.GetValueOrDefault().ToString("C")
+                    to @service.UpperLimit.GetValueOrDefault().ToString("C")</label></p>
+        </li>   
+        }
+    }
+    @if (Model.IsCoverageInfoVisible)
+    {
+        <li>
+            <p class="button-height">
+                <label class="label blue">
+                    <strong>Coverage Information</strong></label></p>
+        </li>
+        <div style="background-color: #e4e7eb">
+            <div class="with-padding">
+                @(Html.Kendo()
+                    .Grid<Martex.DMS.DAL.ProgramCoverageInformationList_Result>()
+                    .Name(@coverageGridId)
+                    .Columns(column =>
+                    {
+                        column.Bound(a => a.Name).Title("Service");//.Width(100);
+                        column.Bound(a => a.Limit).Title("Limit").Format("{0:C}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+                        column.Bound(a => a.Vehicle).Title("Weight Class");//.Width(100);
+                    })
+                    .Sortable()
+                            .Filterable(filterable => filterable
+                    .Enabled(false))
+                    .Selectable(select => select.Mode(GridSelectionMode.Single))
+                    .Scrollable()
+                    .DataSource(datasource => datasource
+                        .Ajax()
+                        .Events(events => events.Error("KendoGridErrorHandler"))
+                        .Read(read => read.Action("_GetProgramCoverageInformationList", "Member", new { area = "Application" }))
+                        .PageSize(100)
+                    )
+                    .Resizable(resize => resize.Columns(true))
+
+                    )
+            </div>
+        </div>
+        
+        if (Model.ProgramServiceEventLimit != null && Model.ProgramServiceEventLimit.Count > 0)
+        {
+        <li>
+            <div>
+                <h3 class="thin underline">
+                    Special Rules</h3>
+                @foreach (var item in Model.ProgramServiceEventLimit)
+                {
+                    <ul style="list-style-type: disc;">
+                        <li style="border-bottom: none; padding: 0px;">
+                            @item.Description
+                        </li>
+                    </ul>
+                   
+                }
+            </div>
+        </li>
+        }
+        
+        <div id="DivMemberProductsUsingCategoryInProgramInfo">
+            @Html.Partial("_MemberProductsUsingCategory", Model.MemberProducts)
+        </div>
+        
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('#@coverageGridId .k-grid-content').attr("style", "max-height: 350px;min-height: 212px;");
+    });
+</script>

@@ -1,0 +1,319 @@
+﻿@model Martex.DMS.BLL.Model.VendorPortal.VendorLocationAccountModel
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL.Entities;
+@{
+    string suffixVendorID = Model.VendorID.ToString();
+    string suffixVendorLocationID = Model.BasicInformation.ID.ToString();
+    string isBusinessHours = "hide";
+    string businessHourEventHandler = "HandleBusinessHoursForVendorLocationInfo(this,'" + suffixVendorLocationID + "');";
+    if (Model.BasicInformation.IsOpen24Hours.HasValue && !Model.BasicInformation.IsOpen24Hours.Value)
+    {
+        isBusinessHours = string.Empty;
+    }
+}
+<div class="with-padding">
+    <form method="post" action="javascript:void(0);" id="frmVendorLocationInfoDetails_@suffixVendorLocationID" relatedButtons = "PlaceHolder_VendorLocation_InfoSection_Buttons_@suffixVendorLocationID">
+    @Html.HiddenFor(u => u.BasicInformation.ID, new { id = "VendorLocationID_" + suffixVendorLocationID })
+    @Html.HiddenFor(u => u.AddressInformation.ID, new { id = "VendorLocationAddressID_" + suffixVendorLocationID })
+    @Html.HiddenFor(u => u.VendorID, new { id = "VendorLocationVendorID_" + suffixVendorLocationID })
+    @Html.HiddenFor(u => u.BasicInformation.VendorLocationStatusID)
+    <div class="columns">
+        <div class="eight-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Dispatch Location Information</legend>
+                @*<p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Vendor Location Name</label>
+                </p>*@
+                <p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Vendor Location Status</label>
+                    @Html.DisplayFor(u => u.VendorLocationStatusName)
+                </p>
+                <div class="button-height inline-large-label small-margin-bottom">
+                    <label for="IsLocationOperational" class="label">
+                        Is location operational 24/7?</label>
+                    @if (Model.BasicInformation.IsOpen24Hours.HasValue)
+                    {
+                        if (Model.BasicInformation.IsOpen24Hours.Value)
+                        {
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "true", true, new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "false", false, new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "true", false, new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "false", true, new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "true", new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOpen24Hours_" + suffixVendorLocationID, "false", new { @class = "radio", id = "IsOpen24Hours_" + suffixVendorLocationID, onChange = @businessHourEventHandler })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div id="PlaceHolder_For_Vendor_Location_Info_BusinessHours_@suffixVendorLocationID" class="@isBusinessHours">
+                    @Html.Editor("BusinessHours_" + suffixVendorLocationID, "BusinessHours", new { businessHours = Model.BusinessHours })
+                </div>
+                <div class="button-height inline-large-label small-margin-bottom">
+                    <label for="IsKeyDropAvailable" class="label">
+                        Provides late night key drop?</label>
+                    @if (Model.BasicInformation.IsKeyDropAvailable.HasValue)
+                    {
+                        if (Model.BasicInformation.IsKeyDropAvailable.Value)
+                        {
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "true", true, new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "false", false, new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+
+                        }
+                        else
+                        {
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "true", false, new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "false", true, new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "true", new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsKeyDropAvailable_" + suffixVendorLocationID, "false", new { @class = "radio", id = "IsKeyDropAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div class="button-height inline-large-label small-margin-bottom">
+                    <label for="IsKeyDropAvailable" class="label">
+                        Provides overnight storage?</label>
+                    @if (Model.BasicInformation.IsOvernightStayAllowed.HasValue)
+                    {
+                        if (Model.BasicInformation.IsOvernightStayAllowed.Value)
+                        {
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "true", true, new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "false", false, new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "true", false, new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "false", true, new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "true", new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsOvernightStayAllowed_" + suffixVendorLocationID, "false", new { @class = "radio", id = "IsOvernightStayAllowed_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div class="button-height inline-large-label small-margin-bottom">
+                    <label for="IsElectronicDispatchAvailable" class="label">
+                        Is electronice dispatch available?</label>
+                    @if (Model.BasicInformation.IsElectronicDispatchAvailable.HasValue)
+                    {
+                        if (Model.BasicInformation.IsElectronicDispatchAvailable.Value)
+                        {
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "true", true, new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "false", false, new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "true", false, new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "false", true, new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "true", new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("Yes")
+                        @Html.RadioButton("BasicInformation.IsElectronicDispatchAvailable_" + suffixVendorLocationID, "false", new { @class = "radio", id = "IsElectronicDispatchAvailable_" + suffixVendorLocationID })
+                        @Html.Raw("No")
+                    }
+                </div>
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="legend">Payment Types Accepted</legend>
+                <div class="columns">
+                    <div class="eight-columns">
+                        <div class="columns with-padding">
+                            @for (int i = 0; i < Model.PaymentTypes.Count; i++)
+                            { 
+                                <div class="new-row twelve-columns">
+                                    @Html.HiddenFor(u => Model.PaymentTypes[i].ID)
+                                    @Html.HiddenFor(u => Model.PaymentTypes[i].Name)
+                                    @Html.CheckBoxFor(u => Model.PaymentTypes[i].Selected, new { @class = "checkbox" })
+                                    @Model.PaymentTypes[i].Name
+                                </div>
+                            
+                            }
+                        </div>
+                    </div>
+                    <div class="four-columns" style="height: 200px;">
+                        <div style="margin-top: 65px;">
+                            <small>Please select all of the payment types accepted by this location</small></div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <!-- Address Information -->
+            <fieldset class="fieldset">
+                <legend class="legend"> Dispatch Address</legend>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="AddressLine1" class="label">
+                        Address 1
+                    </label>
+                    @Html.TextBoxFor(u => u.AddressInformation.Line1, new { @class = "input full-width", id = "VendorLocationAddressLine1_" + @suffixVendorLocationID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="AddressLine2" class="label">
+                        Address 2
+                    </label>
+                    @Html.TextBoxFor(u => u.AddressInformation.Line2, new { @class = "input full-width", id = "VendorLocationAddressLine2_" + @suffixVendorLocationID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="AddressLine3" class="label">
+                        Address 3
+                    </label>
+                    @Html.TextBoxFor(u => u.AddressInformation.Line3, new { @class = "input full-width", id = "VendorLocationAddressLine3_" + @suffixVendorLocationID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="City" class="label">
+                        City
+                    </label>
+                    @Html.TextBoxFor(u => u.AddressInformation.City, new { @class = "input full-width", id = "VendorLocationAddressCity_" + @suffixVendorLocationID, maxLength = "100" })
+                </p>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="StatePostal" class="label">
+                        State / Postal
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                                  .Name("VendorLocationAddressCountryID_" + suffixVendorID)
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                      })
+                                      .ServerFiltering(false);
+                                  })
+                                 .Events(events =>
+                                 {
+                                     events.Change(@<text> function(e){ GenericLicenseStateCountryChangeHandler(e,'VendorLocationAddressStateProvinceID_@suffixVendorLocationID');}</text>);
+                                 })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .Suggest(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .HighlightFirst(true)
+                                   .HtmlAttributes(new { style = "width:20%", id = "VendorLocationAddressCountryID_" + suffixVendorLocationID })
+                                   .SelectedIndex(0)
+                                   .Value(Model.AddressInformation.CountryID.HasValue ? Model.AddressInformation.CountryID.Value.ToString() : "")
+                    )
+                    @(Html.Kendo().ComboBox()
+                              .Name("VendorLocationAddressStateProvinceID_" + suffixVendorID)
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                              {
+                                  events.Change("ValidateInputForKendoCombo");
+                                  events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                              })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:30%", id = "VendorLocationAddressStateProvinceID_" + suffixVendorLocationID })
+                              .Value(Model.AddressInformation.StateProvinceID.HasValue ? Model.AddressInformation.StateProvinceID.Value.ToString() : string.Empty)
+                   )
+                    @Html.TextBoxFor(u => u.AddressInformation.PostalCode, new { @class = "input", id = "VendorLocationAddressPostalCode_" + @suffixVendorLocationID, maxLength = "20", style = "width:31%" })
+                </div>
+                @*<div class="button-height inline-label small-margin-bottom">
+                    <label for="TimeZone" class="label" style="color: Red;">
+                        Time Zone
+                    </label>
+                </div>*@
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="legend">Dispatch Phone Numbers</legend>
+                @Html.Editor("ScrollablePhone", "ScrollablePhone", new
+           {
+               phone = new GenericPhoneModel()
+               {
+                   RecordID = Model.BasicInformation.ID,
+                   EntityName = "VendorLocation",
+                   Height = 90
+
+               }
+           })
+            </fieldset>
+        </div>
+        <div class="new-row six-columns">
+            @*<div class="with-padding">
+                <p class="inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Create Date</label>
+                    @Html.DisplayFor(u => u.BasicInformation.CreateBy)
+                    @Html.DisplayFor(u => u.BasicInformation.CreateDate)
+                </p>
+                <p class="inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Last Updated</label>
+                    @Html.DisplayFor(u => u.BasicInformation.ModifyBy)
+                    @Html.DisplayFor(u => u.BasicInformation.ModifyDate)
+                </p>
+            </div>*@
+        </div>
+       
+        <div class="six-columns hide" id="PlaceHolder_VendorLocation_InfoSection_Buttons_@suffixVendorLocationID">
+              <button id="btnSaveVendorLocationInfoSection_@suffixVendorLocationID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorLocationInfoSection('@suffixVendorID','@suffixVendorLocationID');">
+                        Save</button>
+                    <button id="btnCancelVendorLocationInfoSection_@suffixVendorLocationID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorLocationInfSection('@suffixVendorID','@suffixVendorLocationID');">
+                        Cancel</button>
+        </div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorLocationInfoDetails_@suffixVendorLocationID').validationEngine();
+
+        var selectLocationsServiceAreasTab = $("#selectLocationsServiceAreasTab").val();
+
+        if (selectLocationsServiceAreasTab == "true") {
+
+            var tabObject = $('#VendorLocationDetails_@suffixVendorLocationID').tabs();
+            tabObject.tabs('select', 1);
+            $("#selectLocationsServiceAreasTab").val('');
+        }
+    });
+
+    $(document).ready(function () {
+        var isie = isIE();
+        var iconSize = "icon-size2";
+        if (isie) {
+            iconSize = "icon-size9";
+            $('.icon-add-user').removeClass('icon-size2');
+            $('.icon-add-user').addClass(iconSize);
+            $('.icon-list-add').removeClass('icon-size2');
+            $('.icon-list-add').addClass(iconSize);
+        }
+    });
+</script>

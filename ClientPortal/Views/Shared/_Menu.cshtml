@@ -1,0 +1,42 @@
+﻿@using  ClientPortal.Models
+<ul id="menu-horizontal">
+    <li><a href="/Home">Home</a></li>
+    <li><a href="@Url.Action("Index", "Request", new { area = "Application", id ="menu"})">Request</a></li>
+    <li><a href="@Url.Action("Index", "Queue", new { area = "Application" })">Queue</a></li>
+    <li><a href="#">Case History</a></li>
+    @if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin) || User.IsInRole(ClientPortal.Common.RoleConstants.ClientAdmin))
+    { 
+        <li><a href="#">Admin</a>
+            <ul>
+                <li><a href="@Url.Action("Index", "Users", new { area = "admin" })">User Maintenance</a></li>
+                <li><a href="@Url.Action("Index", "Organizations", new { area = "admin" })">Organization
+                    Maintenance</a></li>
+                @if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin)) //CR # 335: Accessible only to Sys admin
+                {
+                <li><a href="@Url.Action("Index", "Clients", new { area = "admin" })">Client Maintenance</a></li>
+                }
+                <li><a href="@Url.Action("Index", "DataGroups", new { area = "admin" })">Data Groups Maintenance</a></li>
+                <li><a href="@Url.Action("Index", "PhoneSystemConfiguration", new { area = "admin" })">
+                        Phone System Configuration</a></li>
+                @if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin))//CR # 335: Accessible only to Sys admin
+                {
+                    <li><a href="@Url.Action("Index", "ProgramMaintenance", new { area = "admin" })">Program
+                    Maintenance</a></li>
+                }
+                
+            </ul>
+        </li>
+    }
+    @{
+        RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as RegisterUserModel;
+        if (userProfile == null)
+        {
+            Response.Redirect("~/Account/LogOn");
+        }
+    }
+    <li class="float-right">@DateTime.Now.ToString("MM/dd/yyyy")</li>
+    <li class="float-right">|</li>
+    <li class="float-right">@userProfile.UserName (@userProfile.OrganizationName)</li>
+    <li class="float-right">|</li>
+    <li class="float-right">Welcome, @userProfile.FirstName @userProfile.LastName </li>
+</ul>

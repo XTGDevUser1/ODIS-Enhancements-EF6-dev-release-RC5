@@ -1,0 +1,16 @@
+[
+  {
+    "systemIdentifier": 36,
+    "countryName": "Canada",
+    "isoCode": "CA",
+    "telephoneCode": "1    ",
+    "isoCode3": "CAN"
+  },
+  {
+    "systemIdentifier": 222,
+    "countryName": "United States",
+    "isoCode": "US",
+    "telephoneCode": "1    ",
+    "isoCode3": "USA"
+  }
+]

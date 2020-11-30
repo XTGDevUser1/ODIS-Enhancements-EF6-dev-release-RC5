@@ -1,0 +1,7 @@
+﻿@using Kendo.Mvc.UI;
+@model object
+
+@(Html.Kendo().DropDownListFor(m => m)
+      .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+      .BindTo((SelectList)ViewData[ViewData.TemplateInfo.GetFullHtmlFieldName("") + "_Data"])
+      .SelectedIndex(0))

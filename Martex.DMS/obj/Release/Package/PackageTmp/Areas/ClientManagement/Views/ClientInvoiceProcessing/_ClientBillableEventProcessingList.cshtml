@@ -1,0 +1,245 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using models = Martex.DMS.Areas.Application.Models
+@model Martex.DMS.Areas.ClientManagement.Models.BillingVendorInvoiceNavigateModel
+@{
+    var billingDefinitionInvoiceID = Model.BillingDefinitionInvoiceID.ToString();
+    var billingDefinitionInvoiceLineID = Model.BillingDefinitionInvoiceLineID.ToString();
+    var billingInvoiceLineID = Model.BillingInvoiceLineID.ToString();
+    var invoiceLineDescription = Model.InvoiceLineDescription;
+    var invoiceDescription = Model.InvoiceDescription;
+    var gridName = "GrdClientBillableEvents_" + billingInvoiceLineID;
+    string mode = ViewData["CloseOpen"] != null ? ViewData["CloseOpen"].ToString() : string.Empty;
+}
+<div class="clear">
+</div>
+<script type="text/javascript" language="javascript">
+
+    function GrdClientBillableEvents_DataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+
+        var selectAllLabel = $('label[for="display-Select-@billingInvoiceLineID"]');
+        selectAllLabel.removeClass("active");
+        var chkSelectAll = selectAllLabel.find("input");
+        chkSelectAll.removeAttr("checked");
+        $("#selectUnselectAll_@billingInvoiceLineID").html('Select All');
+
+
+        var grid = e.sender;
+        e.sender.table.find('tr').each(function () {
+            var $CCMatchStatus = $(this).find('.detailStatus');
+            var $MatchStatusException = $(this).find('.matchStatusException');
+            var $CCNoteColumn = $(this).find('.ccNote');
+            var note = $(this).find('.ccNote').html();
+
+            if ($CCMatchStatus.html() == "EXCEPTION") {
+
+                $CCMatchStatus.addClass("red redalert tpComments with-tooltip");
+                var exceptions = $MatchStatusException.html().split(',');
+                //var toolTipContent = "<ul>";
+                //for (var e = 0, l = exceptions.length; e < l; e++) {
+                //    toolTipContent += "<li>" + exceptions[e] + "</li>";
+                //}
+                //toolTipContent += "</ul>";
+
+                $CCMatchStatus.attr('title', exceptions);
+            }
+            else if ($CCMatchStatus.html() == "Posted") {
+                $(this).find(".k-grid-Edit").addClass("hidden");
+            }
+
+            $CCNoteColumn.addClass(" with-tooltip");
+            if (note != null && note != "") {
+                $CCNoteColumn.html("<span class='k-icon k-i-note'/>");
+                //var noteTooltip = "<ul><li>" + note + "</li></ul>";
+                $CCNoteColumn.attr('title', note);
+            }
+            else {
+                $CCNoteColumn.html("");
+            }
+        });
+
+
+    }
+    function ClientBillableEventProcessingSearchCriteria(billingInvoiceLineID) {
+        return { billingInvoiceLineID: billingInvoiceLineID };
+    }
+    function ManageClientEvents(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).BillingInvoiceDetailID;
+            if (e.data.commandName == 'Edit') {
+                LoadBillingDetailsMaintenanceScreen(recordID, "Edit", '@billingInvoiceLineID')
+            }
+            else if (e.data.commandName == 'View') {
+                LoadBillingDetailsMaintenanceScreen(recordID, "View", '@billingInvoiceLineID')
+            }
+        }
+    }
+
+    function LoadBillingDetailsMaintenanceScreen(recordID, mode, eventID) {
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container to add new tab');
+        }
+        else {
+            // Step 1: Veirfy that Current Tab is not added
+            var tabTitle = "Detail " + recordID;
+            if (canAddGenericTabInCurrentContainer(tabTitle, tabObject)) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_BillingInvoiceDetails", "ClientBillableEventProcessing", new { area = "ClientManagement" })',
+                    traditional: true,
+                    data: { recordID: recordID, mode: mode, gridName: "GrdClientBillableEvents_" + eventID, tabName: "Event-" + eventID },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        addGenericTabWithCurrentContainer(tabTitle, tabObject, msg);
+                    }
+                });
+            }
+        }
+    }
+</script>
+<div class="with-padding" id="PlaceHolder_ClientBillableEventProcessingList">
+    <div class="columns">
+        <div class="six-column">
+            <legend class="legend">@invoiceDescription - @invoiceLineDescription</legend>
+        </div>
+        <div class="one-column" style="float: right;">
+            <div style="min-height: 25px; margin: 5px;" id="divClientBillableEvents_@billingInvoiceLineID">
+                <div style="display: inline-block; vertical-align: top; float: right;">
+                    <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('divBillingDetailMaintenance_@billingInvoiceLineID');">
+                        X</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="float-left">
+        <p class="button-height">
+            <span class="button-group">
+                <label for="display-Select-@billingInvoiceLineID" class="button compact green-active">
+                    <input type="checkbox" name="chkSelectAll-@billingInvoiceLineID" id="display-Select-@billingInvoiceLineID" value="Select" gridID="@gridName"/>
+                    <span id="selectUnselectAll_@billingInvoiceLineID">Select All</span>
+                </label>
+            </span>
+        </p>
+    </div>
+    <div class="clear">
+    </div>
+    <div class="tabs-content" id="divBillingDetailMaintenance_@billingInvoiceLineID">
+        @(Html.Kendo().Grid<ClientInvoiceEventProcessingList_Result>()
+        .Name(gridName)
+        .Columns(column =>
+        {
+            column.Bound(u => u.BillingInvoiceDetailID).Hidden().Title("Detail ID").Width(100);
+            column.Bound(u => u.BillingType).Hidden().Title("Billing Type").Width(100);
+            column.Bound(u => u.InvoiceDefinition).Title("Invoice Definition").Width(100);
+            column.Bound(u => u.Client).Title("Client").Width(100);
+            column.Bound(u => u.LineSequence).Title("Line Sequence").Width(100);
+            column.Bound(u => u.LineName).Title("Line Name").Width(100);
+            column.Bound(u => u.ServiceCode).Title("Service Code").Width(100);
+            column.Bound(u => u.BillingDetailName).Title("Billing Detail Name").Width(100);
+            column.Bound(u => u.Quantity).Title("Quantity").Width(100);
+            column.Bound(u => u.EventAmount).Format("{0:C}").Title("Amount").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.RateTypeName).Title("Rate Type").Width(100);
+            column.Bound(u => u.DetailStatus).Title("Detail Status").Width(100).HtmlAttributes(new { @class = "detailStatus" });
+            column.Bound(u => u.ExceptionMessage).Hidden().Title("Match Status Exception").HtmlAttributes(new { @class = "matchStatusException" });
+            column.Bound(u => u.DetailDisposition).Title("Disposition").Width(100);
+            column.Bound(u => u.AdjustmentReason).Title("Adjustment Reason").Width(100);
+            column.Bound(u => u.AdjustmentDate).Format("{0:MM/dd/yyyy}").Title("Adjustment Date").Width(100);
+            column.Bound(u => u.AdjustedBy).Title("Adjusted By").Width(100);
+            column.Bound(u => u.ExcludedReason).Title("Exclude Reason").Width(100);
+            column.Bound(u => u.ExcludeDate).Format("{0:MM/dd/yyyy}").Title("Exclude Date").Width(100);
+            column.Bound(u => u.ExcludedBy).Title("Excluded By").Width(100);
+            column.Bound(u => u.Entity).Title("Entity").Width(100);
+            column.Bound(u => u.SourceRecordNumber).Title("Record Number").Width(100);
+            column.Bound(u => u.PurchaseOrder).Title("Purchase Order ##").Width(100);
+            column.Bound(u => u.InternalComment).Title("Note").HtmlAttributes(new { @class = "ccNote" }).Width(40);
+            column.Command(command =>
+            {
+                command.Custom("View").Click("ManageClientEvents").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                if (mode.ToLower() == "open")
+                {
+                    command.Custom("Edit").Click("ManageClientEvents").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                }
+            })
+            .Width(100)
+            .Title("Action(s)");
+        })
+        .Filterable(filtering => filtering.Extra(false))
+        .Sortable()
+        .Scrollable()
+        .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Events(e =>
+        {
+            e.DataBound("GrdClientBillableEvents_DataBound");
+        })
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(1000)
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetClientBillableEventProcessingList", "ClientInvoiceProcessing", new { area = "ClientManagement" })
+                .Data(@<text>function(e){return ClientBillableEventProcessingSearchCriteria('@billingInvoiceLineID')}</text>)
+        )
+        )
+        .Resizable(resize => resize.Columns(true))
+        )
+        @if (mode.ToLower() == "open")
+        {
+            <div class="align-center" id="eventsProcessingActionContainer_@billingInvoiceLineID">
+                <p class="message">
+                    <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                        class="statusMessage"></span>
+                </p>
+                <button id="btnUpdateStatus_@billingInvoiceLineID" type="button" onclick="UpdateSelectedEventsStatus('@billingInvoiceLineID');" class="button green-gradient glossy small-margin-top">
+                    Set Status
+                </button>
+                <button id="btnUpdateDisposition_@billingInvoiceLineID" type="button" onclick="UpdateSelectedEventsDisposition('@billingInvoiceLineID');" class="button green-gradient glossy small-margin-top">
+                    Set Disposition
+                </button>
+            </div>
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        $statusContainer = $("#eventsProcessingActionContainer_@billingInvoiceLineID");
+
+        HideStatus($statusContainer);
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdClientBillableEvents_@billingInvoiceLineID").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-View').click();
+        });
+
+        $('input[name="chkSelectAll-@billingInvoiceLineID"]').change(function (e) {
+
+            var gridName = $(this).attr("gridID");
+            var grid = $("#@gridName").data('kendoGrid');
+            if ($(this).is(":checked")) {
+                $("#selectUnselectAll_@billingInvoiceLineID").html('Unselect Selected');
+                //grid.select("tr");
+                grid.tbody.children('tr').addClass('k-state-selected');
+            }
+            else {
+                grid.clearSelection();
+                $("#selectUnselectAll_@billingInvoiceLineID").html('Select All');
+            }
+        });
+    });
+</script>

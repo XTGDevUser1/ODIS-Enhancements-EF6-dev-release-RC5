@@ -1,0 +1,85 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right digitalDispatchManagementShortcuts">
+    @*@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_MEMBER) == AccessType.ReadWrite)
+        {*@
+    <li id="LMenu_DigitalDispatch_DashBoard">
+        <a href="@Url.Action("Index", "DigitalDispatchHome", new { area = "DigitalDispatch" })" class="shortcut-dashboard" title="Dashboard" data="DigitalDispatchHome">
+            Dashboard
+        </a>
+    </li>
+    @*}
+        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_MEMBER_MAINTENANCE) == AccessType.ReadWrite)
+        {*@
+    <li id="LMenu_DigitalDispatch_ACK">
+        <a href="@Url.Action("Index", "ACK", new { area = "DigitalDispatch" })" class="shortcut-stats" title="ACK" data="ACK">
+            ACK
+        </a>
+    </li>
+    @*}
+        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_MEMBER_MERGE) == AccessType.ReadWrite)
+        {*@
+    <li id="LMenu_DigitalDispatch_DSP">
+        <a href="@Url.Action("Index", "DSP", new { area = "DigitalDispatch" })" class="shortcut-contacts" title="DSP" data="DSP">
+            DSP
+        </a>
+    </li>
+    <li id="LMenu_DigitalDispatch_DSI">
+        <a href="@Url.Action("Index", "DSI", new { area = "DigitalDispatch" })" class="shortcut-eventviewer" title="DSI" data="DSI">
+            DSI
+        </a>
+    </li>
+    <li id="LMenu_DigitalDispatch_RSP">
+        <a href="@Url.Action("Index", "RSP", new { area = "DigitalDispatch" })" class="shortcut-notes" title="RSP" data="RSP">
+            RSP
+        </a>
+    </li>
+    <li id="LMenu_DigitalDispatch_INQ">
+        <a href="@Url.Action("Index", "INQ", new { area = "DigitalDispatch" })" class="shortcut-agenda" title="INQ" data="INQ">
+            INQ
+        </a>
+    </li>
+    <li id="LMenu_DigitalDispatch_RSL">
+        <a href="@Url.Action("Index", "RSL", new { area = "DigitalDispatch" })" class="shortcut-messagemaintenance" title="RSL" data="RSL">
+            RSL
+        </a>
+    </li>
+    <li id="LMenu_DigitalDispatch_UPD">
+        <a href="@Url.Action("Index", "UPD", new { area = "DigitalDispatch" })" class="shortcut-medias" title="UPD" data="UPD">
+            UPD
+        </a>
+    </li>
+
+    <li id="LMenu_DigitalDispatch_TowBookDSR">
+        <a href="@Url.Action("Index", "TowBookDSR", new { area = "DigitalDispatch" })" class="shortcut-medias" title="Tow Book DSR" data="TowBookDSR">
+            Tow Book DSR
+        </a>
+    </li>
+
+    <li id="LMenu_DigitalDispatch_TowBookCNL">
+        <a href="@Url.Action("Index", "TowBookCNL", new { area = "DigitalDispatch" })" class="shortcut-medias" title="Tow Book CNL" data="TowBookCNL">
+            Tow Book CNL
+        </a>
+    </li>
+
+    <li id="LMenu_DigitalDispatch_TowBookRET">
+        <a href="@Url.Action("Index", "TowBookRET", new { area = "DigitalDispatch" })" class="shortcut-medias" title="Tow Book RET" data="TowBookRET">
+            Tow Book RET
+        </a>
+    </li>
+    @*}*@
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.digitalDispatchManagementShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.digitalDispatchManagementShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

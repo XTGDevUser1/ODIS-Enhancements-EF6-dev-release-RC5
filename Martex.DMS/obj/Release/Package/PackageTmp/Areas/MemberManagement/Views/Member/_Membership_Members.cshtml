@@ -1,0 +1,104 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.MembershipMembersList_Result>
+@{
+    var suffixMembershipID = ViewData["MembershipID"].ToString();
+    var functionHandler = "onclick=ManageMembershipMembers(null," + suffixMembershipID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Member</label></a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function grdMembershipMembers_OnDataBound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 4);
+
+        // Format the status column. - CR # 837
+        table.find('tr').each(function () {
+            var activeColumn = $("td:eq(8)", this);
+            if (activeColumn.length > 0) {
+                var memberStatus = activeColumn.text();
+                if (memberStatus == "Active") {
+                    memberStatus = '<small class="tag green-bg">' + memberStatus + '</small>';
+                }
+                else {
+                    memberStatus = '<small class="tag red-bg">' + memberStatus + '</small>';
+                }
+                activeColumn.html(memberStatus);
+            }
+
+        });
+    }
+
+    function MembershipSearchCriteria(suffixMembershipID) {
+        return { membershipID: suffixMembershipID };
+    }
+</script>
+<div id="MembershipMembersTab_@suffixMembershipID">
+    <div class="with-padding" id="divAddMember_@suffixMembershipID" style="display: none;">
+    </div>
+    <div class="with-padding" id="divMembershipMemberTab_@suffixMembershipID">
+        @(Html.Kendo().Grid(Model)
+        .Name("GrdMembershipMembers_" + suffixMembershipID)
+.Columns(column =>
+{
+    column.Bound(a => a.LastName).Title("Last Name");
+    column.Bound(a => a.FirstName).Title("First Name");
+    column.Bound(a => a.Middlename).Title("Middle Name");
+    column.Bound(a => a.CityStateZip).Width(100).Title("City, ST, Zip");
+    column.Bound(a => a.PhoneNumber).Width(70).Title("Phone Number");
+    column.Bound(a => a.EffectiveDate).Title("Effective").Format("{0:MM/dd/yyyy}");
+    column.Bound(a => a.ExpirationDate).Title("Expiration").Format("{0:MM/dd/yyyy}");
+    column.Bound(a => a.RequestCount).Title("Req Count");
+    column.Bound(a => a.Status).Width(80).Title("Status");
+    column.Command(command =>
+    {
+        command.Custom("Edit").Click(@<text>function(e){ ManageMembershipMembers(e,'@suffixMembershipID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+        command.Custom("Delete").Click(@<text>function(e){ ManageMembershipMembers(e,'@suffixMembershipID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+    }).Width(90)
+    .Title("Action(s)");
+})
+.ToolBar(toolBar => toolBar.Template(@addTemplate))
+.Events(e =>
+{
+    e.DataBound("grdMembershipMembers_OnDataBound");
+})
+.Pageable()
+.Sortable()
+.Scrollable()
+.Pageable(pager => pager
+    .Refresh(true)
+    .PageSizes(new int[] { 10, 20, 50, 100 })
+)
+.Selectable(select => select.Mode(GridSelectionMode.Single))
+.DataSource(datasource => datasource
+    .Ajax()
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    .Read(read => read.Action("_GetMembershipMembers", "Member").Data(@<text>function(e){return MembershipSearchCriteria('@suffixMembershipID');}</text>))
+    .Model(u => u.Id(p => p.ID))
+    .PageSize(10)
+)
+.Resizable(resize => resize.Columns(true))
+.EnableCustomBinding(true)
+)
+    </div>
+</div>
+<script type="text/javascript">
+    var suffixMembershipID = '@suffixMembershipID';
+    $(function () {
+        HandleDblClickOnGrid($("#GrdMembershipMembers_@suffixMembershipID"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        150
+                                        );
+        $("#GrdMembershipMembers_@suffixMembershipID>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+    $(document).ready(function () {
+        $('#GrdMembershipMembers_@suffixMembershipID').data('kendoGrid').dataSource.read();
+    }); 
+</script>

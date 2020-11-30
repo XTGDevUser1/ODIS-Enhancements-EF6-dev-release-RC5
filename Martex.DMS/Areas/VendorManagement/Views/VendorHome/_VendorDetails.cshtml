@@ -1,0 +1,85 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+}
+<style type="text/css">
+    .k-datepicker
+    {
+        width: 89% !important;
+    }
+</style>
+<div class="with-padding">
+    <div style="min-height: 25px; margin: 5px;">
+        <div style="display: inline-block;">
+            @if (Model.ContractStatus == "Contracted")
+            {
+                <span style="height: 16px;" class="starred with-tooltip" title="Contracted"></span>
+            }
+            else
+            {
+                <span style="height: 16px;" class="unstarred with-tooltip" title="Not Contracted">
+                </span>
+            }
+        </div>
+        <div style="display: inline-block; vertical-align: top;">
+            <strong><span class="accent">
+                @if (Model.BasicInformation.VendorNumber != null && Model.BasicInformation.VendorNumber != "")
+                {@Html.Raw(Model.BasicInformation.VendorNumber)}
+                else
+                {@Html.Raw("&nbsp;")}
+            </span></strong>
+            @if (Model.BasicInformation.VendorNumber != null && Model.BasicInformation.VendorNumber != "")
+            {@Html.Raw("-")}
+            <span>@Html.Raw(Model.BasicInformation.Name)
+                @*@if (Model.IsCoachNetDealerPartner)
+                { @Html.Raw(" (P)")}*@
+                                   @Model.Indicators
+                                   </span>
+        </div>
+        <div style="display: inline-block; vertical-align: top; float: right;">
+            <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('@suffixVendorID');">
+                X</a>
+        </div>
+    </div>
+    <div style="min-height: 25px; margin: 10px;">
+        @(Html.Kendo().ComboBox()
+     .Name("VendorLocationID" + suffixVendorID)
+     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.LocationList.ToString()] as IEnumerable<SelectListItem>)
+     .SelectedIndex(0)
+     .HighlightFirst(true)
+     .Filter(FilterType.StartsWith).MinLength(0)
+     .Events(events => events.Change(@<text>function(e){ HandleVendorLocationDropDown(e,'@suffixVendorID');}</text>))
+     .Value(Model.VendorLocationID.ToString())
+     .HtmlAttributes(new { id = "VendorLocationID" + suffixVendorID, style = "width:80%;" })
+     )
+        @Html.Hidden("VendorLocationIDPreviousValue_" + suffixVendorID, Model.VendorLocationID)
+    </div>
+    <div id="frmVendorContainerForDirtyFlag_@suffixVendorID" data ="false">
+        <div id="VendorContainer_@suffixVendorID">
+            @Html.Partial("_VendorTabs", Model)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        var fnbuttonHandler = function (sender) {
+            var cloestForm = $(sender).closest('form');
+            if (cloestForm != undefined) {
+                var formName = cloestForm.attr("id");
+                var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+                if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                    $(buttonPlaceHolder).show();
+                }
+            }
+        }
+        var routedValues = [];
+        routedValues.push({ name: "FormName", value: "frmVendorContainerForDirtyFlag_@suffixVendorID" });
+        routedValues.push({ name: "RecordID", value: "@suffixVendorID" });
+        WatchMyContainer("frmVendorContainerForDirtyFlag_@suffixVendorID", "frmWebAccountInfo_@suffixVendorID", fnbuttonHandler);
+    });
+        
+
+    
+</script>

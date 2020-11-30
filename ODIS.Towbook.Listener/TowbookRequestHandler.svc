@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="ODIS.Towbook.Listener.TowbookRequestHandler" CodeBehind="TowbookRequestHandler.svc.cs" %>

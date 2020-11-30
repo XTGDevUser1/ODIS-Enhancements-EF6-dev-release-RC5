@@ -1,0 +1,108 @@
+﻿@model Martex.DMS.DAL.CoachingConcern
+@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/CX/Views/Shared/_CXLayout.cshtml";
+}
+<div class="with-padding">
+    <hgroup id="main-title" class="thin">
+        <h1>
+            Coaching Concerns</h1>
+    </hgroup>
+    <div id="QACoachingConcernsTabs" class="standard-tabs same-height" data="QACoachingConcernsDynamicTabs">
+        <ul class="tabs">
+            <li><a href="#tabs-1" class="icon-list">Coaching Concerns</a></li>
+        </ul>
+        <div id="tabs-1" class="QACoachingConcernsDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResults")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var tabObject = null;
+    $(function () {
+        tabObject = $('#QACoachingConcernsTabs').tabs();
+        GetSearchCriteria();
+    });
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "CXCoachingConcern", new { area = "CX" })',
+            type: 'POST',
+            data: GetSelectionCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulQACoachingConcernSearchCriteriaRight').html(msg);
+            }
+        });
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "CXCoachingConcern", new { area = "CX" })',
+            type: 'POST',
+            data: GetSelectionCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#QACoachingConcernSelectedSearchCriteriaDetails').html(msg);
+                $('#GrdCoachingConcern').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+
+    function GetSelectionCriteria() {
+        var postData = $('#frmCoachingConcernsSearchParams').serializeArray();
+
+        if ($('#SearchByConcernTypeID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "SearchByConcernTypeText", value: $('#SearchByConcernTypeID').data('kendoComboBox').text() });
+        }
+        if ($('#SearchByConcernID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "SearchByConcernText", value: $('#SearchByConcernID').data('kendoComboBox').text() });
+        }
+
+        if ($('#CoachingConcernSearchViewID') != undefined) {
+            var value = parseInt($('#CoachingConcernSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function GetSelectionCriteriaForGrid() {
+        var newArray = GetSelectionCriteria();
+        $("#frmCoachingConcernsSearchParams").find("#chkConcernTypesList input:checkbox").each(function (index) {
+            newArray.push({ name: "ConcernTypeList[" + index + "].Selected", value: $(this).is(':checked') });
+            newArray.push({ name: "ConcernTypeList[" + index + "].ID", value: $(this).attr('recordID') });
+            newArray.push({ name: "ConcernTypeList[" + index + "].Name", value: $(this).attr('recordName') });
+        });
+        var criteria = {};
+        for (var i = 0; i < newArray.length; ++i)
+            criteria[newArray[i].name] = newArray[i].value;
+        return criteria;
+    }
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+</script>

@@ -1,0 +1,104 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+}
+<div class="with-padding">
+    <hgroup id="main-title" class="thin">
+        <h1>
+            Event Viewer</h1>
+    </hgroup>
+    <div id="AdminEventViewerTabs" class="standard-tabs same-height" data="adminEventViewerDynamicTabs">
+        <ul class="tabs">
+            <li><a href="#tabs-1" class="icon-list">Event Viewer</a></li>
+        </ul>
+        <div id="tabs-1" class="adminEventViewerDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResults")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var tabObject = null;
+    $(function () {
+        tabObject = $('#AdminEventViewerTabs').tabs();
+        GetSearchCriteria();
+    });
+
+    function GetSelectionCriteria() {
+        var postData = $('#frmEventViewerSearchCriteria').serializeArray();
+        if ($('#EventCategoryID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "EventCategoryName", value: $('#EventCategoryID').data('kendoComboBox').text() });
+        }
+        if ($('#EventTypeID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "EventTypeName", value: $('#EventTypeID').data('kendoComboBox').text() });
+        }
+        if ($('#EventID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "EventName", value: $('#EventID').data('kendoComboBox').text() });
+        }
+
+        if ($('#EventViewerSearchViewID') != undefined) {
+            var value = parseInt($('#EventViewerSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+
+        return postData;
+    }
+
+    function GetSelectionCriteriaForGrid() {
+        var newArray = GetSelectionCriteria();
+        var criteria = {};
+        for (var i = 0; i < newArray.length; ++i)
+            criteria[newArray[i].name] = newArray[i].value;
+        return criteria;
+    }
+
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "EventViewer", new { area = "Admin" })',
+            type: 'POST',
+            data: GetSelectionCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulEventViewerSearchCriteriaRight').html(msg);
+            }
+        });
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "EventViewer", new { area = "Admin" })',
+            type: 'POST',
+            data: GetSelectionCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#eventViewerSelectedSearchCriteriaDetails').html(msg);
+                $('#GrdEventLogList').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+</script>

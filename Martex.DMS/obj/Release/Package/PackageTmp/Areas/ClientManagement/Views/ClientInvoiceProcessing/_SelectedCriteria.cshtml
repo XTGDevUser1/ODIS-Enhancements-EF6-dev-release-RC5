@@ -1,0 +1,150 @@
+﻿@model Martex.DMS.DAL.Entities.Clients.ClientBillableInvoiceSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    if (Model.ScheduleDateFrom.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaScheduleDateFrom">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ScheduleDateFrom">X</a>
+        - From : @Model.ScheduleDateFrom.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ScheduleDateTo.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaScheduleDateTo">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ScheduleDateTo">X</a>
+        - From : @Model.ScheduleDateTo.Value.ToShortDateString()
+    </p>
+    }
+    
+    <!-- Client and Program -->
+    if (Model.ClientID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Client_Search_ClientID">
+            X</a>
+        @Html.Raw("- Client Name : ")
+        @Html.DisplayFor(u => Model.ClientIDValue)
+    </p>
+    }
+    <!-- Invoice Definition Line -->
+    if (Model.BillingDefinitionInvoiceID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Billing_Definition_InvoiceID">
+            X</a>
+        @Html.Raw("- Definition : ")
+        @Html.DisplayFor(u => Model.BillingDefinitionInvoiceName)
+    </p>
+    }
+
+    { i = 0; }
+    foreach (CheckBoxLookUp result in Model.BillingDefinitionInvoiceLine)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "BillingDefinitionInvoiceLine_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Line : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    
+    <!-- Invoice Status -->
+    { i = 0; }
+    foreach (CheckBoxLookUp result in Model.InvoiceStatus)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "InvoiceStatus_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Invoice Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    { i = 0; }
+    <!-- Line Status -->
+    foreach (CheckBoxLookUp result in Model.LineStatus)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "LineStatus_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Line Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                    }
+                }
+                else if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+
+                    if (element == 'Client_Search_ClientID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#grdInvoices').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

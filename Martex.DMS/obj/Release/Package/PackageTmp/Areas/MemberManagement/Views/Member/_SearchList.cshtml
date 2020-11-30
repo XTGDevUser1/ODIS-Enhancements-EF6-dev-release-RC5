@@ -1,0 +1,178 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@{
+    string addToolBar = GetAddToolBarTemplate().ToHtmlString();   
+ }
+<script type="text/javascript">
+
+    function MergeMember(memberId) {
+        var message = "Do you want to go to the Merge screen?";
+        $.modal.confirm(message, function () {
+            window.location = '/MemberManagement/MemberMerge?memberId=' + memberId;
+        }, function () {
+            return false;
+        });
+    }
+
+    function MergeSourceDetails(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        MergeMember(dataRow.MemberID);
+    }
+
+    function GrdSearchMemberList_OnLoad(e) {
+
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-mergeSource").addClass("with-tooltip").html("<span class='icon-reduce'/>");
+
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 3);
+
+        // Format the status column. - CR # 837
+        table.find('tr').each(function () {
+            var activeColumn = $("td:eq(6)", this);
+            if (activeColumn.length > 0) {
+                var memberStatus = activeColumn.text();
+                if (memberStatus == "Active") {
+                    memberStatus = '<small class="tag green-bg">' + memberStatus + '</small>';
+                }
+                else {
+                    memberStatus = '<small class="tag red-bg">' + memberStatus + '</small>';
+                }
+                activeColumn.html(memberStatus);
+            }
+
+        });
+    }
+    function GetMemberDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+            var dataRow = this.dataItem($(e.target).closest("tr"));
+            var membershipID = dataRow.MembershipID;
+            var memberNumber = dataRow.MemberNumber;
+            var memberName = dataRow.Name;
+            LoadMemberInformation(membershipID, memberNumber, memberName);
+        }
+       
+        return false;
+    }
+    function GetMemberSearchParams() {
+        if ($("#frmMemberSearchCriteria").length > 0) {
+            var newArray = [];
+            $("#frmMemberSearchCriteria input:checkbox").each(function (index) {
+                newArray.push({ name: "Status[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "Status[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "Status[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            if ($('#FirstNameNameOperator').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "FirstNameNameOperatorValue", value: $('#FirstNameNameOperator').data('kendoComboBox').text() });
+                newArray.push({ name: "FirstNameNameOperator", value: $('#FirstNameNameOperator').data('kendoComboBox').value() });
+            }
+            if ($('#LastNameOperator').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "LastNameOperatorValue", value: $('#LastNameOperator').data('kendoComboBox').text() });
+                newArray.push({ name: "LastNameOperator", value: $('#LastNameOperator').data('kendoComboBox').value() });
+            }
+            if ($('#StateProvinceID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "StateProvince", value: $('#StateProvinceID').data('kendoComboBox').text() });
+                newArray.push({ name: "StateProvinceID", value: $('#StateProvinceID').data('kendoComboBox').value() });
+            }
+            if ($('#CountryID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "Country", value: $('#CountryID').data('kendoComboBox').text() });
+                newArray.push({ name: "CountryID", value: $('#CountryID').data('kendoComboBox').value() });
+            }
+            if ($('#Member_Search_ClientID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "SearchClientName", value: $('#Member_Search_ClientID').data('kendoComboBox').text() });
+                newArray.push({ name: "SearchClientID", value: $('#Member_Search_ClientID').data('kendoComboBox').value() });
+            }
+            if ($('#Member_Search_ProgramID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "SearchProgramName", value: $('#Member_Search_ProgramID').data('kendoComboBox').text() });
+                newArray.push({ name: "SearchProgramID", value: $('#Member_Search_ProgramID').data('kendoComboBox').value() });
+            }
+
+            newArray.push({ name: "MemberNumber", value: $('#frmMemberSearchCriteria').find("#MemberNumber").val() });
+            newArray.push({ name: "FirstName", value: $('#frmMemberSearchCriteria').find("#FirstName").val() });
+            newArray.push({ name: "LastName", value: $('#frmMemberSearchCriteria').find("#LastName").val() });
+            newArray.push({ name: "City", value: $('#frmMemberSearchCriteria').find("#City").val() });
+            newArray.push({ name: "PostalCode", value: $('#frmMemberSearchCriteria').find("#PostalCode").val() });
+            newArray.push({ name: "PhoneNumber", value: $('#frmMemberSearchCriteria').find("#PhoneNumber").val() });
+            newArray.push({ name: "VIN", value: $('#frmMemberSearchCriteria').find("#VIN").val() });
+
+            var memberCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                memberCriteria[newArray[i].name] = newArray[i].value;
+            return memberCriteria;
+        }
+    }
+</script>
+@(Html.Kendo().Grid<MemberManagementSearch_Result>()
+    .Name("GrdSearchMemberList")
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.MemberID).Title("MemberID").Filterable(false).Visible(false);
+        columns.Bound(a => a.MembershipID).Title("Member #").Filterable(false).Visible(false);
+        columns.Bound(a => a.MemberNumber).Title("Member #").Width(80).Filterable(false);
+        columns.Bound(a => a.Name).Title("Member Name").Width(150).Filterable(false);
+        columns.Bound(a => a.Address).Title("City, State, Zip").Width(150).Filterable(false);
+        columns.Bound(a => a.PhoneNumber).Title("Phone Number").Filterable(false).Width(150);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Width(150);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Visible(false);
+        columns.Bound(a => a.VIN).Title("VIN").Filterable(false).Width(150);
+        columns.Bound(a => a.MemberStatus).Title("Status").Width(100).Filterable(false);
+        columns.Bound(a => a.POCount).Title("Requests").Width(70).Filterable(false);
+        columns.Command(commands =>
+        {
+            commands
+                .Custom("Edit")
+                .Text("Edit")
+                .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "Edit" })
+                .Click("GetMemberDetails");
+            commands
+                  .Custom("mergeSource")
+                  .Click("MergeSourceDetails")
+                  .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "Merge" });
+        })
+        .Title("Action(s)").Width(75);
+        
+    })
+    .ToolBar(toolBar => toolBar.Template(addToolBar))
+    .Events(events =>
+    {
+        events.DataBound("GrdSearchMemberList_OnLoad");
+    })
+    .Sortable()
+    .Filterable(filterable => filterable
+        .Extra(false)
+    )
+    .Resizable(a => a.Columns(true))
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_Search", "Member", new { area = "MemberManagement" }).Data("GetMemberSearchParams"))
+    )
+    )
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+        HandleDblClickOnGrid($("#GrdSearchMemberList"), '.k-grid-Edit');
+    });
+</script>
+
+@helper GetAddToolBarTemplate()
+    {
+    <a style = "min-width:auto;", title="Add" , class="k-button k-button-icontext k-grid-add with-tooltip" href="javascript:void(0);" onclick="MemberManagement_AddMember();">
+        <span class="k-icon k-add"></span>Add Member</a>
+}

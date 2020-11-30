@@ -1,0 +1,40 @@
+﻿@*KB: Commented out the partial view due to schema changes*@
+@*@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+}
+<form id="frmVendorDetailsApplicationSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+<div class="button-height inline-label small-margin-bottom">
+    <label for="ApplicationDate" class="label">
+        Application Date</label>
+    @(Html.Kendo().DatePicker()
+                   .Name("BasicInformation.ApplicationDate")
+                   .Value(Model.BasicInformation.ApplicationDate)
+                   .HtmlAttributes(new { id = "ApplicationDate_" + suffixVendorID })
+      )
+</div>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="ApplicationSignedByName" class="label">
+        Signed By</label>
+    @Html.TextBoxFor(u => u.BasicInformation.ApplicationSignedByName, new { @class = "input full-width", id = "ApplicationSignedByName_" + suffixVendorID, @maxLength = "255" })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="ApplicationSignedByTitle" class="label">
+        Signed By Title</label>
+    @Html.TextBoxFor(u => u.BasicInformation.ApplicationSignedByTitle, new { @class = "input full-width", id = "ApplicationSignedByTitle_" + suffixVendorID, @maxLength = "50" })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="ApplicationComments" class="label">
+        Comments</label>
+    @Html.TextAreaFor(u => u.BasicInformation.ApplicationComments, new { @class = "input full-width", style = "width:90%", id = "ApplicationComments" + suffixVendorID, @maxLength = "2000" })
+</p>
+</form>
+
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsApplicationSection_@suffixVendorID').validationEngine();
+    });   
+</script>
+
+*@

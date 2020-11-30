@@ -1,0 +1,121 @@
+﻿@using Martex.DMS.DAL.Entities
+@model List<Martex.DMS.DAL.Entities.Question>
+@{
+    ViewDataDictionary viewData = new ViewDataDictionary();
+    var distinctQuestions = Model.GroupBy(t => t.ProductCategoryQuestionId).Select(grp => grp.FirstOrDefault()).ToList<Question>();
+    viewData["Questions"] = Model;
+}
+
+<script language="javascript" type="text/javascript">
+
+    // Hide or show the related questions
+    function PDIAnswerCombo_Change(e) {
+        console.log('Answer combo changed');
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        } else {
+            
+            var comboVal = combo.text();
+            var questionId = combo.element.attr("id").replace("qpdi_", "");
+
+
+            // Loop through jsonQuestions object.
+            for (var s = 0, sl = jsonPDI.length; s < sl; s++) {
+
+
+                var currentQuestion = jsonPDI[s];
+                if (questionId == currentQuestion.ProductCategoryQuestionId) {
+                    if (currentQuestion.AnswerToTriggerRelatedQuestion == comboVal) {
+                        if (currentQuestion.RelatedQuestionId != null && $('#sqpdi_' + currentQuestion.RelatedQuestionId).length > 0) {
+
+                            $('#sqpdi_' + currentQuestion.RelatedQuestionId).removeClass("hidden");
+                        }
+                    } else {
+                        if (currentQuestion.RelatedQuestionId != null && $('#sqpdi_' + currentQuestion.RelatedQuestionId).length > 0) {
+                            $('#sqpdi_' + currentQuestion.RelatedQuestionId).addClass("hidden");
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
+
+    function AreDynamicElementsValid() {
+        var formSelector = "#frmPDI";
+        
+        var errorFound = false;
+        if ($(formSelector).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        // Validate telerik comboboxes.
+        $(formSelector + ' span.required input:text').each(function () {
+
+            if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                var val = $(this).val();
+
+                if ($.trim(val).length == 0) {
+                    var fieldName = $(this).attr("name");
+                    $(this).attr("id", "sp" + fieldName);
+                    ShowValidationMessage($(this), "Please select a value.");
+                    errorFound = true;
+                }
+                else {
+                    HideValidationMessage($(this));
+                }
+            }
+        });
+
+        return !errorFound;
+    }
+
+    function GetDynamicElementsPostData() {
+        var $f = $("#frmPDI");
+        // remove the elements with class="hidden" from the dom.
+        $f.find(".hidden").remove();
+
+        $f.find('input[type="hidden"]').remove();
+
+        var temp = $f.serializeArray();
+
+        //SanitizeKendoComboInputs(temp);
+        var formData = [];
+        for (var j = 0, k = temp.length; j < k; j++) {
+            if (temp[j].name.indexOf("_input") < 0) {
+                formData.push(temp[j]);
+            }
+        }
+
+        return formData;
+    }
+
+</script>
+<form class="with-padding" id="frmPDI">
+    
+    @Html.Hidden("hdnJsonPDI", ViewData["JSON_MODEL"])
+    @foreach (var question in distinctQuestions)
+    {
+        // do not render this question, if this happens to be a sub question.
+        var isSubQuestion = Model.Where(x => x.RelatedQuestionId == question.ProductCategoryQuestionId).Count() > 0;
+        if (!isSubQuestion)
+        {
+            @Html.Partial("_Question", question, viewData)
+        }
+    }
+
+</form>
+
+<script language="javascript" type="text/javascript">
+
+    var jsonPDI;
+    $(function () {
+        var jsonQuestionsStr = $("#hdnJsonPDI").val();
+        jsonPDI = eval(jsonQuestionsStr);
+        $("#frmPDI").validationEngine();
+    });
+
+</script>

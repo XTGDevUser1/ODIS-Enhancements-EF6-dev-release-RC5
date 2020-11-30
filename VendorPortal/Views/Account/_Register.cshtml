@@ -1,0 +1,62 @@
+﻿@model VendorPortal.Models.RegisterModel
+@{
+    ViewBag.Title = "Register";
+    
+}
+<form method="post" action="" id="form-register" class="input-wrapper green-gradient glossy"
+formtitle="Register">
+<p class="message">
+    New user? Yay! Let us know a little bit about you before you start: <span class="block-arrow">
+        <span></span></span>
+</p>
+<ul class="inputs black-input large">
+    <li><span class="icon-card mid-margin-right"></span>
+        @Html.TextBoxFor(m => m.UserName, new 
+   { id = "register_username", 
+       autocomplete = "off", 
+       name = "register_username", 
+       value = "",
+     @class = "validate[required] input-unstyled with-tooltip tooltip-right",
+     title = "User name"
+   })
+    </li>
+    <li><span class="icon-mail mid-margin-right"></span>
+        @Html.TextBoxFor(m => m.Email, new
+   {
+       type = "email",
+       name = "register_email",
+       id = "register_email",
+       value = "",
+       @class = "validate[required,custom[email]] input-unstyled with-tooltip tooltip-right",
+       autocomplete = "off",
+       title = "Email"
+   })
+    </li>
+</ul>
+<ul class="inputs black-input large">
+    <li><span class="icon-lock mid-margin-right"></span>
+        @Html.PasswordFor(m => m.Password, new
+{
+    name = "register_password",
+    id = "register_password",
+    value = "",
+    @class = "validate[required] input-unstyled with-tooltip tooltip-right",
+    autocomplete = "off",
+    title="Password"
+})
+    </li>
+    <li><span class="icon-lock mid-margin-right"></span>
+        @Html.PasswordFor(m => m.ConfirmPassword, new
+{
+    name = "register_confirmpassword",
+    id = "register_confirmpassword",
+    value = "",
+    @class = "validate[required,equals[register_password]] input-unstyled with-tooltip tooltip-right",
+    autocomplete = "off",
+    title = "Re-type your password"
+})
+    </li>
+</ul>
+<button type="submit" class="btn btn-large btn-primary" id="send-register">
+    Register</button>
+</form>

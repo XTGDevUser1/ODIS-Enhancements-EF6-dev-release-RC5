@@ -1,0 +1,25 @@
+﻿@model Martex.DMS.DAL.Entities.PhoneEntityExtended
+@{
+    string recordID = Model.RecordID.ToString();
+    string entityName = Model.EntityName;
+    string phoneId = Model.PhoneID.ToString();
+}
+<form id="frmPhoneContainer_@recordID">
+<div class="button-height small-margin-bottom">
+    <label for="PhoneNumber" class="label">
+        Phone Number</label>
+    <br />
+    @Html.Editor("PhoneNumber_" + recordID, "Phone", new { ShowCallIcon = false, IsRequired = true, Value = Model.PhoneNumber, PhoneTypeValue = Model.PhoneTypeID })
+    <br />
+    <span class="button-group compact"><a href="javascript:void(0);" class="button icon-cross with-tooltip"
+                                title="Cancel" id="phone_cancel_@recordID" onclick="SwitchViewToPhoneCancel('@recordID')">
+        Cancel </a><a href="javascript:void(0);" class="button icon-tick with-tooltip" title="Save" onclick="SavePhoneDetails('@recordID','@entityName','@phoneId')">
+            Save </a></span>
+</div>
+</form>
+
+<script type="text/javascript">
+    $(function () {
+        $('#frmPhoneContainer_@recordID').validationEngine();
+    });
+</script>

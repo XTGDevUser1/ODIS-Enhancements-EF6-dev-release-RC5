@@ -1,0 +1,115 @@
+﻿/*.stickyNote .stickyTitle { cursor : move;}
+.stickyNote
+{
+    width: 200px;
+    height: 200px;
+    background: #fafa79;
+    border: 1px solid #5d0101;
+    float: left;
+    position: absolute;
+    /*top: 50px;
+    right: 200px;*/
+    /*overflow: hidden;
+}
+    
+.stickyNote-editable
+{
+    border : 0px;
+    background: transparent;
+    overflow:hidden;
+}
+.stickyTitle
+{
+    border:1px dotted red;  
+    font:normal verdana 10px;
+    background:#CDECEE;
+    height : 15px;
+        
+}
+.ui-resizable-se { bottom : -3px; right : -3px;}
+.closeicon { font-weight:bold; color:red; text-align:right; cursor:hand;}
+*/
+
+.stickyNote .stickyTitle
+{
+	cursor: move;
+}
+.stickyNote
+{
+	width: 300px;
+	height: 260px;
+	/*background:#ffc;  
+	border: 1px solid #5d0101;*/
+	float: left;
+	position: fixed;
+	top: 50px;
+	right: 200px;
+	overflow: hidden; /* Firefox */
+	-moz-box-shadow: 5px 5px 7px rgba(33,33,33,1); /* Safari+Chrome */
+	-webkit-box-shadow: 5px 5px 7px rgba(33,33,33,.7); /* Opera */
+	/*box-shadow: 5px 5px 7px rgba(33,33,33,.7);*/
+	z-index : 100000;
+	display:none;
+	visibility : hidden;
+	/*-o-transform: rotate(-4deg);
+	-webkit-transform: rotate(-4deg);
+	-moz-transform: rotate(-4deg);
+	-moz-transition:-moz-transform .15s linear;  
+ -o-transition:-o-transform .15s linear;  
+  -webkit-transition:-webkit-transform .15s linear;  */
+  box-shadow: 0 1px 3px black;
+  background: none repeat scroll 0 0 #fff;
+    border-color: #CCCCCC;
+    color: #666666;
+     border-radius: 7px 7px 7px 7px;
+    border-style: solid;
+    border-width: 1px;
+    
+    padding: 10px;
+}
+
+
+.stickyNote:hover
+{
+	-moz-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+	-webkit-box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+	box-shadow: 10px 10px 7px rgba(0,0,0,.7);
+	/*-webkit-transform: scale(1.25);
+	-moz-transform: scale(1.25);
+	-o-transform: scale(1.25);*/
+}
+
+.stickyNote-editable
+{
+	font-family:Arial,sans-serif;
+	font-size: 120%;
+	border: 0px;
+	/*background: transparent;*/
+	overflow: auto;
+	resize : none; /* For firefox and Chrome */
+	margin-top:10px;
+}
+.stickyTitle
+{
+border-color: #A4ABB2;
+background: #D2D5D9 url('/Content/Office2010Silver/gradient.png') repeat-x 0 center;
+	height: 15px;
+	text-align:right;
+	padding:10px 10px 10px 10px;
+	margin:-10px;
+	cursor:move;
+	border-radius: 7px 7px 0px 0px;
+}
+
+.ui-resizable-se
+{
+	bottom: -3px;
+	right: -3px;
+}
+.closeicon
+{
+	font-weight: bold;
+	color: red;
+	text-align: right;
+	cursor: pointer;
+}

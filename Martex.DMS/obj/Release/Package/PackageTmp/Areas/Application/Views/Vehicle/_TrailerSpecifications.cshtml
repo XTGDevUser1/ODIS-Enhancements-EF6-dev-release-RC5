@@ -1,0 +1,183 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "_TrailerSpecifications";
+}
+<script type="text/javascript">
+    function TrailerOtherShowOrHide() {
+        var trailerTypeText = $('#TrailerTypeID').data('kendoComboBox').text();
+        if (trailerTypeText == 'Other') {
+            $('#divTrailerTypeOther').show();
+        }
+        else {
+            $('#divTrailerTypeOther').hide();
+        }
+    }
+
+    function TrailerBallSizeOtherShowOrhide() {
+        var ballSizeText = $('#TrailerBallSize').data('kendoComboBox').text();
+        if (ballSizeText == 'Other') {
+            $('#divBallSizeOther').show();
+        }
+        else {
+            $('#divBallSizeOther').hide();
+        }
+    }
+
+    function HitchTypeIDOtherShowOrHide() {
+        var ballSizeText = $('#HitchTypeID').data('kendoComboBox').text();
+        if (ballSizeText == 'Other') {
+            $('#divHitchTypeOther').show();
+        }
+        else {
+            $('#divHitchTypeOther').hide();
+        }
+    }
+
+    function onComboBoxChange_TrailerType(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+
+        TrailerOtherShowOrHide();
+    }
+
+    function onComboBoxChange_BallSize(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        TrailerBallSizeOtherShowOrhide();
+    }
+
+    function onComboBoxChange_HitchType(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        HitchTypeIDOtherShowOrHide();
+    }
+
+    
+
+</script>
+<div class="four-columns float-left large-margin-left">
+    <fieldset class="fieldset">
+        <legend class="legend">Specifications</legend>
+        <div class="with-small-padding">
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="TrailerType" class="label">
+                    Trailer Type<span class="spanstar">*</span></label>
+                @( Html.Kendo().ComboBox()
+                               .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.TrailerType.ToString()] as IEnumerable<SelectListItem>)
+                               .Name("TrailerTypeID")
+                               .Suggest(true)
+                               .Filter(FilterType.StartsWith).MinLength(0)
+                               .Events(events => events.Change("onComboBoxChange_TrailerType"))
+                               .SelectedIndex(0)
+                               .HighlightFirst(true)
+                               .Value(Model.TrailerTypeID != null ? Model.TrailerTypeID.ToString() : string.Empty)
+                 )
+            </div>
+            <div id="divTrailerTypeOther" style="display: none;">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="MakeOther" class="label">
+                        if Other<span class="spanstar">*</span></label>
+                    @Html.TextBoxFor(t => t.TrailerTypeOther, null, new { @class = "validate[maxSize[50]] input full-width2" })
+                </p>
+            </div>
+            <div class="button-height small-margin-bottom inline-label">
+                <label for="Length" class="label">
+                    Length</label>
+                @Html.TextBoxFor(v => v.Length, new { @class = "validate[custom[integer] maxSize[10]] input full-width2" })
+                
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Height" class="label">
+                        Height</label>
+                   @Html.TextBoxFor(v => v.Height, new { @class = "validate[maxSize[5]] input full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Serial Number" class="label">
+                        Serial Number</label>
+                    @Html.TextBoxFor(t => t.SerialNumber, null, new { @class = "validate[maxSize[50]] input full-width2" })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Axies" class="label">
+                    Axles</label>
+                @( Html.Kendo().ComboBox()
+                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Axles.ToString()] as IEnumerable<SelectListItem>)
+                       .Name("NumberofAxles")
+                       .Suggest(true)
+                       .Filter(FilterType.StartsWith).MinLength(0)
+                       .Events(events => events.Change("ValidateInputForKendoCombo"))
+                       .SelectedIndex(0)
+                       .HighlightFirst(true)
+                       .Value(Model.NumberofAxles == null ? string.Empty : Model.NumberofAxles.Value.ToString())
+                 )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="HitchType" class="label">
+                    Hitch Type<span class="spanstar">*</span></label>
+                @( Html.Kendo().ComboBox()
+                               .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.HitchType.ToString()] as IEnumerable<SelectListItem>)
+                               .Name("HitchTypeID")
+                               .Suggest(true)
+                               .Filter(FilterType.StartsWith).MinLength(0)
+                               .Events(events => events.Change("onComboBoxChange_HitchType"))
+                               .SelectedIndex(0)
+                               .HighlightFirst(true)
+                               .Value(Model.HitchTypeID == null ? string.Empty : Model.HitchTypeID.Value.ToString())
+                )
+            </div>
+            <div id="divHitchTypeOther" style="display: none;">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="HitchTypeOther" class="label">
+                        if Other<span class="spanstar">*</span></label>
+                    @Html.TextBoxFor(t => t.HitchTypeOther, null, new { @class = "validate[maxSize[50]] input" })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="BallSize" class="label">
+                    Ball Size<span class="spanstar">*</span></label>
+                @( Html.Kendo().ComboBox()
+                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BallSize.ToString()] as IEnumerable<SelectListItem>)
+                       .Name("TrailerBallSize")
+                       .Suggest(true)
+                       .Filter(FilterType.StartsWith).MinLength(0)
+                       .Events(events => events.Change("onComboBoxChange_BallSize"))
+                       .SelectedIndex(0)
+                       .HighlightFirst(true)
+                       .Value(Model.TrailerBallSize)
+                 )
+            </div>
+            <div id="divBallSizeOther" style="display: none;">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="BallSizeOther" class="label">
+                        if Other<span class="spanstar">*</span></label>
+                    @Html.TextBoxFor(t => t.TrailerBallSizeOther, null, new { @class = "validate[maxSize[50]] input" })
+                </p>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<script type="text/javascript">
+    $(function () {
+        setTimeout(function () {
+            TrailerOtherShowOrHide();
+            TrailerBallSizeOtherShowOrhide();
+            HitchTypeIDOtherShowOrHide();
+        }, 1500)
+    });
+</script>

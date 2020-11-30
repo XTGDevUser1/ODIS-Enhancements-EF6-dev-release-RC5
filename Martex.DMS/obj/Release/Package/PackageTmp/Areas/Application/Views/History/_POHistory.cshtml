@@ -1,0 +1,95 @@
+﻿@using Kendo.Mvc.UI
+@*@model int*@
+@{
+    var serviceRequestId = ViewData["ServiceRequestId"].ToString();
+    bool isShowAction = (bool)ViewData["IsShowAction"];
+    var gridName = "GrdPOList" + serviceRequestId.ToString();
+}
+<style>
+    #@gridName > .k-grid-content
+    {
+        height: auto !important;
+    }
+</style>
+<script type="text/javascript">
+
+    function POList_onDataBound(e) {
+        $(".k-grid-viewPO").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+    }
+
+    HandleDblClickOnGrid($("#" + "@gridName"), '.k-grid-viewPO');
+
+    function ManagePO(e) {
+        if (e != null) {
+            e.preventDefault();
+
+            var poId = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var poNumber = this.dataItem($(e.currentTarget).closest("tr")).PONumber;
+            var poStatus = this.dataItem($(e.currentTarget).closest("tr")).POStatus;
+            var poDataTransferDate = this.dataItem($(e.currentTarget).closest("tr")).DataTransferDate;
+            if (e.data.commandName == "viewPO") {
+                LoadPoDetails(poId, poNumber);
+            }
+        }
+        }
+</script>
+<!-- PO Search grid -->
+<div class="new twelve-columns margin-top">
+    <div class="boxed emboss glow silver-gradient">
+        <h3 class="underline">
+            Purchase Order List</h3>
+        @(Html.Kendo().Grid<Martex.DMS.DAL.POForServiceRequest_Result>()
+        .Name(@gridName)
+        .DataSource(dataBinding =>
+        {
+            dataBinding.Ajax()
+                .Read(read => read.Action("_POForServiceRequest", "History", new { ServiceRequestID = serviceRequestId }));
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(p => p.ID).Hidden();
+            columns.Bound(p => p.PONumber).Title("PO Number").Width(100);
+            columns.Bound(p => p.PODate).Title("Date").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Bound(p => p.VendorName).Title("Vendor Name").Width(100);
+            columns.Bound(p => p.POTotal).Title("Total").Width(100).Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            columns.Bound(p => p.Service).Title("Service").Width(100);
+            columns.Bound(p => p.POStatus).Title("Status").Width(100);
+            columns.Bound(p => p.PurchaseOrderPayStatusCode).Title("Pay Status Code").Width(100);
+            columns.Bound(p => p.CancelReason).Title("Cancel Reason").Width(100);
+            columns.Bound(p => p.OriginalPONumber).Title("Original PO Number").Width(100);
+            columns.Bound(p => p.DataTransferDate).Hidden();
+            columns.Bound(p => p.InvoiceNumber).Title("Inv #").Width(100);
+            columns.Bound(p => p.InvoiceDate).Title("Inv Date").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Bound(p => p.InvoiceAmount).Title("Inv Amount").Width(100).Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            columns.Bound(p => p.InvoiceStatus).Title("Inv Status").Width(100);
+            columns.Bound(p => p.InvoiceReceivedDate).Title("Rcv Date").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Bound(p => p.InvoiceReceiveMethod).Title("Rcv Method").Width(100);
+            columns.Bound(p => p.InvoiceToBePaidDate).Title("ToBePaid").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Bound(p => p.PaymentNumber).Title("Payment #").Width(100);
+            columns.Bound(p => p.PaymentDate).Title("Pay Date").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Bound(p => p.PaymentAmount).Title("Pay Amt").Width(100).Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            columns.Bound(p => p.CheckClearedDate).Title("Cleared Date").Width(100).Format("{0:MM/dd/yyyy}");
+            columns.Command(commands =>
+            {
+                commands
+                    .Custom("viewPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+            })            
+            .Title("Action(s)").Width(60).Visible(isShowAction);
+        })
+        .Events(events =>
+        {
+            events.DataBound("POList_onDataBound");
+        })
+        .Selectable()
+        .Scrollable()
+        .Sortable()
+        .Pageable(pager => pager
+            .Refresh(true)
+            .Info(false)
+            .PageSizes(false)
+            .PreviousNext(false)
+            .Numeric(false)
+        )
+        )
+    </div>
+</div>

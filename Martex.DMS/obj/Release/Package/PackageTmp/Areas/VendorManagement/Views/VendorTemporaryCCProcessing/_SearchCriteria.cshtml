@@ -1,0 +1,393 @@
+﻿@using Martex.DMS.DAL.Entities.TemporaryCC;
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@model TemporaryCCSearchCriteria
+@{
+    int i = 0;
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "VendorTemporaryCCProcessing";
+    string JSMethodNameToCollectData = "GetCCProcessingSearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForTempCCProcessing";
+    string applyCallBackFuntion = "LoadTempCCPredefinedViews";
+}
+<script type="text/javascript">
+  function rangeSliderChange(e) {
+    if (e.values) {
+      var minValue = e.values[0];
+      var maxValue = e.values[1];
+      $('#ChargedAmountFrom').val(minValue);
+      $('#ChargedAmountTo').val(maxValue);
+    }
+  }
+</script>
+<style type="text/css">
+  input.full-width {
+    width: 90% !important;
+  }
+
+  .humidity {
+    background-color: White;
+  }
+
+  .k-slider-track {
+    background-color: White !important;
+  }
+
+  .k-slider-tooltip {
+    background-color: White !important;
+  }
+</style>
+<li>
+  <form id="frmVendorTemporaryCCProcessingSearchCriteria" action="javascript:void(0)"
+        method="post">
+    @Html.Hidden("TemporaryCCProcessingViewID", string.Empty)
+    @Html.HiddenFor(u => u.GridSortOrder)
+    @Html.HiddenFor(u => u.GridSortColumnName)
+    @Html.HiddenFor(u => u.ResetModelCriteria)
+    @Html.HiddenFor(u => u.PanelItemsSelected)
+    @Html.HiddenFor(u => u.PanelViewsSelected)
+    @Html.HiddenFor(u => u.PanelIDSelected)
+    @Html.HiddenFor(u => u.PanelCCMatchStatusSelected)
+    @Html.HiddenFor(u => u.PanelPOPayStatusSelected)
+    @Html.HiddenFor(u => u.PanelCreditCardIssueDateRangeSelected)
+    @Html.HiddenFor(u => u.PanelPODateRangeSelected)
+    @Html.HiddenFor(u => u.PanelPostingBatchSelected)
+    @Html.HiddenFor(u => u.PanelChargedAmountSelected)
+    @Html.HiddenFor(u => u.PanelCreditCardChargedDateRangeSelected)
+    @Html.HiddenFor(u => u.PanelClientSelected)
+    
+
+    @(Html.Kendo().PanelBar()
+                      .Name("panelbarSearchCriteria")
+                      .ExpandMode(PanelBarExpandMode.Multiple)
+                      .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+                      .Items(panelbar =>
+                      {
+                          panelbar.Add().Text("Search").Content(
+                              @<div class="with-padding">
+                                <p class="button-height">
+                                  <a href="javascript:void(0)" class="button icon-search big green-gradient full-width"
+                                     onclick="GetSelectedCriteria();">Search</a>
+                                </p>
+                              </div>
+                         ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+                          panelbar.Add().Text("Views").Content(
+                              @<div class="with-padding small-margin-right">
+                                @Html.Editor("FilterView", "FilterView", new
+                           {
+                             filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+                           })
+                              </div>
+                           ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+                          panelbar.Add().Text("Items Selected").Content(
+                              @<div class="with-padding" id="tempCCSelectedSearchCriteriaDetails">
+                                @Html.Partial("_SelectedCriteria", Model)
+                              </div>
+                             ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+                          panelbar.Add().Text("ID").Expanded(Model.PanelIDSelected.HasValue ? Model.PanelIDSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelIDSelected" })
+                         .Content(@<div class="with-padding">
+                            <div class="button-height inline-label small-margin-bottom">
+                              <label class="label">
+                                Type
+                              </label>
+                              @(Html.Kendo().ComboBoxFor(u => Model.LookUpTypeName)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.TemprorayCCIDFilterTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(string.IsNullOrEmpty(Model.LookUpTypeName) ? string.Empty : Model.LookUpTypeName)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                              )
+                            </div>
+                            @*<p class="inline-label">
+                              <label for="ID" class="label">
+                                  Value</label>
+                              @Html.TextBoxFor(u => Model.LookUpTypeValue, new { @class = "input full-width" })</p>*@
+                            <p class="inline-label">
+                              <label for="ID" class="label">
+                                ID
+                              </label>
+                              @Html.TextBoxFor(u => Model.LookUpTypeIDValue, new { @class = "input full-width" })
+                            </p>
+                          </div>
+                 );
+
+                          panelbar.Add().Text("CC Match Status ").Expanded(Model.PanelCCMatchStatusSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelCCMatchStatusSelected" })
+                          .Content(@<div class="with-padding" id="ChkMatchStatus">
+                            @if (Model.CCMatchStatus != null && Model.CCMatchStatus.Count > 0)
+                              {
+                                  for (i = 0; i < Model.CCMatchStatus.Count; i++)
+                                  {
+                                    <div class="with-small-padding">
+                                      <div>
+                                        @Html.HiddenFor(u => Model.CCMatchStatus[i].ID)
+                                        @Html.HiddenFor(u => Model.CCMatchStatus[i].Name)
+                                        @Html.CheckBoxFor(u => Model.CCMatchStatus[i].Selected, new { @class = "checkbox CCMatchStatus_ChkBox_Criteria", recorID = Model.CCMatchStatus[i].ID, recordName = Model.CCMatchStatus[i].Name })
+                                        @Model.CCMatchStatus[i].Name
+                                      </div>
+                                    </div>
+                              }
+
+                            }
+                          </div>
+                           ).ContentHtmlAttributes(new { id = "pnlCCMatchStatus" });
+
+                          panelbar.Add().Text("PO Pay Status").Expanded(Model.PanelPOPayStatusSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelPOPayStatusSelected" })
+                         .Content(@<div class="with-padding" id="ChkPOPayStatus">
+                            @if (Model.POPayStatus != null && Model.POPayStatus.Count > 0)
+                             {
+                                 for (i = 0; i < Model.POPayStatus.Count; i++)
+                                 {
+                                    <div class="with-small-padding">
+                                      <div>
+                                        @Html.HiddenFor(u => Model.POPayStatus[i].ID)
+                                        @Html.HiddenFor(u => Model.POPayStatus[i].Name)
+                                        @Html.CheckBoxFor(u => Model.POPayStatus[i].Selected, new { @class = "checkbox", recorID = Model.POPayStatus[i].ID, recordName = Model.POPayStatus[i].Name })
+                                        @Model.POPayStatus[i].Name
+                                      </div>
+                                    </div>
+                              }
+
+                            }
+                          </div>
+                          ).ContentHtmlAttributes(new { id = "pnlPOPayStatus" });
+
+                          panelbar.Add().Text("Credit Card Issue Date Range").Expanded(Model.PanelCreditCardIssueDateRangeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelCreditCardIssueDateRangeSelected" })
+                         .Content(@<div class="with-padding">
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                From
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.IssueDateFrom)
+                                    .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                To
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.IssueDateTo)
+                                            .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                          </div>
+                                         );
+
+                          panelbar.Add().Text("Credit Card Charge Date Range").Expanded(Model.PanelCreditCardChargedDateRangeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelCreditCardChargedDateRangeSelected" })
+                         .Content(@<div class="with-padding">
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                From
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.ChargedDateFrom)
+                                    .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                To
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.ChargedDateTo)
+                                            .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                          </div>
+                        );
+
+                          panelbar.Add().Text("PO Date Range").Expanded(Model.PanelPODateRangeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelPODateRangeSelected" })
+                         .Content(@<div class="with-padding">
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                From
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.PODateFrom)
+                                    .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                            <div class="button-height inline-label">
+                              <label class="label">
+                                To
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.PODateTo)
+                                            .HtmlAttributes(new { style = "width:90%" })
+                              )
+                            </div>
+                          </div>
+                                         );
+
+                          panelbar.Add().Text("Charge Amount").Expanded(Model.PanelChargedAmountSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelChargedAmountSelected" })
+                        .Content(@<div class="with-padding">
+                            <div class="small-margin-left">
+                              <span class="small-margin-top mid-margin-right float-left">$0</span>
+                              @(Html.Kendo().RangeSlider()
+                                    .Name("AmountRangeSlider")
+                                    .Min(0)
+                                    .Max(10000)
+                                    .SmallStep(2)
+                                    .LargeStep(10)
+                                            .Events(events => events
+                                            .Change("rangeSliderChange"))
+                                            .HtmlAttributes(new { style = "float:left;width:150px;" })
+                              )
+                              <span class="small-margin-top mid-margin-left float-left">$10000</span>
+                              <div class="clear">
+                              </div>
+                              @Html.HiddenFor(u => u.ChargedAmountFrom)
+                              @Html.HiddenFor(u => u.ChargedAmountTo)
+                            </div>
+                          </div>
+                        );
+
+                          panelbar.Add().Text("Exception Type").Expanded(Model.PanelExceptionTypeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelExceptionTypeSelected" })
+                          .Content(@<div class="with-padding" id="ChkExceptionTypes">
+                            @if (Model.ExceptionType != null && Model.ExceptionType.Count > 0)
+                            {
+                              for (i = 0; i < Model.ExceptionType.Count; i++)
+                              {
+                                    <div class="with-small-padding">
+                                      <div>
+                                        @Html.HiddenFor(u => Model.ExceptionType[i].ID)
+                                        @Html.HiddenFor(u => Model.ExceptionType[i].Name)
+                                        @Html.CheckBoxFor(u => Model.ExceptionType[i].Selected, new { @class = "checkbox", recorID = Model.ExceptionType[i].ID, recordName = Model.ExceptionType[i].Name })
+                                        @Model.ExceptionType[i].Name
+                                      </div>
+                                    </div>
+                              }
+
+                            }
+                          </div>
+                           ).ContentHtmlAttributes(new { id = "pnlExceptionTypes" });
+
+                          panelbar.Add().Text("Posting Batch").Expanded(Model.PanelPostingBatchSelected.HasValue ? Model.PanelIDSelected.Value : false).LinkHtmlAttributes(new { id = "Panel_PanelPostingBatchSelected" })
+                         .Content(@<div class="with-padding">
+                            <div class="button-height inline-label small-margin-bottom">
+                              <label class="label">
+                                Run
+                              </label>
+                              @(Html.Kendo().ComboBoxFor(u => Model.PostingBatchID)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PostingBatch.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                              )
+                            </div>
+                          </div>
+                        );
+
+
+                  @*panelbar.Add().Text("Exception Type").Expanded(Model.PanelExceptionTypeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelExceptionTypeSelected" })
+                      .Content(@<div class="with-padding" id="ChkExceptionTypes">
+                            @if (Model.ExceptionType != null && Model.ExceptionType.Count > 0)
+                            {
+                              for (i = 0; i < Model.ExceptionType.Count; i++)
+                              {
+                                    <div class="with-small-padding">
+                                      <div>
+                                        @Html.HiddenFor(u => Model.ExceptionType[i].ID)
+                                        @Html.HiddenFor(u => Model.ExceptionType[i].Name)
+                                        @Html.CheckBoxFor(u => Model.ExceptionType[i].Selected, new { @class = "checkbox", recorID = Model.ExceptionType[i].ID, recordName = Model.ExceptionType[i].Name })
+                                        @Model.ExceptionType[i].Name
+                                      </div>
+                                    </div>
+                              }
+
+                            }
+                          </div>
+                           ).ContentHtmlAttributes(new { id = "pnlExceptionTypes" });*@
+
+                          @*Client Filter*@
+                          panelbar.Add().Text("Client").Expanded(Model.PanelClientSelected.HasValue ? Model.PanelIDSelected.Value : false).LinkHtmlAttributes(new { id = "Panel_PanelClientSelected" })
+                         .Content(@<div class="with-padding">
+                                <div class="button-height inline-label small-margin-bottom">
+                                  <label class="label">
+                                    Client
+                                  </label>
+                                  @(Html.Kendo().ComboBoxFor(u => Model.ClientID)
+                                                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                                                        .SelectedIndex(0)
+                                                        .HighlightFirst(true)
+                                                        .Suggest(true)
+                                                        .Filter(FilterType.StartsWith).MinLength(0)
+                                                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                                        .HtmlAttributes(new { style = "width:90%;" })
+                                                        .Suggest(true)
+                                  )
+                                </div>
+                              </div>
+                            );
+
+                          panelbar.Add().Text("Search").Content(
+                              @<div class="with-padding">
+                                <p class="button-height">
+                                  <a href="javascript:void(0)" class="button icon-search big green-gradient full-width"
+                                     onclick="GetSelectedCriteria();">Search</a>
+                                </p>
+                              </div>
+).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearchBelow" });
+
+                      }))
+  </form>
+</li>
+<script type="text/javascript">
+  function LoadTempCCPredefinedViews(recordID) {
+    $('#TemporaryCCProcessingViewID').val(recordID);
+    GetSearchCriteria();
+    SynchronizeCheckBoxesForCCMatchStatus();
+    var gridReference = $('#GrdCCProcessingList').data('kendoGrid').dataSource;
+    var sortOrder = $('#GridSortOrder').val();
+    var sortColumn = $('#GridSortColumnName').val();
+    if (sortOrder != undefined && sortColumn != undefined) {
+      gridReference.sort({ field: sortColumn, dir: sortOrder });
+    }
+    gridReference.read();
+    setTimeout(function () {
+      $('#TemporaryCCProcessingViewID').val('');
+    }, 1000);
+  }
+
+  $(function () {
+    $('[id^="CCMatchStatus_"]').change(function (e) {
+      SynchronizeCheckBoxesForCCMatchStatus();
+    });
+  });
+
+  function SynchronizeCheckBoxesForCCMatchStatus() {
+    $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#ChkMatchStatus input:checkbox").each(function (index) {
+      var recordID = $(this).attr('recorID');
+      var isRecordSelected = $(this).is(':checked');
+      if (recordID != undefined && isRecordSelected != undefined) {
+        $('#CCMatchStatusFilterTopButtons').find("input:checkbox").each(function (index) {
+          var topRecordID = $(this).attr('value');
+          if (topRecordID != undefined) {
+            if (topRecordID == recordID) {
+              SelectUnSelectRbStatus(topRecordID, isRecordSelected);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  function SelectUnSelectRbStatus(topRecordID, checked) {
+    var rbStatuslabel = $("label[for='display-" + topRecordID + "']");
+    if (checked) {
+      rbStatuslabel.addClass("active");
+      rbStatuslabel.find("input").attr("checked", "checked");
+    }
+    else {
+      rbStatuslabel.removeClass("active");
+      rbStatuslabel.find("input").removeAttr("checked");
+    }
+  }
+</script>

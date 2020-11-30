@@ -1,0 +1,168 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+    string classNameForTaxClassification = "hidden";
+    string classNameForLevy = "hidden";
+    if (!string.IsNullOrEmpty(Model.BasicInformation.TaxClassification) && Model.BasicInformation.TaxClassification.Equals("Other"))
+    {
+        classNameForTaxClassification = "";
+    }
+
+    if (Model.BasicInformation.IsLevyActive.HasValue && Model.BasicInformation.IsLevyActive.Value)
+    {
+        classNameForLevy = string.Empty;
+    }
+
+    string levyEventHandler = "HandleVendorBasicInformationLevy('" + @suffixVendorID + "');";
+}
+<form id="frmVendorDetailsBasicInformationSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+@Html.HiddenFor(u => u.OldVendorStatusID, new { id = "OldVendorStatusID_" + suffixVendorID })
+@Html.HiddenFor(u => u.BasicInformation.ID, new { id = "ID_" + suffixVendorID })
+@Html.HiddenFor(u => u.OldIsLevyActive, new { id = "OldIsLevyActive" + suffixVendorID })
+<div class="button-height inline-label small-margin-bottom">
+    <label for="VendorStatus" class="label">
+        Status<span class="spanstar">*</span>
+    </label>
+    @(Html.Kendo().ComboBox()
+     .Name("VendorStatusID_" + suffixVendorID)
+     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorStatus.ToString()] as IEnumerable<SelectListItem>)
+     .SelectedIndex(0)
+     .HighlightFirst(true)
+     .Suggest(true)
+     .Filter(FilterType.StartsWith).MinLength(0)
+     .Events(events => events.Change(@<text> function(e){ KendoComboBoxForVendorStatusChange(e,'@suffixVendorID','@Model.OldVendorStatusID')
+    }</text>))
+     .Value(Model.BasicInformation.VendorStatusID == null ? string.Empty : Model.BasicInformation.VendorStatusID.Value.ToString())
+     .HtmlAttributes(new { id = "VendorStatusID_" + suffixVendorID, style = "width:90%;" })
+    )
+</div>
+<div class="hidden" id="PlaceHolder_StatusChange_@suffixVendorID">
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="VendorStatusChangesReason" class="label">
+            Change Reason
+        </label>
+        @(Html.Kendo().ComboBox()
+     .Name("VendorChangeReasonID_" + @suffixVendorID)
+     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorChangeReason.ToString()] as IEnumerable<SelectListItem>)
+     .SelectedIndex(0)
+     .HighlightFirst(true)
+     .Suggest(true)
+     .Filter(FilterType.StartsWith).MinLength(0)
+     .Events(events => events.Change(@<text> function(e){ KendoComboBoxHandleVendorStatusChangeReson(e,'@suffixVendorID');
+        }</text>))
+     .Value(Model.ChangeResonID == null ? string.Empty : Model.ChangeResonID.Value.ToString())
+     .HtmlAttributes(new { id = "VendorChangeReasonID_" + suffixVendorID, style = "width:40%;" })
+    )
+        @Html.TextBoxFor(u => u.ChangeReasonComments, new { @class = "input", style = "width:45%;", id = "ChangeReasonComments_" + suffixVendorID, maxLength = "2000" })
+    </div>
+    <div class="button-height inline-label small-margin-bottom hidden" id="PlaceHolder_StatusChangesReasonOther_@suffixVendorID">
+        <label for="VendorChangedReasonOther" class="label">
+            <i>Reason Other</i></label>
+        @Html.TextBoxFor(u => u.ChangedReasonOther, new { @class = "input full-width", id = "ChangedReasonOther_" + @suffixVendorID, maxLength = "50" })
+    </div>
+</div>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        DBA Name</label>
+    @Html.TextBoxFor(u => u.BasicInformation.Name, new { @class = "input full-width", maxLength = "255", id = "Name_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Corporate Name</label>
+    @Html.TextBoxFor(u => u.BasicInformation.CorporationName, new { @class = "input full-width", maxLength = "255", id = "CorporationName_" + suffixVendorID })
+</p>
+<div class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Federal Tax ID</label>
+    @(Html.Kendo().ComboBox()
+        .Name("TaxClassification_" + suffixVendorID)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorInfoTaxClassification.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoTaxClassificationOther(e,'@suffixVendorID');}</text>)))
+        .Value(Model.BasicInformation.TaxClassification)
+        .HtmlAttributes(new { id = "TaxClassification_" + @suffixVendorID, style = "width:90%;" })
+    )
+</div>
+<div class="button-height inline-label small-margin-bottom @classNameForTaxClassification" id="PlaceHolder_VendorInfo_TaxClassificationOther_@suffixVendorID">
+    <label for="TaxClassificationOther" class="label">
+        <i>Other Description</i></label>
+    @Html.TextBoxFor(u => u.BasicInformation.TaxClassificationOther, new { @class = "input full-width", id = "TaxClassificationOther_" + @suffixVendorID, maxLength = "50" })
+</div>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="TaxEIN" class="label">
+        Employer ID Number</label>
+    @Html.TextBoxFor(u => u.BasicInformation.TaxEIN, new { @class = "input full-width", maxLength = "20", id = "TaxEIN_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="TaxSSN" class="label">
+        SSN</label>
+    @Html.TextBoxFor(u => u.BasicInformation.TaxSSN, new { @class = "input full-width", maxLength = "20", id = "TaxSSN_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="ContactFirstName" class="label">
+        Contact First Name</label>
+    @Html.TextBoxFor(u => u.BasicInformation.ContactFirstName, new { @class = "input full-width", maxLength = "50", id = "ContactFirstName_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="ContactLastName" class="label">
+        Contact Last Name</label>
+    @Html.TextBoxFor(u => u.BasicInformation.ContactLastName, new { @class = "input full-width", maxLength = "50", id = "ContactLastName_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Email</label>
+    @Html.TextBoxFor(u => u.BasicInformation.Email, new { @class = "input full-width validate[custom[email]]", maxLength = "255", id = "Email_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Website</label>
+    @Html.TextBoxFor(u => u.BasicInformation.Website, new { @class = "input full-width", maxLength = "100", id = "Website_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        DOT Number</label>
+    @Html.TextBoxFor(u => u.BasicInformation.DepartmentOfTransportationNumber, new { @class = "input full-width", maxLength = "50", id = "DepartmentOfTransportationNumber_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Motor Carrier #</label>
+    @Html.TextBoxFor(u => u.BasicInformation.MotorCarrierNumber, new { @class = "input full-width", maxLength = "50", id = "MotorCarrierNumber_" + suffixVendorID })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        Admin Rating</label>
+    @Html.TextBoxFor(u => u.BasicInformation.AdministrativeRating, new { @class = "input validate[custom[number]]", style = "width:40%", @readonly = true, @disabled = "disabled", id = "AdministrativeRating_" + suffixVendorID })
+    @Html.DisplayFor(u => u.BasicInformation.AdministrativeRatingModifyDate)
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="IsVirtualLocationEnabled" class="label">
+        Use Virtual Locations</label>
+    @Html.RadioButtonFor(u => u.BasicInformation.IsVirtualLocationEnabled, true, new { @class = "radio", id = "IsVirtualLocationEnabled_" + suffixVendorID })
+    @Html.Raw(" Yes")
+    @Html.RadioButtonFor(u => u.BasicInformation.IsVirtualLocationEnabled, false, new { @class = "radio", id = "IsVirtualLocationEnabled_" + suffixVendorID })
+    @Html.Raw(" No")   
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="Description" class="label">
+        W9 On File</label>
+    @Html.CheckBox("BasicInformation.IsW9OnFile", Model.BasicInformation.IsW9OnFile.HasValue ? Model.BasicInformation.IsW9OnFile.Value : false, new { @class = "checkbox full-width", id = "IsW9OnFile_" + suffixVendorID })
+</p>
+<div class="button-height inline-label small-margin-bottom">
+    <label for="Levy" class="label">
+        Levy</label>
+    @Html.CheckBox("BasicInformation.IsLevyActive", Model.BasicInformation.IsLevyActive.HasValue ? Model.BasicInformation.IsLevyActive.Value : false, new { @class = "checkbox full-width small-margin-right", id = "IsLevyActive_" + suffixVendorID, onChange = levyEventHandler })
+    <div class="@classNameForLevy" id="PlaceHolder_Vendor_Basic_Info_Levy_@suffixVendorID">
+        @Html.TextBoxFor(u => u.BasicInformation.LevyRecipientName, new { @class = "input", style = "width:36%", id = "LevyRecipientName_" + suffixVendorID, placeHolder = "Authority" })
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsBasicInformationSection_@suffixVendorID').validationEngine();
+        ApplyMaskingforVendorInfoSection('@suffixVendorID');
+    });   
+</script>

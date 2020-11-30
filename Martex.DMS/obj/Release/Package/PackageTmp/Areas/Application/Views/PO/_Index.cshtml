@@ -1,0 +1,432 @@
+﻿@model List<Martex.DMS.DAL.POForServiceRequest_Result>
+@using Kendo.Mvc.UI
+@{
+    var poCount = Model.Count;
+}
+<style type="text/css">
+    .t-viewPO
+    {
+        background-position: -63px -176px;
+    }
+    .t-editPO
+    {
+        background-position: 0 -336px;
+    }
+    
+    .t-CancelPO
+    {
+        background-position: -16px -336px;
+    }
+    
+    .t-GOAPO
+    {
+        background-position: -64px -334px;
+    }
+</style>
+<script type="text/javascript">
+    var POCancelWindow;
+    var POCopyWindow;
+    var AddGOAWindow;
+    var firstRender = 0;
+
+    function POList_onDataBound(e) {
+
+        $(".k-grid-viewPO").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-editPO").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-CancelPO").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+        $(".k-grid-GOAPO").addClass("with-tooltip").html("<span class='k-icon k-i-clock'/>");
+        $(".k-grid-CopyPO").addClass("with-tooltip").html("<span class='k-icon k-i-restore'/>");
+
+    }
+
+    function ManagePO(e) {
+        if (e != null) {
+            e.preventDefault();
+
+            var poId = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var poStatus = this.dataItem($(e.currentTarget).closest("tr")).POStatus;
+            var poDataTransferDate = this.dataItem($(e.currentTarget).closest("tr")).DataTransferDate;
+
+            if (e.data.commandName == "viewPO" || e.data.commandName == "editPO") {
+                var isAjaxRequestRequired = true;
+                var mode = "view";
+                if (e.data.commandName == "editPO") {
+                    mode = "Edit";
+                    if (poStatus != "Issued" && poStatus != "Issued-Paid" && poStatus != "Pending") {
+                        isAjaxRequestRequired = false;
+                        openAlertMessage("This PO cannot be edited.");
+                    }
+//                    else if (poDataTransferDate != null) {
+//                        mode = "Re-SendPOEdit";
+//                    }
+                }
+                if ((IsMyContainerDirty('Add_PO') || isDetailEditInProgress) && isAjaxRequestRequired) {
+                    var message = "There are unsaved changes on the page, if you continue you will lose those changes, do you want to continue?";
+                    $.modal.confirm(message, function () {
+                        CleanMyContainer("Add_PO");
+                    }, function () {
+                        isAjaxRequestRequired = false;
+                        return false;
+                    });
+                }
+                if (isAjaxRequestRequired) {
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("_AddPO", "PO")',
+                        traditional: true,
+                        data: { poId: poId, mode: mode },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            $("#topSection").html("");
+                            $("#topSection").html(msg);
+                        }
+                    });
+                    $("#PODetails").data('kendoGrid').dataSource.read();
+                }
+            }
+            else if (e.data.commandName == "CancelPO") {
+                if ((poStatus == "Issued" || poStatus == "Issued-Paid") && poDataTransferDate == null) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("IsMemberPaymentBalance", "PO")',
+                        traditional: true,
+                        data: { poId: poId },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            if (msg.Data) {
+                                openAlertMessage("The member will have a credit balance due upon cancelling this purchase order. The balance will need to be manually refunded to the member using the Payment tab.");
+                            }
+                        }
+                    });
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("_CancelPO", "PO")',
+                        traditional: true,
+                        data: { poId: poId },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            POCancelWindow = $("<div id='POCancelWindow' />").appendTo(document.body);
+                            POCancelWindow.kendoWindow({
+                                title: "PO Cancel",
+                                modal: true,
+                                width: 400,
+                                height: 400,
+                                deactivate: function () { this.destroy(); },
+                                close: function (e) {                                    
+                                 if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                        document.dialogResult = null;
+                                        if (IsMyContainerDirty('frmCancelPO')) {
+                                            if (confirm("Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?")) {
+                                                HideValidationMessage($('input[name="CancellationReasonID_input"]'));
+                                                CleanMyContainer("frmCancelPO");
+                                            }
+                                            else {
+                                                e.preventDefault();
+                                                return false;
+                                            }
+
+                                        }
+                                        else {
+                                            HideValidationMessage($('input[name="CancellationReasonID_input"]'));
+                                            CleanMyContainer("frmCancelPO");
+                                        }
+                                    }
+                                    return true;
+                                }
+                            });
+                            POCancelWindow.data('kendoWindow').content(msg).center().open();
+                        }
+                    });
+                }
+                else if (poStatus == "Pending") {
+                    openAlertMessage("Cannot cancel a PO in pending status");
+                }
+                else if (poStatus == "Cancelled") {
+                    openAlertMessage("This PO has already been cancelled.");
+                }
+                else if (poDataTransferDate != null) {
+                    //This PO cannot be cancelled, it has already been sent to billing.
+                    openAlertMessage(" This PO has already been sent to billing, so it cannot be changed.");
+                }
+            }
+            else if (e.data.commandName == "GOAPO") {
+                if (poStatus == "Cancelled") {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("_AddGOA", "PO")',
+                        traditional: true,
+                        data: { poId: poId },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            if (msg.Status == undefined) {
+                                AddGOAWindow = $("<div id='AddGOAWindow' />").appendTo(document.body);
+                                AddGOAWindow.kendoWindow({
+                                    title: "Create GOA PO",
+                                    modal: true,
+                                    width: 400,
+                                    height: 400,
+                                    deactivate: function () { this.destroy(); },
+                                    close: function (e) {
+                                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                            document.dialogResult = null;
+                                            if (IsMyContainerDirty('frmAddGOA')) {
+                                                if (confirm("Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?")) {
+                                                    HideValidationMessage($('input[name="GOAReasonID_input"]'));
+                                                    CleanMyContainer("frmAddGOA");
+                                                }
+                                                else {
+                                                    e.preventDefault();
+                                                    return false;
+                                                }
+
+                                            }
+                                            else {
+                                                HideValidationMessage($('input[name="GOAReasonID_input"]'));
+                                                CleanMyContainer("frmAddGOA");
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                });
+                                AddGOAWindow.data('kendoWindow').content(msg).center().open();
+                            }
+                            else if (msg.Status !== undefined && msg.Status == "BusinessRuleFail") {
+                                openAlertMessage("This PO has already had a GOA issued.  Only one GOA can be issued against a cancelled PO.");
+                            }
+                        }
+                    });
+                }
+                else {
+                    openAlertMessage("This PO is not “cancelled” so a GOA cannot be issued.");
+                }
+            }
+            else if (e.data.commandName == "CopyPO") {
+                if (poStatus != "Pending") {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("_CopyPO", "PO")',
+                        traditional: true,
+                        data: { poId: poId },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            POCopyWindow = $("<div id='POCopyWindow' />").appendTo(document.body);
+                            POCopyWindow.kendoWindow({
+                                title: "PO Copy",
+                                modal: true,
+                                width: 400,
+                                height: 275,
+                                deactivate: function () { this.destroy(); },
+                                close: function (e) {
+                                    if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                        document.dialogResult = null;
+                                        if (IsMyContainerDirty('frmCopypo')) {
+                                            if (confirm("Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?")) {
+                                                HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                                                HideValidationMessage($('input[name="copyServiceType_input"]'));
+                                                CleanMyContainer("frmCopypo");
+                                            }
+                                            else {
+                                                e.preventDefault();
+                                                return false;
+                                            }
+
+                                        }
+                                        else {
+                                            HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                                            HideValidationMessage($('input[name="copyServiceType_input"]'));
+                                            CleanMyContainer("frmCopypo");
+                                        }
+                                    }
+                                    return true;
+                                }
+                            });
+                            POCopyWindow.data('kendoWindow').content(msg).center().open();
+                        }
+                    });
+                }
+                else {
+                    openAlertMessage("Cannot copy a PO that is in “pending” ");
+                }
+            }
+        }
+    }
+
+    function POList_onCommand(e) {
+        if (e.dataItem !== undefined) {
+            if (e.dataItem.DataTransferDate != null) {
+                e.data = $.extend(e.data, {
+                    ajaxDataTransfer: e.dataItem.DataTransferDate
+                });
+            }
+        }
+    }
+</script>
+<div class="with-padding">
+    <div id="topSection">
+        @Html.Partial("_AddPO", ViewBag.PO as Martex.DMS.DAL.PurchaseOrder)
+    </div>
+    <!-- PO Search grid -->
+    <div class="new twelve-columns margin-top">
+        <div class="boxed silver-gradient">
+            <h3 class="underline">
+                Purchase Order List</h3>
+            @(Html.Kendo().Grid(Model)
+            .Name("POList")
+            .DataSource(dataBinding =>
+            {
+                dataBinding.Ajax().Read("_POForServiceRequest", "PO");
+                                              
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.ID).Hidden();
+                columns.Bound(p => p.PONumber).Title("PO Number");
+                columns.Bound(p => p.PODate).Format("{0:MM/dd/yyyy}").Title("Date");
+                columns.Bound(p => p.VendorName).Title("Vendor Name");
+                columns.Bound(p => p.POTotal).Title("Total").Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+                columns.Bound(p => p.Service).Title("Service");
+                columns.Bound(p => p.POStatus).Title("Status");
+                columns.Bound(p => p.CancelReason).Title("Cancel/GOA Reason");
+                columns.Bound(p => p.OriginalPONumber).Title("Original PO Number");
+                columns.Bound(p => p.DataTransferDate).Hidden();
+                columns.Command(commands =>
+                {
+                    commands
+                        .Custom("viewPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:26px;", title = "View" });
+                    commands
+                        .Custom("editPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:26px;", title = "Edit" });
+                    commands
+                        .Custom("CancelPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:26px;", title = "Cancel" });
+                    commands
+                        .Custom("GOAPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:26px;", title = "GOA" });
+                    commands
+                        .Custom("CopyPO").Click("ManagePO").HtmlAttributes(new { style = "min-width:26px;", title = "Copy PO" });
+                })
+                .Title("Action(s)").Width(225);
+            }).HtmlAttributes(new { style = "min-height:100px" })
+            .Events(events =>
+            {
+                events.DataBound("POList_onDataBound");
+            })
+            .Selectable()
+            .Scrollable()
+            .Sortable()
+            .Pageable(pager => pager
+                .Refresh(true)
+                .Info(false)
+                .PageSizes(false)
+                .PreviousNext(false)
+                .Numeric(false)
+            )
+            )
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function LeavePOTab() {
+
+        if (isDetailEditInProgress) {
+            openAlertMessage("You must first save or cancel the PO detail row that you are working on");
+            return false;
+        }
+
+        CleanMyContainer('Add_PO');
+        var retVal = false;
+        var pageMode = $("#pageMode").val();
+        var $form = $("#Add_PO");
+        var isVendorAdvised = $("#Advised").is(':checked');
+        var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+        var taxAmount = $("#txtTax").val();
+        if (isServiceCovered === undefined) {
+            isServiceCovered = null;
+        }
+        else {
+            isServiceCovered = isServiceCovered == "1" ? "true" : "false";
+        }
+        var isMbrPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+
+        if (isMbrPaysISP === undefined) {
+            isMbrPaysISP = null;
+        }
+        else {
+            isMbrPaysISP = isMbrPaysISP == "1" ? "true" : "false";
+        }
+
+        var isPayByCompanyCC = $('input:radio[id=rdPayByCC]:checked').val();
+
+        if (isPayByCompanyCC === undefined) {
+            isPayByCompanyCC = null;
+        }
+        else {
+            isPayByCompanyCC = isPayByCompanyCC == "1" ? "true" : "false";
+        }
+        var serviceTotalValue = $("#txtServiceTotal").val();
+
+        var fullPhoneNumber = GetPhoneNumberForDB("POPhoneNumber");
+
+        var mpType = $("#MemberPaymentType").data('kendoComboBox').value();
+        var sendButton = $("action").val();
+        var talkedTo = $("#TalkedTo").val();
+        var emailText = $("#POEmail").val();
+        var DbcoachNetPay = $("#txtCoachNet").val();
+        var DbCoverageLimit = $("#ServiceCoverageLimit").val();
+        var formdata = $form.serializeArray();
+
+        formdata.push({ name: "mode", value: pageMode });
+        formdata.push({ name: "IsVendorAdvised", value: isVendorAdvised });
+        formdata.push({ name: "IsServiceCovered", value: isServiceCovered });
+        formdata.push({ name: "TaxAmount", value: taxAmount });
+        formdata.push({ name: "IsMemberAmountCollectedByVendor", value: isMbrPaysISP });
+        formdata.push({ name: "IsPayByCompanyCreditCard", value: isPayByCompanyCC });
+        formdata.push({ name: "TotalServiceAmount", value: serviceTotalValue });
+        formdata.push({ name: "FaxPhoneNumber", value: fullPhoneNumber });
+        formdata.push({ name: "action", value: sendButton });
+        formdata.push({ name: "TalkedTo", value: talkedTo });
+        formdata.push({ name: "MemberPaymentTypeID", value: mpType });
+        formdata.push({ name: "Email", value: emailText });
+        formdata.push({ name: "CoachNetServiceAmount", value: DbcoachNetPay });
+        formdata.push({ name: "CoverageLimit", value: DbCoverageLimit });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LeaveTab", "PO", new { area = "Application" })',
+            traditional: true,
+            data: formdata,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                retVal = true;
+                StyleTabAfterValidation("po", false);
+            }
+        });   // end of ajax.
+
+        return retVal;
+    }
+
+    fnSaveTab = LeavePOTab;
+    $(function () {
+        if ('@ViewBag.IsPosAvailable' == "False") {
+            openAlertMessage("No PO's to display. Must go through dispatch to create a PO.");
+        }
+        var poListRefresh = $("#POList").data('kendoGrid');
+        if (poListRefresh !== undefined) {
+            $('#POList').data('kendoGrid').dataSource.read();
+        }
+
+        setTimeout(function () {
+            var contactMethod = $("#ContactMethodID").data('kendoComboBox').text();
+            if (contactMethod == "Email") {
+                $("#pFax").hide();
+            }
+            else if (contactMethod == "Email") {
+                $("#pEmail").hide();
+            }
+        }, 1500);
+    }); 
+</script>

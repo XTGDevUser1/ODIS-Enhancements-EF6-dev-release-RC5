@@ -1,0 +1,137 @@
+﻿@model Martex.DMS.DAL.Entities.MemberModel
+@using Kendo.Mvc.UI
+<script type="text/javascript">
+    function onComboBoxChange_Country(e) {
+        var combo = $('#Country').data("kendoComboBox");
+        var stateCombo = $('#State').data('kendoComboBox');
+        // NP: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(stateCombo);
+        }
+        //NP
+        else {
+
+            // Fire an AJAX request to bind the state dropdown.
+            
+            var Country_value = $('#Country').data('kendoComboBox').value();
+            var stateComboInputField = $('input[name="State_input"]');
+            if (Country_value != null && Country_value != '') {
+                HideValidationMessage($('input[name="Country_input"]'));
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                    traditional: true,
+                    data: { countryId: $('#Country').data('kendoComboBox').value() },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        stateCombo.setDataSource(msg);
+                        stateCombo.value('');
+                        SetFocusOnField("State");
+                    }
+                });
+
+            }
+            else {
+                var items = [{ text: "Select", value: ""}];
+                stateCombo.setDataSource(items);
+                stateCombo.value('');
+            }
+        }   // end of ajax
+    }
+
+    function State_OnChange(e) {
+        var retVal = ValidateInputForKendoCombo(e);
+        if (retVal) {
+            HideValidationMessage($('input[name="State_input"]'));
+        }
+
+        return retVal;
+    }
+</script>
+<p class="inline-label">
+    <label for="Address1" class="label">
+        Address 1 <span id="RequireAddress1" class="spanstar">*</span></label>
+    @Html.TextBoxFor(u => u.AddressLine1, new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="Address2" class="label">
+        Address 2 <span id="RequireAddress2" class="spanstar">*</span></label>
+    @Html.TextBoxFor(u => u.AddressLine2, Model.AddressLine2, new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="Address3" class="label">
+        Address 3<span id="RequireAddress3" class="spanstar">*</span></label>
+    @Html.TextBoxFor(u => u.AddressLine3, Model.AddressLine3, new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="City" class="label">
+        City <span id="RequireCity" class="spanstar">*</span></label>
+    @Html.TextBoxFor(u => u.City, new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<div class="inline-label" style="margin-bottom: 10px;">
+    <label for="Country" class="label">
+        Country <span id="RequireCountry" class="spanstar">*</span></label>
+    @(Html.Kendo().ComboBoxFor(u => u.Country)
+    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+    .Name("Country")
+    .HtmlAttributes(new { style = " " })
+    .Events(events =>
+    {
+        events.Change("onComboBoxChange_Country");
+    })
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .SelectedIndex(0)
+    )
+</div>
+<div class="inline-label" style="margin-bottom: 10px;">
+    <label for="StateZip" class="label">
+        State<span id="RequireState" class="spanstar">*</span></label>
+    @(Html.Kendo().ComboBox()
+    .Name("State")
+    .Placeholder("Select state")
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .HtmlAttributes(new { style = " " })
+    .Value(Model.State.ToString())
+    .Events(events =>
+    {
+        events.Change("State_OnChange");
+    })
+    .DataTextField("Text")
+    .DataValueField("Value"))
+</div>
+<p class="inline-label">
+    <label for="Zip" class="label">
+        Zip <span id="RequireZip" class="spanstar">*</span></label>
+    @Html.TextBoxFor(u => u.PostalCode, new { @class = "validate[maxSize[10]], input" })
+</p>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        var stateCombo = $('#State').data('kendoComboBox');
+        var Country_value = $('#Country').data('kendoComboBox').value();
+        if (Country_value != null && Country_value != '') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                traditional: true,
+                data: { countryId: $('#Country').data('kendoComboBox').value() },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    stateCombo.setDataSource(msg);
+                    stateCombo.value('');
+                }
+            });
+
+        }
+        else {
+            stateCombo.value('');
+        }
+    });
+
+</script>

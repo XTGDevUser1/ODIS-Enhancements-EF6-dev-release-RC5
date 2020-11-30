@@ -1,0 +1,207 @@
+﻿@model Martex.DMS.DAL.Entities.TemporaryCC.TemporaryCCSearchCriteria
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/VendorManagement/Views/Shared/_VendorLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Temporary Credit Card Processing
+    </h1>
+</hgroup>
+<div class="with-padding">
+    <div id="VendorCCProcessingTab" class="standard-tabs same-height" data="vendorCCRrocessingDynamicTabs">
+        <ul class="tabs ccProcessingDetails">
+            <li id="tbVendorCCProcessingList"><a id="hypCCProcessingSearchCriteria" href="#tabs-1">
+                List</a> </li>
+        </ul>
+        <div id="tabs-1" class="vendorCCRrocessingDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult", Model)
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var Dialog_Container_File_Import = null;
+    var tabObject = null;
+    $(function () {
+        tabObject = $("#VendorCCProcessingTab").tabs();
+        GetSearchCriteria();
+    });
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+            type: 'POST',
+            data: GetCCProcessingSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#tempCCSelectedSearchCriteriaDetails').html(msg);
+                $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetCCProcessingSearchCriteria() {
+
+        var postData = $('#frmVendorTemporaryCCProcessingSearchCriteria').serializeArray();
+
+        if ($('#PostingBatchID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "PostingBatchName", value: $('#PostingBatchID').data('kendoComboBox').text() });
+        }
+        if ($('#ClientID').data('kendoComboBox') != undefined) {
+          postData.push({ name: "ClientName", value: $('#ClientID').data('kendoComboBox').text() });
+        }
+
+        if ($('#TemporaryCCProcessingViewID') != undefined) {
+            var value = parseInt($('#TemporaryCCProcessingViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+            type: 'POST',
+            data: GetCCProcessingSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulVendorTemporarayCCProcessingSearchCriteria').html(msg);
+            }
+        })
+    }
+
+
+    function LoadCCCardDetails(recordID, tempCCNumber) {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetTemporaryCCCardDetails", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            data: { temporaryCCID: recordID },
+            async: true,
+            success: function (msg) {
+                winCCCardDetails = $("<div id='winCCCardDetails' />").appendTo(document.body);
+                winCCCardDetails.kendoWindow({
+                    title: "ID : " + recordID,
+                    modal: true,
+                    width: 800,
+                    height: 600,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $("#frmTemporaryCCCardDetails").validationEngine("hideAll");
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+
+                            if (IsMyContainerDirty('frmTemporaryCCCardDetails')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+                                CleanMyContainer('frmTemporaryCCCardDetails');
+                            }
+                        }
+                        else if (document.dialogResult == "OK") {
+                            $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+                            CleanMyContainer("frmTemporaryCCCardDetails");
+                        }
+                        return true;
+                    }
+                });
+                winCCCardDetails.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    function AddPOTab(poID, poNumber, mode) {
+        if (poNumber == undefined) {
+            poNumber = '';
+        }
+        var tabTitle = 'View';
+        if (mode == 'edit') {
+            tabTitle = 'Edit';
+        }
+
+        var nameToCheck = "PO(" + poID.toString() + ")" + poNumber.toString();
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#VendorCCProcessingTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTabForPo(nameToCheck, poID, nameToCheck, mode);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+
+    function addTabForPo(tabTitle, recordID, nameToCheck, mode) {
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container to add new tab');
+        }
+        else {
+            // Step 1: Veirfy that Current Tab is not added
+
+            if (canAddGenericTabInCurrentContainer(tabTitle, tabObject)) {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("PODetails", "History", new { area = "Application" })',
+                    traditional: true,
+                    data: { poId: recordID, pageMode: mode },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        addGenericTabWithCurrentContainer(tabTitle, tabObject, msg);
+                    }
+                });
+            }
+        }
+
+    }
+
+    function ImportCCFile() {
+        $.ajax({
+            url: '@Url.Action("_ImportCCFile", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            success: function (msg) {
+                Dialog_Container_File_Import = $("<div id='winFileImport' />").appendTo(document.body);
+                Dialog_Container_File_Import.kendoWindow({
+                    title: "Import CC File",
+                    modal: true,
+                    width: 550,
+                    height: 300,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $("#frmCCUplaod").validationEngine("hideAll");
+                        return true;
+                    }
+                });
+                Dialog_Container_File_Import.data('kendoWindow').content(msg).center().open();
+            }
+        });
+
+
+    }
+</script>

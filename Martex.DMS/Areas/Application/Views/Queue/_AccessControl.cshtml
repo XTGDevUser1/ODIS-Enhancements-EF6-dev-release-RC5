@@ -1,0 +1,168 @@
+﻿@using Martex.DMS.DAL
+@model int
+@{
+    if (ViewData["isAssignedToUserValid"].ToString() == "true")
+    {
+    }
+    string userName = ViewData["UserName"].ToString();
+    var btnQueueEditManagerOverride = "btnQueueEditManagerOverride_" + Model.ToString();
+    var btnQueueEditServiceOpen = "btnQueueEditServiceOpen_" + Model.ToString();
+    var btnQueueEditOk = "btnQueueEditOk" + Model.ToString();
+    var hdnIsManager = "hdnIsManager" + Model.ToString();
+    var prefixId = Model.ToString();
+}
+<form method="post" action="" id="form-AcessControl_@prefixId">
+<p>@Html.Label("This case is currently being worked by")</p>
+<p>@Html.Label(userName)</p>
+<button id="@btnQueueEditOk" class="button silver-gradient  align-center"
+        type="button">
+    Ok</button>
+@if (Roles.IsUserInRole("Manager") || Roles.IsUserInRole("ClientAdmin") || Roles.IsUserInRole("SysAdmin"))
+{
+    <button id="@btnQueueEditManagerOverride" class="button blue-gradient  align-center"
+            type="button">
+        Unlock
+    </button>
+        
+    <button id="@btnQueueEditServiceOpen" class="button green-gradient  align-center"
+            type="button">
+        Open
+    </button>
+}
+<br />
+<br />
+<p>
+    <b>
+        <label for="Comment" class="label">
+            Add a Comment to this service request
+        </label>
+    </b>
+</p>
+<div class="with-padding">
+    @Html.TextArea("srComments_" + Model.ToString(), new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+</div>
+<br />
+<p>
+    <b>
+        <label for="SendNotification" class="label">
+            Send Notification to Agent working this request</label></b>&nbsp;&nbsp;
+    @Html.CheckBox("sendNotification", new { @id = "sendNotification_" + prefixId, @class = "checkbox" })
+</p>
+<div class="field-block button-height">
+    <button id="btnSave_@prefixId" class="button green-gradient  align-center"
+                    type="button">
+        Save</button>
+    <button id="btnCancel_@prefixId" class="button silver-gradient  align-center"
+                    type="button" value="Auto">
+        Cancel</button>
+</div>
+@Html.Hidden("hdnIsManager", ViewData["isManager"].ToString())
+@Html.Hidden("hdnIsAssignedToUserValid", ViewData["isAssignedToUserValid"].ToString())
+@Html.Hidden("hdnCaseId", ViewData["CaseId"].ToString())
+</form>
+<script language="javascript" type="text/javascript">
+
+    $(document).ready(function () {
+
+        CleanMyContainer('form-AcessControl_@prefixId');
+        WatchMyContainer('form-AcessControl_@prefixId');
+
+        $('#' + '@btnQueueEditOk').die('click');
+        $('#' + '@btnQueueEditOk').live('click', function (e) {
+            document.dialogResult = "CANCEL";
+            queueEditWindow.data('kendoWindow').close();
+        });
+
+
+        $("#btnSave_@prefixId").die('click');
+        $("#btnSave_@prefixId").live('click', function (e) {
+            document.dialogResult = "OK";
+            var isFormValid = true;
+            var uniqueId = $(this).attr("id").split('_')[1];
+            var notification = $("#sendNotification_" + uniqueId).is(':checked');
+            var comments = $("#srComments_" + uniqueId).val();
+            var srId = uniqueId;
+            if ($.trim(comments).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($("#srComments_" + uniqueId), "Comment is required.");
+
+            }
+            if (isFormValid) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("SaveLockedServiceRequestComments", "Queue")',
+                    traditional: true,
+                    data: { serviceRequestId: uniqueId, srComments: comments, sendNotification: notification },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        if (msg.Status && msg.Status == "Success") {
+                            HideValidationMessage($("#srComments_" + uniqueId));
+                            CleanMyContainer('form-AcessControl_' + uniqueId);
+                            openAlertMessage('Data Saved successfully');
+                            queueEditWindow.data('kendoWindow').close();
+                        }
+                    }
+                });
+
+            }
+
+        });
+
+        $("#btnCancel_@prefixId").die('click');
+        $("#btnCancel_@prefixId").live('click', function (e) {
+            document.dialogResult = "CANCEL";
+            queueEditWindow.data('kendoWindow').close();
+
+        });
+
+        $('#' + '@btnQueueEditOk').die('click');
+        $('#' + '@btnQueueEditOk').live('click', function (e) {
+            queueEditWindow.data('kendoWindow').close();
+        });
+
+        $('#' + '@btnQueueEditServiceOpen').die('click');
+        $('#' + '@btnQueueEditServiceOpen').live('click', function (e) {
+            // Unlock the Service Request and Open in Edit Mode
+            var uniqueId = $(this).attr("id").split('_')[1];
+            EditManagerOverride(true, uniqueId);
+        });
+
+        function EditManagerOverride(IsRequiredOpen, uniqueId) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("EditManagerOverride", "Queue")',
+                traditional: true,
+                data: { caseId: $('#hdnCaseId').val() },
+                cache: false,
+                async: true,
+                success: function (json) {
+                    if (json.Status == "Success") {
+
+                        HideValidationMessage($("#srComments_" + uniqueId));
+                        CleanMyContainer('form-AcessControl_' + uniqueId);
+                        queueEditWindow.data('kendoWindow').close();
+                        if (queueDetailWindow != null) {
+                            queueDetailWindow.data('kendoWindow').close();
+                        }
+                        if ($('#GrdQueue').data('kendoGrid') != undefined) {
+                            $('#GrdQueue').data('kendoGrid').dataSource.read();
+                        }
+                        if (IsRequiredOpen) {
+                            LoadQuequeinEditMode(true);
+                        }
+                    }
+
+                }
+            }); // end of ajax    
+        }
+
+        $('#' + '@btnQueueEditManagerOverride').die('click');
+        $('#' + '@btnQueueEditManagerOverride').live('click', function (e) {
+            var uniqueId = $(this).attr("id").split('_')[1];
+            var id = $('#hdnAssignedTo').val();
+            EditManagerOverride(false, uniqueId);
+        });
+
+    });
+</script>

@@ -1,0 +1,161 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+<script type="text/javascript" language="javascript">
+
+    function onGrdVendorRatesDataBound(e) {
+        e.sender.table.find('tr').each(function () {
+            var $BaseRate = $(this).find('.baseRate');
+            var $serviceRate = $(this).find('.serviceRate');
+            var $enrouteRate = $(this).find('.enrouteRate');
+            var $enrouteFreeMiles = $(this).find('.enrouteFreeMiles');
+            var $serviceFreeMiles = $(this).find('.serviceFreeMiles');
+            var $hourlyRate = $(this).find('.hourlyRate');
+            var $goaRate = $(this).find('.goaRate');
+            //Base Rate
+            if ($BaseRate == null || $BaseRate == undefined || $BaseRate == "0") {
+                $BaseRate.html("");
+            }
+            else {
+                if (parseFloat($BaseRate.html()) > 0) {
+                    $BaseRate.html("$" + parseFloat($BaseRate.html()).toFixed(2));
+                }
+                else {
+                    $BaseRate.html("");
+                }
+            }
+
+            //GOA Rate
+            if ($goaRate == null || $goaRate == undefined || $goaRate == "0") {
+                $goaRate.html("");
+            }
+            else {
+                if (parseFloat($goaRate.html()) > 0) {
+                    $goaRate.html("$" + parseFloat($goaRate.html()).toFixed(2));
+                }
+                else {
+                    $goaRate.html("");
+                }
+            }
+
+            //Enroute Rate
+            if ($enrouteRate == null || $enrouteRate == undefined || $enrouteRate == "0") {
+                $enrouteRate.html("");
+            }
+            else {
+                if (parseFloat($enrouteRate.html()) > 0) {
+                    $enrouteRate.html("$" + parseFloat($enrouteRate.html()).toFixed(2));
+                }
+                else {
+                    $enrouteRate.html("");
+                }
+            }
+            //Enroute Free Miles
+            if ($enrouteFreeMiles == null || $enrouteFreeMiles == undefined || $enrouteFreeMiles == "0") {
+                $enrouteFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($enrouteFreeMiles.html()) > 0) {
+                    $enrouteFreeMiles.html(parseFloat($enrouteFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $enrouteFreeMiles.html("");
+                }
+            }
+            //Service Free Miles
+            if ($serviceFreeMiles == null || $serviceFreeMiles == undefined || $serviceFreeMiles == "0") {
+                $serviceFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($serviceFreeMiles.html()) > 0) {
+                    $serviceFreeMiles.html(parseFloat($serviceFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $serviceFreeMiles.html("");
+                }
+            }
+            //Hourly Rate
+            if ($hourlyRate == null || $hourlyRate == undefined || $hourlyRate == "0") {
+                $hourlyRate.html("");
+            }
+            else {
+                if (parseFloat($hourlyRate.html()) > 0) {
+                    $hourlyRate.html("$" + parseFloat($hourlyRate.html()).toFixed(2));
+                }
+                else {
+                    $hourlyRate.html("");
+                }
+            }
+            //serviceRate
+            if ($serviceRate == null || $serviceRate == undefined || $serviceRate == "0") {
+                $serviceRate.html("");
+            }
+            else {
+                if (parseFloat($serviceRate.html()) > 0) {
+                    $serviceRate.html("$" + parseFloat($serviceRate.html()).toFixed(2));
+                }
+                else {
+                    $serviceRate.html("");
+                }
+            }
+        });
+    }
+</script>
+@(Html.Kendo()
+.Grid<VendorRates_Result>()
+.Name("GrdVendorRates")
+.Columns(column =>
+{
+    column.Bound(a => a.Name).Title("Service").Width(250);
+    column.Bound(a => a.BaseRate).Title("Base Rate").Format("{0:c}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "baseRate" });
+    column.Bound(a => a.EnrouteRate).Title("Enroute Rate").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteRate" });
+    column.Bound(a => a.EnrouteFreeMiles).Title("Enroute Free Miles").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteFreeMiles" });
+    column.Bound(a => a.ServiceRate).Title("Service Rate").Format("{0:c}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceRate" });
+    column.Bound(a => a.ServiceFreeMiles).Title("Service Free Miles").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceFreeMiles" });
+    column.Bound(a => a.HourlyRate).Title("Hourly Rate").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "hourlyRate" });
+    column.Bound(a => a.GoaRate).Title("GOA Rate").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "goaRate" });
+})
+.Pageable()
+.Sortable()
+.Scrollable()
+.Pageable(pager => pager
+    .Refresh(true)
+    .PageSizes(new int[] { 10, 20, 50, 100 })
+)
+.Events(events => events.DataBound("onGrdVendorRatesDataBound"))
+.Selectable(select => select.Mode(GridSelectionMode.Single))
+.DataSource(datasource => datasource
+    .Ajax()
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    .Read(read => read.Action("VendorRatesList", "PO", new { area = "Application" }).Data(@<text>function(e){return {vendorLocationID : '@Model'};}</text>))
+    .Model(u => u.Id(p => p.RowNum))
+    .PageSize(50)
+)
+.Resizable(resize => resize.Columns(true))
+.EnableCustomBinding(true)
+)
+<div class="clear">
+</div>
+<div class="new-row twelve-columns">
+    <button id="btnCloseVendorRates" class="button green-gradient glossy big float-right margin-bottom"
+        type="button">
+        Close</button>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        200
+                                        );
+        $("#GrdVendorRates>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+    $("#btnCloseVendorRates").live('click', function () {
+        document.dialogResult = "CANCEL";
+        vendorRatesDetailWindow.data('kendoWindow').close();
+    });
+    
+</script>

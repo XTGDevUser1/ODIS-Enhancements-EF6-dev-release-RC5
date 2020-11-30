@@ -1,0 +1,8 @@
+keytool -genkey -alias signFiles -keystore compstore -keypass kpi_100626 -dname "CN=DMSClickToCallApplet" -storepass a8b6c5 -validity 1825
+
+jar cvf DMSClickToCall.jar .\*.class
+
+jarsigner -keystore compstore -storepass a8b6c5 -keypass kpi_100626 -signedjar SignedDMSClickToCall.jar DMSClickToCall.jar signFiles
+ 
+
+ 

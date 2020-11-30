@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+              VerticalOptions="FillAndExpand"
+             x:Class="ODISMember.Pages.Tabs.MyCard">
+  <ScrollView Padding="0,20,0,0">
+    <StackLayout Spacing="0">
+      <StackLayout>
+        <StackLayout Padding="0,0,0,20">
+        <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.Logo}" VerticalOptions="CenterAndExpand" HeightRequest="50"/>
+          </StackLayout>
+        <ffimageloading:CachedImage x:Name="productImage" VerticalOptions="CenterAndExpand"/>
+      </StackLayout>
+      <Grid ColumnSpacing="10" Padding="10,20,20,10">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <widget:LabelValueVertical x:Name="widgetMemberSince" LabelText="MEMBER SINCE" Grid.Row="0" Grid.Column="0" />
+        <widget:LabelValueVertical x:Name="widgetMemberNumber" LabelText="MEMBER NUMBER" Grid.Row="0" Grid.Column="1" />
+      </Grid>
+      <StackLayout BackgroundColor="#F8F8F9" Padding="10" VerticalOptions="FillAndExpand">
+        <controls:ExtendedLabel Text="- HELPFUL PHONE NUMBERS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center"/>
+        <controls:ExtendedLabel Text="Help with your Membership Plan or Roadside Assistance is just a phone call away. Our service support team is available 24/7, 365 days a year." Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start"/>
+
+        <Grid ColumnSpacing="20" Padding="0,20,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <controls:ExtendedLabel Text="ROADSIDE ASSISTANCE" Style="{StaticResource LabelValueVertical_LabelStyle}" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="0" FontSize="14" TextColor="#4A4A4A"/>
+          <Button x:Name="btnRoadsideAssistancePhoneNumber" Style="{StaticResource LabledButtonStyle}" Grid.Row="0" Grid.Column="1" TextColor="#C3002F" FontSize="18" VerticalOptions="Center"/>
+          <controls:ExtendedLabel Text="MEMBERSHIP SERVICES" Style="{StaticResource LabelValueVertical_LabelStyle}" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Grid.Row="1" Grid.Column="0" FontSize="14" TextColor="#4A4A4A"/>
+          <Button x:Name="btnMembershipServicePhoneNumber" Style="{StaticResource LabledButtonStyle}" Grid.Row="1" Grid.Column="1" TextColor="#C3002F" FontSize="18" VerticalOptions="Center"/>
+        </Grid>
+      </StackLayout>
+      <StackLayout BackgroundColor="#929292" Padding="10,10,10,20" VerticalOptions="End">
+        <controls:ExtendedLabel Text="THIS IS NOT INSURANCE" Style="{StaticResource LabelValueVertical_LabelStyle}" HorizontalTextAlignment="Center" TextColor="White"/>
+        <controls:ExtendedLabel x:Name="lblFooter" FontAttributes="Italic" FontSize="12" Style="{StaticResource BaseLabelStyle_Italic}" TextColor="White"/>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+</ContentView>

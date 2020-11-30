@@ -1,0 +1,286 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.ActionFilters
+@model List<Martex.DMS.DAL.VendorServicesAndRates_Result>
+@{
+    string suffixVendorLocationID = ViewData["VendorLocationID"].ToString();
+    string sufixVendorID = ViewData["VendorID"].ToString();
+}
+<script type="text/javascript">
+    function GrdVLRDetail_onDataBound(e) {
+
+        $("#tooltips").html("");
+
+        $(".k-grid-add").addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add Location Rate</label>").attr("title", "Add Location Rate");
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+
+        $(".k-grid-add", ".k-grid-delete").click(function () {
+
+            $("#tooltips").html("");
+        });
+        //handling code
+
+        var grid = e.sender;
+        var subTotal = 0;
+        var isMemberPayValue = 0;
+        var that = this;
+
+        e.sender.table.find('tr').each(function () {
+            var $BaseRate = $(this).find('.baseRate');
+            var $serviceRate = $(this).find('.serviceRate');
+            var $enrouteRate = $(this).find('.enrouteRate');
+            var $enrouteFreeMiles = $(this).find('.enrouteFreeMiles');
+            var $serviceFreeMiles = $(this).find('.serviceFreeMiles');
+            var $hourlyRate = $(this).find('.hourlyRate');
+            var $goaRate = $(this).find('.goaRate');
+            //Base Rate
+            if ($BaseRate == null || $BaseRate == undefined || $BaseRate == "0") {
+                $BaseRate.html("");
+            }
+            else {
+                if (parseFloat($BaseRate.html()) > 0) {
+                    $BaseRate.html("$" + parseFloat($BaseRate.html()).toFixed(2));
+                }
+                else {
+                    $BaseRate.html("");
+                }
+            }
+
+            //GOA Rate
+            if ($goaRate == null || $goaRate == undefined || $goaRate == "0") {
+                $goaRate.html("");
+            }
+            else {
+                if (parseFloat($goaRate.html()) > 0) {
+                    $goaRate.html("$" + parseFloat($goaRate.html()).toFixed(2));
+                }
+                else {
+                    $goaRate.html("");
+                }
+            }
+
+            //Enroute Rate
+            if ($enrouteRate == null || $enrouteRate == undefined || $enrouteRate == "0") {
+                $enrouteRate.html("");
+            }
+            else {
+                if (parseFloat($enrouteRate.html()) > 0) {
+                    $enrouteRate.html("$" + parseFloat($enrouteRate.html()).toFixed(2));
+                }
+                else {
+                    $enrouteRate.html("");
+                }
+            }
+            //Enroute Free Miles
+            if ($enrouteFreeMiles == null || $enrouteFreeMiles == undefined || $enrouteFreeMiles == "0") {
+                $enrouteFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($enrouteFreeMiles.html()) > 0) {
+                    $enrouteFreeMiles.html(parseFloat($enrouteFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $enrouteFreeMiles.html("");
+                }
+            }
+            //Service Free Miles
+            if ($serviceFreeMiles == null || $serviceFreeMiles == undefined || $serviceFreeMiles == "0") {
+                $serviceFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($serviceFreeMiles.html()) > 0) {
+                    $serviceFreeMiles.html(parseFloat($serviceFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $serviceFreeMiles.html(" ");
+                }
+            }
+            //Hourly Rate
+            if ($hourlyRate == null || $hourlyRate == undefined || $hourlyRate == "0") {
+                $hourlyRate.html(" ");
+            }
+            else {
+                if (parseFloat($hourlyRate.html()) > 0) {
+                    $hourlyRate.html("$" + parseFloat($hourlyRate.html()).toFixed(2));
+                }
+                else {
+                    $hourlyRate.html(" ");
+                }
+            }
+            //serviceRate
+            if ($serviceRate == null || $serviceRate == undefined || $serviceRate == "0") {
+                $serviceRate.html(" ");
+            }
+            else {
+                if (parseFloat($serviceRate.html()) > 0) {
+                    $serviceRate.html("$" + parseFloat($serviceRate.html()).toFixed(2));
+                }
+                else {
+                    $serviceRate.html(" ");
+                }
+            }
+        });
+    }
+
+    function GrdVLRDetail_OnCancel(e) {
+        var btnUpdate = $(e.container.find(".k-grid-edit"));
+        var btnDelete = $(e.container.find(".k-grid-delete"));
+
+        btnUpdate.addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Save");
+        btnDelete.addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Cancel");
+
+    }
+
+    function GrdVLRDetail_OnEdit(e) {
+
+        isDetailEditInProgress = true;
+        
+        var btnUpdate = $(e.container.find(".k-grid-update"));
+        var btnCancel = $(e.container.find(".k-grid-cancel"));
+
+        btnUpdate.addClass("with-tooltip green-active2 active").html('<span class="k-icon k-update"/>').css("min-width", "26px");
+        btnCancel.addClass("with-tooltip red-active2 active").html('<span class="k-icon k-cancel"/>').css("min-width", "26px");
+
+        e.container.find(".text-box").each(function () {
+            
+            var tb = $(this);
+            tb.addClass("input");
+            tb.css("width", "50px");
+            tb.change(function (e) { e.stopPropagation(); });
+            if (tb.parent("td").hasClass("product")) {
+                tb.attr("readonly", "readonly");
+                firstTextBox = false;
+            }
+        });
+
+        btnCancel.click(function () {
+
+            //KB: Track edits
+            isDetailEditInProgress = false;
+
+            $("#grdVendorRates_@suffixVendorLocationID").data('kendoGrid').dataSource.read();
+        });
+    }
+
+    function GrdVLRDetail_OnSave(e) {
+        isDetailEditInProgress = false;
+        var dirtyFlagContainer = $('#frmVendorContainerForDirtyFlag_@sufixVendorID');
+        dirtyFlagContainer.attr("data", "false");
+        setTimeout(function () {
+            $("#grdVendorRates_@suffixVendorLocationID").data('kendoGrid').dataSource.read();
+        }, 500);
+
+    }
+
+    function GrdVLRDetail_onDelete(e) {
+        openAlertMessage("Record Deleted Successfully");
+        e.values.currentID = e.dataItem.ID;
+        e.values.sequence = e.dataItem.Sequence;
+    }
+
+    function GetReadParams() {
+
+        return { vendorLocationID: '@suffixVendorLocationID', rateScheduleID: $("#cmbVLContractRateSchedule_@suffixVendorLocationID").data('kendoComboBox').value() };
+    }
+</script>
+<div class="with-padding">
+    <div>
+        @(Html.Kendo().ComboBox()
+        .Name("cmbVLContractRateSchedule_" + suffixVendorLocationID)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Suggest(true)
+        .SelectedIndex(0)
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .Placeholder("Select")
+        .Events(events =>
+        {
+            events.Change(@<text>function(e){HandleRateScheduleComboBoxChange(e,'@suffixVendorLocationID','@sufixVendorID');}</text>);
+        })
+        .HtmlAttributes(new { style = "width:30%;", id = "cmbVLContractRateSchedule_" + suffixVendorLocationID, @class = "float-right mid-margin-left" })
+        )
+        @(Html.Kendo().ComboBox()
+        .Name("cmbVLContract_" + suffixVendorLocationID)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Suggest(true)
+        .SelectedIndex(1)
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .Placeholder("Select")
+        .Events(events =>
+        {
+            events.Change(@<text>function(e){HandleContractComboBoxChange(e,'@suffixVendorLocationID','@sufixVendorID');}</text>);
+        })
+        .HtmlAttributes(new { style = "width:30%;", id = "cmbVLContract_" + suffixVendorLocationID, @class = "float-right mid-margin-left" })
+        .BindTo(ViewData["VendorContracts"] as IEnumerable<SelectListItem>)
+        )
+    </div>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding">
+    @(Html.Kendo().Grid(Model)
+    .Name("grdVendorRates_" + suffixVendorLocationID)
+    .DataSource(dataBinding =>
+    {
+        dataBinding.Ajax()
+            .Read(read => read.Action("_SelectVLRDetails", "VendorHome", new { area = "VendorManagement", vendorLocationID = int.Parse(suffixVendorLocationID) as int? }).Data("GetReadParams"))
+            .Update(update => update.Action("_UpdateVLRDetails", "VendorHome", new { area = "VendorManagement", vendorLocationID = int.Parse(suffixVendorLocationID) as int? }).Data("GetReadParams"))
+            .Events(events => events.Error("KendoGridErrorHandler"))
+        .Model(u => u.Id(p => p.ProductID));
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(pd => pd.ContractRateScheduleID).Hidden();
+        columns.Bound(pd => pd.Name).HtmlAttributes(new { @style = "text-align:right;", @class = "product disabled" }).Title("Service").Width("100px");
+        columns.Bound(pd => pd.BaseRate).HtmlAttributes(new { @style = "text-align:right;", @class = "baseRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Base Rate");
+        columns.Bound(pd => pd.EnrouteRate).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Rate");
+        columns.Bound(pd => pd.EnrouteFreeMiles).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Free Miles");
+        columns.Bound(pd => pd.ServiceRate).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Rate");
+        columns.Bound(pd => pd.ServiceFreeMiles).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Free Miles");
+        columns.Bound(pd => pd.HourlyRate).HtmlAttributes(new { @style = "text-align:right;", @class = "hourlyRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Hourly Rate");
+        columns.Bound(pd => pd.GoaRate).HtmlAttributes(new { @style = "text-align:right;", @class = "goaRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("GOA Rate");
+        columns.Command(commands =>
+        {
+            commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+        }).Title("Action(s)");
+    }
+    )
+    .Events(events => events
+
+        .Edit("GrdVLRDetail_OnEdit")
+        .Save("GrdVLRDetail_OnSave")
+        .DataBound("GrdVLRDetail_onDataBound")
+    )
+    .Editable(editing => editing.CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom).Mode(Kendo.Mvc.UI.GridEditMode.InLine))
+    .Sortable(p => { p.Enabled(false); })
+    .Filterable(p => { p.Enabled(false); })
+    .Pageable(p => { p.Enabled(false); })
+    .EnableCustomBinding(true)
+            .Scrollable())
+</div>
+<div class="clear">
+</div>
+<div id="divVendorLocationViewChangeLog_@suffixVendorLocationID">
+    <div class="with-padding">
+        <a id="btnViewVendorLocationChangeLog" onclick="ViewVendorLocationChangeLog(this,'@suffixVendorLocationID','@sufixVendorID');">
+            View Change Log </a>
+    </div>
+</div>
+<div id="divVendorLocationHideChangeLog_@suffixVendorLocationID" style="display:none">
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdUsers"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#grdVendorRates_@suffixVendorLocationID>.k-grid-content").css("height", gridContentHeight + "px");
+        $("#cmbVLContract_@suffixVendorLocationID").data('kendoComboBox').trigger('change');
+    });
+</script>

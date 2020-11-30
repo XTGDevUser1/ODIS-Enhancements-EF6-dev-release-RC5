@@ -1,0 +1,7 @@
+﻿@model decimal?
+@using Kendo.Mvc.UI;
+@(Html.Kendo().NumericTextBoxFor(m => m)
+            .Format("c").Spinners(false)
+            .Min(0)
+            .HtmlAttributes(new { style = "text-align:right" })
+      )

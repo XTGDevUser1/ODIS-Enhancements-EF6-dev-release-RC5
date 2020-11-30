@@ -1,0 +1,50 @@
+ALTER TABLE PurchaseOrder 
+ADD
+PrimaryProductID int NULL,
+SecondaryProductID int NULL,
+--VehicleCategoryID int NULL, -- Error
+IsPrimaryProductCovered bit NULL,
+IsSecondaryProductCovered bit NULL,
+PassengersRidingWithServiceProvider int NULL,
+IsPossibleTow bit NULL,
+ 
+ServiceLocationAddress nvarchar(100) NULL,
+ServiceLocationDescription nvarchar(100) NULL,
+ServiceLocationCrossStreet1 nvarchar(100) NULL,
+ServiceLocationCrossStreet2 nvarchar(100) NULL,
+ServiceLocationCity nvarchar(100) NULL,
+ServiceLocationStateProvince nvarchar(50) NULL,
+ServiceLocationPostalCode nvarchar(20) NULL,
+ServiceLocationCountryCode nvarchar(20) NULL,
+ServiceLocationLatitude decimal(10, 7) NULL,
+ServiceLocationLongitude decimal(10, 7) NULL,
+ 
+DestinationAddress nvarchar(100) NULL,
+DestinationDescription nvarchar(100) NULL,
+DestinationCrossStreet1 nvarchar(100) NULL,
+DestinationCrossStreet2 nvarchar(100) NULL,
+DestinationCity nvarchar(100) NULL,
+DestinationStateProvince nvarchar(50) NULL,
+DestinationPostalCode  nvarchar(20) NULL,
+DestinationCountryCode nvarchar(20) NULL,
+DestinationLatitude decimal(10, 7) NULL,
+DestinationLongitude decimal(10, 7) NULL,
+DestinationVendorLocationID int NULL,
+IsDirectTowDealer bit NULL,
+PartsAndAccessoryCode nvarchar(50) NULL,
+ 
+PrimaryCoverageLimit money NULL,
+SecondaryCoverageLimit money NULL,
+--MileageUOM nvarchar(50) NULL, -- Error
+PrimaryCoverageLimitMileage int NULL,
+SecondaryCoverageLimitMileage int NULL,
+IsServiceGuaranteed bit NULL,
+IsReimbursementOnly bit NULL,
+ --IsServiceCoverageBestValue bit NULL, -- Error
+ProgramServiceEventLimitID int NULL,
+PrimaryServiceCoverageDescription nvarchar(2000) NULL,
+SecondaryServiceCoverageDescription nvarchar(2000) NULL,
+PrimaryServiceEligiblityMessage nvarchar(255) NULL,
+SecondaryServiceEligiblityMessage nvarchar(255) NULL,
+IsPrimaryOverallCovered bit NULL,
+IsSecondaryOverallCovered bit NULL

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CustomContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.Pages.Tabs.AddMemberAssociate">
+  <RelativeLayout x:Name="mainLayout">
+    <StackLayout RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" Spacing="0">
+      <StackLayout x:Name="stackActionBar">
+        <StackLayout x:Name="stackCustomActionBar"/>
+      </StackLayout>
+      <ScrollView Style="{StaticResource MainLayout}">
+        <StackLayout>
+          <StackLayout Padding="10,10,10,20">
+            <controls:ExtendedLabel Text="- MEMBER DETAILS -" Style="{StaticResource ProfileLabelValueVertical_LabelStyle}" HorizontalTextAlignment="Center" VerticalOptions="Start"/>
+            <controls:ExtendedLabel Text="Adding a new member to your family plan is easy. Just fill out the details below and we will send an email with instructions on how to download the latest version of this app and register to your account." Style="{StaticResource Settings_ContentStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+          </StackLayout>
+          <widget:LabelEntryVertical EntryText="{Binding FirstName}" LabelText="- FIRST NAME -" x:Name="widgetFirstName" IsEntryContentLeftAlign="true"/>
+          <widget:LabelEntryVertical EntryText="{Binding LastName}" LabelText="- LAST NAME -" x:Name="widgetLastName" IsEntryContentLeftAlign="true"/>
+          <widget:LabelDateVertical LabelText="- DATE OF BIRTH -" x:Name="widgetBirthDate" IsEntryContentLeftAlign="true"/>
+          <widget:LabelDropdownEntryHorizontal x:Name="widgetContact" LabelText="- PHONE NUMBER -" EntryHintDropdown="Country" Padding="0" KeyboardEntry="Numeric"/>
+          <widget:LabelEntryVertical EntryText="{Binding Email}" LabelText="- EMAIL ADDRESS -" x:Name="widgetEmail" IsEntryContentLeftAlign="true"/>
+        </StackLayout>
+      </ScrollView>
+    </StackLayout>
+  </RelativeLayout>
+</CustomContentPage>

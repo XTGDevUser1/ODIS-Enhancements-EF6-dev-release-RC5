@@ -1,0 +1,107 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimACESPaymentSearchCriteria
+@{
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    if (!string.IsNullOrEmpty(Model.CheckNumber))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckNumber">X</a>
+        @Html.Raw(" - Check # : ") @Model.CheckNumber
+    </p>
+    }
+    if (Model.CheckFromDate.HasValue)
+    {
+        hasElement = true; 
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckFromDate">X</a>
+        @Html.Raw(" - Check From Date : ") @Model.CheckFromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.CheckToDate.HasValue)
+    {
+        hasElement = true; 
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckToDate">X</a>
+        @Html.Raw(" - Check To Date : ") @Model.CheckToDate.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.AmountFrom.HasValue && Model.AmountTo.HasValue)
+    {
+        hasElement = true; 
+    <p>
+        <a href="javascript:void(0)" class="delete" role="range" data="AmountRangeSlider">X</a>
+        @Html.Raw(" - Amount Range : ") @Model.AmountFrom - @Model.AmountTo
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.CreatedBy))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="CreatedBy">X</a>
+        @Html.Raw(" - Created By : ") @Model.CreatedBy
+    </p>
+    }
+
+    if (Model.CreatedDateFrom.HasValue)
+    {
+        hasElement = true; 
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CreatedDateFrom">X</a>
+        @Html.Raw(" - Create From Date : ") @Model.CreatedDateFrom.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.CreatedDateTo.HasValue)
+    {
+        hasElement = true; 
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CreatedDateTo">X</a>
+        @Html.Raw(" - Create To Date : ") @Model.CreatedDateTo.Value.ToShortDateString()
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                if (role == "textBox") {
+                    $('#' + element).val('');
+                }
+                else if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+                }
+                else if (role == "range") {
+                    $('#' + element).data("kendoRangeSlider").value([0, 50000]);
+                    $('#AmountFrom').val('');
+                    $('#AmountTo').val('');
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#grdACESPayments').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

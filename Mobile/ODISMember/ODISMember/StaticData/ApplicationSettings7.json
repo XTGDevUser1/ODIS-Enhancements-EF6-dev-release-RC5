@@ -1,0 +1,34 @@
+[
+    {
+      "key": "BenefitGuideVirtualDirectoryPath",
+      "value": "https://member.pinnaclemotorclub.com/BenefitGuides/"
+    },
+    {
+      "key": "Help",
+      "value": "https://www.pinnaclemotorclub.com/pmcmobile/help/"
+    },
+    {
+      "key": "MemberServices",
+      "value": "Member Services"
+    },
+    {
+      "key": "PasswordResetValidityInHours",
+      "value": "1"
+    },
+    {
+      "key": "Privacy",
+      "value": "https://www.pinnaclemotorclub.com/privacy-policy/"
+    },
+    {
+      "key": "ProductImageVirtualDirectoryPath",
+      "value": "https://member.pinnaclemotorclub.com/ProductImages/"
+    },
+    {
+      "key": "ResetPasswordLink",
+      "value": "http://www.mynmcps.com/pmcmobile/resetpassword/resetpassword.aspx?RID="
+    },
+    {
+      "key": "Terms",
+      "value": "https://www.pinnaclemotorclub.com/terms-and-conditions/"
+    }
+]

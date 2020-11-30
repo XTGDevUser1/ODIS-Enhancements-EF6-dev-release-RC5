@@ -1,0 +1,56 @@
+﻿@using Martex.DMS.DAL.Entities;
+@model GenericAddressEntityModel
+@{
+    string recordID = Model.RecordID.ToString();
+}
+<table class="simple-table responsive-table">
+    <tbody>
+        @foreach (AddressExtendedEntity temp in Model.Address)
+        {
+            <tr>
+                <th scope="row">
+                    <small>@temp.AddressTypeName</small>
+                    @if (!string.IsNullOrEmpty(temp.AddressLine1))
+                    {
+                        <p>
+                            <small style="color: #000000; font-weight: normal;">@temp.AddressLine1</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(temp.AddressLine2))
+                    {
+                        <p>
+                            <small style="color: #000000; font-weight: normal;">@temp.AddressLine2</small></p>
+                    }
+                    @if (!string.IsNullOrEmpty(temp.AddressLine3))
+                    {
+                        <p>
+                            <small style="color: #000000; font-weight: normal;">@temp.AddressLine3</small></p>
+                    }
+                    <p>
+                        <small style="color: #000000; font-weight: normal;">@temp.City,</small> 
+                        <small style="color: #000000; font-weight: normal;">@temp.StateProvince </small>
+                        <small style="color: #000000; font-weight: normal;">@temp.ZipCode </small>
+                        <small style="color: #000000; font-weight: normal;">@temp.CountryCode</small>
+                    </p>
+                </th>
+                <td class="align-right vertical-center show-on-parent-hover">
+                    <span class="button-group compact"><a href="javascript:void(0);" class="button icon-pencil with-tooltip"
+                                title="Edit" onclick="SwitchViewToEdit('@temp.AddressID','@recordID','@temp.EntityName');">
+                    </a><a href="javascript:void(0);" class="button icon-trash with-tooltip"
+                        title="Delete" onclick="DeleteAddress('@temp.AddressID','@recordID','@temp.EntityName')"></a></span>
+                </td>
+                <td>
+                    &nbsp;&nbsp;
+                </td>
+            </tr>
+                                        
+        }
+        @if (Model == null || Model.Address == null || Model.Address.Count == 0)
+        {
+            <tr>
+                <td colspan="3">
+                <small>No Address found !</small>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

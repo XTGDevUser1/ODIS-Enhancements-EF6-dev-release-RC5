@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+             xmlns:custom="clr-namespace:ODISMember.CustomControls;assembly=ODISMember" 
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms" 
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"   
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember" 
+             x:Class="ODISMember.Membership"
+            Style="{StaticResource BaseContentPage}">
+
+	<ScrollView Style="{StaticResource MainLayout}">
+    <StackLayout>
+      <widget:CustomIconActionBar Title="Join PMC" x:Name="widgetActionBar"/>
+      
+		<StackLayout HorizontalOptions="Fill" Padding="5">
+      
+			<widget:LabelPickerVertical LabelText="Plan" x:Name="widgetPlan" IsLeftAlign="true" />
+			<widget:LabelEntryVertical LabelText="First Name" x:Name="widgetFirstName" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Last Name" x:Name="widgetLastName" IsLeftAlign="true" />
+			<widget:LabelPickerVertical LabelText="Suffix" x:Name="widgetSuffix" IsLeftAlign="true"/>
+
+			<widget:LabelDateVertical LabelText="Date Of Birth" x:Name="widgetBirthDate" IsLeftAlign="true"/>
+			<!--widget:CustomDatePicker x:Name="widgetBirthDate" Format="dd/mm/YYYY"/-->
+
+			<widget:LabelEntryVertical LabelText="Address 1" x:Name="widgetAddress1" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Address 2" x:Name="widgetAddress2" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="City" x:Name="widgetCity" IsLeftAlign="true"/>
+			<widget:LabelPickerVertical LabelText="State" x:Name="widgetStateProvince" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Postal Code" x:Name="widgetPostalCode" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelPickerVertical LabelText="Country Code" x:Name="widgetCountryCode" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Home Phone" x:Name="widgetHomePhone" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Cell Phone" x:Name="widgetCellPhone" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Email" x:Name="widgetEmail" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Annual Due Amount" x:Name="widgetAnnualDueAmount" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Promotional Code" x:Name="widgetPromotionalCode" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Payment Amount" x:Name="widgetPaymentAmount" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelPickerVertical LabelText="Card Type" x:Name="widgetCreditCardType" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Card Holder Name" x:Name="widgetCardholderName" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Card Number" x:Name="widgetCardNumber" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Expiration Month / Year" x:Name="widgetExpiration" EntryHint="MM/YYYY" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+			<widget:LabelEntryVertical LabelText="Card Code" x:Name="widgetCardCode" KeyboardEntry="Numeric" IsLeftAlign="true"/>
+
+
+
+			<controls:CheckBox x:Name="checkBoxIAgree" DefaultText="I Agree" HorizontalOptions="CenterAndExpand" FontSize="{x:Static Resource:FontResources.BaseCheckBoxFontSize}" TextColor="{x:Static Resource:ColorResources.BaseCheckBoxTextColor}" FontName="{x:Static Resource:FontResources.BaseCheckBoxFontName}"/>
+			<Button x:Name="btnSubmit" Style="{StaticResource BaseButtonStyle}" Text="SUBMIT" VerticalOptions="End"></Button>
+		</StackLayout>
+    </StackLayout>
+		</ScrollView>
+
+	
+</ContentPage>

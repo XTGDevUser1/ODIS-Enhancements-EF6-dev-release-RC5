@@ -1,0 +1,35 @@
+﻿@model Martex.DMS.DAL.Vehicle
+<form name="frm_AutoTab" id="frm_AutoTab" action="#">
+@Html.Partial("_BasicInformation",Model)
+@if ((bool)ViewBag.ShowCommercialVehicle)
+{ 
+@Html.Partial("_AutoSpecifications", Model)
+}
+@Html.Partial("_WarrantyInformation",Model)
+</form>
+
+<script type="text/javascript">
+
+    function SaveAuto() {
+        
+        return SaveForm('frm_AutoTab', "Auto");        
+    }
+
+    fnSaveTab = SaveAuto;
+
+    $(function () {
+        $("#frm_AutoTab").validationEngine();
+    });
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        CleanAllContainers();
+        WatchMyContainer('frm_AutoTab', null, null);
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+    });
+</script>

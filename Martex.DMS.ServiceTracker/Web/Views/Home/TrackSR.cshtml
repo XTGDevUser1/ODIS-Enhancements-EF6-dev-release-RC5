@@ -1,0 +1,351 @@
+﻿@model string
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string serviceRequestID = (string)ViewBag.ServiceRequestID;
+    int autoRefreshInterval = ViewBag.AutoRefreshInterval;
+}
+<link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css" />
+<style type="text/css">
+
+    .vehicleYearMakeModel{
+        color:#222233;
+    }
+    .callToCancel{
+        background-color:#9B9B9B;
+    }
+    .actionOK, .actionOK:focus, .actionOK:hover{
+        background-color:#C3002F;
+        color:white !important;
+    }
+
+
+
+</style>
+<div class="panel panel-default">
+    @*<div class="panel-heading">Service Request # @ViewBag.ServiceRequestID </div>*@
+    <div class="panel-body">
+        
+        <img src="data:image/png;base64," class="mapsnapshot img-responsive hidden" alt="Map" style="height: 125px; width: 100%;" />
+        
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="col-md-12 col-sm-12">
+                <h1 class="serviceCategory"></h1>
+                <h3 class="vehicleYearMakeModel"></h3>
+            </div>
+            <div class="row">
+                <div class="col-md-12 col-xs-12 locationSection hidden">
+                    <h4>LOCATION</h4>
+                    <p class="locationAddress"> </p>
+                </div>
+                <div class="col-md-12 col-xs-12 destinationSection hidden">
+                    <h4>DESTINATION</h4>
+                    <p class="destinationAddress"> </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <hr class="dividerRow hidden" />
+                    <span class="statusMessage alert alert-info">Loading Service Request status ...</span>
+                </div>
+            </div>
+        </div>
+        <div class="row"></div>
+
+        <div class="col-md-offset-1 col-sm-offset-1 col-md-10 col-sm-10 col-xs-12">
+            <div style="text-align:center" class="etaSection hidden">
+                <h3>
+                    <span class="vendorName"> </span>
+                    <br />
+                    @*TFS : 1390*@
+                    <span class="eta hidden">ETA <span style="color:green" class="etaMinutes"></span></span>
+                    @* END TFS : 1390*@
+                </h3>
+            </div>
+
+
+            <div class="row"></div>            
+            @*<button class="btn btn-block btn-success"><span class="fa fa-refresh"></span></button>*@
+            <button class="btn btn-block hidden callToCancel" id="btnCallToCancel"><h5>CALL TO CANCEL</h5></button>
+
+        </div>
+        <div class="row"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="timeline"></ul>
+            </div>
+        </div>
+        <script type="text/x-jquery-tmpl" id="tmplStatuses">
+            <li class="timeline-inverted">
+                <div class="timeline-badge success">
+                    <i class="fa fa-check"></i>
+                </div>
+                <div class="timeline-panel">
+                    <div class="timeline-heading" aria-hidden="true">
+                        <h4 class="timeline-title">${Status}</h4>
+                    </div>
+                    <div class="timeline-body">
+                        <p>
+                            <small class="text-muted"><i class="glyphicon glyphicon-star-empty"></i> ${StatusMessage}</small>
+                        </p>
+                        <p>
+                            <small class="text-muted"><i class="glyphicon glyphicon-time"></i> <span>${moment(StatusDate).format('MM/DD/YYYY hh:mm a')}</span></small>
+                        </p>
+                    </div>
+                </div>
+            </li>
+        </script>
+
+        <script language="javascript" type="text/javascript">
+            var timerForServiceRequestDetail = null;
+            var timerForNotificationCheck = null;
+            var isNotificationBeingShown = false;
+            var templates = null;
+            var serviceRequestStatus = null;
+            var dispatchPhoneNumber = null;
+            var isRequestInProgress = false;
+
+            function updateUI(data) {
+
+                $(".dividerRow").removeClass("hidden");
+                // Map
+                if (data.MapSnapshot != null && $.trim(data.MapSnapshot).length > 0) {
+                    $(".mapsnapshot").attr("src", "data:image/png;base64," + data.MapSnapshot).removeClass("hidden");
+                }
+                var serviceRequestDetail = data.ServiceRequestDetail;
+
+                // Service
+                $(".serviceCategory").html(serviceRequestDetail.ServiceCategory + " REQUEST");
+                $(".vehicleYearMakeModel").html(serviceRequestDetail.YearMakeModel);
+
+                // Location
+                if (serviceRequestDetail.ServiceLocationAddress != null && $.trim(serviceRequestDetail.ServiceLocationAddress).length > 0) {
+                    $("locationSection").removeClass("hidden");
+                    $("locationAddress").html(serviceRequestDetail.ServiceLocationAddress);
+                }
+
+                //Destination
+                if (serviceRequestDetail.DestinationAddress != null && $.trim(serviceRequestDetail.DestinationAddress).length > 0) {
+                    $("destinationSection").removeClass("hidden");
+                    $("destinationAddress").html(serviceRequestDetail.DestinationAddress);
+                }
+
+                // ETA
+                if (serviceRequestDetail.ETAMinutes != null && $.trim(serviceRequestDetail.ETAMinutes).length > 0) {
+                    $(".etaSection").removeClass("hidden");
+                    $(".vendorName").html(serviceRequestDetail.VendorName);
+
+                    if (!(serviceRequestDetail.Status == "Complete" || serviceRequestDetail.Status == "Cancelled")) {
+                        $(".eta").removeClass("hidden");
+                        $(".etaMinutes").html(serviceRequestDetail.ETAMinutes + " MINUTES");
+                    }
+                }
+                if (!(serviceRequestDetail.Status == "Complete" || serviceRequestDetail.Status == "Cancelled")) {
+                    $("#btnCallToCancel").removeClass("hidden");
+                }
+                // Cancel button
+                if ((serviceRequestDetail.Status == "Complete" || serviceRequestDetail.Status == "Cancelled")) {
+                    if (!$("#btnCallToCancel").hasClass("hidden")) {
+                        $("#btnCallToCancel").addClass("hidden");
+                    }
+                    if (!$(".eta").hasClass("hidden")) {
+                        $(".eta").addClass("hidden");
+                    }
+
+                    if (timerForServiceRequestDetail != null) {
+                        clearInterval(timerForServiceRequestDetail);
+                        timerForServiceRequestDetail = null;
+                    }
+                    if (timerForNotificationCheck != null) {
+                        clearInterval(timerForNotificationCheck);
+                        timerForNotificationCheck = null;
+                    }
+                }
+
+                // Status timeline
+                $(".timeline").html("");
+                $("#tmplStatuses").tmpl(data.StatusHistory).appendTo(".timeline");
+            };
+
+            function getServiceRequestDetails() {
+                console.log("Loading service request details for :" + '@serviceRequestID');
+                if (!isRequestInProgress) {
+                    isRequestInProgress = true;
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("_ServiceRequestDetails", "Home", new { area = string.Empty })',
+                        traditional: true,
+                        cache: false,
+                        async: true,
+                        data: { serviceRequestID: '@serviceRequestID', loadTemplates: (templates == null) },
+                        success: function (response) {
+                            $(".statusMessage").hide();
+                            // Bind the UI elements
+                            updateUI(response.Data);
+                            if (templates == null) {
+                                templates = response.Data.Templates;
+                                dispatchPhoneNumber = response.Data.DispatchPhoneNumber;
+                            }
+                            isRequestInProgress = false;
+                        },
+                        error: function (error) {
+                            showAlert("ERROR", "An error occurred while retrieving service request details", true);
+                            console.log(error);
+                            isRequestInProgress = false;
+                        }
+                    });   // end of ajax.
+                }
+
+            };
+
+            function showPrompt(title, message, yesCallback, noCallback) {
+                bootbox.dialog({
+                    closeButton: false,
+                    message: message,
+                    title: title,
+                    buttons: {
+                        confirm: {
+                            label: "Yes",
+                            className: "actionOK",
+                            callback: function () {
+                                if (yesCallback) {
+                                    yesCallback();
+                                }
+                            }
+                        },
+                        cancel: {
+                            label: "No",
+                            className: "btn-default",
+                            callback: function () {
+                                if (noCallback) {
+                                    noCallback();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function showAlert(title, message, isError, okCallback) {
+                bootbox.dialog({
+                    closeButton: false,
+                    message: message,
+                    title: title,
+                    buttons: {
+                        confirm: {
+                            label: "OK",
+                            className: isError ? "btn-default" : "actionOK",
+                            callback: function () {
+                                if (okCallback) {
+                                    okCallback();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function logResponse(contactLogID, serviceStatus) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("LogResponse", "Home", new { area = string.Empty })',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    data: { serviceRequestID: '@serviceRequestID', ContactLogID: contactLogID, ServiceStatus: serviceStatus },
+                    success: function (response) {
+                        if (serviceStatus !== "NotArrived") {
+                            clearInterval(timerForNotificationCheck);
+                            isNotificationBeingShown = false;
+                        }
+                    },
+                    error: function (error) {
+                        // ALERT !!
+                        showAlert("ERROR", "An error occurred while logging your response", true);
+                        console.log(error);
+                    }
+                });   // end of ajax.
+            }
+            function shouldShowNotification() {
+                //if isNotificationBeingShown === false
+                // Check if the notification has to be shown.
+                // Update the flag if the notification is being shown.
+                if (!isNotificationBeingShown) {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("ShouldFollowup", "Home", new { area = string.Empty })',
+                        traditional: true,
+                        cache: false,
+                        async: true,
+                        data: { serviceRequestID: '@serviceRequestID' },
+                        success: function (response) {
+                            var shouldAsk = response.Data.Followup;
+                            var contactLogID = response.Data.ContactLogID;
+                            if (shouldAsk) {
+                                if (templates != null) {
+                                    isNotificationBeingShown = true;
+                                    var template = templates[0];
+                                    showPrompt(template.Name, template.Value, function () { /* Service Arrived = YES */
+                                        logResponse(contactLogID, "Complete");
+                                    },
+                                    function () { /* Service Arrived = NO */
+                                        var template = templates[1];
+                                        logResponse(contactLogID, "NotArrived");
+                                        showPrompt(template.Name, template.Value, function () { /* Service Not Arrived, Call = YES */
+                                            // Launch the dialer
+                                            clearInterval(timerForNotificationCheck);
+                                            isNotificationBeingShown = false;
+                                            launchDialer();
+                                        }, function () { /* Service Not Arrived, Call = NO */
+                                            logResponse(contactLogID, "NoAnswer");
+                                            var template = templates[2];
+                                            showAlert(template.Name, template.Value);
+                                        });
+                                    });
+                                }
+                            }
+                        },
+                        error: function (error) {
+                            // ALERT !!
+                            showAlert("ERROR", "An error occurred while processing your request", true);
+                            console.log(error);
+                        }
+                    });   // end of ajax.
+                }
+            };
+
+            function launchDialer()
+            {
+                var url = window.location.href;
+                if (url.toLowerCase().indexOf("map") >= 0) {
+                    url = url.replace("#map", '');
+                }
+                url = url.split('#')[0];
+                window.location = url + "#/call=" + dispatchPhoneNumber;                
+            }
+
+            $(function () {
+
+                // Get Service Request Detail and Status History
+                // If the status of the Service Request is not "Complete" or "Cancelled", auto-refresh the detail.
+                // If the status is either "Complete" or "Cancelled", cancel the auto-refresh.
+                timerForServiceRequestDetail = setInterval(function () { getServiceRequestDetails(); }, 3000);
+
+                // Besides, check to see if we have to give the user a notification to close the loop.
+                // Stop the timer if we find that we need to ask the user for response.
+                timerForNotificationCheck = setInterval(function () { shouldShowNotification(); }, 3000);
+
+                $("#btnCallToCancel").click(function () {
+                    launchDialer();
+                });
+
+                $(".btn-success").click(function () {
+                    getServiceRequestDetails();
+                });
+            });
+
+        </script>
+
+    </div>
+</div>

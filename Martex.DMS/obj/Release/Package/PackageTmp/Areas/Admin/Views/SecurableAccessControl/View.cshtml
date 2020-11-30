@@ -1,0 +1,146 @@
+﻿@model Martex.DMS.DAL.Entities.SecurableModel
+@{
+    Layout = "";
+    string suffix = Model.Securable.ID.ToString();
+}
+<form data ="false" id="frmSecurableContainerForDirtyFlag_@suffix" method="get" relatedButtons = "PlaceHolder_Securable_Buttons_@suffix">
+<div class="with-padding">
+    <div class="columns">
+        <div class="nine-columns">
+            <strong>@Model.Securable.FriendlyName</strong>
+        </div>
+        <div class="three-columns">
+            <div style="display: inline-block; vertical-align: top; float: right;">
+                <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteSecurableTab('@suffix');">
+                    X</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="with-padding">
+    @Html.HiddenFor(u => Model.Securable.ID, new { id = "SecurableID_" + suffix })
+    <div class="columns">
+        <div class="twelve-columns">
+            <table class="table">
+                <tr>
+                    <th rowspan="2" style="text-align: center; vertical-align: middle;">
+                        <strong>DMS Roles</strong>
+                    </th>
+                    <th colspan="4" style="text-align: center; vertical-align: middle;">
+                        <strong>Access Types</strong>
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        <strong>Denied</strong>
+                    </th>
+                    <th>
+                        <strong>ReadOnly</strong>
+                    </th>
+                    <th>
+                        <strong>ReadWrite</strong>
+                    </th>
+                    <th>
+                        <strong>None</strong>
+                    </th>
+                </tr>
+                @for (int i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @Model.Items[i].RoleName
+                            @Html.HiddenFor(u => Model.Items[i].RoleName, new { id = "RoleName_" + suffix })
+                            @Html.HiddenFor(u => Model.Items[i].RoleID, new { id = "RoleID_" + suffix })
+                            @Html.HiddenFor(u => Model.Items[i].AccessTypeID, new { id = "AccessTypeID_" + suffix })
+                        </td>
+                        <td>@Html.RadioButtonFor(u => Model.Items[i].AccessTypeName, "Denied", new { id = "Denied_" + suffix })
+                        </td>
+                        <td>
+                            @Html.RadioButtonFor(u => Model.Items[i].AccessTypeName, "ReadOnly", new { id = "ReadOnly_" + suffix })
+                        </td>
+                        <td>
+                            @Html.RadioButtonFor(u => Model.Items[i].AccessTypeName, "ReadWrite", new { id = "ReadWrite_" + suffix })
+                        </td>
+                        <td>
+                            @Html.RadioButtonFor(u => Model.Items[i].AccessTypeName, "None", new { id = "None_" + suffix })
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div class="new-row twelve-Columns hide" id="PlaceHolder_Securable_Buttons_@suffix">
+            <button class="button green-gradient  float-right mid-margin-left margin-bottom" onclick="SaveSecurableDetails('@suffix','@Model.Securable.FriendlyName');"
+                    type="button">
+                Save</button>
+            <button class="button gray-gradient  float-right margin-bottom" onclick="ReloadSecurableDetails('@suffix','@Model.Securable.FriendlyName');"
+                    type="button">
+                Cancel</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        var fnbuttonHandler = function (sender) {
+            var cloestForm = $(sender).closest('form');
+            if (cloestForm != undefined) {
+                var formName = cloestForm.attr("id");
+                var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+                if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                    $(buttonPlaceHolder).show();
+                }
+            }
+        }
+        WatchMyContainer("frmSecurableContainerForDirtyFlag_@suffix", null, fnbuttonHandler);
+    });
+
+    function SaveSecurableDetails(recordID, name) {
+        var postData = $('#frmSecurableContainerForDirtyFlag_' + recordID).serializeArray();
+        $.ajax({
+            url: '@Url.Action("Save", "SecurableAccessControl", new { area = "Admin" })',
+            data: postData,
+            cache: false,
+            type: 'POST',
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    ReloadSecurableDetails(recordID, name);
+                }
+                else {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+            }
+        });
+        return false;
+    }
+
+    function ReloadSecurableDetails(recordID, name) {
+        CleanMyContainer("frmSecurableContainerForDirtyFlag_" + recordID);
+        var activeIndex = tabObject.tabs('option', 'selected');
+        tabObject.tabs('remove', activeIndex);
+        tabObject.tabs('refresh');
+        tabObject.tabs('select', 0);
+        GetManageSecurableItem(recordID, name);
+    }
+
+    function DeleteSecurableTab(recordID) {
+        // Sanghi In newer versions of jQueryUI (1.9 +) use active instead of selected to get the active index of tab.
+        var activeIndex = tabObject.tabs('option', 'selected');
+        if (IsMyContainerDirty("frmSecurableContainerForDirtyFlag_" + recordID)) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmSecurableContainerForDirtyFlag_" + recordID);
+                tabObject.tabs('remove', activeIndex);
+                tabObject.tabs('refresh');
+                tabObject.tabs('select', 0);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            tabObject.tabs('remove', activeIndex);
+            tabObject.tabs('refresh');
+            tabObject.tabs('select', 0);
+        }
+    }
+</script>

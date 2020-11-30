@@ -1,0 +1,673 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimInformationModel
+@using Kendo.Mvc.UI;
+@{
+    string claimID = Model.Claim.ID.ToString();
+    string rejectReasonOtherClass = "hide";
+    string claimRejectStatus = "hide";
+    bool isPaid = false;
+    bool isACSClearDateSet = false;
+    bool isFieldUpdatedAreAllowed = true;
+
+    if (!string.IsNullOrEmpty(Model.ACESClaimStatusName) && Model.ACESClaimStatusName.Equals("Cleared"))
+    {
+        isACSClearDateSet = true;
+    }
+    if (!string.IsNullOrEmpty(Model.Claim.ClaimRejectReasonOther))
+    {
+        rejectReasonOtherClass = string.Empty;
+    }
+
+    if (!string.IsNullOrEmpty(Model.ClaimStatusName))
+    {
+        if (Model.ClaimStatusName.Equals("Rejected"))
+        {
+            claimRejectStatus = string.Empty;
+        }
+        else if (Model.ClaimStatusName.Equals("Paid"))
+        {
+            isPaid = true;
+            isFieldUpdatedAreAllowed = false;
+        }
+    }
+    if (!Model.IsClaimStatusUpdateAllowed)
+    {
+        isFieldUpdatedAreAllowed = false;
+    }
+    double? acesSumbitAmount = Convert.ToDouble(Model.Claim.ACESFeeAmount.GetValueOrDefault() + Model.Claim.AmountApproved.GetValueOrDefault());
+}
+<script language="javascript" type="text/javascript">
+
+    function ACESFeeAmountChange() {
+        var feeAmount = this.value();
+        var amountApproved = $("#AmountApproved_" + '@claimID').data("kendoNumericTextBox").value();
+        if (feeAmount == null || feeAmount == undefined) {
+            feeAmount = 0;
+        }
+        if (amountApproved == null || amountApproved == undefined) {
+            amountApproved = 0;
+        }
+        $("#ACESSumbitAmount_" + '@claimID').data("kendoNumericTextBox").value(feeAmount + amountApproved);
+    }
+
+    function ClaimAmountApproved() {
+        var amountApproved = this.value();
+        var feeAmountRef = $("#ACESFeeAmount_" + '@claimID').data("kendoNumericTextBox");
+        var feeAmount = 0;
+        if (feeAmountRef != null && feeAmountRef != undefined) {
+            feeAmount = $("#ACESFeeAmount_" + '@claimID').data("kendoNumericTextBox").value();
+
+            if (feeAmount == null || feeAmount == undefined) {
+                feeAmount = 0;
+            }
+            if (amountApproved == null || amountApproved == undefined) {
+                amountApproved = 0;
+            }
+
+            $("#ACESSumbitAmount_" + '@claimID').data("kendoNumericTextBox").value(feeAmount + amountApproved);
+        }
+    }
+
+    function ACESClaimStatus_Change(e) {
+
+        var combo = e.sender;
+        var id = this.element.attr("id").split('_')[1];
+        var element = "input[name=" + this.element.attr("id") + "_input]";
+        HideValidationMessage($(element));
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var acesClaimValue = $('#ACESClaimStatus_' + id).data('kendoComboBox').text();
+        if (acesClaimValue == "Submitted") {
+            var acesSubmitDate = $("#ACESSubmitDate_" + id).data("kendoDatePicker").value();
+            if (acesSubmitDate == '' || acesSubmitDate == null || acesSubmitDate == undefined) {
+                var todaysDate = new Date.today();
+                $("#ACESSubmitDate_" + id).data("kendoDatePicker").value(todaysDate);
+            }
+        }
+    }
+</script>
+<form id="frmCLaimInformation_@claimID" action="javascript:void(0);" method="post" relatedButtons = "btnSaveClaimSection_@claimID">
+@Html.HiddenFor(u => u.MaximumClaimAmountThreshold, new { id = "MaximumClaimAmountThreshold_" + @claimID })
+@Html.HiddenFor(u => u.Claim.ID, new { id = "Claim_ID" + @claimID })
+@Html.HiddenFor(u => u.ProgramName, new { id = "ProgramName_" + @claimID })
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Information</legend>
+                <div class="columns">
+                    <div class="six-columns">
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Status <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                                           .Name("ClaimStatusID_" + claimID)
+                                           .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClaimStatus.ToString()] as IEnumerable<SelectListItem>)
+                                             .SelectedIndex(0)
+                                             .HighlightFirst(true)
+                                             .Suggest(true)
+                                             .Enable(isFieldUpdatedAreAllowed)
+                                             .Filter(FilterType.StartsWith).MinLength(0)
+                                             .Events(events => events.Change(@<text>function(e){HandleClaimInformationStatus(e,'@claimID')}</text>))
+                                             .Value(Model.Claim.ClaimStatusID.HasValue ? Model.Claim.ClaimStatusID.Value.ToString() : string.Empty)
+                                             .HtmlAttributes(new { id = "ClaimStatusID_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                                            )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom @claimRejectStatus" id="PlaceHolder_ClaimReason_@claimID">
+                            <label class="label">
+                                Reject Reason
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                             .Name("ClaimRejectReason_" + claimID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClaimRejectReason.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .Enable(!isPaid)
+                     .Suggest(true)
+                     .HighlightFirst(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .Events(events => events.Change(@<text>function(e){HandleClaimRejectReasonOther(e,'@claimID')}</text>))
+                     .Value(Model.Claim.ClaimRejectReasonID.HasValue ? Model.Claim.ClaimRejectReasonID.Value.ToString() : string.Empty)
+                      .HtmlAttributes(new { id = "ClaimRejectReason_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                    )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom @rejectReasonOtherClass" id="PlaceHolder_ClaimReasonOther_@claimID">
+                            <label class="label">
+                                <i>Reason Other</i></label>
+                            @if (isPaid)
+                            {
+                                @Html.TextBoxFor(u => u.Claim.ClaimRejectReasonOther, new { @class = "input full-width", id = "ClaimRejectReasonOther_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.Claim.ClaimRejectReasonOther, new { @class = "input full-width", id = "ClaimRejectReasonOther_" + @claimID, maxLength = "50", dmsrole = "text" })
+                            }
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Category <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                             .Name("ClaimCategoryID_" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClaimCategory.ToString()] as IEnumerable<SelectListItem>)
+                             .SelectedIndex(0)
+                             .Suggest(true)
+                             .HighlightFirst(true)
+                             .Enable(isFieldUpdatedAreAllowed)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                             .Value(Model.Claim.ClaimCategoryID.HasValue ? Model.Claim.ClaimCategoryID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "ClaimCategoryID_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                    )
+                        </div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Requested Amount <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().NumericTextBoxFor(u => u.Claim.AmountRequested)
+                                          .Format("c")
+                                          .Min(0)
+                                          .Max(Model.MaximumClaimAmountThreshold)
+                                          .Value(Model.Claim.AmountRequested)
+                                          .Spinners(false)
+                                          .Enable(!isPaid)
+                                          .HtmlAttributes(new { id = "AmountRequested_" + claimID, style = "width:90%;", dmsrole = "numericTextBox" })
+                            )
+                        </p>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Claim Date
+                            </label>
+                            @(Html.Kendo().DatePickerFor(u => u.Claim.ClaimDate)
+                                          .Enable(!isPaid)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ClaimDate_" + @claimID, dmsrole = "DatePicker", type="text" })
+                            )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Receive Date <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().DatePickerFor(u => u.Claim.ReceivedDate)
+                                          .Enable(!isPaid)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ReceivedDate_" + @claimID, dmsrole = "DatePicker", type = "text" })
+                           )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Receive Method
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                             .Name("ReceiveContactMethodID_" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactMethodForClaim.ToString()] as IEnumerable<SelectListItem>)
+                             .SelectedIndex(0)
+                             .Enable(!isPaid)
+                             .HighlightFirst(true)
+                             .Suggest(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                             .Value(Model.Claim.ReceiveContactMethodID.HasValue ? Model.Claim.ReceiveContactMethodID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "ReceiveContactMethodID_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                    )
+                        </div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Approved Amount <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().NumericTextBoxFor(u => u.Claim.AmountApproved)
+                                          .Format("c")
+                                          .Min(0)
+                                          .Max(Model.MaximumClaimAmountThreshold)
+                                          .Value(Model.Claim.AmountApproved)
+                                          .Spinners(false)
+                                          .Enable(!isPaid)
+                                          .Events(e => e.Change("ClaimAmountApproved"))
+                                          .HtmlAttributes(new { id = "AmountApproved_" + claimID, style = "width:90%;", dmsrole = "numericTextBox" })
+                            )
+                            <span><small>ApprovedBy/DeniedBy
+                                @Html.DisplayFor(u => u.Claim.ClaimDecisionBy)
+                                - @Html.DisplayFor(u => u.Claim.ClaimDecisionDate)</small></span>
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Is Receipt On File?
+                            </label>
+                            @if (isPaid)
+                            {
+                                @Html.CheckBox("Claim.IsServiceReceiptOnFile", Model.Claim.IsServiceReceiptOnFile.HasValue ? Model.Claim.IsServiceReceiptOnFile.Value : false, new { @class = "checkbox full-width", id = "IsServiceReceiptOnFile_" + @claimID, dmsrole = "chkBox", @disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("Claim.IsServiceReceiptOnFile", Model.Claim.IsServiceReceiptOnFile.HasValue ? Model.Claim.IsServiceReceiptOnFile.Value : false, new { @class = "checkbox full-width", id = "IsServiceReceiptOnFile_" + @claimID, dmsrole = "chkBox" })
+                            }
+                        </p>
+                    </div>
+                    <div class="six-columns">
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Next Action
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                             .Name("NextActionID_" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.NextAction.ToString()] as IEnumerable<SelectListItem>)
+                             .SelectedIndex(0)
+                             .Enable(!isPaid)
+                             .HighlightFirst(true)
+                             .Suggest(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                             .Value(Model.Claim.NextActionID.HasValue ? Model.Claim.NextActionID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "NextActionID_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                    )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Assigned To
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                             .Name("NextActionAssignedToUserID_" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.FinishUsers.ToString()] as IEnumerable<SelectListItem>)
+                             .SelectedIndex(0)
+                             .Enable(!isPaid)
+                             .HighlightFirst(true)
+                             .Suggest(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                             .Value(Model.Claim.NextActionAssignedToUserID.HasValue ? Model.Claim.NextActionAssignedToUserID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "NextActionAssignedToUserID_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                    )
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Scheduled Date
+                            </label>
+                            @(Html.Kendo().DateTimePickerFor(u => u.Claim.NextActionScheduledDate)
+                                          .Enable(!isPaid)
+                                          .HtmlAttributes(new { style = "width:90%", id = "NextActionScheduledDate_" + @claimID, dmsrole = "DateTimePicker" })
+                           )
+                        </div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                Claim Description
+                            </label>
+                            @if (isPaid)
+                            {
+                                @Html.TextAreaFor(u => u.Claim.ClaimDescription, new { @class = "input full-width", id = "ClaimDescription_" + @claimID, style = "width:90%;", dmsrole = "text", @disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextAreaFor(u => u.Claim.ClaimDescription, new { @class = "input full-width", id = "ClaimDescription_" + @claimID, style = "width:90%;", dmsrole = "text" })
+                            }
+                        </p>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="columns">
+        @if (Model.Claim.ID > 0)
+        {
+            <div class="six-columns">
+                <h4 class="underline">
+                    Processing Information
+                </h4>
+                <div class="boxed">
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ExportDate" class="label">
+                                Export Date
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                @Model.Claim.ExportDate.Value.ToShortDateString()
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ExportBatch" class="label">
+                                Export Batch
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                @Html.DisplayFor(a => a.Claim.ExportBatchID)
+                                if (Model.Claim.ExportDate != null)
+                                {
+                                @Html.Raw("-")
+                                @Model.Claim.ExportDate
+                                }
+                            }
+                        </p>
+                    </div>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="PaidTo" class="label">
+                            Paid To
+                        </label>
+                        @if (Model.Claim.ExportDate.HasValue)
+                        {
+                            @GetValue(Model.Claim.PaymentPayeeName)
+                        }
+                    </p>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="PaidTo" class="label">
+                            &nbsp;
+                        </label>
+                        @if (Model.Claim.ExportDate.HasValue)
+                        {
+                            @GetValue(Model.Claim.PaymentAddressLine1)
+                        }
+                    </p>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="PaidTo" class="label">
+                            &nbsp;
+                        </label>
+                        @if (Model.Claim.ExportDate.HasValue)
+                        {
+                            @GetValue(Model.Claim.PaymentAddressLine2)
+                        }
+                    </p>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="PaidTo" class="label">
+                            &nbsp;
+                        </label>
+                        @if (Model.Claim.ExportDate.HasValue)
+                        {
+                            @GetValue(Model.Claim.PaymentAddressLine3)
+                        }
+                    </p>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="PaidTo" class="label">
+                            &nbsp;
+                        </label>
+                        @if (Model.Claim.ExportDate.HasValue)
+                        {
+                            @Html.DisplayFor(a => a.Claim.PaymentAddressCity)
+                            @Html.Raw(",")
+                            @Html.DisplayFor(a => a.Claim.PaymentAddressStateProvince)
+                            @Html.Raw(",")
+                            @Html.DisplayFor(a => a.Claim.PaymentAddressPostalCode)
+                            @Html.Raw(",")
+                            @Html.DisplayFor(a => a.Claim.PaymentAddressCountryCode)
+                        }
+                    </p>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="PaymentType" class="label">
+                                Payment Type
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                @Html.DisplayFor(a => a.PaymentTypeName)
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="PaymentDate" class="label">
+                                Payment Date
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                if (Model.Claim.PaymentDate != null)
+                                {
+                                @Model.Claim.PaymentDate.Value.ToShortDateString()
+                                }
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="PaymentAmount" class="label">
+                                Payment Amount
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                if (Model.Claim.PaymentAmount.HasValue)
+                                {
+                                @Html.Raw("$")@Html.DisplayFor(a => a.Claim.PaymentAmount)
+                                }
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CheckNumber" class="label">
+                                Check Number
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                @Html.DisplayFor(a => a.Claim.CheckNumber)
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CheckClearedDate" class="label">
+                                Check Cleared Date
+                            </label>
+                            @if (Model.Claim.ExportDate.HasValue)
+                            {
+                                if (Model.Claim.CheckClearedDate.HasValue)
+                                {
+                                @Model.Claim.CheckClearedDate.Value.ToShortDateString()
+                                }
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (Model.Claim.ID == 0 || (Model.Claim.ID > 0 && Model.IsFordACES))
+        {
+            <div class="six-columns" id="PlaceHolder_Claim_ACES_Group_@claimID">
+                <fieldset class="fieldset">
+                    <legend class="legend">Ford ACES Information</legend>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            VIN
+                        </label>
+                        @Html.DisplayFor(u => u.Claim.VehicleVIN)
+                    </p>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            Current Mileage
+                        </label>
+                        @(Html.Kendo().NumericTextBox()
+                        .Decimals(0)
+                        .Name("FordACESCurrentMiles")
+                        .Format("{0:N0}")
+                        .HtmlAttributes(new { id = "FordACESCurrentMiles_" + claimID, @readonly = "true", style = "width:90%" })
+                        .Spinners(false)
+                        .Value(Model.Claim.CurrentMiles.GetValueOrDefault())
+                        )
+                    </p>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            GWO Approval Code
+                        </label>
+                        @if (isPaid || isACSClearDateSet)
+                        {
+                            @Html.TextBoxFor(u => u.Claim.GWOApprovalCode, new { @class = "input full-width", id = "Claim_GWOApprovalCode" + @claimID, @maxlength = 50, @readonly = "true", dmsrole = "text" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Claim.GWOApprovalCode, new { @class = "input full-width", id = "Claim_GWOApprovalCode" + @claimID, @maxlength = 50, dmsrole = "text" })
+                        }
+                    </p>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            FMC 360 Case Number
+                        </label>
+                        @if (isPaid || isACSClearDateSet)
+                        {
+                            @Html.TextBoxFor(u => u.Claim.CUDLCaseNumber, new { @class = "input full-width", id = "Claim_CUDLCaseNumber" + @claimID, @maxlength = 50, @readonly = "true", dmsrole = "text" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Claim.CUDLCaseNumber, new { @class = "input full-width", id = "Claim_CUDLCaseNumber" + @claimID, @maxlength = 50, dmsrole = "text" })
+                        }
+                    </p>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Submit Date
+                        </label>
+                        @if (isPaid || isACSClearDateSet)
+                        {
+                            @(Html.Kendo().DatePickerFor(u => u.Claim.ACESSubmitDate)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ACESSubmitDate_" + @claimID, dmsrole = "DatePicker", @readonly = "true", type = "text" })
+                           )
+                        }
+                        else
+                        {
+                            @(Html.Kendo().DatePickerFor(u => u.Claim.ACESSubmitDate)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ACESSubmitDate_" + @claimID, dmsrole = "DatePicker", type = "text" })
+                           )
+                        }
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Fee Amount
+                        </label>
+                        @if (isPaid || isACSClearDateSet)
+                        {
+                            @(Html.Kendo().NumericTextBoxFor(u => u.Claim.ACESFeeAmount)
+                                             .Format("c")
+                                             .Value(Model.Claim.ACESFeeAmount)
+                                             .Spinners(false)
+                                             .HtmlAttributes(new { id = "ACESFeeAmount_" + claimID, style = "width:90%;", dmsrole = "numericTextBox", @readonly = "true" }))
+                        }
+                        else
+                        {
+                            @(Html.Kendo().NumericTextBoxFor(u => u.Claim.ACESFeeAmount)
+                                             .Format("c")
+                                             .Value(Model.Claim.ACESFeeAmount)
+                                             .Spinners(false)
+                                             .Events(e => e.Change("ACESFeeAmountChange"))
+                                             .HtmlAttributes(new { id = "ACESFeeAmount_" + claimID, style = "width:90%;", dmsrole = "numericTextBox" }))
+                        }
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Submit Amount
+                        </label>
+                        @(Html.Kendo().NumericTextBox()
+                                      .Name("ACESSumbitAmount")
+                                      .Format("c")
+                                      .Value(acesSumbitAmount)
+                                      .Spinners(false)
+                                      .Enable(false)
+                                      .HtmlAttributes(new { id = "ACESSumbitAmount_" + claimID, style = "width:90%;", dmsrole = "numericTextBox" }))
+                    </div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Status
+                        </label>
+                        @if (isPaid || isACSClearDateSet || Model.Claim.ID == 0)
+                        {
+                            @(Html.Kendo().ComboBox()
+                             .Name("ACESClaimStatus" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ACESClaimStatus.ToString()] as IEnumerable<SelectListItem>)
+                             .Suggest(true)
+                             .HighlightFirst(true)
+                             .Enable(false)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                             .Value(Model.Claim.ACESClaimStatusID.HasValue ? Model.Claim.ACESClaimStatusID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "ACESClaimStatus_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                             )
+@*@Html.HiddenFor(u => u.Claim.ACESOutcome)
+                            @Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Approved", new { @class = "radio", @disabled = "disabled" })
+                            @Html.Raw(" Approved ")
+                            @Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Denied", new { @class = "radio", @disabled = "disabled" })
+                            @Html.Raw(" Denied ")
+                            @Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Resubmit", new { @class = "radio", @disabled = "disabled" })
+                            @Html.Raw(" Resubmit ")*@
+                        }
+                        else
+                        {
+                            @(Html.Kendo().ComboBox()
+                             .Name("ACESClaimStatus" + claimID)
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ACESClaimStatus.ToString()] as IEnumerable<SelectListItem>)
+                             .SelectedIndex(0)
+                             .Suggest(true)
+                             .HighlightFirst(true)
+                             .Enable(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                              .Events(events => events.Change("ACESClaimStatus_Change"))
+                             .Value(Model.Claim.ACESClaimStatusID.HasValue ? Model.Claim.ACESClaimStatusID.Value.ToString() : string.Empty)
+                             .HtmlAttributes(new { id = "ACESClaimStatus_" + @claimID, style = "width:90%;", dmsrole = "Combo" })
+                             )
+@*@Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Approved", new { @class = "radio" })
+                            @Html.Raw(" Approved ")
+                            @Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Denied", new { @class = "radio" })
+                            @Html.Raw(" Denied ")
+                            @Html.RadioButtonFor(u => u.Claim.ACESOutcome, "Resubmit", new { @class = "radio" })
+                            @Html.Raw(" Resubmit ")*@
+                        }
+                    </p>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Cleared Date
+                        </label>
+                        @(Html.Kendo().DatePickerFor(u => u.Claim.ACESClearedDate)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ACESClearedDate_" + @claimID, dmsrole = "DatePicker", @readonly = "true", type = "text" })
+                           )
+                    </div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            ACES Amount
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(u => u.Claim.ACESAmount)
+                                              .Format("c")
+                                              .Min(0)
+                                              .Max(Model.MaximumClaimAmountThreshold)
+                                              .Value(Model.Claim.ACESAmount)
+                                              .Spinners(false)
+                                              .HtmlAttributes(new { id = "ACESAmount_" + claimID, style = "width:90%;", dmsrole = "numericTextBox", @readonly = "true" })
+                             )
+                    </p>
+                </fieldset>
+            </div>
+        }
+    </div>
+    <div class="columns">
+        <div class="six-columns">
+            <div class="with-padding">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Source</label>
+                    <small>@Html.DisplayFor(u => u.SourceSystemName)</small>
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Create Date</label>
+                    <small>@Html.DisplayFor(u => u.Claim.CreateBy)</small> <small>@Html.DisplayFor(u => u.Claim.CreateDate)</small>
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Last Updated</label>
+                    <small>@Html.DisplayFor(u => u.Claim.ModifyBy)</small> <small>@Html.DisplayFor(u => u.Claim.ModifyDate)</small>
+                </p>
+            </div>
+        </div>
+        <div class="six-columns">
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmCLaimInformation_@claimID').validationEngine();
+        if ('@claimID' == "0") {
+            DisabledClaimInformationFields();
+        }
+    });
+</script>
+@helper GetValue(string value)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+    @Html.Raw(value.Trim());
+    <br />
+        }
+}

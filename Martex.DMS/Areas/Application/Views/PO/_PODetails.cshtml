@@ -1,0 +1,750 @@
+﻿@model Martex.DMS.DAL.PurchaseOrder
+@using System.Collections.Generic;
+@using System.Globalization;
+@using System.Threading;
+@using Martex.DMS.Areas.Application.Models;
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@using Martex.DMS.ActionFilters;
+@{
+    string dollarLimitVisibilityClass = Model.IsServiceCoverageBestValue.GetValueOrDefault() ? "hide" : string.Empty;
+    decimal serviceCovergaeLimitValue = 0;
+    if (ViewBag.ServiceCoverageLimit != null && (decimal)ViewBag.ServiceCoverageLimit > 0)
+    {
+        serviceCovergaeLimitValue = Math.Round(((decimal)ViewBag.ServiceCoverageLimit), 2);
+    }
+    if (Model.IsServiceCoverageBestValue.GetValueOrDefault())
+    {
+        serviceCovergaeLimitValue = 99999;
+    }
+
+    VendorInformation_Result vendorInfo = null;
+    if (ViewBag.VendorInfo != null)
+    {
+        vendorInfo = ViewBag.VendorInfo as VendorInformation_Result;
+    }
+}
+<style type="text/css">
+    .podetailsedit {
+        padding: 2px 4px 2px 4px;
+        margin: 0 0.2em;
+        border-radius: 3px 3px 3px 3px;
+        border-style: solid;
+        border-width: 1px;
+        cursor: pointer;
+        display: inline-block;
+        font-family: inherit;
+        font-size: 100%;
+        line-height: 1.435;
+        padding: 2px 6px;
+        text-align: center;
+    }
+</style>
+<script type="text/javascript">
+    var currentPOID = '@ViewBag.CurrentPOrderId';
+
+    var rateTypecombo;
+    //TFS:429
+    var unitsCombo;
+    var isDetailEditInProgress = false;
+    function onComboBoxChange_Product(e) {
+
+        var combo = e.sender;
+        //get the edited field name
+        var fieldName = e.sender.element.attr("id");
+        //find the closest row
+        var currentRow = e.sender.wrapper.closest("tr");
+        //find the grid
+        var grid = e.sender.wrapper.closest(".k-grid").data("kendoGrid");
+        //get the current row dataItem
+        var currentDataItem = grid.dataItem(currentRow);
+        //manually set the current value of the DropDownList to the field
+        currentDataItem.set(fieldName, parseInt(e.sender.value()));
+
+        if (rateTypecombo != null) {
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_SelectRateType", "PO", new { area = "Application" })',
+                data: { id: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    rateTypecombo.setDataSource(msg);
+                }
+            });
+        }
+    }
+
+    function onComboBoxChange_RateType(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //TFS:429
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetDefaultUOMForRateType", "ReferenceData", new { area = "Common" })',
+            data: { id: combo.value() },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                console.log(msg);
+                if (msg.Data && $.trim(msg.Data).length > 0) {
+                    unitsCombo.select(function (dataItem) {
+                        return dataItem.Text === msg.Data;
+                    });
+                }
+                else {
+                    unitsCombo.select(0);
+                }
+            }
+        });
+
+    }
+
+    function onComboBoxChange_UnitOfMeasure(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function GrdPODetail_onError(args) {
+
+    }
+    function GetReadParams() {
+
+        return { poID: currentPOID };
+    }
+
+
+    function GrdPODetail_onDataBound(e) {
+
+        $("#tooltips").html("");
+
+        $(".k-grid-add").addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add PO Details</label>").attr("title", "Add PO Details");
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+
+        $(".k-grid-add", ".k-grid-delete").click(function () {
+
+            $("#tooltips").html("");
+        });
+        //handling code
+
+        var grid = e.sender;
+        var subTotal = 0;
+        var isMemberPayValue = 0;
+        var that = this;
+
+        e.sender.table.find('tr').each(function () {
+            var $total = $(this).find('#total');
+            var $isMemberPay = $(this).find('#IsMemberPay');
+            var $totalValue = parseFloat($total.text().replace("$", ''));
+            if (!isNaN($totalValue)) {
+                subTotal = subTotal + $totalValue;
+                if ($isMemberPay.is(':checked')) {
+                    isMemberPayValue = isMemberPayValue + $totalValue;
+                }
+
+                var dataRow = that.dataItem($(this));
+                var calTotal = (dataRow.Rate * dataRow.Quantity);
+                dataRow.ExtendedAmount = calTotal;
+                if (!isNaN(calTotal)) {
+                    $total.html("$" + parseFloat(calTotal).toFixed(2));
+                    if (calTotal < 0) {
+                        $total.addClass("red");
+                    }
+                }
+
+                if (dataRow.Rate < 0) {
+                    this.cells[6].className = "red";
+                }
+                var rowRate = dataRow.Rate;
+                if (rowRate != null) {
+                    this.cells[6].innerText = "$" + rowRate.toFixed(2);
+                }
+                else {
+                    this.cells[6].innerText = "$0.00";
+                }
+            }
+        });
+        $("#txtSubtotal").val(subTotal.toFixed(2));
+        $("#txtIsMemberPayCheched").val(isMemberPayValue.toFixed(2));
+
+        taxCalculation();
+    }
+
+    function onTotalChange(element) {
+        var $element = $(element);
+        var $tr = $element.parents("tr");
+        var subTotal = 0;
+        var rowQuantity = $("#Quantity").val();
+        var rowRate = $("#Rate").val();
+        var descimalQuantity = parseFloat(rowQuantity);
+        var descimalRate = parseFloat(rowRate);
+        var calTotal = 0
+        if (!isNaN(descimalQuantity) && !isNaN(descimalRate)) {
+            calTotal = (descimalQuantity * descimalRate)
+        }
+        $("#ExtendedAmount").val(calTotal);
+
+        var total = $tr.find("#total").html(calTotal);
+    }
+
+    function GrdPODetail_OnCancel(e) {
+
+        var btnUpdate = $(e.container.find(".k-grid-edit"));
+        var btnDelete = $(e.container.find(".k-grid-delete"));
+
+        btnUpdate.addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Save");
+        btnDelete.addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Cancel");
+    }
+    function GrdPODetail_OnEdit(e) {
+
+        //KB: Track edits
+        isDetailEditInProgress = true;
+        // Product
+
+        var $combo = $(e.container.find("[data-role=combobox]")[0]).data().kendoComboBox;
+        rateTypecombo = $(e.container.find("[data-role=combobox]")[1]).data().kendoComboBox;
+        //TFS:429
+        unitsCombo = $(e.container.find("[data-role=combobox]")[2]).data().kendoComboBox;
+
+        /* Set the width of the dropdown containers */
+        $combo.list.width(250);
+        rateTypecombo.list.width(250);
+        unitsCombo.list.width(250);
+
+
+        var btnUpdate = $(e.container.find(".k-grid-update"));
+        var btnCancel = $(e.container.find(".k-grid-cancel"));
+
+        btnUpdate.addClass("with-tooltip green-active2 active").html('<span class="k-icon k-update"/>').css("min-width", "26px");
+        btnCancel.addClass("with-tooltip red-active2 active").html('<span class="k-icon k-cancel"/>').css("min-width", "26px");
+
+        btnCancel.click(function () {
+
+            //KB: Track edits
+            isDetailEditInProgress = false;
+            setTimeout(function () {
+                $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit").css("min-width", "26px");
+                $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete").css("min-width", "26px");
+                // Re-format rate and total values.
+
+                var tbl = $("#PODetails").find(".k-grid-content").find("table");
+                tbl.find('tr').each(function () {
+                    var $total = $(this).find('#total');
+                    var $isMemberPay = $(this).find('#IsMemberPay');
+                    var $totalValue = parseFloat($total.text().replace("$", ''));
+
+                    if (!isNaN($totalValue)) {
+                        var rateValue = parseFloat(this.cells[6].innerText.replace("$", ''));
+                        if (!isNaN(rateValue)) {
+                            this.cells[6].innerText = "$" + rateValue.toFixed(2);
+                            if (rateValue < 0) {
+                                this.cells[6].className = "red";
+                            }
+                        }
+                        else {
+                            this.cells[6].innerText = "$0.00";
+                        }
+
+                        $total.html("$" + parseFloat($totalValue).toFixed(2));
+                        if ($totalValue < 0) {
+                            $total.addClass("red");
+                        }
+                    }
+                });
+
+            }, 500);
+
+        });
+
+        $combo.bind("change", onComboBoxChange_Product);
+        //TFS:429
+        rateTypecombo.bind("change", onComboBoxChange_RateType);
+        unitsCombo.enable(false);
+
+        var currentProduct = $combo.value();
+        var oldRateValue = rateTypecombo.value();
+        var $quntity = $(e.container.find("#Quantity"));
+        $quntity.attr("onChange", "onTotalChange(this)");
+        var $rate = $(e.container.find("#Rate"));
+        $rate.attr("onChange", "onTotalChange(this)");
+        var $total = null;
+        var $squence = $(e.container.find("#Sequence"));
+        if (e.model.isNew()) {
+            $total = $(e.container.find("#total"));
+            var count = 0;
+            if ($squence.val() == '' || $squence.val() == undefined) {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetSquence", "PO")',
+                    traditional: true,
+                    cache: false,
+                    async: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            count = msg.Data;
+                        }
+                    }
+                });
+            }
+            $squence.val(count);
+            e.model.Sequence = count;
+        }
+        $squence.attr("readonly", "readonly");
+        $squence.addClass("disabled");
+
+        if (rateTypecombo != null) {
+            if (currentProduct != '0') {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SelectRateType", "PO", new { area = "Application" })',
+                    data: { id: currentProduct },
+                    traditional: true,
+                    cache: false,
+                    async: false,
+                    success: function (msg) {
+                        rateTypecombo.setDataSource(msg);
+                        if (e.model.ProductRateID != null) {
+                            rateTypecombo.value(e.model.ProductRateID);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    function GrdPODetail_OnSave(e) {
+
+        //KB: Track edits
+        isDetailEditInProgress = false;
+        var unitsComboSave = $(e.container.find("[data-role=combobox]")[2]).data().kendoComboBox;
+
+        if (unitsComboSave != null) {
+            e.model.UnitOfMeasure = unitsComboSave.value();
+        }
+
+        var $comboSave = $(e.container.find("[data-role=combobox]")[0]).data().kendoComboBox;
+
+        if ($comboSave != null && $comboSave.value() != '') {
+            e.model.ProductID = $comboSave.value();
+        }
+
+        if (rateTypecombo != null) {
+            if (rateTypecombo.value() != '') {
+                e.model.ProductRateID = rateTypecombo.value();
+                if (e.model.RateType != null) {
+                    e.model.RateType.ID = rateTypecombo.value();
+                    e.model.RateType.Description = rateTypecombo.text();
+                }
+                else {
+                    e.model.RateType = { ID: rateTypecombo.value(), Description: rateTypecombo.text() };
+                }
+            }
+        }
+        e.model.ExtendedAmount = e.model.Rate * e.model.Quantity;
+    }
+
+    function GrdPODetail_onDelete(e) {
+        if (e.model.ID == '0') {
+            var sequence = e.model.Sequence;
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("PONewRowDelete", "PO", new { area = "Application" })',
+                data: { sequence: sequence },
+                traditional: true,
+                cache: false,
+                async: false,
+                success: function (msg) {
+
+                }
+            });
+        }
+    }
+</script>
+@{
+    SelectListItem emptyItem = new SelectListItem() { Selected = true, Value = string.Empty, Text = "Select" };
+    List<SelectListItem> emptyList = new List<SelectListItem>();
+    emptyList.Add(emptyItem);
+}
+<div class="new-row twelve-columns">
+    @Html.Hidden("currentPOId", ViewBag.CurrentPOrderId as string)
+    @(Html.Kendo().Grid<Martex.DMS.DAL.Entities.PurchaseOrderDetailsModel>()
+    .Name("PODetails")
+    .ToolBar(commands =>
+    {
+        if ("Edit".Equals(ViewBag.Mode, StringComparison.InvariantCultureIgnoreCase))
+        {
+
+            commands.Create();
+        }
+    })
+    .DataSource(dataBinding =>
+    {
+        dataBinding.Ajax()
+            .Read(read => read.Action("_SelectPODetails", "PO", new { area = "Application", poID = ViewBag.CurrentPOrderId as int? }).Data("GetReadParams"))
+            .Create(insert => insert.Action("_InsertPODetails", "PO", new { area = "Application", poID = ViewBag.CurrentPOrderId as int? }).Data("GetReadParams"))
+            .Update("_UpdatePODetails", "PO", new { area = "Application" })
+            .Destroy(del => del.Action("_DeletePODetails", "PO", new { area = "Application", poID = ViewBag.CurrentPOrderId as int? }))
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Model(u => u.Id(p => p.ID));
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(pd => pd.ID).Hidden();
+        columns.Bound(pd => pd.Sequence).Title("Line").Width("50px");
+        columns.ForeignKey(pd => pd.ProductID, (System.Collections.IEnumerable)ViewData[StaticData.PODetailsProduct.ToString()], "Value", "Text").Title("Service").Width("300px");
+        columns.ForeignKey(pd => pd.ProductRateID, (System.Collections.IEnumerable)emptyList, "Value", "Text").Title("Rate Type").Width("100px").ClientTemplate("#= typeof(RateType) == \"undefined\" ? '' : RateType.Description!=null?RateType.Description:''  #");
+        columns.Bound(pd => pd.Quantity).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("60px");
+        columns.ForeignKey("UnitOfMeasure", (System.Collections.IEnumerable)ViewData[StaticData.PODetailsUOM.ToString()], "Value", "Text").Title("Units").Width("80px");
+        columns.Bound(pd => pd.Rate).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("100px");
+        columns.Bound(pd => pd.ExtendedAmount).Title("Total").Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).Hidden();
+        columns.Template(@<text>{@(item.Quantity * item.Rate)}</text>).Title("Total").ClientTemplate("<span id='total'> #= Quantity * Rate # </span>").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("100px");
+        columns.Bound(pd => pd.IsMemberPay).ClientTemplate("<input type='checkbox' disabled ='disabled' id='IsMemberPay' #= IsMemberPay? checked='checked' : '' # />").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" }).Width("100px");
+        if ("Edit".Equals(ViewBag.Mode, StringComparison.InvariantCultureIgnoreCase))
+        {
+            columns.Command(commands =>
+            {
+                commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+                commands.Destroy().HtmlAttributes(new { style = "min-width:26px;" });
+            }).Title("Action(s)").Width("90px");
+        }
+    }
+                            )
+                            .Events(events => events
+
+                                .Edit("GrdPODetail_OnEdit")
+                                .Save("GrdPODetail_OnSave")
+                                .DataBound("GrdPODetail_onDataBound")
+                                .Remove("GrdPODetail_onDelete")
+                            )
+                            .Editable(editing => editing.CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom).Mode(Kendo.Mvc.UI.GridEditMode.InLine))
+                            .Sortable(p => { p.Enabled(false); })
+                            .Filterable(p => { p.Enabled(false); })
+                            .Pageable(p => { p.Enabled(false); })
+                            .EnableCustomBinding(true)
+                            .Scrollable())
+</div>
+<div class="new-row twelve-columns">
+    <div class="columns">
+        <div class="one-column"></div>
+        <div class="five-columns">
+            <p class="button-height inline-label">
+                &nbsp;
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    Tax Rate &#37;&nbsp;
+                </label>
+                <input type="text" id="txtTaxRate" value="0.00" class="align-left validate[number maxSize[6]] input"
+                       style="text-align: right; width: 80px;" />
+            </p>
+            <p class="button-height inline-label">
+                @if (vendorInfo != null && "Contracted".Equals(vendorInfo.ContractStatus, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    <label class="label align-right">
+                        Contracted Price&nbsp;
+                    </label>
+                }
+                else
+                {
+                    <label class="label align-right">
+                        Market Price&nbsp;
+                    </label>
+                }
+                <input type="text" id="txtServiceAmountEstimate" class="input disabled align-left" readonly="readonly"
+                       value="@Model.TotalServiceAmountEstimate.GetValueOrDefault().ToString("0.00")" style="text-align: right; width: 80px;" />
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right ">
+                    Dollar Limit&nbsp;
+                </label>
+                @if (ViewBag.ServiceCoverageLimit != null && (decimal)ViewBag.ServiceCoverageLimit > 0)
+                {
+                    if (ViewBag.IsDollarLimtEnable)
+                    {
+                        @Html.TextBox("ServiceCoverageLimit", serviceCovergaeLimitValue, new { @class = "input " + dollarLimitVisibilityClass, @style = "text-align:right;width: 80px; margin-right:10px" })
+                        @Html.Hidden("IsServiceCoverageLimitEnable", true);
+                    }
+                    else
+                    {
+                        @Html.TextBox("ServiceCoverageLimit", serviceCovergaeLimitValue, new { @class = "input disabled " + dollarLimitVisibilityClass, @readonly = "readonly", @style = "text-align:right;width: 80px; margin-right:10px" })
+                        @Html.Hidden("IsServiceCoverageLimitEnable", false);
+                    }
+                }
+                else
+                {
+                    if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.TEXT_DOLLAR_LIMIT) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite)
+                    {
+                        @Html.TextBox("ServiceCoverageLimit", serviceCovergaeLimitValue, new { @class = "input align-left " + dollarLimitVisibilityClass, @style = "text-align:right;width: 80px; margin-right:10px" })
+                        @Html.Hidden("IsServiceCoverageLimitEnable", true);
+                    }
+                    else
+                    {
+                        @Html.TextBox("ServiceCoverageLimit", serviceCovergaeLimitValue, new { @class = "input disabled align-left " + dollarLimitVisibilityClass, @readonly = "readonly", @style = "text-align:right;width: 80px; margin-right:10px" })
+                        @Html.Hidden("IsServiceCoverageLimitEnable", false);
+                    }
+                }
+                @if (Model.IsServiceCoverageBestValue.GetValueOrDefault())
+                {
+                    @Html.TextBox("txtBestValue", "Best Value", new { @class = "input disabled align-left ", @readonly = "readonly", @style = "text-align:right;width: 80px;" })
+                }
+            </p>
+            @if (string.IsNullOrEmpty(Model.ServiceEligibilityMessage) || (!string.IsNullOrEmpty(Model.ServiceEligibilityMessage) && Model.ServiceEligibilityMessage.Equals("Undetermined")))
+            {
+                <p class="block-label margin-top alert alert-info">
+                    <span>Undetermined</span>
+                </p>
+            }
+            else if (Model.IsServiceCovered.GetValueOrDefault())
+            {
+                <p class="block-label margin-top alert alert-success">
+                    <span>@Model.ServiceEligibilityMessage</span>
+                </p>
+            }
+            else if (Model.IsServiceCovered.GetValueOrDefault() == false)
+            {
+                <p class="block-label margin-top alert alert-wrong">
+                    <span>@Model.ServiceEligibilityMessage</span>
+                </p>
+            }
+        </div>
+        <div class="six-columns">
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    Sub-Total&nbsp;
+                </label>
+                <input type="text" id="txtSubtotal" class="input disabled align-left" readonly="readonly"
+                       value="0.00" style="text-align: right; width: 80px;" />
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    <strong>Tax&nbsp;</strong>
+                </label>
+                @Html.TextBox("txtTax", (decimal?)ViewBag.TaxAmount, new { @id = "txtTax", @class = "input  align-left  validate[number]", @style = "text-align:right;width: 80px;" })
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    Service Total&nbsp;
+                </label>
+                <input type="text" id="txtServiceTotal" class="input  disabled align-left" readonly="readonly"
+                       value="0.00" style="text-align: right; width: 80px;" />
+                @Html.Raw(" Service Max $")@Model.TotalServiceAmountThreshold.GetValueOrDefault().ToString("N2")
+                <input type="text" id="txtServiceAmountThreshold" class="input hidden align-left" readonly="readonly"
+                       value="@Model.TotalServiceAmountThreshold.GetValueOrDefault().ToString("0.00")" style="text-align: right; width: 0px;" />
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    <strong>Pinnacle Pays&nbsp;</strong>
+                </label>
+                @Html.Hidden("txtIsMemberPayCheched", 0.00)
+                <input type="text" id="txtCoachNet" readonly="readonly" class="input disabled align-left"
+                       value="0.00" style="text-align: right; width: 80px;" />
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    Member Pays&nbsp;
+                </label>
+                <input type="text" id="txtMember" readonly="readonly" class="input  disabled align-left"
+                       style="text-align: right; width: 80px;" />
+            </p>
+            <p class="button-height inline-label">
+                <label class="label align-right">
+                    &nbsp;
+                </label>
+                <span id="limitStatus" class="red small-margin-left"></span>
+            </p>
+        </div>
+        @*<div class="four-columns">
+                <p class="button-height inline-label">
+                    &nbsp;
+                </p>
+                <p class="button-height inline-label">
+                    &nbsp;
+                </p>
+                <p class="button-height inline-label">
+                    <label class="label align-right">
+                        Service Max&nbsp;
+                    </label>
+                    <input type="text" id="txtServiceAmountThreshold" class="input align-left" readonly="readonly"
+                           value="@Model.TotalServiceAmountThreshold.GetValueOrDefault().ToString("N2")" style="text-align: right; width: 80px;" />
+                </p>
+            </div>*@
+    </div>
+</div>
+<script type="text/javascript">
+
+    function taxCalculation() {
+        var taxRate = $("#txtTaxRate").val();
+        var subTotal = $("#txtSubtotal").val();
+        var txtTax = $("#txtTax");
+        var txtServiceTotal = $("#txtServiceTotal");
+        var txtMemberPay = $("#txtMember");
+        var memberPayValue = 0.00;
+        var txtCoachNetPay = $("#txtCoachNet");
+        var txtMemberPays = $("#MemberServiceAmount");
+        var POAmount = $("#PurchaseOrderAmount");
+        var chargeMbrCC = $("#MemberAmountDueToCoachNet");
+        var dispatchFee = $("#DispatchFee");
+        var txtCostPlusServiceAmount = $("#CostPlusServiceAmount");
+        var tax = 0.00;
+        var coachNet = 0.00;
+        var isPOCostPlusPercentageApplies = $("#IsPOCostPlusPercentageApplies").val();
+        var isCostPlusPercentageApplicable = ("true" == isPOCostPlusPercentageApplies.toLowerCase());
+        if (!isNaN(parseFloat(txtTax.val()))) {
+            tax = parseFloat(txtTax.val());
+        }
+        if (parseFloat(taxRate) > 0) {
+            tax = ((parseFloat(taxRate) / 100) * parseFloat(subTotal))
+        }
+
+        if (!isNaN(tax)) {
+            txtTax.val(tax.toFixed(2));
+        }
+
+        var costPlusPercentage = $("#CostPlusPercentage").val();
+
+        var serviceTotal = (parseFloat(subTotal) + tax);
+        if (!isNaN(serviceTotal)) {
+            txtServiceTotal.val(serviceTotal.toFixed(2));
+        }
+        if (isCostPlusPercentageApplicable) {
+            var costPlusPercentagedecimal = parseFloat(costPlusPercentage);
+            serviceTotal = parseFloat(serviceTotal) * (1 + costPlusPercentagedecimal);
+            txtCostPlusServiceAmount.val(serviceTotal);
+        }
+
+        if (!isNaN(serviceTotal)) {
+            var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+            if (isServiceCovered == "1") {
+                var isMemberCheckValue = parseFloat($("#txtIsMemberPayCheched").val());
+                coachNet = serviceTotal - isMemberCheckValue;
+                var isGOAValue = $("#IsGOA").val();
+                if (isGOAValue == "True") {
+                    txtCoachNetPay.val(coachNet.toFixed(2));
+                }
+                else {
+                    var $limitValue = parseFloat($("#ServiceCoverageLimit").val());
+
+                    if (!isNaN($limitValue) && (coachNet < $limitValue)) {
+                        txtCoachNetPay.val(coachNet.toFixed(2));
+                    }
+                    else {
+                        txtCoachNetPay.val($limitValue.toFixed(2));
+                    }
+                }
+
+                if (serviceTotal > $limitValue) {
+                    $("#limitStatus").html("Over limit");
+                }
+                else {
+                    $("#limitStatus").html("");
+                }
+            }
+            else {
+                txtCoachNetPay.val(coachNet.toFixed(2));
+            }
+            var coachNetValue = parseFloat(txtCoachNetPay.val());
+            if (!isNaN(coachNetValue)) {
+
+                memberPayValue = serviceTotal - coachNetValue;
+                txtMemberPay.val(memberPayValue.toFixed(2));
+                txtMemberPays.val(memberPayValue.toFixed(2));
+                var dispatchFeeValue = 0.00;
+                var chargeMbrCCValue = 0.00;
+                var poAmountTotal = 0.00;
+                var isMemberPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+                //KB: Make sure that MemberPaysISP is configured for the program to be "No" when CostPlus is set.
+                if (isMemberPaysISP == "0") {
+                    if (isCostPlusPercentageApplicable) {
+                        poAmountTotal = parseFloat(txtServiceTotal.val());
+                    }
+                    else {
+                        poAmountTotal = memberPayValue + coachNetValue;
+                    }
+                }
+                else {
+                    poAmountTotal = coachNetValue;
+                }
+                POAmount.val(poAmountTotal.toFixed(2));
+                // For some reason, the Grid calls this method two times on page load. So not calculating the dispatch fee when the page is loaded the first time.
+                if (firstRender > 1) {
+
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("CalculateDispatchFee", "PO", new { area = "Application" })',
+                        traditional: true,
+                        data: { poId: currentPOID, poAmount: poAmountTotal },
+                        cache: false,
+                        async: false,
+                        success: function (msg) {
+                            var result = msg.Data;
+                            if ($("#IsDispatchFee").is(':checked')) {
+                                dispatchFee.val(result.StringDispatchFee);
+                            }
+                            $("#InternalDispatchFee").val(result.InternalDispatchFee);
+                            $("#ClientDispatchFee").val(result.ClientDispatchFee);
+                            $("#CreditCardProcessingFee").val(result.CreditCardProcessingFee);
+
+                            $("#DispatchFeeAgentMinutes").val(result.DispatchFeeAgentMinutes);
+                            $("#DispatchFeeTechMinutes").val(result.DispatchFeeTechMinutes);
+                            $("#DispatchFeeTimeCost").val(result.DispatchFeeTimeCost);
+                        }
+                    });
+                }
+                firstRender++;
+
+                if (isMemberPaysISP == "0") {
+                    if ($("#IsDispatchFee").is(':checked')) {
+                        dispatchFeeValue = parseFloat(dispatchFee.val());
+                    }
+                    if (!isNaN(dispatchFeeValue)) {
+                        chargeMbrCCValue = memberPayValue + dispatchFeeValue
+                    }
+                    else {
+                        chargeMbrCCValue = memberPayValue;
+                    }
+                    chargeMbrCC.val(chargeMbrCCValue.toFixed(2));
+                    chargeMbrCC.trigger("change");
+                }
+                else {
+                    chargeMbrCC.val(chargeMbrCCValue.toFixed(2));
+                    chargeMbrCC.trigger("change");
+                }
+
+            }
+        }
+    }
+    $(function () {
+
+        var poDetailsRefresh = $("#PODetails").data('kendoGrid');
+        if (poDetailsRefresh !== undefined) {
+            poDetailsRefresh.dataSource.read();
+        }
+
+        $("#txtSubtotal").change(function () {
+            taxCalculation();
+        });
+
+        $("#txtTaxRate").change(function () {
+            if (parseFloat($(this).val()) == 0) {
+                $("#txtTax").val("0.00");
+            }
+            taxCalculation();
+        });
+        $("#txtTax").change(function () {
+            $("#txtTaxRate").val("0.00");
+            taxCalculation();
+        });
+        $("#ServiceCoverageLimit").change(function () {
+            taxCalculation();
+        });
+    });
+
+</script>

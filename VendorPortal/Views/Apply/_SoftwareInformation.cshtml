@@ -1,0 +1,79 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+@using Kendo.Mvc.UI
+<div class="clear">
+</div>
+<h3 class="underline margin-bottom">
+    Towing Software
+</h3>
+<p class="button-height small-margin-bottom inline-large-label ">
+    <label for="witness" class="label">
+        What towing software do you use?
+    </label>
+    @(Html.Kendo().ComboBoxFor(a => a.DispatchSoftwareProductID)
+        .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchSoftwareOther(e);}</text>)))
+        .HtmlAttributes(new { style = "width:85%;" })
+    )
+</p>
+<p class="button-height inline-large-label small-margin-bottom  hidden" id="PlaceHolder_DispatchSoftwareProductOther">
+    <label for="DispatchSoftwareProductOther" class="label">
+        <i> Other Description</i>
+    </label>
+    @Html.TextBoxFor(a => a.DispatchSoftwareProductOther, new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+</p>
+<p class="button-height small-margin-bottom inline-large-label">
+    <label for="DispatchDispatch" class="label">
+        Do you currently use digital dispatch?
+    </label>
+    @Html.RadioButton("DigitalDispatch", "Yes", false, new { @class = "radio" })
+    @Html.Raw("Yes")
+    @Html.RadioButton("DigitalDispatch", "No", false, new { @class = "radio" })
+    @Html.Raw("No")
+    @Html.RadioButton("DigitalDispatch", "Yes", false, new { @class = "radio" })
+    @Html.Raw("Don't know")
+</p>
+<p class="button-height small-margin-bottom  inline-large-label ">
+    <label for="witness" class="label">
+        What software do your drivers use?
+    </label>
+    @(Html.Kendo().ComboBoxFor(a=>a.DriverSoftwareProductID)
+    .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+    .SelectedIndex(0)
+    .HighlightFirst(true)
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDriverSoftwareOther(e);}</text>)))
+    .HtmlAttributes(new { style = "width:85%;" })
+    )
+</p>
+<p class="button-height small-margin-bottom  inline-large-label hidden" id="PlaceHolder_DriverSoftwareProductOther">
+    <label for="DriverSoftwareProductOther" class="label">
+        <i> Other Description</i>
+    </label>
+    @Html.TextBoxFor(a=>a.DriverSoftwareProductOther, new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+</p>
+
+<p class="button-height small-margin-bottom  inline-large-label ">
+    <label for="witness" class="label">
+        What GPS devices do your drivers use?
+    </label>
+    @(Html.Kendo().ComboBoxFor(a=>a.DispatchGPSNetworkID)
+    .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchGPSNetwork.ToString()] as IEnumerable<SelectListItem>)
+    .SelectedIndex(0)
+    .HighlightFirst(true)
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchGPSNetworkOther(e);}</text>)))
+    .HtmlAttributes(new { style = "width:85%;" })
+    )
+</p>
+<p class="button-height small-margin-bottom  inline-large-label hidden" id="PlaceHolder_DispatchGPSNetworkOther">
+    <label for="DispatchGPSNetworkOther" class="label">
+        <i> Other Description</i>
+    </label>
+    @Html.TextBoxFor(a=>a.DispatchGPSNetworkOther, new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+</p>

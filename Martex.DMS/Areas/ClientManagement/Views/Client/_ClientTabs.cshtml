@@ -1,0 +1,35 @@
+﻿@model Martex.DMS.Models.ClientModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixClientID = Model.Client.ID.ToString();
+}
+<div id="ClientDetailsTab_@suffixClientID" class="standard-tabs same-height">
+    <ul class="tabs">
+        <li>
+            <a href="@Url.Action("_Client_Information", "Client", new { area = "ClientManagement" })" id="#ClientDetailsInfoTab_@suffixClientID">
+                Info
+            </a>
+        </li>
+        <li>
+            <a href="@Url.Action("_Client_Documents", "Client", new { area = "ClientManagement" })" id="#ClientDetailsDocumentTab_@suffixClientID">
+                Documents
+            </a>
+        </li>
+
+    </ul>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#ClientDetailsTab_@suffixClientID').tabs({
+            ajaxOptions: { data: { clientID: '@suffixClientID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+</script>

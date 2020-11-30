@@ -1,0 +1,143 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+<script type="text/javascript">
+
+    var messageMaintenanceWindow;
+
+    function GrdMessageMaintenance_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+    }
+
+    function ManageMessage(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).MessageID;
+            if (e.data.commandName == 'View') {
+                LoadMessageDetails(recordID, "View", "View : " + recordID);
+            }
+            else if (e.data.commandName == 'Edit') {
+                LoadMessageDetails(recordID, "Edit", "Edit : " + recordID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                $.modal.confirm('Are you sure you want to delete this Message?', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeleteMessage", "MessageMaintenance", new { area = "Admin" })',
+                        data: { recordID: recordID },
+                        success: function (msg) {
+                            openAlertMessage('Message Deleted Successfully');
+                            $('#GrdMessageMaintenance').data('kendoGrid').dataSource.read();
+                        }
+                    });
+                }, function () {
+
+                });
+            }
+        }
+        else {
+            LoadMessageDetails(recordID, "Add", "New Message");
+        }
+        return false;
+    }
+
+    function LoadMessageDetails(recordID, mode, title) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("MessageDetails", "MessageMaintenance", new { area = "Admin" })',
+            data: { recordID: recordID, mode: mode },
+            cache: false,
+            success: function (msg) {
+                messageMaintenanceWindow = $("<div id='messageMaintenanceWindow' />").appendTo(document.body);
+                messageMaintenanceWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#formMessageMaintenanceDetails').validationEngine('hideAll');
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('formMessageMaintenanceDetails')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('formMessageMaintenanceDetails');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                messageMaintenanceWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="columns">
+    <div class="new-row twelve-columns">
+        @(Html.Kendo().Grid<MessageList_Result>()
+              .Name("GrdMessageMaintenance")
+              .Columns(column =>
+                {
+                    column.Bound(a => a.MessageID).Title("ID");
+                    column.Bound(a => a.MessageScope).Title("Message Scope");
+                    column.Bound(a => a.MessageType).Title("Message Type");
+                    column.Bound(a => a.Subject).Title("Subject");
+                    column.Bound(a => a.MessageText).Title("Message Text");
+                    column.Bound(a => a.StartDate).Title("StartDate").Format("{0:MM/dd/yyyy}");
+                    column.Bound(a => a.EndDate).Title("EndDate").Format("{0:MM/dd/yyyy}");
+                    column.Bound(a => a.Sequence).Title("Sequence");
+                    column.Bound(a => a.IsActive).Title("IsActive");
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageMessage").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                        command.Custom("Edit").Click("ManageMessage").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                        command.Custom("Delete").Click("ManageMessage").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                    }).Width(175)
+                      .Title("Action(s)");
+
+                })
+           .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageMessage(null)' ><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Message</label></a>"))
+           .Events(e =>
+            {
+                e.DataBound("GrdMessageMaintenance_OnDataBound");
+            })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("MessageList", "MessageMaintenance", new { area = "Admin" }))
+        .PageSize(10)
+    )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdMessageMaintenance"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdMessageMaintenance>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

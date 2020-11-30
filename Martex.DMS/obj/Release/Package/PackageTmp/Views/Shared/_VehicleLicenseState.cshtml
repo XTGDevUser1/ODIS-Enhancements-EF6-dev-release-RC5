@@ -1,0 +1,82 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@using Kendo.Mvc.UI;
+@{
+    string uniqueID = ViewData["UniqueID"] as string;
+    if(!string.IsNullOrEmpty(uniqueID)){
+        uniqueID = "_" + uniqueID;
+    }
+    else{
+        uniqueID = string.Empty;
+    }
+}
+
+
+<script type="text/javascript">
+    var uniqueID = '@uniqueID';
+    function LicenseStateCountry_Change(e, uniqueID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var vehicleState = $('#LicenseState' + uniqueID).data('kendoComboBox');
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetStateProvince", "ReferenceData", new { area = "Common" })',
+            traditional: true,
+            data: { countryID: combo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleState.setDataSource(msg);
+                vehicleState.select(0);
+
+                SetFocusOnField("LicenseState");
+
+            }
+        });
+    }
+</script>
+<div class="button-height inline-label small-margin-bottom">
+    <label for="LicenseState" class="label">
+        License State</label>
+    @(Html.Kendo().ComboBox()
+                             .DataSource(source =>
+                              {
+                                  source.Read(read =>
+                                       {
+                                           read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                       })
+                                           .ServerFiltering(false);
+                              })
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .Name("VehicleLicenseCountryID")
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .HighlightFirst(true)
+                              .Events(events =>
+                              {
+                                  events.Change(@<text> function(e){ return LicenseStateCountry_Change(e,'@uniqueID'); }</text>);                                  
+                              })
+                            .HtmlAttributes(new { style = "width:50px", @class = "countryCode", id = "VehicleLicenseCountryID" + uniqueID})
+                            .SelectedIndex(0)
+                            .Value(Model.VehicleLicenseCountryID.HasValue ? Model.VehicleLicenseCountryID.Value.ToString() : string.Empty)
+                                                                    
+                                                        )
+    @(Html.Kendo().ComboBox()
+                              .Name("LicenseState")
+
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                                    {
+                                        events.Change("ValidateInputForKendoCombo");
+                                        events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                    })
+                              .HighlightFirst(true)
+                                      .HtmlAttributes(new { style = "width:95px", id = "LicenseState" + uniqueID })
+                              .Value(Model.LicenseState)
+                                  )
+</div>

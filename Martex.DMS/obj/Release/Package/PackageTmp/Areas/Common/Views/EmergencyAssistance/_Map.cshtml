@@ -1,0 +1,1153 @@
+﻿@model Martex.DMS.DAL.Entities.EmergencyAssistanceModel
+@using Kendo.Mvc.UI
+@using Telerik.Web.Mvc.UI
+@{
+    ViewBag.Title = "Request : MAP";
+    var vehicleMake = Model.EmergencyAssistance.VehicleMake;
+    var vehicleModel = Model.EmergencyAssistance.VehicleModel;
+}
+<!--Script for Cascading Drop Dows !-->
+<script type="text/javascript">
+
+    function LicenseStateCountry_Change(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var vehicleState = $('#VehicleLicenseState').data('kendoComboBox');
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetStateProvince", "ReferenceData", new { area = "Common" })',
+            traditional: true,
+            data: { countryID: combo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleState.setDataSource(msg);
+                vehicleState.select(0);
+                SetFocusOnField("VehicleLicenseState");
+            }
+        });
+    }
+
+    function GetVehicleYears() {
+
+        var $vehicleTypeID = $('#VehicleTypeID').data('kendoComboBox');
+        var $vehicleYearCombo = $('#EmYear').data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("_GetVehicleYears", "EmergencyAssistance")',
+            traditional: true,
+            data: { vehicleTypeID: $vehicleTypeID.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $vehicleYearCombo.setDataSource(msg.Data);
+                $vehicleYearCombo.value('');
+                SetFocusOnField("EmYear");
+            }
+        })
+        var vehicleMakeCombo = $('#EmMake').data('kendoComboBox');
+        var vehicleModelCombo = $('#EmModel').data('kendoComboBox');
+
+        // Reset Make and Model
+        vehicleMakeCombo.setDataSource([]);
+        vehicleMakeCombo.text("");
+
+        vehicleModelCombo.setDataSource([]);
+        vehicleModelCombo.text("");
+
+        HandleMakeChange();
+        HandleModelChange();
+    }
+
+    function onComboBoxChange_VehicleType(e) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        GetVehicleYears();
+        GetVehicleMake();
+    }
+
+    function GetVehicleModels() {
+        var vehicleModelCombo = $('#EmModel').data('kendoComboBox');
+        var VehicleMake_value = $('#EmMake').data('kendoComboBox').value();
+        var VehicleYear_value = $('#EmYear').data('kendoComboBox').value();
+        var VehicleType_value = $('#VehicleTypeID').data('kendoComboBox').value();
+
+        if ($.trim(VehicleMake_value).length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetComboVehicleModel", "EmergencyAssistance")',
+                traditional: true,
+                data: { Make: VehicleMake_value, /*year: VehicleYear_value,*/ vehicleType: VehicleType_value },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    vehicleModelCombo.setDataSource(msg);
+                    vehicleModelCombo.value('');
+                    SetFocusOnField("EmModel");
+                    //$('input[name="EmModel_input"]').focus();
+                    //$('input[name="EmModel_input"]').select();
+
+                    HandleMakeChange();
+                    //HandleModelChange();
+                }
+            });
+        }
+        else {
+            vehicleModelCombo.setDataSource([]);
+            vehicleModelCombo.text("");
+        }
+
+    }
+
+
+    function HandleMakeChange() {
+        var comboMakeText = $('#EmMake').data('kendoComboBox').text();
+        if (comboMakeText == "other" || comboMakeText == "Other") {
+            $('#pTextBoxForMake').show();
+            $('#EmergencyAssistance_VehicleMakeOther').val('');
+            $('#EmergencyAssistance_VehicleMakeOther').focus();
+            $('#EmergencyAssistance_VehicleMakeOther').select();
+        }
+        else {
+
+            $('#pTextBoxForMake').hide();
+        }
+    }
+
+    function onComboBoxChange_VehicleMake(e) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        GetVehicleModels();
+        //HandleMakeChange();
+
+    }
+
+    function GetVehicleMake() {
+        var vehicleYear = $('#EmYear').data('kendoComboBox');
+        var vehicleType = $('#VehicleTypeID').data('kendoComboBox');
+        var vehicleMakeCombo = $('#EmMake').data('kendoComboBox');
+        var vehicleModelCombo = $('#EmModel').data('kendoComboBox');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetComboVehicleMake", "EmergencyAssistance")',
+            traditional: true,
+            data: { vehicleType: vehicleType.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleMakeCombo.setDataSource(msg);
+                vehicleMakeCombo.value('');
+                SetFocusOnField("EmMake");
+
+                // For Auto - reset model also when there is a change in the year.
+                //                if (vehicleType.value() == "1") {
+                //                    vehicleModelCombo.setDataSource([]);
+                //                    vehicleModelCombo.text("");
+                //                }
+                //$('input[name="EmMake_input"]').focus();
+                //$('input[name="EmMake_input"]').select();
+            }
+        });
+        //GetVehicleModels();
+
+        //Reset Model Values
+        vehicleModelCombo.setDataSource([]);
+        vehicleModelCombo.text("");
+
+        HandleMakeChange();
+        HandleModelChange();
+
+    }
+    function Year_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        //GetVehicleMake();
+    }
+    function Source_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChange(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+    function VehicleLicenseState_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+
+    function HandleModelChange() {
+        var comboModelText = $('#EmModel').data('kendoComboBox').text();
+        if (comboModelText == "other" || comboModelText == "Other") {
+            $('#pTextBoxForModel').show();
+            $('#EmergencyAssistance_VehicelModelOther').val('');
+
+            $('#EmergencyAssistance_VehicelModelOther').focus();
+            $('#EmergencyAssistance_VehicelModelOther').select();
+
+        }
+        else {
+            $('#pTextBoxForModel').hide();
+        }
+    }
+
+    function Model_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        HandleModelChange();
+
+    }
+
+    function onComboBoxChange_Outcome(e) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        if (e.value != '') {
+            $('#btnNewCall').removeClass("disabled");
+            $('#btnNewCall').removeAttr("disabled");
+        }
+        else {
+            $('#btnNewCall').addClass("disabled");
+            $('#btnNewCall').attr("disabled", "disabled");
+        }
+    }
+
+    
+     
+</script>
+<!--Script ends here !-->
+<link href="@Url.Content("~/Content/Dispatch.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/GenericMapping.js?v=1.1")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/BMapProvide.js?v=1.1")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/UnobtrusiveImplementation.js?v=1")" type="text/javascript"></script>
+<style type="text/css">
+    /*.mapAddress
+    {
+        background: url("/Content/images/blue_pushpin.png") no-repeat scroll 0 0 transparent;
+        width: 25px;
+        height: 29px;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;
+    }
+    .MicrosoftMap .infobox-close
+    {
+        top: 14px !important;
+    }
+    .MicrosoftMap .Infobox2 .infobox-title
+    {
+        line-height: 2.1 !important;
+        font-size: 14px !important;
+    }*/
+</style>
+<div class="with-padding">
+    @*@using (@Html.BeginForm("Index", "EmergencyAssistance", new {area = "Common" },FormMethod.Post, new { id = "frmCall" }))
+    {*@
+    <form id="frmCall" method="post" action="javascript:void(0);">
+    @Html.HiddenFor(item => item.EmergencyAssistance.ID)
+    @Html.HiddenFor(item => item.EmergencyAssistance.CaseID)
+    @Html.HiddenFor(item => item.ContactLog.Direction)
+    @Html.HiddenFor(item => Model.EmergencyAssistance.Latitude)
+    @Html.HiddenFor(item => Model.EmergencyAssistance.Longitude)
+    @Html.HiddenFor(item => Model.EmergencyAssistance.Address)
+    @Html.HiddenFor(item => Model.Comment.EntityID)
+    @Html.HiddenFor(item => Model.Comment.RecordID)
+    @Html.HiddenFor(item => Model.ResultType)
+    @Html.HiddenFor(item => Model.ResultTypeMessage)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CivicStreet)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CivicCity)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CivicState)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CivicZip)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CrossStreet)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CivicCountry)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.CrossDirection)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.IntersectionStreet1)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.IntersectionStreet2)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.IntersectionDirection)
+    @Html.HiddenFor(item => Model.CasePhoneLocation.LocationAccuracy)
+    @Html.HiddenFor(item => Model.ContactInsertRequired)
+    @Html.HiddenFor(item => Model.EmergencyAssistance.ContactPhoneTypeID)
+    <!-- Map Related Items-->
+    <div class="MapMain columns">
+        <div class="leftSearchPanel five-columns">
+            <div class="">
+                <h3 class=" underline">
+                    Locate Emergency <span class="info-spot"><span class="icon-info-round"></span><span
+                        class="info-bubble">There are two options for locating the member: using their phone
+                        number to do a lookup or using the map to manually locate.</span></span>
+                </h3>
+            </div>
+            <div class="">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="CallBackNumber" class="label">
+                        Callback</label>
+                    @*@Html.TextBoxFor(item => item.CallBackNumber, new { @class = "input validate[custom[phone], maxSize[12],minSize[10]]" })*@
+                    @Html.Editor("ECallbackNumber", "Phone", new { Value = Model.CallBackNumber, PhoneTypeValue = Model.CallBackNumberType, CallType = "Member" })
+                    <button id="btnLocate" class="button compact blue-gradient" type="button">
+                        Locate</button>
+                </p>
+            </div>
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="FirstName" class="label">
+                    First Name</label>
+                @Html.TextBoxFor(item => item.EmergencyAssistance.MemberFirstName, new { @class = "input full-width2 validate[maxSize[50]" })
+            </p>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="LastName" class="label">
+                    Last Name</label>
+                @Html.TextBoxFor(item => item.EmergencyAssistance.MemberLastName, new { @class = "input full-width2 validate[maxSize[50]" })
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Reason" class="label">
+                    Reason *</label>
+                @(Html.Kendo().ComboBox()
+                                  .Name("EmergencyAssistanceReasonID")
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.EmergencyAssistanceReason.ToString()] as IEnumerable<SelectListItem>)
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .HtmlAttributes(new { style = "" })
+                                  .Events(events =>
+                                   {
+                                       events.Change("ValidateInputForKendoCombo");
+                                   })
+                                 .DataTextField("Text")
+                                 .DataValueField("Value")
+                                 .HighlightFirst(true)
+                                 .Value(Model.EmergencyAssistance.EmergencyAssistanceReasonID.HasValue ? Model.EmergencyAssistance.EmergencyAssistanceReasonID.ToString() : string.Empty)
+                                 .SelectedIndex(0)
+                     )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Location" class="label">
+                    Location</label>
+                @Html.TextBoxFor(item => item.SearchLocation, new { @class = "input validate[maxSize[100] full-width2" })
+                <a href="javascript:void(0);" class="button compact" id="btnSearchMap"><span class="icon-search">
+                </span></a>
+            </div>
+            <div class="">
+                <h3 class=" underline">
+                    Collect Vehicle Information</h3>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Location" class="label">
+                    Type</label>
+                @(Html.Kendo().ComboBoxFor(item => item.EmergencyAssistance.VehicleTypeID)
+                            .Name("VehicleTypeID")
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>)
+                            .Placeholder("Select Vehicle Type")
+                            .Suggest(true)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events
+                            .Change("onComboBoxChange_VehicleType"))
+                            .HtmlAttributes(new { style = "" })
+                            .Value(Model.EmergencyAssistance.VehicleTypeID != null ? Model.EmergencyAssistance.VehicleTypeID.ToString() : string.Empty)
+                            .DataTextField("Text")
+                            .HighlightFirst(true)
+                            .DataValueField("Value")
+                            )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Year" class="label">
+                    Year</label>
+                @(Html.Kendo().ComboBoxFor(item => item.EmergencyAssistance.VehicleYear)
+                .Name("EmYear")
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModelYear.ToString()] as IEnumerable<SelectListItem>)
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events =>
+                {
+                    events.Change("Year_OnChange");
+                })
+                .HighlightFirst(true)
+                .Value(Model.EmergencyAssistance.VehicleYear)
+                .DataTextField("Text")
+                .DataValueField("Value")
+                        //.SelectedIndex(0)
+                .Placeholder("Select Year")
+
+                )
+            </div>
+            <div class="button-height inline-label small-margin-bottom" id="divComboForMake">
+                <label for="Make" class="label">
+                    Make</label>
+                @(Html.Kendo().ComboBoxFor(item => item.EmergencyAssistance.VehicleMake)
+                                  .Name("EmMake")
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleMake.ToString()] as IEnumerable<SelectListItem>)
+                        //.SelectedIndex(0)
+                                  .Placeholder("Select Make")
+                                  .Events(events => events.Change("onComboBoxChange_VehicleMake"))
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .HtmlAttributes(new { style = "" })
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .HighlightFirst(true)
+                                  .Value(Model.EmergencyAssistance.VehicleMake)
+                     )
+            </div>
+            <div class="button-height inline-label small-margin-bottom" id="pTextBoxForMake"
+                style="display: none;">
+                <label for="Make" class="label">
+                    Make Other</label>
+                @Html.TextBoxFor(item => item.EmergencyAssistance.VehicleMakeOther, new { @class = "input validate[maxSize[50]" })
+            </div>
+            <div id="divComboForModel" class="button-height inline-label small-margin-bottom">
+                <label for="Model" class="label">
+                    Model</label>
+                @(Html.Kendo().ComboBoxFor(item => item.EmergencyAssistance.VehicleModel)
+                                .Name("EmModel")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModel.ToString()] as IEnumerable<SelectListItem>)
+                        //.SelectedIndex(0)
+                                .Placeholder("Select Model")
+                                .HtmlAttributes(new { style = "" })
+                                .Events(events =>
+                                {
+                                    events.Change("Model_OnChange");
+                                })
+                                .HighlightFirst(true)
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                )
+            </div>
+            <div class="button-height inline-label small-margin-bottom" id="pTextBoxForModel"
+                style="display: none;">
+                <label for="Model" class="label">
+                    Model Other</label>
+                @Html.TextBoxFor(item => item.EmergencyAssistance.VehicleModelOther, new { @class = "input validate[maxSize[50]" })
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Color" class="label">
+                    Color</label>
+                @(Html.Kendo().AutoCompleteFor(U => U.EmergencyAssistance.VehicleColor)
+                 .Name("VehicleColor")
+                 .HtmlAttributes(new { @class = "input" })
+                 .HtmlAttributes(new { @class = "input", @maxLength = 50 })
+                 .Suggest(true)
+                 .HighlightFirst(true)
+                 .Filter(FilterType.StartsWith).MinLength(0)
+                 .BindTo((ViewData[Martex.DMS.ActionFilters.StaticData.Colors.ToString()] as List<Martex.DMS.DAL.Entities.VehicleColor>).Select(c => c.Value))
+
+                    )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="LicenseState" class="label">
+                    State / License</label>
+                @(Html.Kendo().ComboBox()
+                             .DataSource(source =>
+                              {
+                                  source.Read(read =>
+                                       {
+                                           read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                       })
+                                           .ServerFiltering(false);
+                              })
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .Name("VehicleLicenseStateCountryID")
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .HighlightFirst(true)
+                              .Events(events =>
+                              {
+                                  events.Change("LicenseStateCountry_Change");
+                              })
+                              .HtmlAttributes(new { style = "width:50px", @class = "countryCode" })
+                              .SelectedIndex(0)
+                              .Value(Model.EmergencyAssistance.VehicleLicenseStateCountryID.HasValue ? Model.EmergencyAssistance.VehicleLicenseStateCountryID.Value.ToString() : "")
+                              )
+                @(Html.Kendo().ComboBox()
+                                  .Name("VehicleLicenseState")
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .SelectedIndex(0)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                                  .HtmlAttributes(new { style = "width:100px;vertical-align:middle;" })
+                                  .Events(events =>
+                                  {
+                                      events.Change("ValidateInputForKendoCombo");
+                                      events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                  })
+                                  .HighlightFirst(true)
+                                  .Value(Model.EmergencyAssistance.VehicleLicenseState)
+                     )
+                @Html.TextBoxFor(item => item.EmergencyAssistance.VehicleLicenseNumber, new { @class = "input validate[maxSize[20]", style = "width:70px;" })
+            </div>
+            <div class="">
+                <h3 class=" underline">
+                    Contact Emergency Assistance
+                    @Html.Partial("_Help", "Click on Get Local PSAP Number to use the pinned location to go and find the nearest emergency agency. If an agency is found their name and phone number will be displayed. If an agency is not found a message will be displayed. If a number is not found, use another source to find a number and key it into the Alternate Emergency Number space provided below.")
+                </h3>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Source" class="label">
+                    Source<span class="spanstar">*</span></label>
+                @(Html.Kendo().ComboBox()
+                                  .Name("Source")
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactSources.ToString()] as IEnumerable<SelectListItem>)
+                                  .Events(events =>
+                                   {
+                                       events.Change("ValidateInputForKendoCombo");
+                                   })
+                           .HighlightFirst(true)
+                           .Value(Model.ContactLog.ContactSourceID == null ? string.Empty : Model.ContactLog.ContactSourceID.ToString())
+
+                     )
+                <button type="button" id="btnGetLocalPSAPNumber" class="button  compact" style="font-size: 11px;">
+                    Get Local PSAP Number</button>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Company" class="label">
+                    Company</label>
+                @Html.TextBoxFor(item => item.ContactLog.Company, new { @class = "input validate[maxSize[255] full-width2" })
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Phone" class="label">
+                    Phone<span class="spanstar">*</span></label>
+                @Html.Editor("ContactLog_PhoneNumber", "Phone", new { entityName = "Member", Value = Model.ContactLog.PhoneNumber, CallType = "Member" })
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="TalkedTo" class="label">
+                    Talked to</label>
+                @Html.TextBoxFor(item => item.ContactLog.TalkedTo, new { @class = "input validate[maxSize[50] full-width2" })
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Outcome" class="label">
+                    Outcome<span class="spanstar">*</span></label>
+                @(Html.Kendo().ComboBox()
+                                  .Name("Outcome")
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactActions.ToString()] as IEnumerable<SelectListItem>)
+                                  .Events(events => events.Change("onComboBoxChange_Outcome"))
+                                  .HtmlAttributes(new { style = "width:157px;vertical-align:middle;" })
+                                  .Value(Model.ContactLog.ContactMethodID == null ? string.Empty : Model.ContactLog.ContactMethodID.ToString())
+                                  .HighlightFirst(true)
+                     )
+                <button type="button" id="btnNewCall" class="button green-gradient compact">
+                    New Call</button>
+            </div>
+            <div class="previousCalls">
+                <p class="title">
+                    Previous Calls</p>
+                <div class="scrollable previousCallsContent">
+                    @Html.Partial("_PreviousCallList", Model.PreviousCallList)
+                </div>
+            </div>
+            <p class="leftMapPanel" style="display: none;">
+                <select id="SourceSearchSelect" class="searchResultsDropDown" style="width: 260px;
+                    margin-left: 5px;">
+                </select>
+            </p>
+            <div style="display: none;">
+                <input type="button" id="btnPin" value="Click here to Pin" class="button green-gradient glossy small-margin-right" />
+            </div>
+        </div>
+        <div class="RightSearchPanel seven-columns">
+            <h4 id="h2MapResult" class="message">
+            </h4>
+            <div id="mapDiv" class="map" style="height: 800px; width: 100%; position: relative;">
+            </div>
+            <div id="directionsDiv" class="directions">
+            </div>
+            <div class="mapDivComments">
+                <label for="Location" class="labelMapDivComments">
+                    <strong>Comments</strong></label>
+                <br />
+                @Html.TextAreaFor(u => u.Comment.Description, new { @class = "input validate[maxSize[255]] full-width" })
+            </div>
+        </div>
+    </div>
+    </form>
+    @*}*@
+</div>
+<script type="text/javascript">
+    var ContactLogRequired = false;
+    $(function () {
+        $("#EmMake").data("kendoComboBox").list.width(250);
+        $("#EmModel").data("kendoComboBox").list.width(250);
+        $('#ECallbackNumber_ddlPhoneType').val($('#EmergencyAssistance_ContactPhoneTypeID').val());
+        var emergencyAssistanceID = $('#EmergencyAssistance_ID').val();
+        if (emergencyAssistanceID != null && emergencyAssistanceID > 0) {
+            $('#btnNewCall').addClass("disabled");
+            $('#btnNewCall').attr("disabled", "disabled");
+            ContactLogRequired = false;
+        }
+
+
+        $(".CallbackFillDetails").live("click", function (event) {
+            if (!event.isDefaultPrevented()) {
+                event.preventDefault();
+                if (ContactLogRequired == true) {
+                    openAlertMessage("You must log the current call first before you can begin a new call.  Please select an Outcome for the current call.");
+                    return false;
+                }
+                else {
+                    //Populate The Details 
+
+                    var callLogEntryDiv = $(this).parents(".callLogEntry");
+                    var sourceName = callLogEntryDiv.find(".contactSource").text();
+                    var company = callLogEntryDiv.find(".company").text();
+                    var phoneNumber = $("#" + callLogEntryDiv.attr("id") + "_lblPhoneNumber").text();
+                    $('#ContactLog_Company').val(company);
+
+                    SetPhoneValues("#ContactLog_PhoneNumber", phoneNumber, false);
+
+                    var combobox = $('#Source').data('kendoComboBox');
+                    var selectItem = function (dataItem) {
+                        //dataItem argument is a ComboBox data item.
+                        return dataItem.Text == sourceName;
+                    }
+
+                    combobox.select(selectItem);
+
+                }
+            }
+        });
+
+        // Sanghi Added Methods to Disable the Calls
+        function DisableCallBackUpdateFlag() {
+            $(".CallbackFillDetails").each(function () {
+                $(this).addClass("disabled");
+                $(this).attr("disabled", "disabled");
+                //Set Contact Log Value
+                ContactLogRequired = true;
+            });
+        }
+        // Editor Parent Phone Handler
+        $('#ContactLog_PhoneNumber_call').parent().click(function () {
+
+            DisableCallBackUpdateFlag();
+
+        });
+        // Editor Phone Handler
+        $('#ContactLog_PhoneNumber_call').click(function () {
+
+            DisableCallBackUpdateFlag();
+
+        });
+    });
+
+    $().ready(function () {
+
+        $('#btnGetLocalPSAPNumber').click(function () {
+            ContactLogRequired = false;
+            if (!isPinned) {
+                $('#btnGetLocalPSAPNumber').validationEngine('showPrompt', 'Please pin a location prior to requesting a PSAP Number.', '', 'topRight', true);
+                return false;
+            }
+
+            if ($("#frmCall").validationEngine('validate') == false) {
+                return false;
+            }
+
+            $("#frmCall").validationEngine('hide');
+
+            var latitude = $("#EmergencyAssistance_Latitude").val();
+            var longitude = $("#EmergencyAssistance_Longitude").val();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetPSAPNumber", "EmergencyAssistance", new { area = "Common" })',
+                traditional: true,
+                data: { latitude: latitude, longitude: longitude },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        var resultFound = Boolean(msg.Data.ResultFound);
+                        if (resultFound) {
+                            ContactLogRequired = true;
+                            //Populate Details
+                            $('#ContactLog_Company').val(msg.Data.AgencyName);
+                            // TODO: Populate the phone controls
+
+
+                            var phoneNumber = GetFormattedPhoneNumberWithoutCountryCode(msg.Data.OperatorPhoneNumber.toString(), "US");
+                            $('#ContactLog_PhoneNumber_txtPhoneNumber').val(phoneNumber); // TODO: Handle Extensions?
+
+                            $('#Source').data('kendoComboBox').select(0);
+                            $('#ContactLog_TalkedTo').focus();
+                            //Disable Controls
+                            $('#ContactLog_Company').addClass("disabled");
+                            $('#ContactLog_Company').attr("disabled", "disabled");
+                            $('#ContactLog_PhoneNumber').addClass("disabled");
+                            $('#ContactLog_PhoneNumber').attr("disabled", "disabled");
+                            $('#Source').data('kendoComboBox').enable(false);
+                            $('#btnGetLocalPSAPNumber').addClass("disabled");
+                            $('#btnGetLocalPSAPNumber').attr("disabled", "disabled");
+                            //Fill Contact Type Details here
+                            $('#ContactLog_ContactSourceID').val(1);
+                            $('#ContactLog_Company').val(msg.Data.AgencyName);
+                            $('#ContactLog_PhoneNumber').val(msg.Data.OperatorPhoneNumber);
+                            ContactLogRequired = true;
+
+                        }
+                        else {
+                            openAlertMessage("No information is available");
+                        }
+                    }
+                    else if (msg.Status == "Error") {
+                        openAlertMessage(msg.Data.ErrorMessage);
+                    }
+
+                }
+
+            });
+        });
+
+
+        $('#btnNewCall').click(function () {
+            ContactLogRequired = true;
+            SaveEmergencyAssistance();
+        });
+    })
+</script>
+<script type="text/javascript">
+    function SaveEmergencyAssistance() {
+
+        var retVal = true;
+        //Code for validation
+        var phoneNumber = GetPhoneNumberForDB('ContactLog_PhoneNumber'); //$('#ContactLog_PhoneNumber').val();
+        var phoneNumberTypeID = $("#ContactLog_PhoneNumber_ddlPhoneType").val();
+        var source = $('#Source').data('kendoComboBox').value();
+        var outcome = $('#Outcome').data('kendoComboBox').value();
+        var reason = $('#EmergencyAssistanceReasonID').data('kendoComboBox').value();
+
+        if (ContactLogRequired) {
+
+            if (reason == '') {
+                $('input[name="EmergencyAssistanceReasonID_input"]').validationEngine('showPrompt', 'Reason is required.', '', 'topRight', true);
+                $('input[name="EmergencyAssistanceReasonID_input"]').focus();
+                return false;
+            }
+
+            if (phoneNumber == '') {
+                $('#ContactLog_PhoneNumber_txtPhoneNumber').validationEngine('showPrompt', 'Phone Number is required.', '', 'topRight', true);
+                return false;
+            }
+            if (source == '') {
+                $('input[name="Source_input"]').validationEngine('showPrompt', 'Source is required.', '', 'topRight', true);
+                return false;
+            }
+            if (outcome == '') {
+                $('input[name="Outcome_input"]').validationEngine('showPrompt', 'Outcome is required.', '', 'topRight', true);
+                return false;
+            }
+        }
+        else {
+            $('#ContactInsertRequired').val('false');
+        }
+
+
+        $('#ContactLog_Direction').val("Outbound");
+        $('#EmergencyAssistance_ContactPhoneTypeID').val($('#ECallbackNumber_ddlPhoneType').val());
+
+        var params = $('#frmCall').serializeArray();
+
+        params.push({ name: "EmergencyAssistance.VehicleTypeReference", value: null });
+        params.push({ name: "EmergencyAssistance.VehicleType", value: null });
+
+        params.push({ name: "CallBackNumber", value: GetPhoneNumberForDB("ECallbackNumber") });
+
+        if ($("#frmCall").validationEngine('validate') == false) {
+            return false;
+        }
+        $("#frmCall").validationEngine('hide');
+
+
+        // Add params from Telerik comboboxes
+
+        params.push({ name: "ContactLog.ContactTypeID", value: phoneNumberTypeID });
+        params.push({ name: "EmergencyAssistance.VehicleTypeID", value: $("#VehicleTypeID").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleYear", value: $("#EmYear").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleMake", value: $("#EmMake").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleModel", value: $("#EmModel").data("kendoComboBox").text() });
+        params.push({ name: "ContactLog.ContactSourceID", value: $("#Source").data("kendoComboBox").value() });
+        params.push({ name: "ContactActionID", value: $("#Outcome").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleLicenseState", value: $("#VehicleLicenseState").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleLicenseStateCountryID", value: $("#VehicleLicenseStateCountryID").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.EmergencyAssistanceReasonID", value: $("#EmergencyAssistanceReasonID").data("kendoComboBox").value() });
+        params.push({ name: "EmergencyAssistance.VehicleColor", value: $("#VehicleColor").data("kendoAutoComplete").value() });
+
+
+        // Push Contact log phone number
+        params.push({ name: "ContactLog.PhoneNumber", value: phoneNumber });
+        params.push({ name: "ContactLog.PhoneTypeID", value: phoneNumberTypeID });
+        // The following statement is required because disabled fields are not posted back
+        params.push({ name: "ContactLog.Company", value: $('#ContactLog_Company').val() });
+
+
+        //KB: Observed an issue while sending VehicleTypeID.So renaming it to selectedVehicleTypeID
+
+        for (var k = 0, l = params.length; k < l; k++) {
+            if (params[k].name == "VehicleTypeID") {
+                params[k].name = "selectedVehicleTypeID";
+            }
+            else if (params[k].name == "EmYear") {
+                params[k].name = "selectedYear";
+            }
+            else if (params[k].name == "EmMake") {
+                params[k].name = "selectedMake";
+            }
+            else if (params[k].name == "EmModel") {
+                params[k].name = "selectedModel";
+            }
+            else if (params[k].name == "VehicleColor") {
+                params[k].name = "selectedVehicleColor";
+            }
+        }
+        var model = params;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveEmergencyAssistance", "EmergencyAssistance", new { area = "Common" })',
+            traditional: true,
+            cache: false,
+            data: model,
+            async: false,
+            success: function (msg) {
+                if (typeof (msg) == 'string') {
+                    if (ContactLogRequired) {
+                        ContactLogRequired = false;
+                        $('#btnNewCall').removeClass("disabled");
+
+                        $('#btnNewCall').attr("disabled", "disabled");
+                        $('#btnGetLocalPSAPNumber').removeClass("disabled");
+                        $('#btnGetLocalPSAPNumber').removeAttr("disabled");
+                        $(".CallbackFillDetails").each(function () {
+                            $(this).removeClass("disabled");
+                        })
+
+                        //Code to Update the Previous Call List Values
+
+                        $(".previousCallsContent").prepend(msg);
+
+
+                        //Code to Clear the Fields
+                        $('#ContactLog_Company').val('');
+
+                        $('#ContactLog_PhoneNumber_txtPhoneNumber').val('');
+                        $('#ContactLog_PhoneNumber_txtExtension').val('');
+                        //TODO: Reset dropdowns too.
+
+                        $("#ContactLog_PhoneNumber_ddlCountryCode option").each(function () {
+                            if ($(this).text() == "US") {
+                                $(this).attr('selected', 'selected');
+                            }
+                        });
+
+                        $("#ContactLog_PhoneNumber_ddlPhoneType option").each(function () {
+                            if ($(this).text() == "Home") {
+                                $(this).attr('selected', 'selected');
+                            }
+                        });
+
+                        $('#ContactLog_TalkedTo').val('');
+                        $('#Source').data('kendoComboBox').value('');
+                        $('#Source').data('kendoComboBox').enable(true);
+                        $('#Outcome').data('kendoComboBox').value('');
+                    }
+                    retVal = true;
+                }
+
+            }
+        });
+
+        return retVal;
+    }
+
+    fnSaveTab = SaveEmergencyAssistance;
+</script>
+<!--Locate Button Functionality -->
+<script type="text/javascript">
+    $(function () {
+        $('#btnLocate').click(function () {
+
+            if ($("#ECallbackNumber_txtPhoneNumber").val() == '' || $("#ECallbackNumber_txtPhoneNumber").validationEngine('validate') == false) {
+                $('#ECallbackNumber_txtPhoneNumber').validationEngine('showPrompt', 'Not a valid call back number.', '', 'topRight', true);
+                return false;
+            }
+
+
+            if ($("#frmCall").validationEngine('validate') == false) {
+                return false;
+            }
+
+            $("#frmCall").validationEngine('hide');
+            var postData = new Array();
+            postData.push({ name: "phoneNumber", value: $('#ECallbackNumber_txtPhoneNumber').val() });
+            postData.push({ name: "caseId", value: $('#EmergencyAssistance_CaseID').val() });
+            //Code to call the web service and fill the details in map.
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("WSGetPhoneLocation", "EmergencyAssistance", new { area = "Common" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: postData,
+                success: function (result) {
+                    if (result.Status == "Success") {
+                        LocatePhoneNumberSuccess(result);
+                    }
+                    else {
+                        ShowMapHeader(result.Data.ResultType, result.Data.ResultTypeMessage);
+                    }
+
+                }
+            });
+
+            return false;
+        });
+    });
+
+    function LocatePhoneNumberSuccess(result) {
+        //Fill all values in appropriate controls.
+        $('#EmergencyAssistance_Latitude').val(result.Data.Latitude);
+        $('#EmergencyAssistance_Longitude').val(result.Data.Longitude);
+        $('#SearchLocation').val(result.Data.SearchLocation);
+        $('#ResultType').val(result.Data.ResultType);
+        $('#ResultTypeMessage').val(result.Data.ResultTypeMessage);
+
+        //Assign Phone Location Values
+        $('#CasePhoneLocation_CivicStreet').val(result.Data.CivicStreet);
+        $('#CasePhoneLocation_CivicCity').val(result.Data.CivicCity);
+        $('#CasePhoneLocation_CivicState').val(result.Data.CivicState);
+        $('#CasePhoneLocation_CivicZip').val(result.Data.CivicZip);
+        $('#CasePhoneLocation_CrossStreet').val(result.Data.CrossStreet);
+        $('#CasePhoneLocation_CrossDirection').val(result.Data.CrossDirection);
+        $('#CasePhoneLocation_IntersectionStreet1').val(result.Data.IntersectionStreet1);
+        $('#CasePhoneLocation_IntersectionStreet2').val(result.Data.IntersectionStreet2);
+        $('#CasePhoneLocation_IntersectionDirection').val(result.Data.IntersectionDirection);
+        $('#CasePhoneLocation_LocationAccuracy').val(result.Data.LocationAccuracy);
+        $('#EmergencyAssistance_MemberFirstName').val(result.Data.FirstName);
+        $('#EmergencyAssistance_MemberLastName').val(result.Data.LastName);
+        ShowMapHeader(result.Data.ResultType, result.Data.ResultTypeMessage);
+        //Code for Map to Pin locations.
+        ShowMap();
+
+        if (result.Data.MemberID != null && result.Data.MembershipID != null) {
+            AutohighlightMember(result.Data.MemberID, result.Data.MembershipID)
+        }
+    }
+
+    function LocatePhoneNumberError(result) {
+        ShowMapHeader(result.Data.ResultType, result.Data.ResultTypeMessage);
+    }
+</script>
+<!-- For Map Search Result -->
+<script type="text/javascript">
+    $(function () {
+        var mapResultValue = $('#ResultType').val();
+        var message = $('#ResultTypeMessage').val();
+        ShowMapHeader(mapResultValue, message);
+    });
+
+    function ShowMapHeader(mapResultValue, message) {
+        if (mapResultValue == "0") {
+            $('#h2MapResult').hide();
+        }
+        else {
+            $('#h2MapResult').html(message);
+            $('#h2MapResult').show();
+        }
+    }
+</script>
+<!--Map Code -->
+<script type="text/javascript">
+    var isPinned = false;
+    $().ready(function () {
+        //Load the Map with the address
+        var mapDiv = document.getElementById("mapDiv");
+        var directionsDiv = document.getElementById("directionsDiv");
+        var searchListElement = document.getElementById("SourceSearchSelect");
+        genericMapping.init(BingMaps, mapDiv, directionsDiv);
+        genericMapping.searchLocation('US', function (locations) {
+            genericMapping.provider.map.setView({ zoom: 4, center: new Microsoft.Maps.Location(locations[0].latitude, locations[0].longitude) });
+        });
+        ShowMap();
+
+    });
+
+
+    function ShowMap() {        
+        var informationArray = new Array();
+        informationArray.push({ name: "Latitude", value: $("#EmergencyAssistance_Latitude").val() });
+        informationArray.push({ name: "Longitude", value: $("#EmergencyAssistance_Longitude").val() });
+        informationArray.push({ name: "CrossStreet", value: $('#CasePhoneLocation_CrossStreet').val() });
+        informationArray.push({ name: "CrossDirection", value: $('#CasePhoneLocation_CrossDirection').val() });
+        informationArray.push({ name: "IntersectionStreet1", value: $('#CasePhoneLocation_IntersectionStreet1').val() });
+        informationArray.push({ name: "IntersectionStreet2", value: $('#CasePhoneLocation_IntersectionStreet2').val() });
+        informationArray.push({ name: "IntersectionDirection", value: $('#CasePhoneLocation_IntersectionDirection').val() });
+        informationArray.push({ name: "LocationAccuracy", value: $('#CasePhoneLocation_LocationAccuracy').val() });
+
+        var latitude = $("#EmergencyAssistance_Latitude").val();
+        var longitude = $("#EmergencyAssistance_Longitude").val();
+        var searchLocation = $('#SearchLocation').val();
+        if (latitude != '' && longitude != '') {
+            genericMapping.reverseGeocodeLocation(latitude, longitude, function (location) {
+                genericMapping.addPins([location[0]], true, false, {});
+                var lat = [location[0]][0].latitude;
+                var long = [location[0]][0].longitude;
+
+                genericMapping.provider.map.setView({ zoom: 15, center: new Microsoft.Maps.Location(lat, long) });
+                isPinned = true;
+            });
+        }
+        else if (searchLocation != '') {
+
+            genericMapping.searchLocation(searchLocation, function (locations) {
+                $.each(locations, function (index, value) {
+                    //value.customIconUrl = '@Url.Content("~/Content/images/poi_search_red.png")';
+                    $("#SourceSearchSelect")
+            .append($("<option>", { value: JSON.stringify(value) })
+            .text(value.description));
+                });
+                genericMapping.addPins([locations[0]], true, false, {});
+                var lat = [locations[0]][0].latitude;
+                var long = [locations[0]][0].longitude;
+
+                genericMapping.provider.map.setView({ zoom: 15, center: new Microsoft.Maps.Location(lat, long) });
+                isPinned = true;
+            });
+        }        
+    }
+</script>
+<script type="text/javascript">
+    //for auto suggestion in text box.
+    var availableTags = [];
+    function SetValues() {
+        $("#SearchLocation").autocomplete({
+            source: availableTags
+        });
+    }
+
+    $(function () {
+        setTimeout(function () {
+            if ($('#ECallbackNumber_txtPhoneNumber').val() == '') {
+                $('#ECallbackNumber_txtPhoneNumber').focus();
+            }
+            else {
+                $('#EmergencyAssistance_MemberFirstName').focus();
+            }
+
+            // Set the values into Make and Model
+            var makeValue = '@vehicleMake';
+            var modelValue = '@vehicleModel';
+
+            if (makeValue != '' && makeValue != undefined && makeValue != null) {
+                $('#EmMake').data('kendoComboBox').text(makeValue);
+            }
+
+            if (makeValue != '' && makeValue != undefined && makeValue != null && makeValue == 'Other') {
+                $('#pTextBoxForMake').show();
+            }
+            else {
+                $('#pTextBoxForMake').hide();
+            }
+
+            if (modelValue != '' && modelValue != undefined && modelValue != null) {
+                $('#EmModel').data('kendoComboBox').text(modelValue);
+            }
+
+            if (modelValue != '' && modelValue != undefined && modelValue != null && modelValue == 'Other') {
+                $('#pTextBoxForModel').show();
+            }
+            else {
+                $('#pTextBoxForModel').hide();
+            }
+
+
+
+        }, 1000);
+
+
+
+    })
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('#frmCall').validationEngine();
+        $('#ui-tabs-2').resize(function (eventData) {
+            setTimeout(function () {
+                ApplyMapSize();
+            }, 1000)
+        });
+
+        setTimeout(function () {
+            ApplyMapSize();
+        }, 1000)
+    });
+
+    function ApplyMapSize() {
+        var tabWidth = $('#ui-tabs-2').width();
+        var mapWidth = tabWidth - $(".leftSearchPanel").width() - 110;
+        $(".RightSearchPanel").css("width", mapWidth);
+        $(".RightSearchPanel").css("height", $(".leftSearchPanel").height());
+        $(".mapDivComments").css("width", mapWidth);
+        $(".map").css("height", $(".leftSearchPanel").height() - 120);
+    }
+    function ECallbackNumber_OnChange(e) {
+
+        var fullPhoneNumber = GetPhoneNumberForDB("ECallbackNumber");
+
+        if (fullPhoneNumber.length > 8) {
+
+            // Set the values for start tab.
+
+            // Make an ajax request to see if there is a case with the given callback number
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SavePhoneNumberIntoSession", "EmergencyAssistance", new { area = "Common" })',
+                traditional: true,
+                data: { callbackNumber: fullPhoneNumber, typeID: $('#ECallbackNumber_ddlPhoneType').val() },
+                cache: false,
+                async: false,
+                success: function (json) {
+                    // Do Nothing                   
+                }
+            });     // end of ajax
+
+            SetPhoneValues('#CallbackNumber', "+" + fullPhoneNumber, false);
+            $('#CallbackNumber_ddlPhoneType').val($('#ECallbackNumber_ddlPhoneType').val());
+            $('#CallbackNumber_ddlPhoneType').trigger('change');
+        }
+    }
+    $(function () {
+        $("#ECallbackNumber_txtPhoneNumber,#ECallbackNumber_txtExtension").change(function (e) {
+            // This function returns true when there is an error.
+            if (!$('#frmCall').validationEngine('validateField', '#ECallbackNumber_txtPhoneNumber')) {
+                ECallbackNumber_OnChange(e);
+            }
+        });
+    });
+  
+</script>

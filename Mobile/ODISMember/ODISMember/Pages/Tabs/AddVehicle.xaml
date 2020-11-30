@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+            xmlns:custom="clr-namespace:ODISMember.CustomControls;assembly=ODISMember"
+            x:Class="ODISMember.Pages.Tabs.AddVehicle"
+            Padding="0"
+            Style="{StaticResource BaseContentPage}">
+  <StackLayout Padding="0" x:Name="stackMain">
+    <StackLayout x:Name="stackCustomActionBar"/>
+    <StackLayout Orientation="Horizontal" Padding="0" HorizontalOptions="FillAndExpand" VerticalOptions="Start" HeightRequest="0.5" BackgroundColor="Black">
+      <StackLayout.HeightRequest>
+        <OnPlatform x:TypeArguments="x:Double"
+          iOS="1"
+          Android="0.5"/>
+      </StackLayout.HeightRequest>
+    </StackLayout>
+    <ScrollView Style="{StaticResource MainLayout}" Padding="0">
+      <StackLayout Padding="0,10,0,0">
+        <StackLayout x:Name="stackVehicleTypes"/>
+        <StackLayout x:Name="stackVehicleFields" IsVisible="False">
+          <StackLayout x:Name="stackImageUpload"/>
+          <widget:LabelEntryDropdownVertical EntryHint="Year" IsLabelVisible="false" x:Name="widgetYear" IsLeftAlign="True" />
+          <widget:LabelEntryDropdownVertical EntryHint="Make" IsLabelVisible="false" x:Name="widgetMake" IsLeftAlign="True"/>
+          <widget:LabelEntryVertical EntryHint="Other" IsRemoveWhiteBackground="true" IsLabelVisible="false" x:Name="widgetMakeOther" IsLeftAlign="true" IsVisible="False" Padding="20,0,0,0"/>
+          <widget:LabelEntryDropdownVertical EntryHint="Model" IsLabelVisible="false" x:Name="widgetModel" IsLeftAlign="True"/>
+          <widget:LabelEntryVertical EntryHint="Other" IsRemoveWhiteBackground="true" IsLabelVisible="false" x:Name="widgetModelOther" IsLeftAlign="true" IsVisible="False" Padding="20,0,0,0"/>
+          <widget:LabelEntryVertical EntryHint="VIN" IsRemoveWhiteBackground="true" IsLabelVisible="false" x:Name="widgetVIN" IsLeftAlign="true" />
+          <widget:LabelEntryDropdownVertical EntryHint="Vehicle Color" IsLabelVisible="false" x:Name="widgetVehicleColor" IsLeftAlign="true" IsVisible="False"/>
+          <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand">
+            <widget:LabelEntryDropdownVertical EntryHint="Country" IsLabelVisible="false" x:Name="widgetCountry" IsLeftAlign="true"/>
+            <widget:LabelEntryDropdownVertical EntryHint="State" IsLabelVisible="false" x:Name="widgetState" IsLeftAlign="true" HorizontalOptions="FillAndExpand"/>
+          </StackLayout>
+          <widget:LabelEntryVertical EntryHint="License Plate #" IsRemoveWhiteBackground="true" IsLabelVisible="false" x:Name="widgetLicensePlateNumber" IsLeftAlign="true" />
+          <StackLayout x:Name="stackRV" IsVisible="False">
+            <widget:LabelEntryDropdownVertical EntryHint="Transmission" IsLabelVisible="false" x:Name="widgetTransmission" IsLeftAlign="True" />
+            <widget:LabelEntryDropdownVertical EntryHint="Engine" IsLabelVisible="false" x:Name="widgetEngine" IsLeftAlign="True" />
+            <widget:LabelEntryDropdownVertical EntryHint="Chassis" IsLabelVisible="false" x:Name="widgetChassis" IsLeftAlign="True" />
+            <widget:LabelEntryVertical EntryHint="Length" x:Name="widgetLength" IsRemoveWhiteBackground="true" KeyboardEntry="Numeric" IsLabelVisible="false" IsLeftAlign="true"/>
+            <widget:LabelEntryVertical EntryHint="Gross Weight" IsRemoveWhiteBackground="true" x:Name="widgetGrossWeight" KeyboardEntry="Numeric" IsLabelVisible="false" IsLeftAlign="true"/>
+          </StackLayout>
+          <!--<Button x:Name="btnAdd" Style="{StaticResource BaseButtonStyle}" Text="ADD"/>-->
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </StackLayout>
+
+</ContentPage>

@@ -1,0 +1,2069 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.Areas.Application.Models
+@{
+    var ShowSurveyEmail = (bool)ViewBag.ShowSurveyEmail;
+    string strDeclinedReason = string.Empty;
+    if (ViewData["DeclinedReason"] != null)
+    {
+        strDeclinedReason = ViewData["DeclinedReason"] as string;
+    }
+    bool CanWeTextYou = false;
+    if (ViewData["ShowCanWeTextYou"] != null && ViewData["ShowCanWeTextYou"].ToString().ToLower().Equals("true"))
+    {
+        CanWeTextYou = true;
+    }
+    bool showUseSellerDealerLocation = false;
+    if (ViewData["ShowUseSellerDealerLocation"] != null && ViewData["ShowUseSellerDealerLocation"].ToString().ToLower().Equals("true"))
+    {
+        showUseSellerDealerLocation = true;
+    }
+    //TODO:KB - Let's get the destinationvendorlocationid from ViewData later!
+    var serviceRequestRepository = new Martex.DMS.DAO.ServiceRequestRepository();
+    Martex.DMS.DAL.ServiceRequest serviceRequest = serviceRequestRepository.GetById(DMSCallContext.ServiceRequestID);
+    string destinationVendorLocationID = serviceRequest.DestinationVendorLocationID.HasValue ? serviceRequest.DestinationVendorLocationID.Value.ToString() : string.Empty;
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/Dispatch.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/GenericMapping.js?v=1.1")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/BMapProvide.js?v=1.1")" type="text/javascript" />
+<style type="text/css">
+    .mapAddress {
+        /*background: url("/Content/images/blue_pushpin.png") no-repeat scroll 0 0 transparent;
+        width: 25px;
+        height: 29px;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;*/
+        /*updates for Bing V8 update*/
+        font-size: 1em;
+    font-weight: normal;
+    font-family: sans-serif;
+    color: #fff;
+    margin-bottom:5px;
+    }
+
+    .MicrosoftMap .infobox-close {
+        top: 12px !important;
+    }
+
+    .MicrosoftMap .Infobox2 .infobox-title {
+        line-height: 3.1 !important;
+        font-size: 14px !important;
+    }
+</style>
+<form id="frmMap" method="post" action="javascript:void(0);">
+    @Html.Partial("_ServiceRequestExceptions", ViewData)
+    <div class="with-padding">
+        <div class="columns">
+            <div class="four-columns">
+                <div>
+                    <div class="block-label button-height">
+                        <p class="big-text green">
+                            A - Location <a id="btnUseHomeAddress" href="javascript:void(0)" class="small-margin-left"
+                                            style="font-size: 12px;">Use Home Address</a>
+                        </p>
+                        @(Html.Kendo().AutoComplete().
+                    Name("ALocation")
+                    .Suggest(true)
+                            .HtmlAttributes(new { @class = "input float-left full-width", style = "width : 85%;", tabindex = 1 })
+                    .HighlightFirst(true)
+                    .Filter(FilterType.StartsWith)
+                        )
+                        <a id="btnALocate" class="k-button k-button-icontext k-grid-View small-margin-left"
+                           style="min-width: auto; margin-top: -10px;" tabindex="2" href="#">
+                            <span class="k-icon k-i-search">
+                            </span>
+                        </a>
+                        <div class="clear" />
+                    </div>
+                </div>
+                <div class="mid-margin-top">
+                    <label for="Pinned" class="label">
+                        Pinned
+                    </label>
+                    <span id="lblSourcePinned"></span>
+                </div>
+                <p class="button-height block-label mid-margin-top margin-bottom">
+                    <label for="Description" class="label">
+                        Description
+                    </label>
+                    @Html.TextBox("txtLocationDescription", string.Empty, new { @class = "validate[maxSize[100]], input full-width", style = "width : 85%;", tabindex = 3 })
+                </p>
+                <div>
+                    <p class="button-height">
+                        <button id="btnSwapAddresses" class="button compact margin-botton" tabindex="4" type="button">
+                            <span class="button-icon anthracite-gradient"><span class="icon-swap"></span></span>
+                            Swap Locations
+                        </button>
+                    </p>
+                </div>
+                <div class="clear" />
+                <div>
+                    <div class="block-label button-height mid-margin-top">
+                        <p class="big-text red">
+                            B - Destination <a id="btnUseHomeAddress2" href="javascript:void(0)" class="small-margin-left"
+                                               style="font-size: 12px;">Use Home Address</a>
+                            @if (showUseSellerDealerLocation)
+                            {
+                                <a id="btnUseSellerDealerLocation" href="javascript:void(0)" class="small-margin-left"
+                                   style="font-size: 12px;">Use Seller/Dealer Location</a>
+                            }
+                        </p>
+                        @(Html.Kendo().AutoComplete()
+                    .Name("BDestination")
+                    .Suggest(true)
+                            .HtmlAttributes(new { @class = "input float-left full-width", style = "width : 85%;", tabindex = 5 })
+                    .HighlightFirst(true)
+                    .Filter(FilterType.StartsWith)
+                        )
+                        <a id="btnBLocate" class="k-button k-button-icontext k-grid-View small-margin-left"
+                           style="min-width: auto; margin-top: -10px;" tabindex="6" href="#">
+                            <span class="k-icon k-i-search">
+                            </span>
+                        </a>
+                        <div class="clear" />
+                        <div class=" mid-margin-top">
+                            <label for="Pinned" class="label">
+                                Pinned
+                            </label>
+                            <span id="lblDestinationPinned"></span>
+                        </div>
+                        <p class="button-height block-label small-margin-top margin-bottom">
+                            <label for="Description" class="label">
+                                Description
+                            </label>
+                            @Html.TextBox("txtDestinationDescription", string.Empty, new { @class = "validate[maxSize[100]], input full-width", style = "width : 85%;", tabindex = 7 })
+                        </p>
+                        <div class=" small-margin-top">
+                            <p>
+                                <a id="btnBusiness" href="javascript:void(0)" class="searchFor" data="business">Business</a>
+                                <a id="btnShowBusinessOptions" href="javascript:void(0)" class="optionsForbusiness small-margin-left"
+                                   data="business">Show Options</a>
+                            </p>
+                            <div id="optionsAreabusiness" class="with-small-padding scrollable">
+                            </div>
+                        </div>
+                        @* KB: With BingV8, all these options are merged into Business options section *@
+                        @*<div class=" small-margin-top">
+                            <p>
+                                <a id="btnDealerships" href="javascript:void(0)" class="searchFor" data="dealers">Dealerships</a>
+                                <a id="btnDealershipOptions" href="javascript:void(0)" class="optionsFordealers small-margin-left"
+                                   data="dealers">Show Options</a>
+                            </p>
+                            <div id="optionsAreadealers" class="with-small-padding scrollable">
+                            </div>
+                        </div>*@
+                        <div class=" small-margin-top">
+                            <p>
+                                <a id="btnServiceLocations" href="javascript:void(0)" class="searchFor" data="services">
+                                    Service Locations
+                                </a> <a id="btnServiceLocationOptions" href="javascript:void(0)"
+                                        class="optionsForservices small-margin-left" data="services">Show Options</a>
+                            </p>
+                            <div id="optionsAreaservices" class="with-small-padding scrollable">
+                            </div>
+                        </div>
+                        <div class="clear" />
+                        <div>
+                            <button id="btnRoute" class="button compact small-maring-right" type="button" tabindex="8">
+                                Route
+                            </button>
+                            <button id="btnReset" class="button compact" type="button" tabindex="9">
+                                Clear Pins
+                            </button>
+                            <button id="btnDirections" class="button compact" type="button" tabindex="10">
+                                Directions
+                            </button>
+                            <button id="btnClearAll" class="button compact" type="button" tabindex="11">
+                                Clear All
+                            </button>
+                            <button id="btnCallHistory" class="button compact" type="button" tabindex="12">
+                                Call History
+                            </button>
+                        </div>
+                        <span id="spanTotalMiles"></span>
+                    </div>
+                </div>
+                <div class="clear" />
+                <div id="directionDiv" class="scrollable twenty-rows">
+                </div>
+                <div class="clear" />
+                <div id="callHistoryDiv" class="twenty-rows" style="min-height: 450px;">
+                </div>
+                <div class="clear" />
+                <div>
+                    <div class="with-small-padding scrollable twenty-rows">
+                        <ul class="vendor-list" id="addressesInfo"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="eight-columns">
+                <div id="divEmail" style="height: 90px; width: 100%; position: relative;">
+                    @if ((bool)ViewBag.ShowSurveyEmail)
+                    {
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="Email" class="label">
+                                Survey Email
+                            </label>
+                            @Html.TextBox("txtMapTabMemberEmail", string.Empty, new { @class = "validate[maxSize[50]] input full-width", style = "width : 50%;", tabindex = 13 })
+                        </p>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ComboBox_Products-input" class="label">
+                                Declined Reason
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.DeclinedReasons.ToString()] as IEnumerable<SelectListItem>)
+                                                     .Name("ComboBox_DeclinedReason")
+                                                    .Suggest(true)
+                                                    .HtmlAttributes(new { style = "width:250px;" })
+                                                    .Filter(FilterType.StartsWith).MinLength(0)
+                                                    .HighlightFirst(true)
+                                                    .HtmlAttributes(new { @class = "selectlabel", tabindex = 14 })
+                                                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                                    .SelectedIndex(0)
+                                                    .Value(strDeclinedReason)
+
+                            )
+                        </p>
+                    }
+                    @if (CanWeTextYou)
+                    {
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CanWeTextYou" class="label">
+                                Can we text you ?
+                            </label>
+                            @Html.RadioButton("rdSMS", "1", DMSCallContext.IsSMSAvailable == true, new { @class = "radio small-margin-right canSMS" })
+                            Yes &nbsp;
+                            @Html.RadioButton("rdSMS", "0", DMSCallContext.IsSMSAvailable == false, new { @class = "radio small-margin-right canSMS" })
+                            No
+                        </p>
+                    }
+                </div>
+            </div>
+            <div class="eight-columns">
+                @*<img src="~/Content/img/default-map.png" alt="Default map view" border="0" id="imgDefaultMap" />*@
+                <div id="divMap" style="height: 800px; width: 100%; position: relative;">
+                </div>
+            </div>
+        </div>
+        <!--KB: The hidden fields are to hold init values as rendering the server values in script is causing issues w.r.t special characters. -->
+        @Html.Hidden("hdnServiceLocationAddress", ViewData["ServiceLocationAddress"])
+        @Html.Hidden("hdnServiceLocationDescription", ViewData["ServiceLocationDescription"])
+        @Html.Hidden("hdnDestinationAddress", ViewData["DestinationAddress"])
+        @Html.Hidden("hdnDestinationDescription", ViewData["DestinationDescription"])
+        @Html.Hidden("hdnMemberEmail", ViewData["MemberEmail"])
+        @Html.Hidden("hdnDeclinedReason", ViewData["DeclinedReason"])
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+
+    var mapResultData = '';
+    var pinned = false;
+    var sourceLocation = null;
+    var destinationLocation = null;
+    var searchResultLocations = [];
+    var destinationServiceLocationID = '@destinationVendorLocationID';
+    var serviceLocationErrors = 0;
+
+
+    function ExtractDescriptionFromMapResults(locations) {
+
+        mapResultData = '<MapResults>';
+        if (locations == null) {
+            mapResultData += '<Result>No locations found</Result>';
+        }
+        else {
+            for (var i = 0, l = locations.length; i < l; i++) {
+                mapResultData += '<Result>' + locations[i].description + '</Result>';
+            }
+        }
+        mapResultData += '</MapResults>';
+
+        return mapResultData;
+    }
+
+    function SetCustomIconAndText(locations, startOrEnd) {
+        if (startOrEnd == "start") {
+            [locations[0]][0].customIconUrl = "/Content/images/poi_flag_start.png";
+            [locations[0]][0].pinText = "A";
+        }
+        else if (startOrEnd == "end") {
+            [locations[0]][0].customIconUrl = "/Content/images/poi_flag_end.png";
+            [locations[0]][0].pinText = "B";
+        }
+
+    }
+    function GetTextFromHtml(str) {
+        var span$ = $("<span/>");
+        span$.html(str);
+        span$.find("br").replaceWith(" ");
+        return span$.text();
+    }
+    function InfoboxActionsClickHandlerDestination(e, param) {
+
+        if (typeof e.FullAddress == "undefined" || e.FullAddress == null) {
+            e.FullAddress = e.description;
+        }
+        if (typeof e.DestinationServiceLocationID != "undefined") {
+            destinationServiceLocationID = e.DestinationServiceLocationID;
+        }
+        else {
+            destinationServiceLocationID = null;
+        }
+
+        $("#BDestination").data("kendoAutoComplete").value(GetTextFromHtml(e.FullAddress));
+        $("#hdnDestinationAddress").val(GetTextFromHtml(e.FullAddress));
+        if (typeof e.BusinessName != "undefined" || e.BusinessName != null) {
+            $('#txtDestinationDescription').val(e.BusinessName);
+        }
+        DrawRoute();
+    }
+    function InfoboxActionsClickHandlerLocation(e, param) {
+        if (typeof e.FullAddress == "undefined" || e.FullAddress == null) {
+            e.FullAddress = e.description;
+        }
+        $("#ALocation").data("kendoAutoComplete").value(GetTextFromHtml(e.FullAddress));
+        if (typeof e.BusinessName != "undefined" || e.BusinessName != null) {
+            $('#txtLocationDescription').val(e.BusinessName);
+        }
+        ALocationClick();
+    }
+    function GetInfoBoxOptions(location) {
+        var infoboxOptions = { visible: false,
+            actions: [{ label: 'Set as Destination',
+                eventHandler: InfoboxActionsClickHandlerDestination.bind(this, location)
+            },
+                              { label: 'Set as Location',
+                                  eventHandler: InfoboxActionsClickHandlerLocation.bind(this, location)
+                              }]
+        }
+        return infoboxOptions;
+    }
+    function SearchMapForLocation(searchText, element) {
+        destinationLocation = null; // Clear off destination as it would get filled during DrawRoute, if the destination input exists.
+        //KB: Check to see if the user typed lat,long and do a reverse geo lookup.
+        var latLong = searchText.split(',');
+        if (latLong.length == 2 && $.isNumeric(latLong[0]) && $.isNumeric(latLong[1])) {
+            genericMapping.reverseGeocodeLocation(latLong[0], latLong[1], function (locations) {
+
+                var eventData = "<Map><ReverseGeoForLocation>" + latLong[0] + "," + latLong[1] + "</ReverseGeoForLocation>";
+                mapResultData = ExtractDescriptionFromMapResults(locations);
+                eventData += mapResultData + "</Map>";
+                LogEvent("SearchMap", eventData);
+
+                if (locations != null && locations.length > 0) {
+                    SetCustomIconAndText(locations, "start");
+                    genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]), 'green');
+
+
+                    sourceLocation = [locations[0]][0];
+                    var lat = [locations[0]][0].latitude;
+                    var long = [locations[0]][0].longitude;
+                    genericMapping.provider.map.setView({ zoom: 10, center: new Microsoft.Maps.Location(lat, long) });
+                    $('#lblSourcePinned').html(sourceLocation.description);
+
+                    location1History.push(sourceLocation.description);
+
+                    pinned = true;
+                    mapResultData = ExtractDescriptionFromMapResults(locations);
+                    // Add the text to the history.
+                    BindAutocompleteField("ALocation", location1History);
+                    SetAutoCompleteValue("ALocation", searchText);
+                }
+
+            });
+        }
+        else {
+            // Call the map API to plot a graph.
+            genericMapping.searchLocation(searchText, function (locations) {
+
+                mapResultData = ExtractDescriptionFromMapResults(locations);
+                var eventData = "<Map><LocationSearch>" + searchText + "</LocationSearch>";
+                eventData += mapResultData + "</Map>";
+                LogEvent("SearchMap", eventData);
+
+                if (locations == null) {
+                    ShowValidationMessage(element, "We didn’t find results for your search");
+                    sourceLocation = null;
+                    return false;
+                }
+                HideValidationMessage(element);
+                console.log("Searched for [ " + searchText + " ] and found { " + JSON.stringify(locations) + " }");
+                // Plotting Single Pin if the location found.
+                if (locations.length == 1) {
+                    // Use Location Image with Green Square and Letter A
+                    SetCustomIconAndText(locations, "start");
+                }
+                if (locations.length == 1) {
+
+                    genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]),'green');
+                    var lat = [locations[0]][0].latitude;
+                    var long = [locations[0]][0].longitude;
+                    genericMapping.provider.map.setView({ zoom: 13, center: new Microsoft.Maps.Location(lat, long) });
+                    location1History.push([locations[0]][0].description);
+                }
+                else {
+                    // Multiple Locations
+                    var $addressInfo = $("#addressesInfo");
+                    $addressInfo.html(""); // clear the existing content
+                    searchResultLocations.splice(0, searchResultLocations.length); // Clear all previous results
+
+
+                    for (var k = 0, l = locations.length; k < l; k++) {
+                        var tempArray = new Array();
+
+                        tempArray.push(locations[k]);
+                        var infoBoxOptions = GetInfoBoxOptions(locations[k]);
+                        locations[k].customIconUrl = "/Content/images/blue_pushpin.png";
+                        locations[k].pinText = (k + 1).toString();
+                        genericMapping.addPins([locations[k]], true, false, infoBoxOptions);
+                        location1History.push(locations[k].description);
+                        $addressInfo.append(GetLocationDetailAsHtml(locations[k], (k + 1), true));
+                        searchResultLocations.push(locations[k]);
+                    }
+                }
+
+                sourceLocation = [locations[0]][0];
+                $('#lblSourcePinned').html([locations[0]][0].description);
+                pinned = true;
+
+                // Add the text to the history.
+                BindAutocompleteField("ALocation", location1History);
+                SetAutoCompleteValue("ALocation", searchText);
+
+            });
+        }
+    }
+    function SearchMapForDestination(searchText, element) {
+
+        //KB: Check to see if the user typed lat,long and do a reverse geo lookup.
+        var latLong = searchText.split(',');
+        if (latLong.length == 2 && $.isNumeric(latLong[0]) && $.isNumeric(latLong[1])) {
+            genericMapping.reverseGeocodeLocation(latLong[0], latLong[1], function (locations) {
+                mapResultData = ExtractDescriptionFromMapResults(locations);
+                var eventData = "<Map><DestinationSearch>" + latLong[0] + "," + latLong[1] + "</DestinationSearch>";
+                eventData += mapResultData + "</Map>";
+                LogEvent("SearchMap", eventData);
+
+                if (locations != null && locations.length > 0) {
+                    SetCustomIconAndText(locations, "end");
+                    genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]), 'red');
+
+
+                    destinationLocation = [locations[0]][0];
+                    $('#lblDestinationPinned').html([locations[0]][0].description);
+                    location2History.push(destinationLocation.description);
+                    // Add the text to the history.
+                    BindAutocompleteField("BDestination", location2History);
+                    SetAutoCompleteValue("BDestination", searchText);
+
+                }
+
+            });
+        }
+        else {
+            // Call the map API to plot a graph.
+            genericMapping.searchLocation(searchText, function (locations) {
+
+                mapResultData = ExtractDescriptionFromMapResults(locations);
+                var eventData = "<Map><DestinationSearch>" + searchText + "</DestinationSearch>";
+                eventData += mapResultData + "</Map>";
+                LogEvent("SearchMap", eventData);
+
+                // Validation
+                if (locations == null) {
+                    ShowValidationMessage(element, "We didn’t find results for your search");
+                    destinationLocation = null;
+                    return false;
+                }
+                HideValidationMessage(element);
+                console.log("Searched for [ " + searchText + " ] and found { " + JSON.stringify(locations) + " }");
+                // Plotting Single Pin if the location found.
+                if (locations.length > 0) {
+                    // Use Location Image with Red Square and Letter B
+                    SetCustomIconAndText(locations, "end");
+                }
+                if (locations.length == 1) {
+
+                    genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]), 'red');
+                    var lat = [locations[0]][0].latitude;
+                    var long = [locations[0]][0].longitude;
+                    genericMapping.provider.map.setView({ zoom: 10, center: new Microsoft.Maps.Location(lat, long) });
+                    location2History.push([locations[0]][0].description);
+                }
+                else {
+                    // Multiple Locations
+
+                    for (var k = 0, l = locations.length; k < l; k++) {
+
+                        var tempArray = new Array();
+                        tempArray.push(locations[k]);
+                        var infoBoxOptions = GetInfoBoxOptions(locations[k]);
+                        genericMapping.addPins([locations[k]], true, false, infoBoxOptions);
+                        location2History.push(locations[k].description);
+                    }
+                }
+                destinationLocation = [locations[0]][0];
+                $('#lblDestinationPinned').html([locations[0]][0].description);
+                // Add the text to the history.
+                BindAutocompleteField("BDestination", location2History);
+                SetAutoCompleteValue("BDestination", searchText);
+            });
+        }
+    }
+
+    function setDestFromInfo(latitude, longitude, description) {
+        SetAutoCompleteValue("BDestination", description);
+
+    }
+
+    function LogEvent(eventName, eventData) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LogEvent", "Map", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { eventName: eventName, description: eventData },
+            success: function (msg) {
+                // No need to present any message on the page.
+            }
+        });  // end of ajax request
+    }
+
+
+    function ServiceRequest() {
+
+        this.ServiceLocationAddress = '';
+        this.ServiceLocationDescription = '';
+        this.ServiceLocationCrossStreet1 = '';
+        this.ServiceLocationCrossStreet2 = '';
+        this.ServiceLocationCity = '';
+        this.ServiceLocationStateProvince = '';
+        this.ServiceLocationPostalCode = '';
+        this.ServiceLocationCountryCode = '';
+        this.ServiceLocationLatitude = '';
+        this.ServiceLocationLongitude = '';
+        this.ServiceLocationGeoCoordinate = '';
+        this.DestinationAddress = '';
+        this.DestinationDescription = '';
+        this.DestinationCrossStreet1 = '';
+        this.DestinationCrossStreet2 = '';
+        this.DestinationCity = '';
+        this.DestinationStateProvince = '';
+        this.DestinationPostalCode = '';
+        this.DestinationCountryCode = '';
+        this.DestinationLatitude = '';
+        this.DestinationLongitude = '';
+        this.DestinationGeoCoordinate = '';
+        this.DestinationVendorLocationID = '';
+        this.ServiceMiles = 0;
+        this.ServiceTimeInMinutes = 0;
+        this.ServiceLocationDescription = '';
+        this.DestinationDescription = '';
+        //this.DeclinedReason = '';formobj.find("#txtMapTabMemberEmail").validationEngine('hidePrompt');
+        return true;
+
+    }
+
+    function validMapEmail(e) {
+        var filter = /^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$/;
+        return String(e).search(filter) != -1;
+    }
+
+    function validateMapServiceRequestFields() {
+        var formobj = $("#frmMap");
+        var emailField = $.trim(formobj.find('#txtMapTabMemberEmail').val());
+        if (emailField.length > 0) {
+            var EmailField = formobj.find('input[name="txtMapTabMemberEmail"]');
+            if (!validMapEmail(emailField)) {
+                ShowValidationMessage(formobj.find("#txtMapTabMemberEmail"), "Invalid Email Address");
+                EmailField.focus();
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                formobj.find("#txtMapTabMemberEmail").validationEngine('hidePrompt');
+                return true;
+            }
+        }
+        else {
+            //var reason = $.trim($('#ComboBox_DeclinedReason').data("kendoComboBox").value());
+            if ($.trim(formobj.find('#ComboBox_DeclinedReason').data("kendoComboBox").value()).length == 0) {
+                //ShowValidationMessage($("#ComboBox_DeclinedReason"), "Please choose Declined Reason");
+                //ShowValidationMessage(reasonField, "Please choose Declined Reason");
+                ShowValidationMessage(formobj.find('input[name="ComboBox_DeclinedReason_input"]'), "Please choose Declined Reason");
+                //reasonField.focus();
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                formobj.find('input[name="ComboBox_DeclinedReason_input"]').validationEngine('hidePrompt');
+                return true;
+            }
+        }
+    }
+
+    function UpdateServiceRequestWithMapData() {
+
+        // KB: Ensure that the API is loaded successfully before performing any operation. Do not disturb the map data that was already saved.
+        if (typeof (Microsoft) != "undefined") {
+            // Validate the text fields.
+            var formobj = $("#frmMap");
+
+            if ('@ShowSurveyEmail' == 'True') {
+                if (!validateMapServiceRequestFields()) {
+                    StyleTabAfterValidation("map", true);
+                    return false;
+                }
+            }
+
+            if ($('#frmMap').validationEngine('validate') == false) {
+                StyleTabAfterValidation("map", true);
+                return false;
+            }
+
+            StyleTabAfterValidation("map", false);
+            var serviceRequest = new ServiceRequest();
+            if (sourceLocation != null) {
+
+                serviceRequest.ServiceLocationAddress = sourceLocation.description;
+                if (sourceLocation.StateProvince) {
+                    serviceRequest.ServiceLocationStateProvince = sourceLocation.StateProvince;
+                }
+                if (sourceLocation.Country) {
+                    serviceRequest.ServiceLocationCountryCode = sourceLocation.Country;
+                }
+                if (sourceLocation.City) {
+                    serviceRequest.ServiceLocationCity = sourceLocation.City;
+                }
+                if (sourceLocation.PostalCode) {
+                    serviceRequest.ServiceLocationPostalCode = sourceLocation.PostalCode;
+                }
+                serviceRequest.ServiceLocationLatitude = sourceLocation.latitude;
+                serviceRequest.ServiceLocationLongitude = sourceLocation.longitude;
+                serviceRequest.ServiceLocationDescription = $('#txtLocationDescription').val();
+            }
+            if (destinationLocation != null) {
+                serviceRequest.DestinationAddress = destinationLocation.description;
+                if (destinationLocation.StateProvince) {
+                    serviceRequest.DestinationStateProvince = destinationLocation.StateProvince;
+                }
+                if (destinationLocation.Country) {
+                    serviceRequest.DestinationCountryCode = destinationLocation.Country;
+                }
+                if (destinationLocation.City) {
+                    serviceRequest.DestinationCity = destinationLocation.City;
+                }
+                if (destinationLocation.PostalCode) {
+                    serviceRequest.DestinationPostalCode = destinationLocation.PostalCode;
+                }
+                serviceRequest.DestinationLatitude = destinationLocation.latitude;
+                serviceRequest.DestinationLongitude = destinationLocation.longitude;
+                serviceRequest.ServiceMiles = towMiles;
+                serviceRequest.ServiceTimeInMinutes = towTime;
+                
+                serviceRequest.DestinationVendorLocationID = destinationServiceLocationID;
+
+                serviceRequest.DestinationDescription = $('#txtDestinationDescription').val();
+
+            }
+
+            if ('@ShowSurveyEmail' == 'True') {
+                serviceRequest.email = formobj.find('#txtMapTabMemberEmail').val();
+                serviceRequest.DeclinedReason = formobj.find('#ComboBox_DeclinedReason').data("kendoComboBox").value();
+            }
+
+
+            var isSMSAvailable = "false";
+            if ($('input:radio[id=rdSMS]').length > 0) {
+                isSMSAvailable = $('input:radio[id=rdSMS]:checked').val();
+            }
+            isSMSAvailable = isSMSAvailable == "1" ? "true" : "false";
+            serviceRequest.IsSMSAvailable = isSMSAvailable;
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveDetails", "Map", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                data: serviceRequest,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("frmMap");
+
+                        //KB: Check to see if the email and reason fields on the Finish tab are available and update them with recent values.
+                        var $finishForm = $("#frm_FinishTab");
+                        if ($finishForm.length > 0) {
+
+                            //                            if ('@ShowSurveyEmail' == 'True') {
+                            //                                $finishForm.find("#txtMapTabMemberEmail").val(serviceRequest.email);
+                            //                                $finishForm.find("#ComboBox_FinishDeclinedReason").data("kendoComboBox").value(serviceRequest.DeclinedReason);
+                            //                            }
+                        }
+                    }
+                }
+            });
+        }
+        return true;
+    }
+
+
+    //fnSaveTab = UpdateServiceRequestWithMapData;
+
+    var optionsLoadedFor = null;
+    var location1History = [];
+    var location2History = [];
+    var businessAddresses = [];
+    var towMiles = 0;
+    var towTime = 0;
+    function ShowValidationMessage(element, message) {
+        element.validationEngine('showPrompt', message, '', 'topRight', true);
+    }
+    function HideValidationMessage(element) {
+        element.validationEngine('hidePrompt');
+    }
+
+    function BindAutocompleteField(elementName, values) {
+        var aLocation = $("#" + elementName).data('kendoAutoComplete');
+        if (aLocation != null) {
+            aLocation.setDataSource(values);
+        }
+    }
+    var intervalId = 0;
+    function SetAutoCompleteValue(elementName, val) {
+
+        var acField = $("#" + elementName).data("kendoAutoComplete");
+        if (acField == null) {
+            if (intervalId == 0) {
+                intervalId = setInterval(function () { SetAutoCompleteValue(elementName, val); }, 500);
+            }
+            return;
+        }
+        else {
+            acField.value(val);
+            clearInterval(intervalId);
+        }
+
+    }
+
+    function GetLocationDetailAsHtml(searchResult, number, forSource) {
+
+        var $itemRoot = $('<li>');
+        var $item = $('<span class="address-index">');
+
+
+        var $number = $('<div class="mapAddress"></div').html(number);
+        var $detail = $('<a href="javascript:void(0);" class="small-margin-left anAddress">');
+
+
+        $detail.append('<strong>' + searchResult.description + '</strong><br/>');
+
+        $detail.append(searchResult.StateProvince + ' ' + searchResult.Country + '<br/>');
+
+        if (forSource) {
+            $detail.append('<a href="javascript:void(0)" id="lnkSelectLocationasLocation" data="' + (number - 1) + '">Set as location</a>');
+        }
+        else {
+            $detail.append('<a href="javascript:void(0)" id="lnkSelectLocationasDestination" data="' + (number - 1) + '">Set as destination </a>');
+        }
+
+        $item.append($number);
+
+        $itemRoot.append($item).append($detail);
+        return $itemRoot;
+    }
+
+    function GetPhoneDetailAsHtml(label, qualifier, phoneNumber, country, phoneType) {
+        var $phoneLabel = $('<p class="small-margin-top"></p>');
+        $phoneLabel.append("<span>" + label + "</span>");
+        var $lblPhoneNumber = $('<label id="business' + qualifier + '_lblPhoneNumber" datatype="phone" />');
+        $lblPhoneNumber.html(GetFormattedPhoneNumber(phoneNumber, country));
+        $phoneLabel.append($lblPhoneNumber);
+        $phoneLabel.append('<span class="icon-phone business-phone mid-margin-left" id="business' + qualifier + '_call" phoneType="' + phoneType + '">&nbsp;</span><br/>');
+        return $phoneLabel;
+    }
+
+    function AdjustTooltipDimensions() {
+        $(".tpComments").data("tooltip-options", {
+            onShow: function (target) {
+                var tip = $("#tooltips").find(".message");
+                tip.css("white-space", "normal");
+                tip.css("min-width", "150px");
+
+            },
+            onRemove: function (target) {
+                var tip = $("#tooltips").find(".message");
+                tip.css("white-space", "nowrap");
+                tip.css("min-width", "auto");
+            }
+        });
+    }
+    function GetAddressDetailAsHtml(searchResult, number) {
+
+        var $itemRoot = $('<li class="business-item">');
+        var $item = $('<span class="address-index">');
+
+
+        var $number = $('<div class="mapAddress"></div>').html(number);
+        var $vendorProducts = $('<a href="javascript:void(0)" class="call-status-services with-tooltip tooltip-right" title="All products">&nbsp;</a>');
+        var $vendorNotes = $('<a href="javascript:void(0)" class="tpComments call-status-notes with-tooltip tooltip-right" title="All notes">&nbsp;</a>');
+
+        var $detail = $('<a href="javascript:void(0);" class="anAddress">');
+
+        if (searchResult.vendorID) {
+            $detail.append('<span class="vendor-id hidden">' + searchResult.vendorID + '</span>');
+        }
+        if (searchResult.vendorLocationID) {
+            $detail.append('<span class="vendor-location-id hidden">' + searchResult.vendorLocationID + '</span>');
+        }
+        if (searchResult.EnrouteMiles) {
+            $detail.append('<span class="vendor-enroute-mile hidden">' + searchResult.EnrouteMiles + '</span>');
+        }
+
+        var vendorName = searchResult.name;
+
+        /*if (searchResult.IsPreferred && searchResult.IsPreferred != null && searchResult.IsPreferred) {
+        vendorName += " (P) ";
+        }*/
+
+        if (searchResult.EnrouteMiles) {
+            vendorName += " - " + searchResult.EnrouteMiles + " miles";
+        }
+        else {
+            if (searchResult.location && searchResult.location.latitude) {
+                var l1 = searchResult.location;
+                vendorName += " - " + distance(l1.latitude, l1.longitude, sourceLocation.latitude, sourceLocation.longitude, "M").toFixed(2) + " miles";
+            }
+        }
+
+        $detail.append('<strong class="businessName">' + vendorName + '</strong><br/>');
+        $detail.append(searchResult.address + '<br/>');
+        $detail.append(searchResult.city + ',' + searchResult.state + ' ' + searchResult.postalCode + ' ' + searchResult.country + '<br/>');
+
+        if ($.trim(searchResult.phone).length > 0) {
+            $detail.append(GetPhoneDetailAsHtml('24 HR ', number + '_dispatch_', searchResult.phone, searchResult.country, 'Dispatch'));
+        }
+        // Cell
+        if ($.trim(searchResult.Cell).length > 0) {
+            $detail.append(GetPhoneDetailAsHtml('Cell ', number + '_cell_', searchResult.Cell, searchResult.country, 'Cell'));
+        }
+        // Office
+        if ($.trim(searchResult.OfficePhone).length > 0) {
+            $detail.append(GetPhoneDetailAsHtml('Office ', number + '_office_', searchResult.OfficePhone, searchResult.country, 'Office'));
+        }
+
+        $detail.append('<a href="javascript:void(0)" id="lnkSelectasDestination" data="' + (number - 1) + '">Set as destination </a>');
+        $detail.append('| <a href="javascript:void(0)" id="lnkSelectasLocation" data="' + (number - 1) + '">Set as location</a>');
+
+        if ($.trim(searchResult.website).length > 0) {
+            $detail.append(' | <a target="_blank" href="' + searchResult.website + '">website</a>');
+        }
+        else {
+            $detail.append(' ');
+        }
+
+
+        $item.append($number);
+        if (searchResult.vendorID) {
+            var allServices = searchResult.AllServices.split(',');
+            var productsTooltip = "<ul>";
+            for (var as = 0, asl = allServices.length; as < asl; as++) {
+                productsTooltip += "<li>" + allServices[as] + "</li>";
+            }
+            productsTooltip += "</ul>";
+            $vendorProducts.attr("title", productsTooltip);
+            $item.append($vendorProducts);
+        }
+
+        if (searchResult.Comments) {
+
+            // Format the comments as list items.
+            searchResult.Comments = searchResult.Comments.replace(/,/g, "</li><li>");
+            searchResult.Comments = "<ul><li>" + searchResult.Comments + "</li></ul>"
+            searchResult.Comments = searchResult.Comments.replace(/~/g, ",");
+            searchResult.Comments = searchResult.Comments.replace(/<LF>/g, "<br/>");
+            $vendorNotes.attr("title", searchResult.Comments);
+            $item.append($vendorNotes);
+        }
+
+        $itemRoot.append($item).append($detail);
+        return $itemRoot;
+    }
+
+    function ProcessServiceResults(result, locText, idx, $addressInfo, totalResults) {
+
+
+        genericMapping.searchLocation(locText, function (location) {
+
+            var lResult = result;
+            var lIdx = idx;
+            var lLocText = locText;
+            if (location != null && location.length && location.length > 0) {
+                console.log("Searched for [ " + locText + " ] and found { " + JSON.stringify(location) + " }");
+                location[0].customIconUrl = "/Content/images/blue_pushpin.png";
+                location[0].pinText = (lIdx + 1).toString();
+                location[0].BusinessName = lResult.VendorName;
+                location[0].DestinationServiceLocationID = lResult.VendorLocationID;
+                genericMapping.addPins([location[0]], true, false, GetInfoBoxOptions([location[0]][0]));
+
+
+                var addressDetail = {
+                    vendorID: lResult.VendorID,
+                    vendorLocationID: lResult.VendorLocationID,
+                    EnrouteMiles: lResult.EnrouteMiles,
+                    Comments: lResult.Comments,
+                    sequence: (lIdx + 1),
+                    name: lResult.VendorName,
+                    BusinessName: lResult.VendorName,
+                    address: lResult.Address1, // + " " + result.Address2,
+                    city: lResult.City,
+                    state: lResult.StateProvince,
+                    country: lResult.Country,
+                    postalCode: lResult.PostalCode,
+                    phone: lResult.PhoneNumber,
+                    OfficePhone: lResult.OfficePhoneNumber,
+                    Fax: lResult.FaxPhoneNumber,
+                    Cell: lResult.CellPhoneNumber,
+                    AllServices: lResult.AllServices,
+                    location: { latitude: [location[0]][0].latitude, longitude: [location[0]][0].longitude },
+                    IsPreferred: lResult.IsPreferred,
+                    Rating: lResult.Rating
+                };
+                businessAddresses.push(addressDetail);
+            }
+            else {
+                console.log("Searched for [ " + locText + " ] and got no results !");
+                openAlertMessage("Unable to plot the location - " + locText);
+                serviceLocationErrors++; // Increment the total error count as we are not able to find a location details for one of the location.
+            }
+            console.log("Total Service location errors : " + serviceLocationErrors);
+            // Paint only when all the results are returned.
+            if (businessAddresses.length == (totalResults - serviceLocationErrors)) {
+                serviceLocationErrors = 0;
+                businessAddresses.sort(function (a, b) {
+                    return a.sequence - b.sequence;
+                });
+                for (var b = 0, l = businessAddresses.length; b < l; b++) {
+                    var ad = businessAddresses[b];
+                    var addressDetailHtml = GetAddressDetailAsHtml(ad, ad.sequence);
+                    $addressInfo.append(addressDetailHtml);
+                }
+
+                AdjustTooltipDimensions();
+            }
+
+        });
+    }
+    function ProcessBusinessResults(searchResponse) {
+        
+        var $addressInfo = $("#addressesInfo");
+        $addressInfo.html(""); // clear the existing content
+        if (searchResponse &&
+                searchResponse &&
+                searchResponse.length > 0) {
+            var locations = [];
+            //Clear previous addresses
+            businessAddresses.splice(0, businessAddresses.length);
+            for (var i = 0; i < searchResponse.length - 1; ++i) {
+
+                var item = searchResponse[i].metadata;
+                businessAddresses.push(
+                    {
+                        name: item.Name,
+                        location: {
+                            latitude: item.Latitude,
+                            longitude : item.Longitude
+                        },
+                        address: item.AddressLine,
+                        city: item.Locality,
+                        state: item.AdminDistrict,
+                        country: 'US',//item.CountryRegion,
+                        postalCode: item.PostalCode,
+                        phone: item.Phone
+                    });
+            }
+
+            /* Sorting can be applied on the spatial query 
+            businessAddresses.sort(function (a, b) {
+
+                var l1 = a.location;
+                var l2 = b.location;
+                var d1 = distance(l1.latitude, l1.longitude, sourceLocation.latitude, sourceLocation.longitude, "M");
+                var d2 = distance(l2.latitude, l2.longitude, sourceLocation.latitude, sourceLocation.longitude, "M");
+                return d1 - d2;
+            });*/
+
+            for (var a = 0, al = businessAddresses.length; a < al; a++) {
+                var item = businessAddresses[a];
+                
+                var name = item.name;
+                var address = item.address;
+                var city = item.city;
+                var state = item.state;
+                var zip = item.postalCode;
+                var description = name + "<br />" + address + "<br />" + city + " " + state + "  " + zip;
+                var fullAddress = address + "<br />" + city + " " + state + "  " + zip;
+                var location = new BingMaps.Location(item.location.latitude, item.location.longitude, description);
+                location.FullAddress = fullAddress;
+                location.BusinessName = name;
+                locations.push(location);
+                $addressInfo.append(GetAddressDetailAsHtml(item, (a + 1)));
+            }
+
+            if (locations == undefined) {
+                alert("Error Message: \n\nPOI not found");
+            } else {
+                $.each(locations, function (index, value) {
+                    value.setToDestClickCallback = function (location) {
+
+                        setDestFromInfo(location.latitude, location.longitude, GetTextFromHtml(location.FullAddress));
+                    };
+                    value.pinText = (index + 1).toString();
+                    value.customIconUrl = "/Content/images/blue_pushpin.png";
+                });
+
+                for (var k = 0, l = locations.length; k < l; k++) {
+                    var tempArray = new Array();
+                    tempArray.push(locations[k]);
+                    var infoBoxOptions = GetInfoBoxOptions(locations[k]);
+                    genericMapping.addPins([locations[k]], true, false, infoBoxOptions);
+                }
+            }
+        }
+
+    }
+
+    function ALocationClick() {
+        // Call the map API to plot a graph.
+        // Add the text to the history.
+        ClearAddressesAndMiles();
+        var currentElement = $("#ALocation").data("kendoAutoComplete");
+        var val = $.trim(currentElement.value());
+        if (val.length == 0) {
+            ShowValidationMessage($("#ALocation"), "This field is required");
+            return false;
+        }
+
+        HideValidationMessage($("#ALocation"));
+
+        if ($.inArray(val, location1History) == -1) {
+            location1History.push(val);
+            BindAutocompleteField("ALocation", location1History);
+            SetAutoCompleteValue("ALocation", val);
+
+        }
+        genericMapping.clearMap();
+        SearchMapForLocation(val, $("#ALocation"));
+    }
+
+    function BLocationClick() {
+        // Call the map API to plot a graph.
+        // Add the text to the history.
+        // Clear off vendorlocation id if the user changed the destination on top of the address selected from business listing.
+        var currentElement = $("#BDestination").data("kendoAutoComplete");
+        var val = $.trim(currentElement.value());
+
+        if (val.length == 0) {
+            ShowValidationMessage($("#BDestination"), "This field is required");
+            return false;
+        }
+        
+        if ($.trim($("#hdnDestinationAddress").val()) !== val) {
+            destinationServiceLocationID = null;
+        }
+        HideValidationMessage($("#BDestination"));
+        if ($.inArray(val, location2History) == -1) {
+            location2History.push(val);
+            BindAutocompleteField("BDestination", location2History);
+            SetAutoCompleteValue("BDestination", val);
+        }
+
+        var ALoc = $("#ALocation").data("kendoAutoComplete");
+        if ($.trim(ALoc.value()).length == 0) {
+            SearchMapForDestination(val, $("#BDestination"));
+        }
+        else {
+            DrawRoute();
+        }
+
+    }
+
+    function ClearAddressesAndMiles() {
+        //$("#directionDiv").html("");
+        $("#addressesInfo").html("");
+        $('#spanTotalMiles').html("");
+    }
+    var locations = [];
+
+    function PlotAForRoute(locationResultx) {
+
+        if (locationResultx != null && locationResultx.length > 0) {
+            console.log("Searched for [ " + $("#ALocation").data("kendoAutoComplete").value() + " ] and found { " + JSON.stringify(locationResultx) + " }");
+
+            sourceLocation = [locationResultx[0]][0];
+            $('#lblSourcePinned').html(sourceLocation.description);
+            genericMapping.addPins([locationResultx[0]], true, false, GetInfoBoxOptions([locationResultx[0]][0]),'green');
+            locations.push(locationResultx[0]);
+
+            var bLocationText = $("#BDestination").data("kendoAutoComplete").value();
+            var latLong = bLocationText.split(',');
+
+            if (latLong.length == 2 && $.isNumeric(latLong[0]) && $.isNumeric(latLong[1])) {
+                genericMapping.reverseGeocodeLocation(latLong[0], latLong[1], function (locations) {
+
+                    var eventData = "<Map><ReverseGeoForDestination>" + latLong[0] + "," + latLong[1] + "</ReverseGeoForDestination>";
+                    mapResultData = ExtractDescriptionFromMapResults(locations);
+                    eventData += mapResultData + "</Map>";
+
+                    LogEvent("SearchMap", eventData);
+                    PlotBForRoute(locations);
+                });
+            }
+            else {
+                genericMapping.searchLocation($("#BDestination").data("kendoAutoComplete").value(), function (locationResult) {
+                    var eventData = "<Map><SearchDestination>" + $("#BDestination").data("kendoAutoComplete").value() + "</SearchDestination>";
+                    mapResultData = ExtractDescriptionFromMapResults(locationResult);
+                    eventData += mapResultData + "</Map>";
+
+                    LogEvent("SearchMap", eventData);
+                    PlotBForRoute(locationResult);
+
+                });
+            }
+        }
+        else {
+
+            ShowValidationMessage($("#ALocation"), "We didn’t find results for your search");
+            sourceLocation = null;
+            return false;
+
+        }
+
+    }
+
+    function PlotBForRoute(locationResult) {
+        
+        if (locationResult != null && locationResult.length > 0) {
+            console.log("Searched for [ " + $("#BDestination").data("kendoAutoComplete").value() + " ] and found { " + JSON.stringify(locationResult) + " }");
+
+            destinationLocation = [locationResult[0]][0];
+            $('#lblDestinationPinned').html(destinationLocation.description);
+            genericMapping.addPins([locationResult[0]], true, false, GetInfoBoxOptions([locationResult[0]][0]));
+            locations.push(locationResult[0]);
+            console.log("PlotBForRoute");
+            console.log(locations);
+            genericMapping.calculateRoute(locations, function (totalDistance, time, timeWithTraffic) {
+                
+                if (totalDistance != null) {
+                    towMiles = totalDistance.toFixed(2);
+                    towTime = Math.round(time / 60);
+                    $('#spanTotalMiles').html(towMiles + " miles, " + towTime + " mins");
+                }
+            });
+        }
+        else {
+            ShowValidationMessage($("#BDestination"), "We didn’t find results for your search");
+            destinationLocation = null;
+            return false;
+        }
+
+        var from = $("#ALocation").data("kendoAutoComplete").value();
+        var to = $("#BDestination").data("kendoAutoComplete").value();
+        var eventData = "<Directions><From>" + from + "</From><To>" + to + "</To></Directions>";
+        LogEvent("SearchMap", eventData);
+    }
+
+    function DrawRoute() {
+        // Plot the route on the map
+        // Route expects a source and destination.. we are taking the first location and destination from bing result.
+        ClearAddressesAndMiles();
+        genericMapping.clearMap();
+        sourceLocation = destinationLocation = null;
+
+        var ALoc = $("#ALocation").data("kendoAutoComplete");
+        var BLoc = $("#BDestination").data("kendoAutoComplete");
+
+        if ($.trim(ALoc.value()) == '') {
+            ShowValidationMessage($("#ALocation"), "This field is required to create a route");
+            return false;
+        }
+        if ($.trim(BLoc.value()) == '') {
+            ShowValidationMessage($("#BDestination"), "This field is required to create a route");
+            return false;
+        }
+
+        HideValidationMessage($("#ALocation"));
+        HideValidationMessage($("#BDestination"));
+
+        locations = [];
+
+
+        //KB: Check to see if the user typed lat,long and do a reverse geo lookup.
+        var aLocationText = $("#ALocation").data("kendoAutoComplete").value();
+        var latLong = aLocationText.split(',');
+
+        if (latLong.length == 2 && $.isNumeric(latLong[0]) && $.isNumeric(latLong[1])) {
+            genericMapping.reverseGeocodeLocation(latLong[0], latLong[1], function (locations) {
+
+                var eventData = "<Map><ReverseGeoForLocation>" + latLong[0] + "," + latLong[1] + "</ReverseGeoForLocation>";
+                mapResultData = ExtractDescriptionFromMapResults(locations);
+                eventData += mapResultData + "</Map>";
+
+                LogEvent("SearchMap", eventData);
+                PlotAForRoute(locations);
+            });
+        }
+        else {
+            genericMapping.searchLocation(aLocationText, function (locationResultx) {
+                var eventData = "<Map><SearchLocation>" + aLocationText + "</SearchLocation>";
+                mapResultData = ExtractDescriptionFromMapResults(locationResultx);
+                eventData += mapResultData + "</Map>";
+
+                LogEvent("SearchMap", eventData);
+                PlotAForRoute(locationResultx);
+            });
+        }
+    }
+
+    var tHandle = null;
+    var hasLatLongInfo = false;
+    var hasDestLatLongInfo = false;
+    // If there exists latitude and longitude information then plot the location by default.
+    var serviceLocationLatitude = '@ViewData["ServiceLocationLatitude"]';
+    var serviceLocationLongitude = '@ViewData["ServiceLocationLongitude"]';
+    var serviceLocationAddress = '@ViewData["ServiceLocationAddress"]';
+    var serviceLocationDescription = '@ViewData["ServiceLocationDescription"] ';
+
+    var destinationLatitude = '@ViewData["DestinationLatitude"]';
+    var destinationLongitude = '@ViewData["DestinationLongitude"]';
+    var destinationAddress = '';
+    var destinationDescription = '';
+    var memberEmail = '@ViewData["MemberEmail"]';
+    var memberID = '@ViewData["MemberID"]';
+    var membershipID = '@ViewData["MembershipID"]';
+    var declinedReason = '@ViewData["DeclinedReason"]';
+
+    function InitializePage() {
+        
+        if ($("#ALocation").data("kendoAutoComplete") != null && $("#BDestination").data("kendoAutoComplete") != null) {
+            BindAutocompleteField("ALocation", location1History);
+            BindAutocompleteField("BDestination", location2History);
+            if (hasLatLongInfo && hasDestLatLongInfo) {
+                SetAutoCompleteValue("ALocation", serviceLocationAddress);
+                $('#txtLocationDescription').val(serviceLocationDescription)
+
+                SetAutoCompleteValue("BDestination", destinationAddress);
+                $('#txtDestinationDescription').val(destinationDescription);
+
+                DrawRoute();
+            }
+            if (hasLatLongInfo && !hasDestLatLongInfo) {
+                SetAutoCompleteValue("ALocation", serviceLocationAddress);
+                $('#txtLocationDescription').val(serviceLocationDescription);
+                genericMapping.reverseGeocodeLocation(serviceLocationLatitude, serviceLocationLongitude, function (locations) {
+
+                    var eventData = "<Map><ReverseGeoForLocation>" + serviceLocationLatitude + "," + serviceLocationLongitude + "</ReverseGeoForLocation>";
+                    mapResultData = ExtractDescriptionFromMapResults(locations);
+                    eventData += mapResultData + "</Map>";
+                    LogEvent("SearchMap", eventData);
+
+                    if (locations != null && locations.length > 0) {
+                        SetCustomIconAndText(locations, "start");
+                        genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]), 'green');
+                        sourceLocation = [locations[0]][0];
+                        var lat = [locations[0]][0].latitude;
+                        var long = [locations[0]][0].longitude;
+                        genericMapping.provider.map.setView({ zoom: 10, center: new Microsoft.Maps.Location(lat, long) });
+                        $('#lblSourcePinned').html(sourceLocation.description);
+                        location1History.push(serviceLocationAddress);
+                        //KB: If the servicelocationaddress is blank, use the value from BING.
+                        if ($.trim(serviceLocationAddress).length == 0) {
+                            location1History.push(sourceLocation.description);
+                            BindAutocompleteField("ALocation", location1History);
+                            SetAutoCompleteValue("ALocation", sourceLocation.description);
+                        }
+                    }
+
+                });
+            }
+            if (!hasLatLongInfo && hasDestLatLongInfo) {
+                SetAutoCompleteValue("BDestination", destinationAddress);
+                $('#txtDestinationDescription').val(destinationDescription);
+                genericMapping.reverseGeocodeLocation(destinationLatitude, destinationLongitude, function (locations) {
+                    var eventData = "<Map><ReverseGeoForDestination>" + destinationLatitude + "," + destinationLongitude + "</ReverseGeoForDestination>";
+                    mapResultData = ExtractDescriptionFromMapResults(locations);
+                    eventData += mapResultData + "</Map>";
+
+                    LogEvent("SearchMap", eventData);
+                    if (locations != null && locations.length > 0) {
+                        SetCustomIconAndText(locations, "end");
+                        genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0]), 'red');
+
+
+                        destinationLocation = [locations[0]][0];
+                        var lat = [locations[0]][0].latitude;
+                        var long = [locations[0]][0].longitude;
+                        genericMapping.provider.map.setView({ zoom: 10, center: new Microsoft.Maps.Location(lat, long) });
+                        $('#lblDestinationPinned').html(destinationLocation.description);
+                        location2History.push(destinationAddress);
+                    }
+
+                });
+            }
+
+
+            if (tHandle != null) {
+                clearInterval(tHandle)
+            }
+        }
+        else {
+            if (tHandle == null) {
+                tHandle = setInterval(function () { InitializePage(); }, 500);
+            }
+        }
+
+        var formobj = $("#frmMap");
+        formobj.find('#txtMapTabMemberEmail').change(function () {
+            formobj.find('#txtMapTabMemberEmail').val($.trim(formobj.find('#txtMapTabMemberEmail').val()));
+
+        });
+
+        if ('@ShowSurveyEmail' == 'True') {
+            memberEmail = formobj.find("#hdnMemberEmail").val();               //Added by Lakshmi
+            declinedReason = formobj.find("#hdnDeclinedReason").val();         //Added by Lakshmi
+
+            formobj.find('#txtMapTabMemberEmail').val(memberEmail);
+            //$('#ComboBox_DeclinedReason').data('kendoComboBox').value(declinedReason);  //Added by Lakshmi
+
+            //BindAutocompleteField("txtMapTabMemberEmail", memberEmail);                 //Added by Lakshmi
+            //BindAutocompleteField("ComboBox_DeclinedReason", declinedReason);
+
+        }
+    }
+
+    $(function () {
+        if (typeof (Microsoft) != "undefined") {
+            //KS: Load the new BING Theme
+            //Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', { callback: themesModuleLoaded });
+        }
+        else {
+            LogBingMapServiceDown();
+            openAlertMessage("We are experiencing issues while loading BING API, therefore the Map functions might not work as expected.");
+        }
+
+        WatchMyContainer('frmMap', null, null);
+
+        $('#frmMap').validationEngine();
+        $("#VehicleTab").html("");
+        // Cache tab.
+        var currentTabIndex = $("#RequestTabs").tabs('option', 'selected');
+        var currentTabAnchor = $("#RequestTabs").data('tabs').anchors[currentTabIndex];
+        $(currentTabAnchor).data('cache.tabs', true)
+
+        // Intilize Bing Map
+        var mapDiv = document.getElementById("divMap");
+        var directionDiv = document.getElementById("directionDiv");
+        genericMapping.init(BingMaps, mapDiv, '#directionDiv');
+        // Provide a Default location to Just Plot the MAP
+        genericMapping.searchLocation('US', function (locations) {            
+            genericMapping.provider.map.setView({ zoom: 4, center: new Microsoft.Maps.Location(locations[0].latitude, locations[0].longitude) });
+        });
+
+
+        hasLatLongInfo = false;
+        hasDestLatLongInfo = false;
+
+        // KB : Get the values from hidden fields
+        serviceLocationAddress = $("#hdnServiceLocationAddress").val();
+        serviceLocationDescription = $("#hdnServiceLocationDescription").val();
+
+        destinationAddress = $("#hdnDestinationAddress").val();
+        destinationDescription = $("#hdnDestinationDescription").val();
+
+
+        if (serviceLocationLatitude != '' && serviceLocationLongitude != '' & serviceLocationLatitude != '0' && serviceLocationLongitude != '0') {
+            hasLatLongInfo = true;
+        }
+
+        if (destinationLatitude != '' && destinationLongitude != '' & destinationLatitude != '0' && destinationLongitude != '0') {
+            hasDestLatLongInfo = true;
+        }
+
+        InitializePage();
+
+        $("#optionsAreabusiness").hide();
+        $("#optionsAreadealers").hide();
+        $("#optionsAreaservices").hide();
+
+        $("#btnALocate").click(function () {
+
+            ALocationClick();
+
+        });
+
+        $("#btnBLocate").click(function () {
+
+            BLocationClick();
+        });
+
+        $("#btnSwapAddresses").toggle(
+            function () {
+                // Swap the values in location boxes + history
+                var aLocationValue = $("#ALocation").data("kendoAutoComplete").value();
+                var bDestinationValue = $("#BDestination").data("kendoAutoComplete").value();
+
+                BindAutocompleteField("ALocation", location2History);
+                BindAutocompleteField("BDestination", location1History);
+
+                SetAutoCompleteValue("ALocation", bDestinationValue);
+                SetAutoCompleteValue("BDestination", aLocationValue);
+                BLocationClick();
+            },
+           function () {
+               var aLocationValue = $("#ALocation").data("kendoAutoComplete").value();
+               var bDestinationValue = $("#BDestination").data("kendoAutoComplete").value();
+
+               BindAutocompleteField("ALocation", location1History);
+               BindAutocompleteField("BDestination", location2History);
+
+               SetAutoCompleteValue("ALocation", bDestinationValue);
+               SetAutoCompleteValue("BDestination", aLocationValue);
+               BLocationClick();
+
+           });
+        $("#btnReset").click(function () {
+
+            genericMapping.clearMap();
+            sourceLocation = null;
+            destinationLocation = null;
+            $("#directionDiv").html("");
+            $('#spanTotalMiles').html("");
+
+        });
+        $("#directionDiv").hide();
+        $("#callHistoryDiv").hide();
+        $("#btnDirections").toggle(
+                function () {
+                    $("#directionDiv").show();
+                },
+                function () { $("#directionDiv").hide(); }
+               );
+        $("#btnCallHistory").toggle(
+                function () {
+                    GetCallHistory();
+                    $("#callHistoryDiv").show();
+                },
+                function () { $("#callHistoryDiv").hide(); }
+               );
+        $("#btnRoute").click(function () {
+            DrawRoute();
+
+        });
+
+        function GetCallHistory() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetCallHistory", "Map", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#callHistoryDiv").html(msg);
+                }
+            });
+        }
+
+        $(".searchFor").click(function () {
+            return false;
+        });
+
+        $(".optionsFor").toggle(function () {
+            // Find out what link is clicked and load options.
+            var $element = $(this);
+            var elementData = $element.attr("data");
+            var $options = $("#" + elementData + "Options");
+            optionsLoadedFor != $element.attr("data")
+            if (optionsLoadedFor != $element.attr("data")) {
+                optionsLoadedFor = elementData;
+
+                // Check if the options were already loaded.
+                if ($options.length > 0) {
+                    $(".options").hide();
+                    $options.show("highlight", null, 0, null);
+                }
+                else {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("_GetOptionsView", "Map", new { area = "Application" })',
+                        traditional: true,
+                        cache: false,
+                        async: false,
+                        data: { optionsFor: elementData },
+                        success: function (msg) {
+                            $(".options").hide();
+                            $("#optionsArea" + elementData).append(msg); // Don't overwrite what's already there !
+                            $("#optionsArea" + elementData).show("highlight", null, 0, null);
+                        }
+                    });
+                }
+            }
+            else {
+                $("#optionsArea" + elementData).show("highlight", null, 0, null);
+
+            }
+
+            $element.text("Hide Options");
+
+        },
+        function () {
+            // Find out what link is clicked and hide options.
+            var $element = $(this);
+            var elementData = $element.attr("data");
+            $("#optionsArea" + elementData).hide("highlight", null, 0, null);
+            $element.text("Show Options");
+        });
+
+    });
+
+    function ProcessDealersApply(searchText) {
+
+        genericMapping.clearMap();
+        
+        var ALoc = $("#ALocation").data("kendoAutoComplete");
+
+        if ($.trim(ALoc.value()) == '') {
+            ShowValidationMessage($("#ALocation"), "This field is required to perform the search");
+            return false;
+        }
+        else {
+            HideValidationMessage($("#ALocation"));
+            genericMapping.searchLocation($("#ALocation").data("kendoAutoComplete").value(), function (location) {
+                if (location.length > 0) {
+                    console.log("Searched for [ " + $("#ALocation").data("kendoAutoComplete").value() + " ] and found { " + JSON.stringify(location) + " }");
+                    SetCustomIconAndText(location, "start");
+                    genericMapping.addPins([location[0]], true, false, GetInfoBoxOptions([location[0]][0]));
+                    genericMapping.searchBusiness(location[0], searchText + " dealers", ProcessBusinessResults);
+                    var eventData = "<VehicleMake>" + searchText.toString() + "</VehicleMake>";
+                    LogEvent("SearchMap", eventData);
+
+                    $("#optionsAreadealers").hide("highlight", null, 0, null);
+                    $('#btnDealershipOptions').text("Show Options");
+                }
+            });
+        }
+
+        return false;
+    }
+    function ProcessBusinessApply(searchText) {
+        genericMapping.clearMap();
+
+        var ALoc = $("#ALocation").data("kendoAutoComplete");
+
+        if ($.trim(ALoc.value()) == '') {
+            ShowValidationMessage($("#ALocation"), "This field is required to perform the search");
+            return false;
+        }
+        else {
+            HideValidationMessage($("#ALocation"));
+
+            genericMapping.searchLocation($("#ALocation").data("kendoAutoComplete").value(), function (location) {
+                if (location.length > 0) {
+                    console.log("Searched for [ " + $("#ALocation").data("kendoAutoComplete").value() + " ] and found { " + JSON.stringify(location) + " }");
+                    SetCustomIconAndText(location, "start");
+                    genericMapping.addPins([location[0]], true, false, GetInfoBoxOptions([location[0]][0]),'green');
+
+                    genericMapping.searchBusiness(location[0], searchText, ProcessBusinessResults);
+                    var eventData = "<Options>" + searchText.toString() + "</Options>";
+                    LogEvent("SearchMap", eventData);
+
+                    $("#optionsAreabusiness").hide("highlight", null, 0, null);
+                    $('#btnShowBusinessOptions').text("Show Options");
+                }
+            });
+        }
+        return false;
+    }
+
+    function ProcessServiceApply(_selectedServiceOptions) {
+
+        if (typeof _selectedServiceOptions != "undefined") {
+            genericMapping.clearMap();
+            var ALoc = $("#ALocation").data("kendoAutoComplete");
+
+            if ($.trim(ALoc.value()) == '') {
+                ShowValidationMessage($("#ALocation"), "This field is required to perform the search");
+                return false;
+            }
+            else {
+                HideValidationMessage($("#ALocation"));
+                genericMapping.searchLocation($("#ALocation").data("kendoAutoComplete").value(), function (location) {
+                    if (location.length > 0) {
+                        console.log("Searched for [ " + $("#ALocation").data("kendoAutoComplete").value() + " ] and found { " + JSON.stringify(location) + " }");
+                        SetCustomIconAndText(location, "start");
+                        genericMapping.addPins([location[0]], true, false, GetInfoBoxOptions([location[0]][0]),'green');
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("_ServiceFacilitySelection", "Map", new { area = "Application" })',
+                            traditional: true,
+                            cache: false,
+                            async: true,
+                            data: { serviceLocationLatitude: location[0].latitude, serviceLocationLongitude: location[0].longitude, productList: _selectedServiceOptions.toString(), radiusMiles: 50 },
+                            success: function (msg) {
+
+                                var lstServiceLocation = msg.Data;
+                                var $addressInfo = $("#addressesInfo");
+                                $addressInfo.html(""); // clear the existing content
+                                businessAddresses.splice(0, businessAddresses.length);
+                                var idx = 0;
+                                for (i = 0; i < lstServiceLocation.length; i++) {
+
+                                    var result = lstServiceLocation[i];
+                                    var locText = '';
+                                    if (result.Address1 != null) {
+                                        locText += result.Address1 + ' ';
+                                    }
+                                    if (result.Address2 != null) {
+                                        locText += result.Address2 + ' ';
+                                    }
+                                    if (result.City != null) {
+                                        locText += ', ' + result.City + ' ';
+                                    }
+                                    if (result.StateProvince != null) {
+                                        locText += ', ' + result.StateProvince + ' ';
+                                    }
+                                    if (result.Country != null) {
+                                        locText += ', ' + result.Country + ' ';
+                                    }
+                                    if (result.PostalCode != null) {
+                                        locText += result.PostalCode + ' ';
+                                    }
+
+                                    if (locText != null && locText.substr(locText.length - 2, 1) == ',') {
+                                        locText = locText.slice(0, -2)
+                                    }
+
+                                    ProcessServiceResults(result, locText, idx, $addressInfo, lstServiceLocation.length);
+                                    idx++;
+                                }
+                            }
+                        });  // end of ajax request
+                    } // End if
+
+                });
+                var eventData = "<Options>" + _selectedServiceOptions.toString() + "</Options>";
+                LogEvent("SearchMap", eventData);
+
+                $("#optionsAreaservices").hide("highlight", null, 0, null);
+                $('#btnServiceLocationOptions').text("Show Options");
+            }
+        }
+        return false;
+    }
+    $('#btnUseHomeAddress').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetHomeAddress", "Member", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Data == null) {
+                    ShowValidationMessage($("#ALocation"), "No member address available");
+                    return false;
+                }
+                HideValidationMessage($("#ALocation"));
+                $("#ALocation").data("kendoAutoComplete").value(msg.Data);
+                $('#txtLocationDescription').val("Residence");
+                ALocationClick();
+            }
+        });
+        return false;
+    });
+    $('#btnUseHomeAddress2').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetHomeAddress", "Member", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Data == null) {
+                    ShowValidationMessage($("#BDestination"), "No member address available");
+                    return false;
+                }
+                HideValidationMessage($("#BDestination"));
+                $("#BDestination").data("kendoAutoComplete").value(msg.Data);
+                $('#txtDestinationDescription').val("Residence");
+                BLocationClick();
+            }
+        });
+
+        return false;
+
+    });
+
+    //
+
+    $('#btnUseSellerDealerLocation').click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetSellerDelaerLocation", "Member", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (!msg.Data || !msg.Data.VendorID) {
+                    $("#BDestination").data("kendoAutoComplete").value('');
+                    $('#txtDestinationDescription').val("");
+                    ShowValidationMessage($("#BDestination"), "No seller/dealer address available");
+                    return false;
+                }
+
+                var vendorDetails = msg.Data;
+                HideValidationMessage($("#BDestination"));
+                $("#BDestination").data("kendoAutoComplete").value(vendorDetails.VendorAddress);
+                $('#txtDestinationDescription').val(vendorDetails.VendorName);                
+                BLocationClick();
+                
+                destinationServiceLocationID = vendorDetails.VendorLocationID;
+                $("#hdnDestinationAddress").val(vendorDetails.VendorAddress);
+            }
+        });
+
+        return false;
+
+    });
+
+    $('#lnkSelectLocationasLocation').live('click', function () {
+        var index = $(this).attr('data');
+        sourceLocation = searchResultLocations[index];
+        var fullAddress = sourceLocation.description;
+
+        $("#ALocation").data("kendoAutoComplete").value(fullAddress);
+        ALocationClick();
+        return false;
+    });
+
+    $('#lnkSelectasLocation').live('click', function () {
+        var index = parseInt($(this).attr('data'), 10);
+        var baddress = businessAddresses[0];
+        if (baddress.sequence) {
+            for (var i = 0, l = businessAddresses.length; i < l; i++) {
+                if (businessAddresses[i].sequence === (index + 1)) {
+                    baddress = businessAddresses[i];
+                    break;
+                }
+            }
+        }
+        else
+        {
+            baddress = businessAddresses[index];
+        }
+
+        var fullAddress = baddress.address + " " + baddress.city + " " + baddress.state + "  " + baddress.country + " " + baddress.postalCode;
+        sourceLocation = {
+            description: fullAddress,
+            City: baddress.city,
+            StateProvince: baddress.state,
+            Country: baddress.country,
+            PostalCode: baddress.postalCode,
+            latitude: baddress.location.latitude,
+            longitude: baddress.location.longitude
+        };
+        genericMapping.clearMap();
+        $("#ALocation").data("kendoAutoComplete").value(fullAddress);
+        $('#txtLocationDescription').val(baddress.name);
+        ALocationClick();
+        return false;
+    });
+
+    $('#lnkSelectasDestination').live('click', function () {
+
+        var index = parseInt($(this).attr('data'),10);
+        var baddress = businessAddresses[0];
+        if (baddress.sequence) {
+            for (var i = 0, l = businessAddresses.length; i < l; i++) {
+                if (businessAddresses[i].sequence === (index + 1)) {
+                    baddress = businessAddresses[i];
+                    break;
+                }
+            }
+        }
+        else {
+            baddress = businessAddresses[index];
+        }
+        
+        if (typeof baddress.vendorLocationID != "undefined") {
+            destinationServiceLocationID = baddress.vendorLocationID;
+        }
+        else {
+            destinationServiceLocationID = null;
+        }
+        var fullAddress = baddress.address + " " + baddress.city + " " + baddress.state + "  " + baddress.country + " " + baddress.postalCode;
+        destinationLocation = {
+            description: fullAddress,
+            City: baddress.city,
+            StateProvince: baddress.state,
+            Country: baddress.country,
+            PostalCode: baddress.postalCode,
+            latitude: baddress.location.latitude,
+            longitude: baddress.location.longitude
+        };
+        $("#BDestination").data("kendoAutoComplete").value(fullAddress);
+        $("#hdnDestinationAddress").val(fullAddress);
+        $('#txtDestinationDescription').val(baddress.name);
+        genericMapping.clearMap();
+        DrawRoute();
+
+        return false;
+    });
+    // Document ready
+
+    //-->
+
+    function onMapClick(location, sender) {
+
+        // Sanghi : Added code to display the telerik Window
+        var clientDetailWindow;
+        $.ajax('/Application/MAP/GetBusinessInformation', {
+            type: 'POST',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                clientDetailWindow = $("<div id='rvTypeMode' />").appendTo(document.body);
+                clientDetailWindow.kendoWindow({
+                    title: 'Business Information',
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    modal: true,
+                    deactivate: function () {
+                        document.dialogResult = null;
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+
+                        }
+                        return true;
+                    }
+                });
+                clientDetailWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    $(function () {
+        $('#btnClearAll').click(function () {
+            $.modal.confirm('All of the information on this page will be lost, do you want to continue ?', function () {
+
+                $('#ALocation').val('');
+                $('#lblSourcePinned').html('');
+                $('#txtLocationDescription').val('');
+
+
+                $('#BDestination').val('');
+                $('#txtDestinationDescription').val('');
+                $('#lblDestinationPinned').html('');
+
+                genericMapping.clearMap();
+                sourceLocation = null;
+                destinationLocation = null;
+                $("#directionDiv").html("");
+                $("#addressesInfo").html("");
+                $('#spanTotalMiles').html("");
+
+                $("#optionsAreaservices").html("");
+                $("#optionsAreabusiness").html("");
+                $("#optionsAreadealers").html("");
+
+                var isServiceOpen = $('#btnServiceLocationOptions').html() == "Hide Options" ? true : false;
+                var isDealerOpen = $('#btnDealershipOptions').html() == "Hide Options" ? true : false;
+                var isBusinessOpen = $('#btnShowBusinessOptions').html() == "Hide Options" ? true : false;
+
+                if (isServiceOpen) {
+                    $('#btnServiceLocationOptions').click();
+                }
+
+                if (isDealerOpen) {
+                    $('#btnDealershipOptions').click();
+                }
+
+                if (isBusinessOpen) {
+                    $('#btnShowBusinessOptions').click();
+                }
+
+            }, function () {
+
+            });
+
+        });
+    });
+</script>
+<script type="text/javascript">
+    function FindBusinessResult(element, businessName) {
+        //Sanghi make Call only when it's a new Request
+        // Sanghi 108 Length Check is Required Because of V Scroll Bar Mark - Up.
+        if ($("#optionsArea" + businessName).html().length <= 125) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetOptionsView", "Map", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                data: { optionsFor: businessName },
+                success: function (msg) {
+                    $("#optionsArea" + businessName).html(msg); // Don't overwrite what's already there !
+                    $("#optionsArea" + businessName).show();
+                    element.text("Hide Options");
+                }
+            });
+        }
+        else {
+            $("#optionsArea" + businessName).show();
+            element.text("Hide Options");
+        }
+    }
+    function HideBusinessResult(element, elementName) {
+        //$("#optionsArea" + elementName).html(''); // Sanghi Don't Clear the Previous Result.
+        $("#optionsArea" + elementName).hide();
+        element.text("Show Options");
+    }
+
+    $(function () {
+        $(".optionsForbusiness").toggle(function () {            
+            var $element = $(this);
+            FindBusinessResult($element, 'business');
+
+        },
+         function () {
+             var $element = $(this);
+             HideBusinessResult($element, 'business');
+         });
+        $(".optionsForservices").toggle(function () {
+            var $element = $(this);
+            FindBusinessResult($element, 'services');
+
+        },
+         function () {
+             var $element = $(this);
+             HideBusinessResult($element, 'services');
+         });
+        $(".optionsFordealers").toggle(function () {
+            var $element = $(this);
+            FindBusinessResult($element, 'dealers');
+
+        },
+         function () {
+             var $element = $(this);
+             HideBusinessResult($element, 'dealers');
+         });
+    });
+    var winCallLog = null;
+    var businessCalled = null;
+    var vendorIDCalled = null;
+    var enrouteMiles = null;
+    var vendorLocationID = null;
+    var isUserRVTech = '@User.IsInRole("RVTech").ToString().ToLower()';
+    var vendorPhoneType = null;
+    $(function () {
+        $('#ALocation').change(function () {
+            if ($('#ALocation').val() == '' && sourceLocation != 'undefined') {
+                var tempLocations = [];
+                tempLocations.push(sourceLocation);
+                genericMapping.removePins(tempLocations);
+            }
+        });
+
+        $('#BDestination').change(function () {
+            if ($('#BDestination').val() == '' && destinationLocation != 'undefined') {
+                var tempLocations = [];
+                tempLocations.push(destinationLocation);
+                genericMapping.removePins(tempLocations);
+            }
+        });
+
+        $('#txtMapTabMemberEmail').change(function () {
+            $('#txtMapTabMemberEmail').val($.trim($('#txtMapTabMemberEmail').val()));
+
+        });
+
+        // Call Log process
+        $(".business-phone").live("click", function () {
+            // Populate business called and vendorID called.
+            var businessItem = $(this).parents(".business-item");
+            businessCalled = businessItem.find(".businessName").text();
+            var vendorItem = businessItem.find(".vendor-id");
+            var vendorLocationItem = businessItem.find(".vendor-location-id");
+            var vendorEnrouteMiles = businessItem.find(".vendor-enroute-mile");
+            vendorPhoneType = $(this).attr("phoneType");
+            if (vendorItem.length > 0) {
+                vendorIDCalled = vendorItem.text();
+            }
+            else {
+                vendorIDCalled = null;
+            }
+
+            if (vendorLocationItem.length > 0) {
+                vendorLocationID = vendorLocationItem.text();
+            }
+            else {
+                vendorLocationID = null;
+            }
+            if (vendorEnrouteMiles.length > 0) {
+                enrouteMiles = vendorEnrouteMiles.text();
+            }
+            else {
+                enrouteMiles = null;
+            }
+            // Launch the calllog popup if the user is
+            // RV Tech (irrespective of business / dealer / service location)
+            // Not a Tech and if the business listing is for service location only.
+            if (isUserRVTech == "true" || vendorIDCalled != null) {
+                // Launch the call log window
+                winCallLog = $("<div id='winCallLog' />").appendTo(document.body);
+                winCallLog.kendoWindow({
+
+                    title: "Call Log",
+                    content: '@Url.Action("_CallLog", "Map", new { area = "Application" })',
+                    modal: true,
+                    width: 850, // CR: 1262
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+
+                    close: function (e) {
+                        //Clear messages
+                        $(".formError").each(function () {
+                            $(this).remove();
+                        });
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmCallLog')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmCallLog');
+                            }
+                        }
+                        isdirty = false;
+                        if (document.dialogResult == "OK") {
+                            CleanMyContainer('frmCallLog');
+                        }
+
+                        return true;
+                    }
+                });
+                winCallLog.data('kendoWindow').center().open();
+            }
+        });
+    });
+</script>

@@ -1,0 +1,217 @@
+﻿@model Martex.DMS.DAL.PhoneSystemConfiguration
+@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "Phone System Configuration";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    bool isView = false;
+
+    if (ViewData["mode"].ToString().Equals("edit"))
+    {
+        isEdit = true;
+    }
+    if (ViewData["mode"].ToString().Equals("view"))
+    {
+        isView = true;
+    }
+}
+<form method="post" action="" id="form-PhoneSystemConfiguration">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Phone System Configuration</legend>
+        <div>
+            <div>
+                <label for="ProgramID" class="label-no-inline">
+                    Program <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ProgramID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Programs.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ProgramID != null ? Model.ProgramID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ProgramID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Programs.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ProgramID != null ? Model.ProgramID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="InboundNumber" class="label">
+                    Inbound Number <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.InboundNumber, new { @class = "validate[required,maxSize[50]], input full-width2", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.InboundNumber, new { @class = "validate[required,maxSize[50]], input full-width2", @error_required = "Please type inbound number." })
+                }
+            </p>
+            <div>
+                <label for="IVRScriptID" class="label-no-inline">
+                    IVR Script <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("IVRScriptID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.IvrScript.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.IVRScriptID != null ? Model.IVRScriptID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("IVRScriptID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.IvrScript.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.IVRScriptID != null ? Model.IVRScriptID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <div>
+                <label for="InBoundPhonecompany" class="label-no-inline">
+                    Inbound Phone Company <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("InboundPhoneCompanyID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.InBoundPhoneCompany.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.InboundPhoneCompanyID != null ? Model.InboundPhoneCompanyID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("InboundPhoneCompanyID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.InBoundPhoneCompany.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.InboundPhoneCompanyID != null ? Model.InboundPhoneCompanyID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="PilotNumber" class="label">
+                    Pilot Number <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.PilotNumber, new { @class = "validate[required,maxSize[50]], input full-width2", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.PilotNumber, new { @class = "validate[required,maxSize[50]], input full-width2", @error_required = "Please type pilot number." })
+                }
+            </p>
+            <div>
+                <label for="Skillset" class="label-no-inline">
+                    Skillset <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("SkillsetID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.SkillSet.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.SkillsetID != null ? Model.SkillsetID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("SkillsetID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.SkillSet.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.SkillsetID != null ? Model.SkillsetID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="Active" class="label">
+                    Active</label>
+                @if (isEdit)
+                {
+                    if (isView)
+                    {
+                    @Html.CheckBox("IsActive", Model.IsActive == null ? false : Model.IsActive.Value, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                    }
+                    else
+                    {
+                    @Html.CheckBox("IsActive", Model.IsActive == null ? false : Model.IsActive.Value, new { @class = "checkbox" })
+                    }
+                }
+                else
+                {
+                    @Html.CheckBox("IsActive", Model.IsActive == null ? false : Model.IsActive.Value, new { @class = "checkbox", @checked = "checked" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="Active" class="label">
+                    Shown on Screen</label>
+                @if (isEdit)
+                {
+                    if (isView)
+                    {
+                    @Html.CheckBox("IsShownOnScreen", Model.IsShownOnScreen == null ? false : Model.IsShownOnScreen.Value, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                    }
+                    else
+                    {
+                    @Html.CheckBox("IsShownOnScreen", Model.IsShownOnScreen == null ? false : Model.IsShownOnScreen.Value, new { @class = "checkbox" })
+                    }
+                }
+                else
+                {
+                    @Html.CheckBox("IsShownOnScreen", Model.IsShownOnScreen == null ? false : Model.IsShownOnScreen.Value, new { @class = "checkbox", @checked = "checked" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="LastUpdated" class="label">
+                    Last update:</label>
+                @Html.DisplayFor(u => Model.ModifyBy) &nbsp;
+                @Html.DisplayFor(u => Model.ModifyDate)
+            </p>
+            <div class="field-block button-height">
+                @if (!@isView)
+                {
+                    <button id="btnAddPhoneConfiguration" class="button green-gradient glossy float-right mid-margin-left"
+                        type="submit">
+                        @if (isEdit)
+                        {
+                            @Html.Raw("Update")
+                        }
+                        else
+                        {
+                            @Html.Raw("Add")
+                        }
+                    </button>
+                }
+                <button id="btnCancelPhoneConfiguration" class="button gray-gradient glossy  float-right"
+                    type="button">
+                    Cancel
+                </button>
+            </div>
+            @Html.HiddenFor(u => Model.ID)
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("hdnfldMode", ViewData["mode"])
+</form>
+<script src="@Url.Content("~/Scripts/PhoneSystemConfiguration.js")" type="text/javascript"></script>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("#ProgramID").data("kendoComboBox").list.width(250);
+        CleanMyContainer('form-PhoneSystemConfiguration');
+        WatchMyContainer('form-PhoneSystemConfiguration');
+    });
+
+</script>

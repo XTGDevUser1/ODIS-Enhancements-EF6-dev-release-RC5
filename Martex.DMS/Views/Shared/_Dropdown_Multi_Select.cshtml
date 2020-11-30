@@ -1,0 +1,10 @@
+﻿@model List<SelectListItem>
+           
+@Html.ListBox((string)ViewData["controlFor"], Model, new { @class = "validate[required] uimultiselect nine-columns", multiple = true, style = "height:100px;" })
+
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $(".uimultiselect").multiselect();
+    });
+
+</script>

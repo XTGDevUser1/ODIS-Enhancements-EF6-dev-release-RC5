@@ -1,0 +1,73 @@
+﻿@model Martex.DMS.DAL.Entities.ExcludedVendorItem
+@{
+    string recordID = Model.MembershipID.ToString();
+
+}
+<style type="text/css">
+    
+    .ui-icon
+    {
+        background-image: url('/Content/img/magnifier.png');
+        background-repeat: no-repeat;
+        float: left;
+        width: 14px;
+        height: 14px;
+    }
+    .autofill
+    {
+        display: block;
+        width: 100%;
+    }
+    
+    .cg-searchButton
+    {
+        padding: 0 !important;
+        vertical-align: middle !important;
+    }
+</style>
+<div class="with-padding">
+    <form id="form_ExcludedVendors_@recordID" action="javascript:void(0);">
+    @Html.HiddenFor(u => u.MembershipID, new { id = "EV_MembershipID_" + recordID })
+    @Html.HiddenFor(u => u.VendorID, new { id = "EV_VendorID_" + recordID })
+    @Html.HiddenFor(u => u.VendorNumber, new { id = "EV_VendorNumber_" + recordID })
+    <div class="button-height large-margin-bottom">
+        <label for="VendorNumber" class="label">
+            Vendor Number <span style="padding-top: 5px">@Html.Partial("_Help", "Enter part of the vendor name to lookup the vendor number")</span>
+        </label>
+        <span class="autofill">
+            <input type="text" class="input validate[required,maxSize[50],minSize[1]]" id="ExcludedVendorLookUP_@recordID" style="width: 115px" name="VendorNumber" onchange="ClearExcludedVendorLookUP('@recordID');" />
+        </span>
+    </div>
+    <div class="button-height large-margin-bottom">
+        <span class="button-group"><a href="javascript:void(0);" class="button icon-cross with-tooltip compact"
+                                title="Cancel"  onclick="ExcludedVendorsSwitchViewToCancel('@recordID')">
+            Cancel </a><a href="javascript:void(0);" class="button compact icon-tick with-tooltip" title="Save" onclick="ExcludedVendorsSaveExcludedVendor('@recordID')">
+                Save </a></span>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#form_ExcludedVendors_@recordID').validationEngine();
+    });
+
+    var autoFill = $("#ExcludedVendorLookUP_@recordID").combogrid({
+        url: '@Url.Action("Search", "Vendor", new { area = "Application" })',
+        searchButton: true,
+        width: '630px',
+        replaceNull: true,
+        colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                        { 'columnName': 'VendorName', 'width': '65', 'label': 'Vendor Name', 'align': 'left' },
+                        { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                        { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' }
+                        ],
+        select: function (event, ui) {
+            if (ui.item != null && ui.item.VendorID != null && ui.item.VendorID != undefined && ui.item.VendorID != '') {
+                $("#ExcludedVendorLookUP_@recordID").val(ui.item.VendorNumber);
+                $("#EV_VendorID_@recordID").val(ui.item.VendorID);
+                $("#EV_VendorNumber_@recordID").val(ui.item.VendorNumber);
+            }
+            return false;
+        }
+    });
+</script>

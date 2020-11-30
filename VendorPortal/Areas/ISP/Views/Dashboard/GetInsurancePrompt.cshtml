@@ -1,0 +1,43 @@
+﻿@using System.Diagnostics
+@using VendorPortal.Models
+@model VendorPortal.Models.RegisterUserModel
+@{
+    ViewBag.Title = "GetInsurancePrompt";
+}
+<div class="with-padding-with-panels">
+    <div class="row">
+        <div class="twelve-columns">
+            @if (Model != null && Model.InsuranceExpirationDate != null)
+            { <h4 class="thin">
+                @if(Model.InsuranceExpirationDate.Value >= DateTime.Now)
+                { 
+                    @Html.Raw("Insurance certificate is expiring on ")
+                }
+                else
+                {
+                    @Html.Raw("Insurance certificate expired on ")
+                }
+                <b>@Model.InsuranceExpirationDate.Value.ToShortDateString()</b>@Html.Raw(".  Please go to the Documents tab and upload an updated insurance certificate.")</h4>
+            }
+        </div>
+        <div class="clear">
+        </div>
+        <div class="button-height pull-right">
+            <button id="btnCloseInsurancePrompt" class="button green-gradient big margin-bottom margin-top"
+                type="submit">
+                Ok</button>
+            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_MYPROFILE) == AccessType.ReadWrite)
+            {
+                         
+                <a href="@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorDetailsDocumentsTab" })" class="button blue-gradient big margin-bottom margin-top">
+                    Go to Documents</a> 
+            }
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btnCloseInsurancePrompt").click(function (e) {
+        var kendoWindowId = $(".k-window-content").attr("id");
+        $("#" + kendoWindowId).data('kendoWindow').close();
+    });
+</script>

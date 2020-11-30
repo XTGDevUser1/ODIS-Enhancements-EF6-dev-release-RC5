@@ -1,0 +1,32 @@
+﻿/* TABLE
+----------------------------------------------------------*/
+
+table
+{
+    border-collapse: collapse;
+}
+
+table td
+{
+    padding: 5px;
+}
+
+table th
+{
+    padding: 6px 5px;
+    text-align: left;
+}
+.hidden {
+	visibility: hidden;
+}
+
+.visible {
+	visibility: visible;
+	
+}
+
+.rightAlign {
+ text-align:right;
+}
+
+

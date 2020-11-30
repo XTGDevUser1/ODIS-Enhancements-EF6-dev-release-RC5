@@ -1,0 +1,260 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimInformationModel
+@using Kendo.Mvc.UI;
+@{
+    string claimID = Model.Claim.ID.ToString();
+    bool isPaid = false;
+
+
+    if (!string.IsNullOrEmpty(Model.ClaimStatusName))
+    {
+        if (Model.ClaimStatusName.Equals("Paid"))
+        {
+            isPaid = true;
+        }
+    }
+
+
+    string vendorSection = "hide";
+    string memberSection = "hide";
+
+    if (!string.IsNullOrEmpty(Model.Claim.PayeeType))
+    {
+        if (Model.Claim.PayeeType.Equals("Member"))
+        {
+            memberSection = string.Empty;
+        }
+        else if (Model.Claim.PayeeType.Equals("Vendor"))
+        {
+            vendorSection = string.Empty;
+        }
+    }
+}
+<form id="frmPayeeInformation_@claimID" action="javascript:void(0);" method="post" relatedButtons = "btnSaveClaimSection_@claimID">
+@Html.HiddenFor(u => u.Claim.VendorID, new { id = "VendorID_" + claimID })
+@Html.HiddenFor(u => u.Claim.ProgramID, new { id = "ProgramID_" + claimID })
+@Html.HiddenFor(u => u.Claim.PurchaseOrderID, new { id = "PurchaseOrderID_" + claimID })
+@Html.HiddenFor(u => u.PurchaseOrderNumber, new { id = "PurchaseOrderNumber_" + claimID })
+@Html.HiddenFor(u => u.Claim.ClaimTypeID, new { id = "Claim_ClaimTypeID_" + claimID })
+@Html.HiddenFor(u => u.ClaimTypeName, new { id = "ClaimTypeName_" + claimID })
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Payee Information</legend>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Payee Type</label>
+                    @(Html.Kendo().ComboBoxFor(u => u.Claim.PayeeType)
+                                 .Suggest(true)
+                                 .Filter(FilterType.StartsWith).MinLength(0)
+                                 .SelectedIndex(0)
+                                 .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PayeeType.ToString()] as IEnumerable<SelectListItem>)
+                                 .Events(events =>
+                                 {
+                                     events.Change("ValidateInputForKendoCombo");
+                                 })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:90%", id = "ClaimPayeeType_" + claimID, @readonly = true })
+                              .Value(Model.Claim.PayeeType)
+                   )
+                </div>
+                <div id="PlaceHolder_Payee_Type_Member_@claimID" class="@memberSection">
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            Membership #</label>
+                        @Html.TextBoxFor(u => u.MembershipNumber, new { @class = "input full-width", id = "MembershipNumber_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            Member</label>
+                        @(Html.Kendo().ComboBoxFor(u => u.Claim.MemberID)
+                                 .Suggest(true)
+                                 .Filter(FilterType.StartsWith).MinLength(0)
+                                 .SelectedIndex(0)
+                                 .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MemberShipMembers.ToString()] as IEnumerable<SelectListItem>)
+                                 .Events(events =>
+                                 {
+                                     events.Change(@<text>function(e){ LookUpForMemberAddressAndPhoneNumber(e,'@claimID')}</text>);
+                                 })
+                                .HighlightFirst(true)
+                                .HtmlAttributes(new { style = "width:90%", id = "MemberID_" + claimID, @readonly = true })
+                                .Value(Model.Claim.MemberID.HasValue ? Model.Claim.MemberID.Value.ToString() : string.Empty)
+                   )
+                    </div>
+                </div>
+                <div id="PlaceHolder_Payee_Type_Vendor_@claimID" class="@vendorSection">
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            Vendor#</label>
+                        @Html.TextBoxFor(u => u.VendorNumber, new { @class = "input full-width", id = "VendorNumber_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            Vendor Name</label>
+                        @Html.TextBoxFor(u => u.VendorName, new { @class = "input full-width", id = "VendorName_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            P&A Code</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(u => u.Claim.ServiceFacilityPACode, new { @class = "input full-width", id = "ServiceFacilityPACode_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Claim.ServiceFacilityPACode, new { @class = "input full-width", id = "ServiceFacilityPACode_" + @claimID, maxLength = "50", dmsrole = "text" })
+                        }
+                    </div>
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Payee Name</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.ContactName, new { @class = "input full-width", id = "PayeeContactName_" + @claimID, maxLength = "255", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.ContactName, new { @class = "input full-width", id = "PayeeContactName_" + @claimID, maxLength = "255", dmsrole = "text" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Phone" class="label">
+                        Phone
+                    </label>
+                    @if (isPaid)
+                    {
+                        @Html.Editor("PayeePhoneNumber_" + claimID, "Phone", new { ShowCallIcon = false, Value = Model.Claim.ContactPhoneNumber, ShowPhoneType = false, ReadOnly = true })
+                    }
+                    else
+                    {
+                        @Html.Editor("PayeePhoneNumber_" + claimID, "Phone", new { ShowCallIcon = false, Value = Model.Claim.ContactPhoneNumber, ShowPhoneType = false })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Address Line 1</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine1, new { @class = "input full-width", id = "PayeePaymentAddressLine1_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine1, new { @class = "input full-width", id = "PayeePaymentAddressLine1_" + @claimID, maxLength = "50", dmsrole = "text" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Address Line 2</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine2, new { @class = "input full-width", id = "PayeePaymentAddressLine2_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine2, new { @class = "input full-width", id = "PayeePaymentAddressLine2_" + @claimID, maxLength = "50", dmsrole = "text" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Address Line 3</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine3, new { @class = "input full-width", id = "PayeePaymentAddressLine3_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressLine3, new { @class = "input full-width", id = "PayeePaymentAddressLine3_" + @claimID, maxLength = "50", dmsrole = "text" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        City</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressCity, new { @class = "input full-width", id = "PayeePaymentAddressCity_" + @claimID, maxLength = "50", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressCity, new { @class = "input full-width", id = "PayeePaymentAddressCity_" + @claimID, maxLength = "50", dmsrole = "text" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="StatePostal" class="label">
+                        State / Postal
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                                  .Name("PaymentAddressCountryID_" + claimID)
+                                  .Enable(!isPaid)
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                      })
+                                      .ServerFiltering(false);
+                                  })
+                                 .Events(events =>
+                                 {
+                                     events.Change(@<text> function(e){ LicenseStateCountryChangeClaimPayee(e,'@claimID');}</text>);
+                                 })
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .Suggest(true)
+                                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                                            .HighlightFirst(true)
+                                                            .HtmlAttributes(new { style = "width:20%", id = "PaymentAddressCountryID_" + claimID })
+                                                            .SelectedIndex(0)
+                                                            .Value(Model.Claim.PaymentAddressCountryID.HasValue ? Model.Claim.PaymentAddressCountryID.Value.ToString() : "")
+                                            )
+                    @(Html.Kendo().ComboBox()
+                                  .Name("PaymentAddressStateProvinceID_" + claimID)
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .SelectedIndex(0)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                                  .Enable(!isPaid)
+                                  .Events(events =>
+                                  {
+                                      events.Change("ValidateInputForKendoCombo");
+                                      events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                  })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:30%", id = "PaymentAddressStateProvinceID_" + claimID })
+                              .Value(Model.Claim.PaymentAddressStateProvinceID.HasValue ? Model.Claim.PaymentAddressStateProvinceID.Value.ToString() : string.Empty)
+                   )
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressPostalCode, new { @class = "input", id = "PaymentAddressPostalCode_" + @claimID, maxLength = "20", style = "width:36%", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.PaymentAddressPostalCode, new { @class = "input", id = "PaymentAddressPostalCode_" + @claimID, maxLength = "10", style = "width:36%" })
+                    }
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Email</label>
+                    @if (isPaid)
+                    {
+                        @Html.TextBoxFor(u => u.Claim.ContactEmailAddress, new { @class = "input full-width validate[custom[email]]", id = "ContactEmailAddress_" + @claimID, maxLength = "100", dmsrole = "text", @disabled = "disabled" })
+                    }
+                    else
+                    {
+                        @Html.TextBoxFor(u => u.Claim.ContactEmailAddress, new { @class = "input full-width validate[custom[email]]", id = "ContactEmailAddress_" + @claimID, maxLength = "100", dmsrole = "text" })
+                    }
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmPayeeInformation_' + '@claimID').validationEngine();
+
+        $('#MembershipNumber_' + '@claimID').change(function () {
+            CascadingMemberForMembershipNumber('@claimID');
+        });
+    });
+</script>

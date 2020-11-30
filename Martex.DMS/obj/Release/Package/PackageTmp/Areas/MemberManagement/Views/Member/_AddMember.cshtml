@@ -1,0 +1,294 @@
+﻿@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@model MembershipAddModel
+<script type="text/javascript">
+    function ClientID_On_Change_MemberAdd(e) {
+        var combo = $("#Member_Add_ClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboProgram = $("#Member_Add_ProgramID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("GetPrograms", "Member", new { area = "MemberManagement" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboProgram.setDataSource(msg);
+                comboProgram.select(0);
+                $("input[name='MemberInformation.ProgramID_input']").select();
+            }
+
+        })
+    }
+
+    function EffectiveDateChange() {
+
+    }
+
+    function ExpirationDateChange() {
+
+    }
+</script>
+<form id="frmMembershipAdd" method="post" action="javascript:void(0)" data="false">
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Add Membership</legend>
+                <div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Client" class="label">
+                            Client<span class="spanstar">*</span></label>
+                        @(Html.Kendo().ComboBoxFor(u => u.ClientID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ClientID_On_Change_MemberAdd"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "Member_Add_ClientID", comboName = "ClientID", comboid = "Member_Add_ClientID", ComboRequired = "true" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.AllActiveClients.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ClientID.HasValue ? Model.ClientID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Program" class="label">
+                            Program<span class="spanstar">*</span></label>
+                        @(Html.Kendo().ComboBoxFor(u => u.MemberInformation.ProgramID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                            .HtmlAttributes(new { style = "width:90%;", id = "Member_Add_ProgramID", comboName = "MemberInformation.ProgramID", comboid = "Member_Add_ProgramID", ComboRequired = "true" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.MemberInformation.ProgramID.HasValue ? Model.MemberInformation.ProgramID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="MembershipNumber" class="label">
+                            Membership Number</label>
+                        @Html.TextBoxFor(u => u.MembershipInformation.MembershipNumber, new { @class = "input full-width", maxLength = "25" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="ClientReference" class="label">
+                            Client Reference #</label>
+                        @Html.TextBoxFor(u => u.MembershipInformation.ClientReferenceNumber, new { @class = "input full-width", maxLength = "50" })
+                    </p>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Prefix" class="label">
+                            Prefix
+                        </label>
+                        @(Html.Kendo().ComboBoxFor(u => u.PrefixID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:45%;", id = "Member_Add_Prefix_ID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Prefix.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.PrefixID.HasValue ? Model.PrefixID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="FirstName" class="label">
+                            First Name<span class="spanstar">*</span></label>
+                        @Html.TextBoxFor(u => u.MemberInformation.FirstName, new { @class = "input full-width validate[required]", maxLength = "50" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="MiddleName" class="label">
+                            Middle Name</label>
+                        @Html.TextBoxFor(u => u.MemberInformation.MiddleName, new { @class = "input full-width", maxLength = "50" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="LastName" class="label">
+                            Last Name<span class="spanstar">*</span></label>
+                        @Html.TextBoxFor(u => u.MemberInformation.LastName, new { @class = "input full-width validate[required]", maxLength = "50" })
+                    </p>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Suffix" class="label">
+                            Suffix
+                        </label>
+                        @(Html.Kendo().ComboBoxFor(u => u.SuffixID)
+                            .Filter(FilterType.Contains).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:45%;", id = "Member_Add_Suffix_ID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Suffix.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.SuffixID.HasValue ? Model.SuffixID.Value.ToString() : string.Empty)
+                          )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Phone" class="label">
+                            Phone<span class="spanstar">*</span>
+                        </label>
+                        @Html.Editor("MembershipPhoneInfomation", "Phone", new { ShowCallIcon = false, Value = Model.PhoneInfomation.PhoneNumber, PhoneTypeValue = Model.PhoneInfomation.PhoneTypeID, IsRequired = true })
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="AddressType" class="label">
+                            Address Type<span class="star">*</span></label>
+                        @(Html.Kendo().ComboBoxFor(u => u.AddressInformation.AddressTypeID)
+                              .Suggest(true)
+                              .Filter(FilterType.Contains).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.AddressTypes.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                               {
+                                   events.Change("ValidateInputForKendoComboWithHide");
+                                   events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                               })
+                              .HighlightFirst(true)
+                                                              .HtmlAttributes(new { style = "width:45%", id = "Member_Address_TypeID", comboName = "AddressInformation.AddressTypeID", comboid = "Member_Address_TypeID", ComboRequired = "true" })
+                              .Value(Model.AddressInformation.AddressTypeID.HasValue ? Model.AddressInformation.AddressTypeID.Value.ToString() : string.Empty)
+                   )
+                    </div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="AddressLine1" class="label">
+                            Address 1<span class="star">*</span>
+                        </label>
+                        @Html.TextBoxFor(u => u.AddressInformation.Line1, new { @class = "input full-width validate[required]", maxLength = "100" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="AddressLine2" class="label">
+                            Address 2
+                        </label>
+                        @Html.TextBoxFor(u => u.AddressInformation.Line2, new { @class = "input full-width", maxLength = "100" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="AddressLine3" class="label">
+                            Address 3
+                        </label>
+                        @Html.TextBoxFor(u => u.AddressInformation.Line3, new { @class = "input full-width", maxLength = "100" })
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="City" class="label">
+                            City<span class="star">*</span>
+                        </label>
+                        @Html.TextBoxFor(u => u.AddressInformation.City, new { @class = "input full-width validate[required]", maxLength = "100" })
+                    </p>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="StatePostal" class="label">
+                            State / Postal
+                        </label>
+                        @(Html.Kendo().ComboBoxFor(u => u.AddressInformation.CountryID)
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                      })
+                                      .ServerFiltering(false);
+                                  })
+                                 .Events(events =>
+                                 {
+                                     events.Change(@<text> function(e){ GenericLicenseStateCountryChangeHandler(e,'CreateMember_Address_StateID');}</text>);
+                                 })
+                                           .DataTextField("Text")
+                                           .DataValueField("Value")
+                                           .Suggest(true)
+                                           .Filter(FilterType.Contains).MinLength(0)
+                                           .HighlightFirst(true)
+                                           .HtmlAttributes(new { style = "width:20%" })
+                                           .SelectedIndex(0)
+                                           .Value(Model.AddressInformation.CountryID.HasValue ? Model.AddressInformation.CountryID.Value.ToString() : "")
+                            )
+                        @(Html.Kendo().ComboBoxFor(u => u.AddressInformation.StateProvinceID)
+                              .Suggest(true)
+                              .Filter(FilterType.Contains).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                              {
+                                  events.Change("ValidateInputForKendoCombo");
+                                  events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                              })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:30%", id = "CreateMember_Address_StateID" })
+                              .Value(Model.AddressInformation.StateProvinceID.HasValue ? Model.AddressInformation.StateProvinceID.Value.ToString() : string.Empty)
+                   )
+                        @Html.TextBoxFor(u => u.AddressInformation.PostalCode, new { @class = "input", maxLength = "20", style = "width:31%" })
+                    </div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Email" class="label">
+                            Email</label>
+                        @Html.TextBoxFor(u => u.MembershipInformation.Email, new { @class = "input full-width validate[custom[email]]", maxLength = "255" })
+                    </p>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="EffectiveDate" class="label">
+                            Effective Date<span class="star">*</span>
+                        </label>
+                        @(Html.Kendo().DatePickerFor(u => u.MemberInformation.EffectiveDate).Format("MM/dd/yyyy")
+                                                         .HtmlAttributes(new { style = "width:45%;", type="text" })
+                                                          .Events(e => e.Change("EffectiveDateChange"))
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="ExpirationDate" class="label">
+                            Expiration Date<span class="star">*</span>
+                        </label>
+                        @(Html.Kendo().DatePickerFor(u => u.MemberInformation.ExpirationDate).Format("MM/dd/yyyy")
+                                                                  .HtmlAttributes(new { style = "width:45%;", type = "text" })
+                                                          .Events(e => e.Change("ExpirationDateChange"))
+                            )
+                    </div>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <button id="btnMembershipAdd" class="button green-gradient float-right mid-margin-left margin-bottom"
+                            type="button" onclick="CreateMembership();">
+                            Save</button>
+                        <button id="btnMembershipCancel" class="button gray-gradient float-right margin-bottom"
+                            type="button" onclick="CancelMembershipCreation();">
+                            Cancel</button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    var duplicateRecordsWindow = null;
+    $(function () {
+        $('#frmMembershipAdd').validationEngine();
+        $('#frmMembershipAdd :input').change(function () {
+            $('#frmMembershipAdd').attr('data', 'true');
+        });
+
+        $("#MembershipPhoneInfomation_txtExtension,#MembershipPhoneInfomation_txtPhoneNumber").change(function (e) {
+            // This function returns true when there is an error.
+            if (!$('#frmMembershipAdd').validationEngine('validateField', '#MembershipPhoneInfomation_txtPhoneNumber')) {
+                LoadDuplicateMembershipDetailsIfFound();
+            }
+        });
+    });
+
+    function DisplayDuplicateRecordsPopUp() {
+        var phoneNumber = GetPhoneNumberForDB('MembershipPhoneInfomation');
+        $.ajax({
+            url: '/MemberManagement/Member/_MembershipDuplicateRecords',
+            data: { phoneNumber: phoneNumber },
+            success: function (msg) {
+                duplicateRecordsWindow = $("<div id='POPUP_Membership_Duplicates' />").appendTo(document.body);
+                duplicateRecordsWindow.kendoWindow({
+                    title: 'Possible Duplicate:  existing memberships with the phone number : ' + phoneNumber,
+                    modal: true,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                duplicateRecordsWindow.data('kendoWindow').content(msg).center().open();
+            }
+        })
+    }
+
+    function LoadDuplicateMembershipDetailsIfFound() {
+        $.ajax({
+            url: '/MemberManagement/Member/IsMembershipPhoneNumberFound',
+            data: { phoneNumber: GetPhoneNumberForDB('MembershipPhoneInfomation') },
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    DisplayDuplicateRecordsPopUp();
+                }
+            }
+        })
+    }
+</script>

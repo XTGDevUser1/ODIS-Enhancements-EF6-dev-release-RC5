@@ -1,0 +1,19 @@
+﻿@using Martex.DMS.BLL.Model
+@model List<ServiceDiagnosticCodeModel>
+
+@{
+    
+    var categories = Model.GroupBy(t => t.CategoryName).Select(grp => grp.FirstOrDefault()).ToList<ServiceDiagnosticCodeModel>();
+}
+@foreach (var item in categories)
+{
+    <h5 class="underline">@item.CategoryName</h5>
+    
+    
+    var codesForCategory = Model.Where(x => x.CategoryName == item.CategoryName).ToList<ServiceDiagnosticCodeModel>();    
+    foreach (var code in codesForCategory)
+    {
+        var primaryIndicator = code.IsPrimary ?  "*" : string.Empty;
+        <p>@primaryIndicator @code.Code - @code.CodeName</p>    
+    }
+}

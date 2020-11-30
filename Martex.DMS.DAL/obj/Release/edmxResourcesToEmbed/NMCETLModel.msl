@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="MartexDMSDALNMCStoreContainer" CdmEntityContainer="NMC_ETLEntities">
+    <FunctionImportMapping FunctionImportName="CreateExecutionLog" FunctionName="Martex.DMS.DAL.NMC.Store.CreateExecutionLog" />
+    <FunctionImportMapping FunctionImportName="UpdateExecutionLog" FunctionName="Martex.DMS.DAL.NMC.Store.UpdateExecutionLog" />
+    <FunctionImportMapping FunctionImportName="UpdateStatusOnStagingTables" FunctionName="Martex.DMS.DAL.NMC.Store.dms_staging_tables_status_update" />
+    <FunctionImportMapping FunctionImportName="UpdateStatusOnInvoiceRequest" FunctionName="Martex.DMS.DAL.NMC.Store.dms_staging_tables_status_update_Billing" />
+    <FunctionImportMapping FunctionImportName="UpdateExecutionLogForBilling" FunctionName="Martex.DMS.DAL.NMC.Store.UpdateExecutionLog_Billing" />
+    <EntitySetMapping Name="ExecutionLogs">
+      <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.ExecutionLog">
+        <MappingFragment StoreEntitySet="ExecutionLog">
+          <ScalarProperty Name="FailureTask" ColumnName="FailureTask" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+          <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+          <ScalarProperty Name="Operator" ColumnName="Operator" />
+          <ScalarProperty Name="LogicalDate" ColumnName="LogicalDate" />
+          <ScalarProperty Name="ExecutionGuid" ColumnName="ExecutionGuid" />
+          <ScalarProperty Name="MachineName" ColumnName="MachineName" />
+          <ScalarProperty Name="PackageGuid" ColumnName="PackageGuid" />
+          <ScalarProperty Name="PackageName" ColumnName="PackageName" />
+          <ScalarProperty Name="Description" ColumnName="Description" />
+          <ScalarProperty Name="ParentLogID" ColumnName="ParentLogID" />
+          <ScalarProperty Name="LogID" ColumnName="LogID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="APCheckRequests">
+      <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.APCheckRequest">
+        <MappingFragment StoreEntitySet="APCheckRequest">
+          <ScalarProperty Name="ClientZip" ColumnName="ClientZip" />
+          <ScalarProperty Name="ClientState" ColumnName="ClientState" />
+          <ScalarProperty Name="ClientCity" ColumnName="ClientCity" />
+          <ScalarProperty Name="ClientAddress2" ColumnName="ClientAddress2" />
+          <ScalarProperty Name="ClientAddress1" ColumnName="ClientAddress1" />
+          <ScalarProperty Name="ClientName" ColumnName="ClientName" />
+          <ScalarProperty Name="DetailItem5Amount" ColumnName="DetailItem5Amount" />
+          <ScalarProperty Name="DetailItem5Description" ColumnName="DetailItem5Description" />
+          <ScalarProperty Name="DetailItem5Number" ColumnName="DetailItem5Number" />
+          <ScalarProperty Name="DetailItem5Date" ColumnName="DetailItem5Date" />
+          <ScalarProperty Name="DetailItem4Amount" ColumnName="DetailItem4Amount" />
+          <ScalarProperty Name="DetailItem4Description" ColumnName="DetailItem4Description" />
+          <ScalarProperty Name="DetailItem4Number" ColumnName="DetailItem4Number" />
+          <ScalarProperty Name="DetailItem4Date" ColumnName="DetailItem4Date" />
+          <ScalarProperty Name="DetailItem3Amount" ColumnName="DetailItem3Amount" />
+          <ScalarProperty Name="DetailItem3Description" ColumnName="DetailItem3Description" />
+          <ScalarProperty Name="DetailItem3Number" ColumnName="DetailItem3Number" />
+          <ScalarProperty Name="DetailItem3Date" ColumnName="DetailItem3Date" />
+          <ScalarProperty Name="DetailItem2Amount" ColumnName="DetailItem2Amount" />
+          <ScalarProperty Name="DetailItem2Description" ColumnName="DetailItem2Description" />
+          <ScalarProperty Name="DetailItem2Number" ColumnName="DetailItem2Number" />
+          <ScalarProperty Name="DetailItem2Date" ColumnName="DetailItem2Date" />
+          <ScalarProperty Name="DetailItem1Amount" ColumnName="DetailItem1Amount" />
+          <ScalarProperty Name="DetailItem1Description" ColumnName="DetailItem1Description" />
+          <ScalarProperty Name="DetailItem1Number" ColumnName="DetailItem1Number" />
+          <ScalarProperty Name="DetailItem1Date" ColumnName="DetailItem1Date" />
+          <ScalarProperty Name="PersonalOverrideAdvance" ColumnName="PersonalOverrideAdvance" />
+          <ScalarProperty Name="ContractType" ColumnName="ContractType" />
+          <ScalarProperty Name="AdjustmentAmount" ColumnName="AdjustmentAmount" />
+          <ScalarProperty Name="Multiplier" ColumnName="Multiplier" />
+          <ScalarProperty Name="TIPS" ColumnName="TIPS" />
+          <ScalarProperty Name="OverrideBonus" ColumnName="OverrideBonus" />
+          <ScalarProperty Name="OverrideAdvance" ColumnName="OverrideAdvance" />
+          <ScalarProperty Name="OverrideNBAV" ColumnName="OverrideNBAV" />
+          <ScalarProperty Name="OverrideMemberCount" ColumnName="OverrideMemberCount" />
+          <ScalarProperty Name="OverrideMembershipCount" ColumnName="OverrideMembershipCount" />
+          <ScalarProperty Name="PersonalBonus" ColumnName="PersonalBonus" />
+          <ScalarProperty Name="PersonalAdvance" ColumnName="PersonalAdvance" />
+          <ScalarProperty Name="PersonalNBAV" ColumnName="PersonalNBAV" />
+          <ScalarProperty Name="PersonalMemberCount" ColumnName="PersonalMemberCount" />
+          <ScalarProperty Name="PersonalMembershipCount" ColumnName="PersonalMembershipCount" />
+          <ScalarProperty Name="AdvancesQualityYTD" ColumnName="AdvancesQualityYTD" />
+          <ScalarProperty Name="QCQYTD" ColumnName="QCQYTD" />
+          <ScalarProperty Name="SilverRenewalText" ColumnName="SilverRenewalText" />
+          <ScalarProperty Name="AdvancesYTD" ColumnName="AdvancesYTD" />
+          <ScalarProperty Name="EarnedCommYTD" ColumnName="EarnedCommYTD" />
+          <ScalarProperty Name="SilverRenewalQaulifier" ColumnName="SilverRenewalQaulifier" />
+          <ScalarProperty Name="QualityRatioPct" ColumnName="QualityRatioPct" />
+          <ScalarProperty Name="EstRemainFirstYear" ColumnName="EstRemainFirstYear" />
+          <ScalarProperty Name="EndDebitBalance" ColumnName="EndDebitBalance" />
+          <ScalarProperty Name="TotalCharges" ColumnName="TotalCharges" />
+          <ScalarProperty Name="Other" ColumnName="Other" />
+          <ScalarProperty Name="ServiceCharge" ColumnName="ServiceCharge" />
+          <ScalarProperty Name="Backend" ColumnName="Backend" />
+          <ScalarProperty Name="Advances" ColumnName="Advances" />
+          <ScalarProperty Name="Comissions" ColumnName="Comissions" />
+          <ScalarProperty Name="Renewals" ColumnName="Renewals" />
+          <ScalarProperty Name="FirstyearCommissions" ColumnName="FirstyearCommissions" />
+          <ScalarProperty Name="BegDebitBalance" ColumnName="BegDebitBalance" />
+          <ScalarProperty Name="CancelledDate" ColumnName="CancelledDate" />
+          <ScalarProperty Name="ContractedDate" ColumnName="ContractedDate" />
+          <ScalarProperty Name="Bulletin" ColumnName="Bulletin" />
+          <ScalarProperty Name="Leader" ColumnName="Leader" />
+          <ScalarProperty Name="DistrictNumber" ColumnName="DistrictNumber" />
+          <ScalarProperty Name="DivisionNumber" ColumnName="DivisionNumber" />
+          <ScalarProperty Name="RegionNumber" ColumnName="RegionNumber" />
+          <ScalarProperty Name="ProgramRefNumber" ColumnName="ProgramRefNumber" />
+          <ScalarProperty Name="ProgramName" ColumnName="ProgramName" />
+          <ScalarProperty Name="VendorRepContactEmail" ColumnName="VendorRepContactEmail" />
+          <ScalarProperty Name="VendorRepContactPhoneNumber" ColumnName="VendorRepContactPhoneNumber" />
+          <ScalarProperty Name="VendorRepContactName" ColumnName="VendorRepContactName" />
+          <ScalarProperty Name="ReceivedDate" ColumnName="ReceivedDate" />
+          <ScalarProperty Name="VendorInvoiceNumber" ColumnName="VendorInvoiceNumber" />
+          <ScalarProperty Name="POIssuedDate" ColumnName="POIssuedDate" />
+          <ScalarProperty Name="PONumber" ColumnName="PONumber" />
+          <ScalarProperty Name="DocumentNoteID" ColumnName="DocumentNoteID" />
+          <ScalarProperty Name="PaymentMethod" ColumnName="PaymentMethod" />
+          <ScalarProperty Name="AdditionalComment" ColumnName="AdditionalComment" />
+          <ScalarProperty Name="ExpenseAmount" ColumnName="ExpenseAmount" />
+          <ScalarProperty Name="GLExpenseAccount" ColumnName="GLExpenseAccount" />
+          <ScalarProperty Name="InvoiceAmount" ColumnName="InvoiceAmount" />
+          <ScalarProperty Name="SeparateCheck" ColumnName="SeparateCheck" />
+          <ScalarProperty Name="Comment" ColumnName="Comment" />
+          <ScalarProperty Name="InvoiceDueDate" ColumnName="InvoiceDueDate" />
+          <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+          <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+          <ScalarProperty Name="VendorNumber" ColumnName="VendorNumber" />
+          <ScalarProperty Name="Division" ColumnName="Division" />
+          <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+          <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+          <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+          <ScalarProperty Name="RecID" ColumnName="RecID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="APVendorMasters">
+      <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.APVendorMaster">
+        <MappingFragment StoreEntitySet="APVendorMaster">
+          <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+          <ScalarProperty Name="BankAccountType" ColumnName="BankAccountType" />
+          <ScalarProperty Name="BankTransitNumber" ColumnName="BankTransitNumber" />
+          <ScalarProperty Name="BankAccountNumber" ColumnName="BankAccountNumber" />
+          <ScalarProperty Name="ContractType" ColumnName="ContractType" />
+          <ScalarProperty Name="ISRNumber" ColumnName="ISRNumber" />
+          <ScalarProperty Name="EmailAddress" ColumnName="EmailAddress" />
+          <ScalarProperty Name="Fax" ColumnName="Fax" />
+          <ScalarProperty Name="SSN" ColumnName="SSN" />
+          <ScalarProperty Name="MasterFileComment" ColumnName="MasterFileComment" />
+          <ScalarProperty Name="VendorRef" ColumnName="VendorRef" />
+          <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+          <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+          <ScalarProperty Name="State" ColumnName="State" />
+          <ScalarProperty Name="City" ColumnName="City" />
+          <ScalarProperty Name="AddressLine3" ColumnName="AddressLine3" />
+          <ScalarProperty Name="AddressLine2" ColumnName="AddressLine2" />
+          <ScalarProperty Name="AddressLine1" ColumnName="AddressLine1" />
+          <ScalarProperty Name="VendorName" ColumnName="VendorName" />
+          <ScalarProperty Name="VendorNumber" ColumnName="VendorNumber" />
+          <ScalarProperty Name="Division" ColumnName="Division" />
+          <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+          <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+          <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+          <ScalarProperty Name="RecID" ColumnName="RecID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="InvoiceRequests">
+      <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.InvoiceRequest">
+        <MappingFragment StoreEntitySet="InvoiceRequest">
+          <ScalarProperty Name="LineNumber" ColumnName="LineNumber" />
+          <ScalarProperty Name="LineCost" ColumnName="LineCost" />
+          <ScalarProperty Name="LineQuantity" ColumnName="LineQuantity" />
+          <ScalarProperty Name="InvoiceDescription" ColumnName="InvoiceDescription" />
+          <ScalarProperty Name="BillingPeriodEndDate" ColumnName="BillingPeriodEndDate" />
+          <ScalarProperty Name="POPrefix" ColumnName="POPrefix" />
+          <ScalarProperty Name="AccountingSystemAddressCode" ColumnName="AccountingSystemAddressCode" />
+          <ScalarProperty Name="AdditionalComment" ColumnName="AdditionalComment" />
+          <ScalarProperty Name="LineAmount" ColumnName="LineAmount" />
+          <ScalarProperty Name="ItemCode" ColumnName="ItemCode" />
+          <ScalarProperty Name="Comment" ColumnName="Comment" />
+          <ScalarProperty Name="CustomerPONumber" ColumnName="CustomerPONumber" />
+          <ScalarProperty Name="TermsCode" ColumnName="TermsCode" />
+          <ScalarProperty Name="InvoiceDueDate" ColumnName="InvoiceDueDate" />
+          <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+          <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+          <ScalarProperty Name="CustomerNumber" ColumnName="CustomerNumber" />
+          <ScalarProperty Name="Division" ColumnName="Division" />
+          <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+          <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+          <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+          <ScalarProperty Name="RecID" ColumnName="RecID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

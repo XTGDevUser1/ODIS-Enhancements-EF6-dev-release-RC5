@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "VendorTransitionSuccess";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<div class="leader relative">
+    &nbsp;</div>
+<div class="constrain">
+    <div class="columns with-padding">
+    <div class="twelve-columns"><h2 class="thin align-center">Step 3 – Login and experience the NEW Vendor Portal</h2></div>
+    <div class="new-row one-column">&nbsp;</div>
+        <div class="ten-columns instructions margin-top">
+            <p class="wrapped white-bg relative margin-bottom">
+                <span class="ribbon"><span class="ribbon-inner red-gradient">Welcome</span></span>
+                
+               Please bookmark the next page, that is the new Login page where you should start each<br /> time you come to the new Coach-Net Vendor Portal!
+                                
+                </p>
+                <p>&nbsp;</p>
+        </div>
+            <div class="one-column">&nbsp;</div>
+                        <div class="new-row four-columns">&nbsp;</div>
+        <div class="four-columns">
+        <button type="button" class="btn btn-large btn-primary" id="btnRedirectToLogin">
+                Continue to Log In</button>
+        </div>
+                    <div class="four-columns">&nbsp;</div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#btnRedirectToLogin').click(function () {
+            location.href = '/Account/Login';
+        });
+    });
+</script>

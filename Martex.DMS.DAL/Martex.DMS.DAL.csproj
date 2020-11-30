@@ -1,0 +1,2163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D5D79872-000C-4E5E-917C-CCC939BAC84E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Martex.DMS.DAL</RootNamespace>
+    <AssemblyName>Martex.DMS.DAL</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\ReferenceDLLs\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NVelocity">
+      <HintPath>..\ReferenceDLLs\NVelocity.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccessControlList.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AccessControlList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AccessType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ACESClaimStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ACESPaymentList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ACHStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AddressEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AddressType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AddressTypeEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="APCheckRequest.cs">
+      <DependentUpon>ModelNMCETL.tt</DependentUpon>
+    </Compile>
+    <Compile Include="APIServiceRequestList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="APIServiceRequest_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationConfiguration.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationConfigurationCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ApplicationConfigurationType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="APVendorMaster.cs">
+      <DependentUpon>ModelNMCETL.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Applications.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Membership.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Paths.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_PersonalizationAllUsers.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_PersonalizationPerUser.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Profile.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Roles.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_SchemaVersions.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_Users.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="aspnet_WebEvent_Events.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ASPStateTempApplication.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ASPStateTempSession.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Batch.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BatchPaymentRunsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BatchStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BatchType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingAdjustmentReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingDefinitionEvent.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingDefinitionInvoice.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingDefinitionInvoiceLine.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingDefinitionInvoiceLineEvent.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingDefinitionInvoiceLineEventProgram.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingEventSystemSource.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingExcludeReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoice.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailDisposition.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailException.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailExceptionSeverity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailExceptionStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailExceptionType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceDetailStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceLine.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceLineEventGenWhen.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceLinesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceLineStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceTemplate.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingInvoiceType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingManageInvoicesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingSchedule.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingScheduleDateType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingScheduleRangeType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingScheduleStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillingScheduleType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillTo.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BillToPaymentType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CallSummary_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CallType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CaptureClaimNumberDetailsForSR_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Case.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CasePhoneLocation.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CaseStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeLogMapping.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ChildrenPrograms_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Claim.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimApplyCashClaimsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimBatchList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimBatchPaymentRunsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimException.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimMemberAddressPhoneNumberLookUP_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimPurchaseOrderNumberLookUPDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimRejectReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimStatusLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimTypeCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimVehicleDiagnosticCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Client.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBatchList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBatchPaymentRunsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBillableEventProcessingCascadeBillingEvent_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBillableEventProcessingDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBillableEventProcessingExceptions_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientBillableEventProcessingList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientChangeLogMapping.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientClosePeriodList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientInvoiceEventProcessingList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientOpenPeriodList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientOpenPeriodToBeProcessRecords_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientPayment.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientRep.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientRepList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientRole.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Clients_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientToCompanyMap.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClientUser.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClosedLoopActivities_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ClosedLoopStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CloseLoopSearch_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CoachingConcern.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CoachingConcerns_List_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Comment.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CommentType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Common\AES.cs" />
+    <Compile Include="Common\DBConstants.cs" />
+    <Compile Include="Common\EntityRelationship.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Common\PageCriteria.cs" />
+    <Compile Include="Common\TemplateUtil.cs" />
+    <Compile Include="Common\XMLSerializationHelper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommunicationLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CommunicationQueue.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Concern.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ConcernType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigurationCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ConfigurationType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactAction.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactEmailDeclineReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLogAction.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLogActionsForServiceRequest_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLogConnectData.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLogLink.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactLogReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactMethod.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactSource.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContactType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Contract.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContractRateSchedule.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContractRateScheduleProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContractRateScheduleProductLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContractRateScheduleStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ContractStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ControlType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Country.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CurrencyType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CurrentUserForEvent_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedback.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackCategorySubCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackGiftCard.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackGiftCard_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackInvalidReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackPriority.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackSource.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackSourcePriority.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackStatusChangeLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackSubCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackSurveyList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerFeedbackTypeCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerSurveySample.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAO\ActivityRepository.cs" />
+    <Compile Include="DAO\AddressRepository.cs" />
+    <Compile Include="DAO\Admin\EventViewerSearchCriteria.cs" />
+    <Compile Include="DAO\Admin\EventViewerService.cs" />
+    <Compile Include="DAO\Admin\IEventViewerService.cs" />
+    <Compile Include="DAO\AppConfigRepository.cs" />
+    <Compile Include="DAO\CasePhoneLocationRepository.cs" />
+    <Compile Include="DAO\CaseRepository.cs" />
+    <Compile Include="DAO\ClaimsRepository.cs" />
+    <Compile Include="DAO\Claim\ClaimInformationRepository.cs" />
+    <Compile Include="DAO\Claim\Claims_Service_Repository.cs" />
+    <Compile Include="DAO\Claim\Claim_ACES_Payments_Repository.cs" />
+    <Compile Include="DAO\Claim\Claim_Activity_Repository.cs" />
+    <Compile Include="DAO\Claim\Claim_Payment_Runs_Repository.cs" />
+    <Compile Include="DAO\Claim\Claim_Verify_Pay_Repository.cs" />
+    <Compile Include="DAO\ClientRepMaintenanceRepository.cs" />
+    <Compile Include="DAO\ClientRepository.cs" />
+    <Compile Include="DAO\Clients\ClientBillableEventProcessingDetailsModel.cs" />
+    <Compile Include="DAO\Clients\ClientBillingInvoices_Verify_Post_Repository.cs" />
+    <Compile Include="DAO\Clients\Client_BillableEventProcessing_Repository.cs" />
+    <Compile Include="DAO\Clients\Client_InvoiceProcessing_Repository.cs" />
+    <Compile Include="DAO\ClosedLoopRepository.cs" />
+    <Compile Include="DAO\CommentRepository.cs" />
+    <Compile Include="DAO\CommunicationQueueRepository.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DAO\ContactActionRepository.cs" />
+    <Compile Include="DAO\ContactLogActionRepository.cs" />
+    <Compile Include="DAO\ContactLogReasonRepository.cs" />
+    <Compile Include="DAO\ContactLogRepository.cs" />
+    <Compile Include="DAO\CommonLookUpRepository.cs" />
+    <Compile Include="DAO\ContactReasonRepository.cs" />
+    <Compile Include="DAO\ContactStaticDataRepository.cs" />
+    <Compile Include="DAO\CustomerFeedbackRepository.cs" />
+    <Compile Include="DAO\DesktopNotificationRepository.cs" />
+    <Compile Include="DAO\DeviceRepository.cs" />
+    <Compile Include="DAO\EstimateRepository.cs" />
+    <Compile Include="DAO\MessageMaintenance\IMessageMaintenance.cs" />
+    <Compile Include="DAO\MessageMaintenance\MessageMaintenanceService.cs" />
+    <Compile Include="DAO\MobileStaticDataVersionRepository.cs" />
+    <Compile Include="DAO\NotificationRepository.cs" />
+    <Compile Include="DAO\PortletsRepository.cs" />
+    <Compile Include="DAO\ProgramManagementRepository.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DAO\QARepository.cs" />
+    <Compile Include="DAO\QA\CoachingConcernService.cs" />
+    <Compile Include="DAO\QA\CoachingConcernsSearchCriteria.cs" />
+    <Compile Include="DAO\QA\ICoachingConcern.cs" />
+    <Compile Include="DAO\SecurablesRepositories.cs" />
+    <Compile Include="DAO\SRAgentTimeRepository.cs" />
+    <Compile Include="DAO\VendorCC_Verify_PayRepository.cs" />
+    <Compile Include="DAO\DashBoardRepository.cs" />
+    <Compile Include="DAO\DataGroupRepository.cs" />
+    <Compile Include="DAO\DbConstants.cs" />
+    <Compile Include="DAO\DispatchProcessingServiceRepository.cs" />
+    <Compile Include="DAO\DispatchRepository.cs" />
+    <Compile Include="DAO\DocumentRepository.cs" />
+    <Compile Include="DAO\EmergencyAssistanceRepository.cs" />
+    <Compile Include="DAO\EventLogRepository.cs" />
+    <Compile Include="DAO\EventRepository.cs" />
+    <Compile Include="DAO\EventSubscriptionRepository.cs" />
+    <Compile Include="DAO\EventTemplateRepository.cs" />
+    <Compile Include="DAO\FeedbackRepository.cs" />
+    <Compile Include="DAO\FinishRepository.cs" />
+    <Compile Include="DAO\InboundCallRepository.cs" />
+    <Compile Include="DAO\IRepository.cs" />
+    <Compile Include="DAO\ListViewFilters\ListViewFilterRepository.cs" />
+    <Compile Include="DAO\MapRepository.cs" />
+    <Compile Include="DAO\MemberManagementRepository.cs" />
+    <Compile Include="DAO\MemberManagement\Membership\MembershipActivity_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Membership\MembershipMembers_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Membership\MemberShipSRHistory_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Membership\MembershipInfo_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Membership\MembershipVehicles_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Member\MemberInfoRepository.cs" />
+    <Compile Include="DAO\MemberManagement\Member\Member_Activity_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Member\Member_Claim_Repository.cs" />
+    <Compile Include="DAO\MemberManagement\Member\Member_SR_History_Repository.cs" />
+    <Compile Include="DAO\MemberRepository.cs" />
+    <Compile Include="DAO\MembershipRepository.cs" />
+    <Compile Include="DAO\OptionsRepository.cs" />
+    <Compile Include="DAO\OrganizationRepository.cs" />
+    <Compile Include="DAO\PaymentRepository.cs" />
+    <Compile Include="DAO\PhoneRepository.cs" />
+    <Compile Include="DAO\PhoneSystemConfigurationRepository.cs" />
+    <Compile Include="DAO\PORepository.cs" />
+    <Compile Include="DAO\ProgramMaintenanceRepository.cs" />
+    <Compile Include="DAO\QueueRepository.cs" />
+    <Compile Include="DAO\ReferenceDataRepository.cs" />
+    <Compile Include="DAO\ServiceRepository.cs" />
+    <Compile Include="DAO\ServiceRequestRepository.cs" />
+    <Compile Include="DAO\TemplateRepository.cs" />
+    <Compile Include="DAO\UserRepository.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DAO\UsersListRepository.cs" />
+    <Compile Include="DAO\VehicleRepository.cs" />
+    <Compile Include="DAO\VendorApplicationPaymentTypeRepository.cs" />
+    <Compile Include="DAO\VendorApplicationRepository.cs" />
+    <Compile Include="DAO\VendorInvoiceRepository.cs" />
+    <Compile Include="DAO\VendorInvoice\BatchRepository.cs" />
+    <Compile Include="DAO\VendorInvoice\VendorInvoice_Activity_Repository.cs" />
+    <Compile Include="DAO\VendorInvoice\VendorInvoice_Details_Repository.cs" />
+    <Compile Include="DAO\VendorInvoice\VendorInvoice_Info_Repository.cs" />
+    <Compile Include="DAO\VendorInvoice\VendorInvoice_List_Repository.cs" />
+    <Compile Include="DAO\VendorInvoice\VendorInvoice_Verify_Pay_Repository.cs" />
+    <Compile Include="DAO\VendorInvoice\Vendor_Invoice_Batch_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\VendorLocation\VendorLocation_ServicesAndRates_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\VendorLocation\VendorLocation_ServiceArea_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\VendorLocation\VendorLocation_Services_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\Vendor\VendorClaimsRepository.cs" />
+    <Compile Include="DAO\VendorManagement\Vendor\VendorContract_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\VendorLocation\VendorLcoation_Info_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\VendorLocation\VendorLocation_BusinessHours.cs" />
+    <Compile Include="DAO\VendorManagement\Vendor\Vendor_Info_Repository.cs" />
+    <Compile Include="DAO\VendorManagement\Vendor\Vendor_Rates_Repository.cs" />
+    <Compile Include="DAO\VendorMergeRepository.cs" />
+    <Compile Include="DAO\VendorPortalRepository.cs" />
+    <Compile Include="DAO\VendorPortal\MessageRepository.cs" />
+    <Compile Include="DAO\VendorPortal\PostLoginRepository.cs" />
+    <Compile Include="DAO\VendorPortal\ServiceRatings_Repository.cs" />
+    <Compile Include="DAO\VendorPortal\TransitionVerifyRepository.cs" />
+    <Compile Include="DAO\VendorPortal\VendorPortalAccountRepository.cs" />
+    <Compile Include="DAO\VendorPortal\VendorPortalACHRepository.cs" />
+    <Compile Include="DAO\VendorPortal\VendorPortalDashboardRepository.cs" />
+    <Compile Include="DAO\VendorPortal\Vendor_Portal_Invoice_Repository.cs" />
+    <Compile Include="DAO\VendorRepository.cs" />
+    <Compile Include="DAO\VendorTemporaryCCHistoryRepository.cs" />
+    <Compile Include="DAO\VendorTemporaryCCProcessingRepository.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DAO\VendorUserRepository.cs" />
+    <Compile Include="DashboardDispatchChartLabels_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardDispatchChart_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardPortlets_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DashboardServiceRequestCount_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DataGroup.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DataGroupList.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DataGroupProgram.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DataType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DBAudit.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DesktopNotification.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DiagnosticCodes_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DispatchGPSNetwork.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DispatchProcessingList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DispatchSoftwareProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DistinctVehicleTypesforProgram_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DMSBaseException\DMSException.cs" />
+    <Compile Include="DMSModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DMSModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DMSModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DMSModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DMSModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="dms_activity_list_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_API_Member_Search_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_API_ServiceRequest_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_API_ServiceRequest_History_List_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_contactlog_actions_service_request_get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_CustomerFeedbackSurvey_list_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_CustomerFeedback_Activity_List_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_CustomerFeedback_list_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_customer_feedback_header_by_sr_po_get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Latest_Contract_And_TA_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_MemberPaymentMethod_List_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_MemberPaymentMethod_List_Result1.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_MemberShip_Products_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_program_RoadsideServices_get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Recent_Call_Details_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Recipients_For_DesktopNotification_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_ServiceRequest_StatusTimeline_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_service_eligibility_messages_get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Users_By_Appconfig_Role_Setting_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Users_By_NextAction_Role_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_users_organizations_List.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Vendor_By_Number_Phone_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="dms_Vendor_Locations_List_For_VendorNumber_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Document.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DocumentCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DocumentsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DoesEventLogLinkExists_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DuplicateVendors_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EmergencyAssistance.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EmergencyAssistanceReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Entities\ActivityList_Result.cs" />
+    <Compile Include="Entities\AddressEntity.cs" />
+    <Compile Include="Entities\AddressExtendedEntity.cs" />
+    <Compile Include="Entities\AxlesEntity.cs" />
+    <Compile Include="Entities\BallSizeEntity.cs" />
+    <Compile Include="Entities\BusinessHours.cs" />
+    <Compile Include="Entities\CallInformation.cs" />
+    <Compile Include="Entities\CallLog.cs" />
+    <Compile Include="Entities\CallLogDataModel.cs" />
+    <Compile Include="Entities\CasePhoneLocationExtended.cs" />
+    <Compile Include="Entities\ClaimActivityList_Result.cs" />
+    <Compile Include="Entities\ClaimStatusSummary.cs" />
+    <Compile Include="Entities\Claims\ACESPaymentList_Result.cs" />
+    <Compile Include="Entities\Claims\ClaimACESPaymentSearchCriteria.cs" />
+    <Compile Include="Entities\Claims\ClaimInformationModel.cs" />
+    <Compile Include="Entities\Claims\ClaimSearchCriteria.cs" />
+    <Compile Include="Entities\ClientModel.cs" />
+    <Compile Include="Entities\Clients\ClientBillableEventProcessingSearchCriteria.cs" />
+    <Compile Include="Entities\Clients\ClientBillableInvoiceSearchCriteria.cs" />
+    <Compile Include="Entities\CommunicationQueueeExtended.cs" />
+    <Compile Include="Entities\ContactEmergencyAssistance.cs" />
+    <Compile Include="Entities\CTRDataModel.cs" />
+    <Compile Include="Entities\CustomDropDownEntity.cs" />
+    <Compile Include="Entities\CustomerFeedbackActivityList_Result.cs" />
+    <Compile Include="Entities\CustomerFeedbackDetailsModel.cs" />
+    <Compile Include="Entities\CustomerFeedbackMember.cs" />
+    <Compile Include="Entities\CustomerFeedbackModel.cs" />
+    <Compile Include="Entities\CustomerFeedbackSearchCriteria.cs" />
+    <Compile Include="Entities\CustomerFeedbackSurveySearchCirteria.cs" />
+    <Compile Include="Entities\DocumentsList_Result.cs" />
+    <Compile Include="Entities\DropDownDataGroup.cs" />
+    <Compile Include="Entities\DynamicFields.cs" />
+    <Compile Include="Entities\EmergencyAssistanceCallLogModel.cs" />
+    <Compile Include="Entities\EmergencyAssistanceModel.cs" />
+    <Compile Include="Entities\EstimateApprovalModel.cs" />
+    <Compile Include="Entities\ExcludedVendorExtended.cs" />
+    <Compile Include="Entities\Feedback.cs" />
+    <Compile Include="Entities\FilterViewEntity.cs" />
+    <Compile Include="Entities\HistorySearchCriteria.cs" />
+    <Compile Include="Entities\DropDownEntity.cs" />
+    <Compile Include="Entities\ISPs_Result.cs" />
+    <Compile Include="Entities\MemberInformation.cs" />
+    <Compile Include="Entities\MemberManagementActivityList_Result.cs" />
+    <Compile Include="Entities\MemberManagementCommonModel.cs" />
+    <Compile Include="Entities\MemberManagementSearchCriteria.cs" />
+    <Compile Include="Entities\MemberModel.cs" />
+    <Compile Include="Entities\MembershipManagementActivityList_Result.cs" />
+    <Compile Include="Entities\Mobile_CallForService.cs" />
+    <Compile Include="Entities\MyAuditInfo.cs">
+      <SubType>code</SubType>
+    </Compile>
+    <Compile Include="Entities\NameValuePair.cs" />
+    <Compile Include="Entities\OrganizationModel.cs" />
+    <Compile Include="Entities\Payment_List_Result.cs" />
+    <Compile Include="Entities\PhoneEntityExtended.cs" />
+    <Compile Include="Entities\PhoneSystemConfiguration.cs" />
+    <Compile Include="Entities\Program.cs" />
+    <Compile Include="Entities\ProgramManagementSearchCriteria.cs" />
+    <Compile Include="Entities\PurchaseOrder.cs" />
+    <Compile Include="Entities\PurchaseOrderDetailsModel.cs" />
+    <Compile Include="Entities\Queue_Result.cs" />
+    <Compile Include="Entities\RecentServiceRequest.cs" />
+    <Compile Include="Entities\SearchMember_Result.cs" />
+    <Compile Include="Entities\SecurableModel.cs" />
+    <Compile Include="Entities\ServiceDiagnosticCodeModel.cs" />
+    <Compile Include="Entities\ServiceLocationOption.cs" />
+    <Compile Include="Entities\ServiceRequestModel.cs" />
+    <Compile Include="Entities\ServiceRequest_Result.cs" />
+    <Compile Include="Entities\ServiceTypeTab.cs" />
+    <Compile Include="Entities\TemporaryCC\TemporaryCCSearchCriteria.cs" />
+    <Compile Include="Entities\UserInformation.cs" />
+    <Compile Include="Entities\Vehicle.cs" />
+    <Compile Include="Entities\VehicleColor.cs" />
+    <Compile Include="Entities\VendorActivityList_Result.cs" />
+    <Compile Include="Entities\VendorCCStatusSummary.cs" />
+    <Compile Include="Entities\VendorContractDetails_Result.cs" />
+    <Compile Include="Entities\VendorInvoiceActivityList_Result.cs" />
+    <Compile Include="Entities\VendorInvoiceDetails_Result.cs" />
+    <Compile Include="Entities\VendorInvoiceListEntity.cs" />
+    <Compile Include="Entities\VendorInvoiceSearchCriteria.cs" />
+    <Compile Include="Entities\VendorInvoiceStatusSummary.cs" />
+    <Compile Include="Entities\VendorInvoice_Activity_AddContact.cs" />
+    <Compile Include="Entities\VendorLocationActivityList_Result.cs" />
+    <Compile Include="Entities\VendorLocationRatesEntity.cs" />
+    <Compile Include="Entities\VendorManagementSearchCriteria.cs" />
+    <Compile Include="Entities\VendorPortalInvoiceSearchCriteria.cs" />
+    <Compile Include="Entities\VendorRatesDetailsModel.cs" />
+    <Compile Include="Entities\XDIPortletModel.cs" />
+    <Compile Include="Entity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EntityRecordVersion.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EntityRecordVersionDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Event.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventCategoryTemplateTag.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventLogLink.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventLogList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventSubscription.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventSubscriptionLink.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventSubscriptionRecipient.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventSubscriptionRecipients_For_EventLog_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventTemplate.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="EventType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ExecutionLog.cs">
+      <DependentUpon>ModelNMCETL.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ExtendedEntities\AccessControlList_Result.cs" />
+    <Compile Include="ExtendedEntities\GetCustomerFeedbackHeaderBySROrPO_Result.cs" />
+    <Compile Include="ExtendedEntities\PO_MemberPayDispatchFee_Result.cs" />
+    <Compile Include="ExtendedEntities\VendorPortalInvoiceList_Result.cs" />
+    <Compile Include="Extensions\SqlDataReaderExtensions.cs" />
+    <Compile Include="Extensions\StringExtension.cs" />
+    <Compile Include="DAO\MemberMergeRepository.cs" />
+    <Compile Include="Feedback.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="FeedbackType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="fnc_GetProgramDispatchNumber_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetCustomerFeedbackDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetCustomerFeedbackGiftCard_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetCustomerFeedbackHeaderBySROrPO_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetRecentCallDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetServiceFacilitySelection_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetUnitOfMeasures_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetUnprocessedEventLogs_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetUsersByNextActionRoles_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetVendorDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetVendorInfoSearch_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GoToPODetailItem_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="HagertyProgramMap.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="HitchType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="InboundCall.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="InvoiceRequest.cs">
+      <DependentUpon>ModelNMCETL.tt</DependentUpon>
+    </Compile>
+    <Compile Include="IsDealerTow_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="IsPreferredVendorByProduct_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ISPSelectionLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ISPs_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="IVRScript.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Language.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="LatestContractAndTAForVendor_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ListViewFilter.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Log.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MakeModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MapCallHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MarketLocation.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MarketLocationProductRate.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MarketLocationType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MatchedMembers_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Member.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberAssociateList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberContactInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberManagementActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberManagementMemberDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberManagementSearch_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberManagementSRHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberManagementTransactions_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberName_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberPaymentBalance_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberPaymentMethod.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberPaymentMethodList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberProductProductCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberProductsUsingCategory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberProducts_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberProgramChangeMapping.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MembersByMembershipID_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberSearchProgramGrouping.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberServiceRequestHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Membership.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MembershipBlackListVendor.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MembershipManagementActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberShipManagementSRHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MembershipMembersList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberShipProducts_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MemberTransactionList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Member_Claims_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Member_Information_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MembsershipInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Message.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MessageList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Messages_0.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Messages_0_Id.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MessageType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MobileCallData_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MobileDeviceRegistration.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MobileStaticDataVersion.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile_CallForService.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile_logAccess.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Mobile_Registration.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ModelNMCETL.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelNMCETL.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ModelNMCETL.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelNMCETL.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MotorcycleMakeModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MotorcycleType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NextAction.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NextActionEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NextActionRole.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NextNumber.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NMCETLModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NMCETLModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="NotificationHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="NotificationRecipientType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Organization.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrganizationClient.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrganizationRole.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Payment.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentAuthorization.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentReceiptValues_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentRemainingBalance_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentSendReceiptHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentTransaction.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentTransactionList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentTransactionType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentTypeEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Payment_List_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Person.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PersonNotificationTiming.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneCompany.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneLocationRequestError.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneLocationRequestStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneNumber_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneSystemConfiguration.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneSystemConfigurationList.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PhoneTypeEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PODetailItemByPOId_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="POForServiceRequest_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="POIssueHagertyEventMailTag_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Portlet.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PortletColumn.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PortletScreen.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PortletSection.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PostLoginPrompt.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PostLogin_VendorPhoneNumbers_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PO_ChangedPrimaryProduct_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Prefix.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PreviousCallList.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoriesForProgram_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoryQuestion.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoryQuestionLink.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoryQuestionProgram.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoryQuestionValue.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductCategoryQuestionVehicleType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductForProductCategory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductISPSelectionRadiu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductProvider.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductRateType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductSubType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramConfiguration.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramConfigurationDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramConfigurationForProgram_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramCoverageInformationList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItem.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemAnswers_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemForClientReference_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemLink.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemsForProgram_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemValue.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDataItemValueEntity.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDispatchNumber_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramDynamicFields_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramMaintainenceList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramMaintenanceInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementProgramConfigurationList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementProgramDataItemList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementProgramServiceCategory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementProgramServiceEventLimitList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementServiceCategoriesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementServicesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagementVehicleTypesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramManagement_List_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramProductCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramServiceEventLimit.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramServices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramsForCall_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramsList.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Programs_List_Results.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramVehicleType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProgramVehicleTypeDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="DAO\VendorManagementRepository.cs" />
+    <Compile Include="PurchaseOrder.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderCancellationReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderGOAReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderPayStatusCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderTemplate_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderThresholdPercentage.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PurchaseOrderType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QAConcernList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QAConcernTypeList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QuestionAnswerValues_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QuestionAnswer_ServiceRequest_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QuestionsForProductCategory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="QueueSearchCriteria.cs" />
+    <Compile Include="QueueStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Queue_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RateSchedulesForReport_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RateType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Report.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RoadsideServices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RVMakeModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RVType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Schema.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchClients_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchMembersByVINOrMS_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchMembersForAPI_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchMember_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchOrganizations_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchPO_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchUsersListClientPortal_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SearchUsersResult.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Securable.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SecurablesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Securable_IsAccessible_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SecurbalePermissions_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SendPOHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceElibilityMessages_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceFacilitySelection_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceLimits_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRatingsProductCategoryList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRatingsProductList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequest.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestAgentTime.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestDeclineReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestEstimate_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestException.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestHistoryList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestPriority.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestStatusTimeline_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequestVehicleDiagnosticCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceRequest_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServicesForVendorPortal_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceTechCallHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceTech_RepairLocationDetails.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Skillset.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SourceSystem.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SRHasAccountingInvoiceBatchID_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="StartCallMemberSelections_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="StateProvince.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Suffix.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="sysdiagram.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TempCCGLAccountList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Template.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemplateTag.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCCBatchList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCCBatchPaymentRunsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCCCardDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCreditCard.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCreditCardDetail.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCreditCardStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCreditCard_Import.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TemporaryCreditCard_Import_ChargedTransactions.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TimeType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TimeZone.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TrailerMakeModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TrailerType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="User.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserDataGroup.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserInvite.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserInviteStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserNameByPIN_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserPasswordHistory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserPortlet.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserPortletDefaultByRole.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UsersForVendorPortal_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UsersListForRole_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UsersOrRolesForNotification_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vehicle.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleChassi.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleDiagnosticCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleDiagnosticCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleEngine.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleMakeModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vehicles_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleTransmission.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleTypeBusinessSearchOption.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleTypeVehicleCategory.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleTypeVehicleDiagnosticCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VehicleYears_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorACH.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplication.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplicationBusinessHour.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplicationPaymentType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplicationPostalCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplicationProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorApplicationReferralSource.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorCallHistory_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorCCProcessingDetailList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorCCProcessingList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorContractDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorContractList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorContractStatus_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorDashboardServiceTypes_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorData_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorDetailsForReport_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoice.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceBatchList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceCurrentBillingInformation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceException.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoicePaymentDifferenceReasonCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoicePODetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoicesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceVendorLocationBillingDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorInvoiceVendorLocationDetails_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLegacyCredential.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocation.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationActivityList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationAddress_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationBusinessHour.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationContractRateScheduleProductLog_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationGeographyListManage_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationPaymentType.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationPaymentTypes_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationPOList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationPostalCode.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationRatesAndServices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationServiceRatings_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationServices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationsListForVendorNumber_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocations_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationTransactionList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationVirtual.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocationVirtual_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorLocation_GeographyLocation_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorManagementList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPOList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPortalInvoiceList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPortalLocationServicesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPortalServiceContactActionsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPortalServiceRatingsList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorPortalServicesList_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorProduct.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorRates_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorRegion.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorRegionStateProvince.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorSearch_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorServiceRatings_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorServicesAndRates_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorServices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorStatu.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorStatusLog.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorStatusReason.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorSummaryLocationRates_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorTempCCMatchUpdate_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorTermsAgreement.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorUser.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorUserProfile_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VendorWebAccountInfoModel.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_By_Number_Phone_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Claims_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Contract_Status_Get_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Dashboard_Profile_completeness_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Dashboard_ServiceCallActivity_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Dashboard_ServiceRatings_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Vendor_Rates_Schedules_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VerifyBillingInvoices_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VerifyProgramServiceBenefit_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VerifyProgramServiceEventLimit_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="VINSearch_Result.cs">
+      <DependentUpon>DMSModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DAO\TwilioFaxResultRepository.cs" />
+    <Compile Include="TwilioFaxResult.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="NMCETLModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>NMCETLModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <EntityDeploy Include="DMSModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>DMSModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="DMSModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DMSModel.Context.cs</LastGenOutput>
+      <DependentUpon>DMSModel.edmx</DependentUpon>
+    </None>
+    <None Include="DMSModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DMSModel.cs</LastGenOutput>
+      <DependentUpon>DMSModel.edmx</DependentUpon>
+    </None>
+    <None Include="ModelNMCETL.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ModelNMCETL.Context.cs</LastGenOutput>
+      <DependentUpon>NMCETLModel.edmx</DependentUpon>
+    </None>
+    <None Include="ModelNMCETL.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ModelNMCETL.cs</LastGenOutput>
+      <DependentUpon>NMCETLModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

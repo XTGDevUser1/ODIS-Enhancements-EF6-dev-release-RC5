@@ -1,0 +1,60 @@
+﻿@using Martex.DMS.DAL
+@model List<DiagnosticCodes_Result>
+
+@if (Model != null)
+    {
+        var categories = Model.GroupBy(t => t.CategoryName).Select(grp => grp.FirstOrDefault()).ToList<DiagnosticCodes_Result>();
+
+        foreach (var item in categories)
+        {
+            <div class="block float-left small-margin-right">
+                <h3 class="block-title">
+                    @item.CategoryName
+                </h3>
+                <div class="with-small-padding">                 
+    
+    
+                    @{ var codesForCategory = Model.Where(x => x.CategoryName == item.CategoryName).ToList<DiagnosticCodes_Result>(); }
+                    @foreach (var code in codesForCategory)
+                    {
+                        <div>@Html.CheckBox(code.CodeName, (code.IsSelectedForServiceRequest == 1), new { @class = "checkbox vdcode" , value = code.ID}) @code.Code - @code.CodeName</div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    
+    <script language="javascript" type="text/javascript">
+    <!--
+
+        $(function () {
+            $(".vdcode").change(function (e) {
+                
+                var primaryCombo = $("#PrimaryCodes").data("kendoComboBox");
+                var comboItems = primaryCombo.dataSource.data();
+                var currentElement = $(this);
+                var val = currentElement.val();
+                var isChecked = currentElement.is(":checked");
+                if (isChecked) {
+                    comboItems.push({ Text: currentElement.attr("name"), Value: val });
+                }
+                else {
+                    var indexToBeDeleted = -1;
+
+                    for (var i = 0, l = comboItems.length; i < l; i++) {
+                        if (comboItems[i].Value == val.toString()) {
+                            indexToBeDeleted = i;
+                        }
+                    }
+
+                    if (indexToBeDeleted >= 0) {
+                        comboItems.splice(indexToBeDeleted, 1);
+
+                    }
+                }
+                primaryCombo.setDataSource(comboItems);
+            });
+        });
+    
+    //-->
+    </script>

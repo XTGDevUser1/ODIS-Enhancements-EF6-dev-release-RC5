@@ -1,0 +1,23 @@
+﻿@using Martex.DMS.DAL
+@model List<VendorCallHistory_Result>
+@if (Model != null && Model.Count > 0)
+{
+    <div class="boxed scrollable">
+        <ul class="vendor-list">
+            @{ int i = 0; }
+            @foreach (var item in Model)
+            {
+                <li>
+                    <div>
+                        Talked to <strong>@item.TalkedTo</strong> <br />
+                        On @item.CreateDate.Value.ToString("MM/dd/yyyy") <br />
+                        
+                        Phone : @Html.Editor("Callhistory_" + i.ToString(), "Phone", new { Value = item.PhoneNumber, ReadOnly = true, ShowCallIcon = true, CallType = "Vendor" })
+                        
+                    </div>
+                </li>
+                i++;
+            }
+        </ul>
+    </div>
+}

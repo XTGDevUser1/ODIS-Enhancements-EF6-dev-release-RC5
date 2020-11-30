@@ -1,0 +1,189 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.BLL.Model.DocumentModel
+@{
+    string suffixId = "frmDocument_" + Model.EntityName + "_" + Model.RecordId;
+}
+<style type="text/css">
+    .k-upload-selected /*.k-upload-action */
+    {
+        display: none;
+    }
+</style>
+<script language="javascript" type="text/javascript">
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+        }, 500);
+
+        $.map(e.files, function (file) {
+            //alert(file.size);
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+    function UploadApplication(e) {
+        var postData = $("#@suffixId").serializeArray();
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = postData.length; i < l; i++) {
+            nvp[postData[i].name] = postData[i].value;
+        }
+        e.data = nvp;
+        
+    }
+
+    function UploadSuccess(e) {
+        ClearValidationMessages();
+        document.dialogResult = "OK";
+        documentWindow.data('kendoWindow').close();
+    }
+
+    function UploadError(e) {
+        HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details");
+    }
+
+    function UploadComplete(e) {
+        HideLoadingIndicator();
+    }
+
+    function DocumentCategory_OnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    } 
+</script>
+@using (Html.BeginForm("Save", "Documents", FormMethod.Post, new { id = suffixId, enctype = "multipart/form-data" }))
+{
+    
+    @Html.Hidden("hdnDocumentTypes", ViewData["AllowedDocumentTypes"])
+    <div class="with-padding-with-panels popupcontainer">
+        <fieldset class="fieldset">
+            <legend class="legend">Document</legend>
+            <div class="columns">
+                <div class="twelve-columns">
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Category" class="label">
+                            Category<span class="spanstar">*</span></label>
+                        @(Html.Kendo().ComboBox()
+                        .Name("DocumentCategoryId")
+                        .BindTo(new SelectList(ViewData[VendorPortal.ActionFilters.StaticData.DocumentCategories.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                        .Suggest(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                         .Events(events =>
+                         {
+                             events.Change("DocumentCategory_OnChange");
+                         })
+                        .DataValueField("Value")
+                        .DataTextField("Text")
+                        .HighlightFirst(true)
+                        .SelectedIndex(0)
+                        )
+                    </p>
+                     <p class="button-height inline-label small-margin-bottom">
+                        <label for="FileDocument" class="label">
+                            <strong>Attach a file</strong></label>
+                        @(Html.Kendo().Upload()
+                    .Name("FileDocument")
+                        .Async(a => a
+                            .Save("Save", "Documents", new { area = "Common" })
+                            .AutoUpload(false)
+                            .RemoveUrl("/Remove")
+
+            )
+            .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+            .Multiple(false)
+            .ShowFileList(true)
+            .HtmlAttributes(new { @style = "text-align:right;" })
+        )
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="FileDocument" class="label">&nbsp;
+
+                            </label>
+                            <small>Upload file size should be less than 10MB.</small>
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Comment" class="label">
+                            Comment</label>
+                        @Html.TextArea("Comment", new { @class = "validate[required,[maxSize[255]] input full-width", maxlength = 255 })
+                    </p>
+                    <div style="text-align: center">
+                        <button id="btnCancelDocument" class="button gray-gradient glossy" type="button">
+                            Cancel</button>&nbsp;&nbsp;
+                        <button id="btnAddDocument" class="button green-gradient glossy" type="button">
+                            Save</button>
+                    </div>
+                    @Html.HiddenFor(x => x.RecordId)
+                    @Html.HiddenFor(x => x.EntityName)
+                    @Html.HiddenFor(x => x.SourceSystem)
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    
+}
+<script type="text/javascript">
+    $(function () {
+        $("#btnCancelDocument").click(function (e) {
+            HideValidationMessage($('input[name="FileDocument"]'));
+            HideValidationMessage($('input[name="DocumentCategoryId_input"]'));
+            document.dialogResult = "CANCEL";
+            documentWindow.data('kendoWindow').close();
+            return false;
+        });
+        $("#btnAddDocument").click(function (e) {
+            //ClearDirtyFlag("popupcontainer");
+            
+            var isValid = IsFormValid();
+
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+            if ($(".k-upload-selected").length > 0) {
+                console.log("File uploaded so going via Kendo Upload");
+                $(".k-upload-selected").click();
+            }
+            else {
+                console.log("No file uploaded so posting via normal AJAX");
+                var postData = $("#@suffixId").serializeArray();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Save", "Documents", new { area = "Common" })',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    async: true,
+                    global: true,
+                    success: function (msg) {
+                        HideValidationMessage($('input[name="FileDocument"]'));
+                        document.dialogResult = "OK";
+                        documentWindow.data('kendoWindow').close();
+                    }
+                });
+            }
+            return false;
+        });
+    });
+    function IsFormValid() {
+        var isValid = true;
+        var $documentCategory = $("#DocumentCategoryId").data("kendoComboBox").value();
+
+        if ($(".k-upload-selected").length == 0) {
+            ShowValidationMessage($('input[name="FileDocument"]'), "Please upload file");
+            isValid = false;
+        }
+        if ($documentCategory == '' || $documentCategory == undefined || $documentCategory == null) {
+            ShowValidationMessage($('input[name="DocumentCategoryId_input"]'), "This field is required ");
+            isValid = false;
+        }
+        return isValid;
+    }
+</script>

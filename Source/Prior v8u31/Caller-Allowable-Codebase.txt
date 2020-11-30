@@ -1,0 +1,6 @@
+Permissions: all-permissions
+Caller-Allowable-Codebase: odisp3e infdmstest2 odis odis.training.motorcluboperations.com odis.test.motorcluboperations.com odis.motorcluboperations.com localhost 127.0.0.1
+Trusted-Library: true
+
+
+

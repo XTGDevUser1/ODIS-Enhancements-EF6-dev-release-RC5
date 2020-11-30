@@ -1,0 +1,146 @@
+﻿@model Martex.DMS.DAL.Entities.MemberModel
+@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models;
+@{
+    var suffixMembershipID = ViewData["MembershipID"].ToString();
+    var membershipNumber = ViewData["MemberNumber_AM"].ToString();
+    var clientName = ViewData["Client_AM"].ToString();
+}
+<style type="text/css">
+    .ui-datepicker
+    {
+        z-index: 99999 !important;
+    }
+</style>
+<form method="post" action="javascript:void(0);" id="frmAddMembershipMember_@suffixMembershipID">
+<div class="with-padding-with-panels popupcontainer">
+    <fieldset class="fieldset">
+        <legend class="legend">Add Member to Membership</legend>
+        <div class="inline-label" style="margin-bottom: 10px;">
+            <label for="Client" class="label">
+                Client
+            </label>
+            @clientName
+        </div>
+        <div class="inline-label" style="margin-bottom: 10px;">
+            <label for="Program" class="label">
+                Program <span class="spanstar">*</span>
+            </label>
+            @(Html.Kendo().ComboBox()
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>)
+            .Name("AMProgramID_" + suffixMembershipID)
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo");
+                //events.Change(@<text>function(e){onComboBoxChange_ClientReference(this,'@suffixMembershipID');}</text>);
+            })
+            .Suggest(true)
+            .Filter(FilterType.StartsWith)
+            .MinLength(0)
+            .SelectedIndex(0)
+            .HtmlAttributes(new { style = "width:85%;", id = "AMProgramID_" + suffixMembershipID })
+            )
+        </div>
+        <div class="inline-label" style="margin-bottom: 10px;">
+            <label for="MemberNumber" class="label">
+                Member Number
+            </label>
+            @membershipNumber
+        </div>
+        <div class="inline-label" style="margin-bottom: 10px;">
+            <label for="Prefix" class="label">
+                Prefix
+            </label>
+            @(Html.Kendo().ComboBox()
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Prefix.ToString()] as IEnumerable<SelectListItem>)
+            .Name("AMPrefix_" + suffixMembershipID)
+            .HtmlAttributes(new { style = "width:85%;" })
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo");
+            })
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            )
+        </div>
+        <p class="inline-label">
+            <label for="FirstName" class="label">
+                First Name <span class="spanstar">*</span></label>
+            @Html.TextBox("AMFirstName_" + suffixMembershipID, "", new { @class = "validate[required,maxSize[50],custom[onlyLetterSp]], input full-width2" })
+        </p>
+        <p class="inline-label">
+            <label for="MiddleName" class="label">
+                Middle Name</label>
+            @Html.TextBox("AMMiddleName_" + suffixMembershipID, "", new { @class = "validate[maxSize[50],custom[onlyLetterSp]], input full-width2" })
+        </p>
+        <p class="inline-label">
+            <label for="LastName" class="label">
+                Last Name <span class="spanstar">*</span></label>
+            @Html.TextBox("AMLastName_" + suffixMembershipID, "", new { @class = "validate[required,maxSize[50],custom[onlyLetterSp]], input full-width2" })
+        </p>
+        <div class="inline-label" style="margin-bottom: 10px;">
+            <label for="Suffix" class="label">
+                Suffix
+            </label>
+            @(Html.Kendo().ComboBox()
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Suffix.ToString()] as IEnumerable<SelectListItem>)
+            .Name("AMSuffix_" + suffixMembershipID)
+            .HtmlAttributes(new { style = "width:85%;" })
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo");
+            })
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            )
+        </div>
+        <p class="inline-label">
+            <label for="Phone" class="label">
+                Phone <span class="spanstar">*</span></label>
+            @Html.Editor("AMPhoneNumber_" + suffixMembershipID, "Phone", new { ShowPhoneType = true, IsRequired = "true" })
+        </p>
+        @Html.Partial("_Membership_Member_AddressDetails")
+        <p class="inline-label">
+            <label for="Email" class="label">
+                Email</label>
+            @Html.TextBox("AMEmail_" + suffixMembershipID, "", new { @class = "validate[maxSize[50],custom[email]], input full-width2" })
+        </p>
+        <!-- Effective and Expiry date -->
+        <div id="divEffectiveDate_@suffixMembershipID">
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="EffectiveDate" class="label">
+                    Effective Date<span class="spanstar"> *</span></label>
+                @(Html.Kendo().DatePickerFor(u => u.EffectiveDate)
+                .HtmlAttributes(new { style = "width:85%;", id = "AMEffectiveDate_" + suffixMembershipID, type = "text" })
+                    )
+            </p>
+        </div>
+        <div id="divExpirationDate_@suffixMembershipID">
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="ExpirationDate" class="label">
+                    Expiration Date<span class="spanstar"> *</span></label>
+                @(Html.Kendo().DatePickerFor(u => u.ExpirationDate)
+                .HtmlAttributes(new { style = "width:85%;", id = "AMExpirationDate_" + suffixMembershipID, type = "text" })
+                )
+            </p>
+        </div>
+        <div class="field-block button-height">
+            <button id="btnAddEditMember" class="button green-gradient glossy float-right mid-margin-left"
+                type="button" onclick="SaveAddMembershipMember(this,@suffixMembershipID,'@membershipNumber',true)">
+                Save & Edit
+            </button>
+            <button id="btnAddMember" class="button green-gradient glossy float-right mid-margin-left"
+                type="button" onclick="SaveAddMembershipMember(this,@suffixMembershipID,'@membershipNumber',false)">
+                Save
+            </button>
+            <button id="btnCancelMember" class="button gray-gradient glossy  float-right" type="button" onclick="CancelAddMembershipMember(this,@suffixMembershipID)">
+                Cancel
+            </button>
+        </div>
+    </fieldset>
+</div>
+</form>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<script type="text/javascript" language="javascript">
+    $("#frmAddMembershipMember_@suffixMembershipID").validationEngine();
+</script>

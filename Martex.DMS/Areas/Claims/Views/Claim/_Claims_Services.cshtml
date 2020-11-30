@@ -1,0 +1,194 @@
+﻿@using Martex.DMS.DAL.Entities.Claims;
+@using Kendo.Mvc.UI
+@model ClaimInformationModel
+@{
+    string suffixClaimID = Model.Claim.ID.ToString();
+    var dummyList = new List<SelectListItem>();
+    bool isPaid = false;
+    if (!string.IsNullOrEmpty(Model.ClaimStatusName))
+    {
+        if (Model.ClaimStatusName.Equals("Paid"))
+        {
+            isPaid = true;
+        }
+    }
+    bool basic = false;
+
+    if (!string.IsNullOrEmpty(Model.Claim.PayeeType))
+    {
+        if (Model.Claim.PayeeType.Equals("Member"))
+        {
+            basic = true;
+        }
+    }
+    if ("Roadside Reimbursement".Equals(Model.ClaimTypeName, StringComparison.InvariantCultureIgnoreCase))
+    {
+        basic = true;
+    }
+    if ("Motorhome Reimbursement".Equals(Model.ClaimTypeName, StringComparison.InvariantCultureIgnoreCase))
+    {
+        basic = false;
+    }
+}
+<form id="frmClaimServices_@suffixClaimID" action="javascript:void(0);" method="post" relatedButtons="btnSaveClaimSection_@suffixClaimID">
+<div class="with-padding">
+    <div class="columns">
+        @if (basic)
+        {
+            <div class="six-columns" id="PlaceHolder_Claim_Vehicle_ServiceInformation_@suffixClaimID">
+                <fieldset class="fieldset">
+                    <legend class="legend">Service Information</legend>
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label for="product" class="label">
+                            Service</label>
+                        @(Html.Kendo().ComboBoxFor(item => Model.Claim.ServiceProductCategoryID)
+
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ServiceType.ToString()] as IEnumerable<SelectListItem>)
+
+                            .Placeholder("Select Service Type")
+                            .Suggest(true)
+                            .Enable(!isPaid)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events
+                                    .Change(@<text> function(e){ return ValidateInputForKendoCombo(e) ;}</text>))
+                                    .HtmlAttributes(new { id = "ServiceProductCategoryID_" + suffixClaimID, style = "width:100%" })
+                    .Value(Model.Claim.ServiceProductCategoryID != null ? Model.Claim.ServiceProductCategoryID.ToString() : string.Empty)
+                            .DataTextField("Text")
+                            .HighlightFirst(true)
+                            .DataValueField("Value")
+                            )
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="location" class="label">
+                                Location
+                            </label>
+                            @if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceLocation, new { @class = "input full-width2", id = "ServiceLocation_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceLocation, new { @class = "input full-width2", id = "ServiceLocation_" + suffixClaimID })
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="destination" class="label">
+                                Destination
+                            </label>
+                            @if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.DestinationLocation, new { @class = "input full-width2", id = "DestinationLocation_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.DestinationLocation, new { @class = "input full-width2", id = "DestinationLocation_" + suffixClaimID })
+                            }
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="servicemiles" class="label">
+                                Service Miles
+                            </label>
+                            @*@if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceMiles, new { @class = "validate[custom[number]] input full-width2", id = "ServiceMiles_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceMiles, new { @class = "validate[custom[number]] input full-width2", id = "ServiceMiles_" + suffixClaimID })
+                            }*@
+                            @(Html.Kendo().NumericTextBoxFor(v => v.Claim.ServiceMiles)
+                                .Decimals(0)
+                                .Format("{0:N0}")
+                                .HtmlAttributes(new { id = "ServiceMiles_" + suffixClaimID }).Enable(!isPaid)
+                                .Spinners(false)
+                        )
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="facilityName" class="label">
+                                Facility Name
+                            </label>
+                            @if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceFacilityName, new { @class = "input full-width2", id = "ServiceFacilityName_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => Model.Claim.ServiceFacilityName, new { @class = "input full-width2", id = "ServiceFacilityName_" + suffixClaimID })
+                            }
+                        </p>
+                    </div>
+                </fieldset>
+            </div>
+        }
+        else
+        {
+            <div class="three-columns">
+                <div class="full-width">
+                    <div class=" margin-bottom">
+                        <h3 class="thin underline">
+                            New Comments</h3>
+                        <div class="twenty-rows">
+                            <p>
+                                @Html.TextArea("txtClaimComments", "", new { @class = "input full-width", rows = 20, cols = 50, id = "txtClaimComments_" + suffixClaimID })
+                                <!-- ID to help add/ update the current comment during tab switch -->
+                            </p>
+                            <button id="btnSaveComments_@suffixClaimID" class="button green-gradient full-width small-margin-right small-margin-bottom"
+                                type="button" onclick="return SaveClaimComments(this,'@suffixClaimID');">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="full-width boxed white-bg">
+                    <div class=" margin-bottom">
+                        <h3 class="thin underline">
+                            Previous Comments</h3>
+                        <div class="scrollable twenty-rows">
+                            <div class="with-padding">
+                                <ul class="message-menu" id="previousComments_@suffixClaimID">
+                                    @if (Model.PreviousComments != null && Model.PreviousComments.Count > 0)
+                                    {
+                           
+                                        @Html.Partial("_PreviousComments", Model)
+                           
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="full-width">
+                    <div class=" margin-bottom">
+                        <h3 class="thin underline">
+                            Diagnostic Codes</h3>
+                        <div class="scrollable twenty-rows">
+                            <div class="with-padding">
+                                <p>
+                                    <button id="btnCodes_@suffixClaimID" class="button green-gradient full-width small-margin-right small-margin-bottom"
+                                        type="button" onclick="return ShowCodes('@suffixClaimID');">
+                                        Select Codes
+                                    </button>
+                                </p>
+                                <div id="selectedCodes_@suffixClaimID">
+                                    @Html.Partial("_ClaimDiagnosticCodes", Model.DiagnosticCodes ?? new List<Martex.DMS.BLL.Model.ServiceDiagnosticCodeModel>())
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+</form>

@@ -1,0 +1,180 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.Entities.DynamicFields>
+@if (Model != null && Model.Count > 0)
+{
+    <form name="frmMemberRegisterDynamicFields" id="frmMemberRegisterDynamicFields" action="#" class="frmMemberRegisterDynamicFields">
+        <div class="programDataFields">
+            @foreach (var result in Model)
+            {
+                if (result.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Textbox)
+                {
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            @if (result.IsRequired)
+                            {
+                                if (result.DataType == Martex.DMS.DAL.Entities.DynamicFieldsDataType.Date)
+                                {
+                                    <label class="label">
+                                        @result.Label<span class="spanstar">*</span>
+                                    </label>
+                                    <input type="text" class="input validate[required,funcCall[CheckDate]] datepicker" id="@result.FieldName"
+                                           name="@result.FieldName" style="width:150px;" />
+                                }
+                                else
+                                {
+                                    if (result.Label == "CurrentMileage" || result.Label == "Current Mileage")
+                                    {
+                                        <label class="label">
+                                            @result.Label<span class="spanstar">*</span>
+                                        </label>
+                                        <input type="text" class="input validate[required,maxSize[@result.MaxLength],min[1]]" id="@result.FieldName"
+                                               name="@result.FieldName" style="width:150px;" />
+                                    }
+                                    else
+                                    {
+                                        <label class="label">
+                                            @result.Label<span class="spanstar">*</span>
+                                        </label>
+                                        <input type="text" class="input validate[required,maxSize[@result.MaxLength]]" id="@result.FieldName"
+                                               name="@result.FieldName" style="width:150px;" />
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (result.DataType == Martex.DMS.DAL.Entities.DynamicFieldsDataType.Date)
+                                {
+                                    <label class="label">
+                                        @result.Label
+                                    </label>
+                                    <input type="text" class="input validate[funcCall[CheckDate]] datepicker" id="@result.FieldName"
+                                           name="@result.FieldName" style="width:150px;" />
+                                }
+                                else
+                                {
+                                    if (result.Label == "CurrentMileage")
+                                    {
+                                        <label class="label">
+                                            @result.Label
+                                        </label>
+                                        <input type="text" class="input validate[maxSize[@result.MaxLength],min[1]]" id="@result.FieldName"
+                                               name="@result.FieldName" style="width:150px;" />
+                                    }
+                                    else
+                                    {
+                                        <label class="label">
+                                            @result.Label
+                                        </label>
+                                        <input type="text" class="input validate[maxSize[@result.MaxLength]]" id="@result.FieldName"
+                                               name="@result.FieldName" style="width:150px;" />
+                                    }
+                                }
+
+                            }
+                        </p>
+                    </div>
+                }
+                else if (result.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Dropdown
+                || result.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Combobox)
+                {
+                    <div class="button-height inline-label small-margin-bottom">
+                        @if (result.IsRequired)
+                        {
+                            <label class="label">
+                                @result.Label<span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                              .Name(@result.FieldName)
+                              .Suggest(true)
+                              .HighlightFirst(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .BindTo(new SelectList(result.DropDownValues, "Name", "Value"))
+                              .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                                      .HtmlAttributes(new { style = "width:150px;", @class = "required" })
+                            )
+                        }
+                        else
+                        {
+                            <label class="label">
+                                @result.Label
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                              .Name(@result.FieldName)
+                              .Suggest(true)
+                              .HighlightFirst(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .BindTo(new SelectList(result.DropDownValues, "Name", "Value"))
+                              .Events(events => events.Change("ValidateInputForKendoCombo"))
+                              .HtmlAttributes(new { style = "width:150px;" })
+                            )
+                        }
+                    </div>
+
+                }
+                <div class="clear">
+                </div>
+                <br />
+
+            }
+        </div>
+    </form>
+}
+<script type="text/javascript">
+    var validateDynamicFields;
+    var getDynamicFieldsValues;
+    $(function () {
+        $(".datepicker").focus(function () {
+            $("#ui-datepicker-div").css("z-index", "99999");
+        });
+
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+
+        if ($(".frmMemberRegisterDynamicFields") != null && $(".frmMemberRegisterDynamicFields").length > 0) {
+            $($(".frmMemberRegisterDynamicFields")[$(".frmMemberRegisterDynamicFields").length - 1]).validationEngine();
+        }
+
+        validateMemberRegisterDynamicFields = function ValidateMemberRegisterProgramDynamicFields() {
+
+            var isValid = true;
+            if ($(".frmMemberRegisterDynamicFields").length > 0) {
+                var prgForm = $($(".frmMemberRegisterDynamicFields")[$(".frmMemberRegisterDynamicFields").length - 1]);
+                if (prgForm.validationEngine('validate') == false) {
+                    isValid = false;
+                }
+                // Validate telerik comboboxes.
+                prgForm.find('span.required input:text').each(function () {
+                    if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                        var val = $(this).val();
+                        if ($.trim(val).length == 0) {
+                            ShowValidationMessage($(this), "Please select a value.");
+                            isValid = false;
+                        }
+                        else {
+                            HideValidationMessage($(this));
+                        }
+                    }
+                });
+
+                if (isValid) {
+                    prgForm.validationEngine('hide');
+                }
+            }
+            return isValid;
+        }
+
+        getMemberRegisterDynamicFieldsValues = function GetMemberRegisterProgramDynamicFieldsValues() {
+
+            if ($(".frmMemberRegisterDynamicFields").length > 0) {
+                var prgForm = $($(".frmMemberRegisterDynamicFields")[$(".frmMemberRegisterDynamicFields").length - 1]);
+                return prgForm.serializeArray();
+            }
+            return [];
+        }
+    });
+
+    
+</script>

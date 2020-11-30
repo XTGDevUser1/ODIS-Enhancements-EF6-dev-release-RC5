@@ -1,0 +1,1087 @@
+﻿@model Martex.DMS.DAL.Entities.MemberDetailsModel
+@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+@{
+    string allowMemberExpirationUpdate = ViewData["AllowMemberExpirationUpdate"] == null ? string.Empty : ViewData["AllowMemberExpirationUpdate"].ToString();
+    string allowMemberNameChange = ViewData["AllowMemberNameChange"] == null ? string.Empty : ViewData["AllowMemberNameChange"].ToString();
+    string allowMemberProgramChange = ViewData["AllowMemberProgramChange"] == null ? string.Empty : ViewData["AllowMemberProgramChange"].ToString();
+    var membersExpirationDate = Model.MembershipInformation.ExpirationDate;
+    bool IsMemberProductsFound = false;
+    if (Model.MemberProductsList != null && Model.MemberProductsList.Count > 0)
+    {
+        IsMemberProductsFound = true;
+    }
+
+}
+<script type="text/javascript">
+
+
+
+    $(document).ready(function () {
+
+        WatchMyContainer('frmEditMemberExpirationDate_Member', null, null);
+        WatchMyContainer('frmEditMemberName_Member', null, null);
+        WatchMyContainer('frmEditMemberProgram', null, null);
+    });
+
+    function StateBind(countryValue, SelectedValue) {
+        var comboChild = $("#StateProvinceID").data("kendoComboBox");
+        var comboChildInputField = $('input[name="StateProvinceID_input"]');
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+            data: { countryId: countryValue },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                comboChild.setDataSource(msg);
+                comboChild.select(0);
+                if (SelectedValue == null) {
+                    comboChild.select(0);
+                }
+                else {
+                    comboChild.value(SelectedValue);
+                }
+                SetFocusOnField("StateProvinceID");
+            }
+
+        });
+    }
+    function Country_OnChange(e) {
+        var combo = $("#CountryID").data("kendoComboBox");
+        var comboChild = $("#StateProvinceID").data("kendoComboBox");
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+        else {
+            if (combo.value != '') {
+                StateBind(combo.value(), null);
+            }
+        }
+
+    }
+
+
+    function State_OnChange(e) {
+        var combo = $("#StateProvinceID").data("kendoComboBox");
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    // For Showing Pop Up
+    function GrdServiceRequestHistory_OnRequestComplete(e) {
+        var Id = e.response.serviceRequestID;
+        if (e.name == "viewServiceRequest") {
+            ShowServiceRequestPopUp(Id, "Service Request Details");
+        }
+    }
+    // For Double Click on Row
+    function GrdServiceRequestHistory_OnLoad(e) {
+        if (e.type == "load") {
+            $('tr:has(td)', this).live('dblclick', function (e) {
+                $(this).find(".t-grid-viewServiceRequest").click();
+            });
+        }
+    }
+
+    var queueDetailWindow;
+    var originalSR = '@DMSCallContext.ServiceRequestID';
+    function ShowServiceRequestPopUp(serviceID, popupTitle) {
+        var title = popupTitle;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Get", "Queue")',
+            traditional: true,
+            cache: false,
+            data: { queueId: serviceID, fromStartCall: true },
+            async: true,
+            success: function (msg) {
+                queueDetailWindow = $("<div id='queueDetailWindow' />").appendTo(document.body);
+                queueDetailWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 1000,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("ResetSR", "Queue")',
+                            traditional: true,
+                            data: { serviceRequestId: originalSR },
+                            cache: false,
+                            async: true,
+                            success: function (msg) { }
+                        });
+                        if (typeof isInSRPopup != "undefined") {
+                            isInSRPopup = false;
+                        }
+                        isdirty = false;
+                        $(this).remove();
+                        return true;
+                    }
+                });
+                queueDetailWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+
+    }
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $(".k-grid-content").css("height", "320px");
+
+        HandleDblClickOnGrid($("#GrdServiceRequestHistory"), '.k-grid-View');
+    });
+
+    function onDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 4);
+    }
+
+    function ViewSRDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+            var ID = this.dataItem($(e.currentTarget).closest("tr")).ServiceRequestNumber;
+            ShowServiceRequestPopUp(ID, "Service Request Details");
+        }
+        return false;
+    }
+</script>
+@if (Model != null)
+{
+    @Html.Partial("_ServiceRequestExceptions", ViewData)
+    <div class="with-padding">
+        <div class="columns">
+            <!-- First row -->
+            @if (Model.MembershipInformation != null)
+            {
+
+                <div class="three-columns">
+                    <h3 class="underline">
+                        Member Information
+                    </h3>
+                    <div class="boxed left-border white-bg memberBadge">
+                        @if (Model.IsMemberNameEdit)
+                        {
+                            <div class="inline-label float-right">
+                                <button id="btnUpdateMember" class="button small green-gradient" type="button">
+                                    Edit
+                                </button>
+                            </div>
+                        }
+                        <div id="divMemberName_Member">
+                            <p class="inline-label">
+                                <label for="MemberName" class="label">
+                                    Member Name
+                                </label>
+                                <span class="blue"><strong>@Model.MembershipInformation.MemberName</strong></span>
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_MEMBER_EDIT_NAME) == AccessType.ReadWrite)
+                                {
+                                    if (allowMemberNameChange == "True")
+                                    {
+                                        <span class="icon-pencil icon-size2 with-tooltip small-margin-left" id="btnEditMemberName_Member"
+                                              title="Edit Member's Name"></span>
+                                    }
+                                }
+
+                            </p>
+                        </div>
+                        <div id="divEditMemberName_Member" style="display: none">
+                            <br />
+                            <form id="frmEditMemberName_Member" action="javascript:void(0);" method="post">
+                                <fieldset class="fieldset">
+                                    <legend class="legend">Change Member Name</legend>
+                                    <p class="inline-label">
+                                        <label for="FirstName" class="label">
+                                            First Name
+                                        </label>
+                                        @Html.TextBoxFor(a => a.MembershipInformation.FirstName, new { @class = "input full-width" })
+                                    </p>
+                                    <br />
+                                    <p class="inline-label">
+                                        <label for="MiddleName" class="label">
+                                            Middle Name
+                                        </label>
+                                        @Html.TextBoxFor(a => a.MembershipInformation.MiddleName, new { @class = "input full-width" })
+                                    </p>
+                                    <br />
+                                    <p class="inline-label">
+                                        <label for="LastName" class="label">
+                                            Last Name <span class="spanstar">*</span>
+                                        </label>
+                                        @Html.TextBoxFor(a => a.MembershipInformation.LastName, new { @class = "input full-width" })
+                                    </p>
+                                    <br />
+
+                                    <div class="new-row twelve-columns with-padding">
+                                        <button id="btnUpdateMemberName_Member" class="button small glossy green-gradient float-right mid-margin-left margin-bottom"
+                                                type="button">
+                                            Save
+                                        </button>
+                                        <button id="btnCancelMemberName_Member" class="button small glossy gray-gradient float-right  margin-bottom"
+                                                type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <p class="inline-label">
+                            <label for="MemberNumber" class="label">
+                                Member ID#
+                            </label>
+                            @Model.MembershipInformation.MemberNumber
+                        </p>
+                        <p class="inline-label">
+                            <label for="Status" class="label">
+                                Status
+                            </label>
+                            @if (Model.MembershipInformation.MemberStatus == "Active")
+                            {
+                            <small class="tag green-bg">@Model.MembershipInformation.MemberStatus</small>
+                            }
+                            else
+                            {
+                            <small class="tag red-bg">@Model.MembershipInformation.MemberStatus</small>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.MembershipContactInformation.ClientMemberType))
+                            {
+                                switch (Model.MembershipContactInformation.ClientMemberType.ToLower())
+                                {
+                                    case "pcs":
+                                        {
+                            <small class="tag purple-bg">PCS</small>
+                                            break;
+                                        }
+                                    case "vip":
+                                        {
+                            <small class="tag purple-bg">VIP</small>
+                                            break;
+
+                                        }
+                                    case "employee":
+                                        {
+                            <small class="tag purple-bg">EMPLOYEE</small>
+                                            break;
+                                        }
+
+                                }
+                            }
+                        </p>
+                        <p class="inline-label">
+                            <label for="Client" class="label">
+                                Client
+                            </label>
+                            @Model.MembershipInformation.Client
+                        </p>
+                        <div id="divMemberProgram">
+                            <p class="inline-label">
+                                <label for="Program" class="label">
+                                    Program
+                                </label>
+                                @Model.MembershipInformation.Program
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_MEMBER_EDIT_PROGRAM) == AccessType.ReadWrite)
+                                {
+                                    if (allowMemberProgramChange == "True")
+                                    {
+                                        <span class="icon-pencil icon-size2 with-tooltip small-margin-left" id="btnEditMemberProgram"
+                                              title="Edit Member's Program"></span>
+                                    }
+                                }
+                            </p>
+                        </div>
+                        <div id="divEditMemberProgram" style="display: none">
+                            <br />
+                            <form id="frmEditMemberProgram" action="javascript:void(0);" method="post">
+                                <fieldset class="fieldset">
+                                    <legend class="legend">Change Member Program</legend>
+                                    <p class="inline-label">
+                                        <label for="Program" class="label">
+                                            From Program
+                                        </label>
+                                        @Model.MembershipInformation.Program
+                                    </p>
+                                    <br />
+                                    <p class="inline-label">
+                                        <label for="MiddleName" class="label">
+                                            To Program
+                                        </label>
+                                        @(Html.Kendo().ComboBox()
+                                            .Name("MemberToProgramID")
+                                            .Suggest(true)
+                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                            .BindTo(ViewData["TransitionProgramForMember"] as IEnumerable<SelectListItem>)
+                                            .SelectedIndex(0)
+                                            .HtmlAttributes(new { style = "width:100% " })
+                                            .Events(events =>
+                                            {
+                                                events.Change("ValidateInputForKendoCombo");
+                                            })
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                        )
+                                    </p>
+                                    <br />
+                                    <p class="inline-label">
+                                        <label for="MemberProgramChangeComments" class="label">
+                                            Comments
+                                        </label>
+                                        @Html.TextArea("MemberProgramChangeComments", new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                                    </p>
+                                    <br />
+                                    <div class="new-row twelve-columns with-padding">
+                                        <button id="btnUpdateMemberProgram" class="button small glossy green-gradient float-right mid-margin-left margin-bottom"
+                                                type="button">
+                                            Save
+                                        </button>
+                                        <button id="btnCancelMemberProgram" class="button small glossy gray-gradient float-right  margin-bottom"
+                                                type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                        <p class="inline-label">
+                            <label for="MemberSince" class="label">
+                                Member Since
+                            </label>
+                            @Model.MembershipInformation.MemberSince
+                        </p>
+                        <p class="inline-label">
+                            <label for="Effective" class="label">
+                                Effective
+                            </label>
+                            @Model.MembershipInformation.Effective
+                        </p>
+                        <div id="divMemberExpirationDate_Member">
+                            <p class="inline-label">
+                                <label for="Expiration" class="label">
+                                    Expiration
+                                </label>
+                                @Model.MembershipInformation.Expiration
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_MEMBER_EDIT_EXPIRATION) == AccessType.ReadWrite)
+                                {
+                                    if (allowMemberExpirationUpdate == "True")
+                                    {
+                                        <span class="icon-pencil icon-size2 with-tooltip small-margin-left" id="btnEditMemberExpirationDate_Member"
+                                              title="Edit Member's Expiration Date"></span>
+                                    }
+                                }
+                            </p>
+                        </div>
+                        <div id="divEditMemberExpirationDate_Member" style="display: none">
+                            <br />
+                            <form id="frmEditMemberExpirationDate_Member" action="javascript:void(0);" method="post">
+                                <fieldset class="fieldset">
+                                    <legend class="legend">Change Expiration Date</legend>
+                                    <p class="inline-label">
+                                        <label for="ExpirationDate" class="label">
+                                            Expiration
+                                        </label>
+                                        @(Html.Kendo().DatePickerFor(a => a.MembershipInformation.ExpirationDate)
+                                .Min(Model.MembershipInformation.EffectiveDate.GetValueOrDefault())
+                                .HtmlAttributes(new { style = "width:90%", type = "text" })
+                                        )
+                                    </p>
+                                    <br />
+                                    <p class="inline-label">
+                                        <label for="MemberExpirationDateChangeComments" class="label">
+                                            Comments
+                                        </label>
+                                        @Html.TextArea("MemberExpirationDateChangeComments_Member", new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                                    </p>
+                                    <div class="new-row twelve-columns with-padding">
+                                        <button id="btnUpdateMemberExpirationDate_Member" class="button small glossy green-gradient float-right mid-margin-left margin-bottom"
+                                                type="button">
+                                            Save
+                                        </button>
+                                        <button id="btnCancelMemberExpirationDate_Member" class="button small glossy gray-gradient float-right  margin-bottom"
+                                                type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                            <br />
+                        </div>
+                        <p class="inline-label">
+                            <label for="ClientReference" class="label">
+                                Client Reference #
+                            </label>
+                            @Model.MembershipInformation.ClientRefNumber
+                        </p>
+                        <p class="inline-label">
+                            <label for="Created" class="label">
+                                Created
+                            </label>
+                            @Model.MembershipInformation.Created
+                        </p>
+                        <p class="inline-label">
+                            <label for="LastUpdated" class="label">
+                                Last Updated
+                            </label>
+                            @Model.MembershipInformation.LastUpdate
+                        </p>
+                    </div>
+                    @if (Model.MembershipInformation.MembershipNote != null)
+                    {
+                        @* Bug 1779: Hiding Membership Note group when Membership Note is null*@
+                        <h3 class="underline">
+                            Membership Note
+                        </h3>
+
+                        <div class="boxed left-border redalert memberBadge">
+                            <div class="with-padding ">
+                                <h5>@Model.MembershipInformation.MembershipNote</h5>
+                            </div>
+                        </div>
+                    }
+                    @*else
+                        {
+                            <div class="boxed left-border white-bg memberBadge"></div>
+                        }*@
+                </div>
+            }
+            @if (Model.MembershipContactInformation != null)
+            {
+                // CR : 1252
+                bool defaultContactName = (bool)ViewData["DefaultContactName"];
+                string memberFirstName = string.Empty;
+                string memberLastName = string.Empty;
+                string memberEmail = string.Empty;
+                if (defaultContactName)
+                {
+                    if (string.IsNullOrEmpty(DMSCallContext.ContactFirstName))
+                    {
+                        memberFirstName = Model.MembershipContactInformation.FirstName;
+                    }
+                    else
+                    {
+                        memberFirstName = DMSCallContext.ContactFirstName;
+                    }
+                    if (string.IsNullOrEmpty(DMSCallContext.ContactLastName))
+                    {
+                        memberLastName = Model.MembershipContactInformation.LastName;
+                    }
+                    else
+                    {
+                        memberLastName = DMSCallContext.ContactLastName;
+                    }
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(DMSCallContext.ContactFirstName))
+                    {
+                        memberFirstName = DMSCallContext.ContactFirstName;
+                    }
+                    if (!string.IsNullOrEmpty(DMSCallContext.ContactLastName))
+                    {
+                        memberLastName = DMSCallContext.ContactLastName;
+                    }
+                }
+
+                <div class="five-columns">
+                    <form id="frmMemberDetails" action="#">
+                        <fieldset class="fieldset">
+                            @* style="min-height:400px"*@ <legend class="legend">
+                                Member
+                                Contact Details
+                            </legend>
+                            <div class="with-small-padding">
+                                <div>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="ContactName" class="label">
+                                            Contact First <span class="spanstar">*</span>
+                                        </label>
+                                        @Html.TextBox("FirstName", memberFirstName, new { @class = "validate[required,maxSize[50]], input full-width2" })
+                                    </p>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="ContactLast" class="label">
+                                            Contact Last <span class="spanstar">*</span>
+                                        </label>
+                                        @Html.TextBox("LastName", memberLastName, new { @class = "validate[required,maxSize[50]], input full-width2" })
+                                    </p>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="IsDeliveryDriver" class="label">
+                                            Delivery Driver
+                                        </label>
+                                        @Html.CheckBox("IsDeliveryDriver", (DMSCallContext.IsDeliveryDriver), new { @class = "checkbox" })
+                                    </p>
+                                </div>
+                                @{
+                var startCallData = DMSCallContext.StartCallData;
+                                }
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="MemberCallbackNumber" class="label">
+                                            Callback
+                                        </label>
+                                        @Html.Editor("MemberCallbackNumber", "Phone", new { entityName = "Member", Value = startCallData.ContactPhoneNumber, PhoneTypeValue = startCallData.ContactPhoneTypeID, CallType = "Member" })
+                                        @Html.Hidden("MemberCallbackNumberPhoneType", startCallData.ContactPhoneTypeID)
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="MemberAlternateCallbackNumber" class="label">
+                                            Alternate
+                                        </label>
+                                        @Html.Editor("MemberAlternateCallbackNumber", "Phone", new { entityName = "Member", Value = startCallData.ContactAltPhoneNumber, PhoneTypeValue = startCallData.ContactAltPhoneTypeID, CallType = "Member" })
+                                        @Html.Hidden("MemberAlternateCallbackNumberPhoneType", startCallData.ContactAltPhoneTypeID)
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="Address1" class="label">
+                                            Address 1
+                                        </label>
+                                        @Html.TextBox("Address1", Model.MembershipContactInformation.Address1, new { @class = "validate[maxSize[100]], input full-width2" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="Address2" class="label">
+                                            Address 2
+                                        </label>
+                                        @Html.TextBox("Address2", Model.MembershipContactInformation.Address2, new { @class = "validate[maxSize[100]], input full-width2" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="Address3" class="label">
+                                            Address 3
+                                        </label>
+                                        @Html.TextBox("Address3", Model.MembershipContactInformation.Address3, new { @class = "validate[maxSize[100]], input full-width2" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="City" class="label">
+                                            City
+                                        </label>
+                                        @Html.TextBox("City", Model.MembershipContactInformation.City, new { @class = "validate[maxSize[100]], input full-width2" })
+                                    </p>
+                                </div>
+                                <div class="button-height inline-label small-margin-bottom">
+                                    <label for="Country" class="label">
+                                        Country
+                                    </label>
+                                    @(Html.Kendo().ComboBoxFor(u => u.MembershipContactInformation.CountryID)
+                                              .Name("CountryID")
+                                              .Suggest(true)
+                                              .Filter(FilterType.StartsWith).MinLength(0)
+                                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                                              .SelectedIndex(0)
+                                              .Events(events =>
+                                              {
+                                                  events.Change("Country_OnChange");
+                                              })
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .Value(Model.MembershipContactInformation.CountryID == null ? string.Empty : Model.MembershipContactInformation.CountryID.Value.ToString())
+                                    )
+                                </div>
+                                <div class="button-height inline-label small-margin-bottom">
+                                    <label for="StateZip" class="label">
+                                        State, Zip
+                                    </label>
+                                    @(Html.Kendo().ComboBoxFor(u => u.MembershipContactInformation.StateID)
+                                              .Name("StateProvinceID")
+                                              .Suggest(true)
+                                              .Filter(FilterType.StartsWith).MinLength(0)
+                                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+                                              .Events(events =>
+                                              {
+                                                  events.Change("State_OnChange");
+                                              })
+                                               .Value(Model.MembershipContactInformation.StateID == null ? string.Empty : Model.MembershipContactInformation.StateID.Value.ToString())
+                                               .DataTextField("Text")
+                                               .DataValueField("Value")
+
+
+                                    )
+                                    @Html.TextBox("Zip", Model.MembershipContactInformation.Zip, new { @class = "validate[maxSize[10]], input", style = "Height:16px;" })
+                                </div>
+                                @{
+                var contactInfo = Model.MembershipContactInformation;
+                                }
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="HomePhone" class="label">
+                                            Home Phone
+                                        </label>
+                                        @Html.Editor("PhoneNumber", "Phone", new { entityName = "Member", ShowPhoneType = false, Value = contactInfo.HomePhone, PhoneTypeValue = contactInfo.HomePhoneTypeID, CallType = "Member" })
+                                        @Html.Hidden("HomePhoneID", contactInfo.HomePhoneID)
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="CellPhone" class="label">
+                                            Cell Phone
+                                        </label>
+                                        @Html.Editor("CellPhone", "Phone", new { entityName = "Member", ShowPhoneType = false, Value = contactInfo.CellPhone, PhoneTypeValue = contactInfo.CellPhoneTypeID, CallType = "Member" })
+                                        @Html.Hidden("CellPhoneID", contactInfo.CellPhoneID)
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="WorkPhone" class="label">
+                                            Work Phone
+                                        </label>
+                                        @Html.Editor("WorkPhone", "Phone", new { entityName = "Member", ShowPhoneType = false, Value = contactInfo.WorkPhone, PhoneTypeValue = contactInfo.WorkPhoneTypeID, CallType = "Member" })
+                                        @Html.Hidden("WorkPhoneID", contactInfo.WorkPhoneID)
+                                        @Html.Hidden("AddressID", contactInfo.AddressID)
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="Email" class="label">
+                                            Email
+                                        </label>
+                                        @Html.TextBox("Email", Model.MembershipContactInformation.EMail, new { @class = "validate[maxSize[50]], input full-width2" })
+                                    </p>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            }
+            <div class="four-columns">
+                <h3 class=" underline">
+                    ID# @Model.MembershipInformation.MemberNumber Members List
+                </h3>
+                @(Html.Kendo().Grid<Martex.DMS.DAL.MemberAssociateList_Result>()
+                .Name("GrdAssociateList")
+                .Columns(column =>
+                {
+                    column.Bound(a => a.MemberName).Title("Member").Filterable(false).Sortable(true);
+                    column.Bound(a => a.EffectiveDate).Title("Effective Date").Filterable(false).Sortable(true);
+                    column.Bound(a => a.ExpirationDate).Title("Expiration Date").Filterable(false).Sortable(true);
+                    column.Bound(a => a.MemberStatus).Title("Status").Filterable(false).Sortable(false);
+                })
+                .Sortable()
+                .Scrollable()
+                .Pageable(pager => pager
+                    .Refresh(true)
+                    .PageSizes(false)
+                    .PreviousNext(false)
+                    .Numeric(false)
+                    .Info(false)
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("List", "Member"))
+                    .Model(u => u.Id(p => p.MemberID))
+                )
+                .Resizable(resize => resize.Columns(true))
+                .EnableCustomBinding(true)
+                )
+            </div>
+            <div class="new-row twelve-columns">
+                <div class="boxed silver-gradient">
+                    <h3 class=" underline">
+                        Member History
+                    </h3>
+                    <div id="SearchHistoryCriteriaTab" class="standard-tabs same-height">
+                        <ul class="tabs">
+                            <li id="tbHistorySearchCriteria">
+                                <a id="hypSearchCriteria" href="#tabs-1">
+                                    Service Request
+                                    History
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("_MemberClaimsHistory", "Member", new { area = "Application" })" id="#tabs-MemberServiceHistory">
+                                    Claim History
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("_MemberProducts", "Member", new { area = "Application" })" id="#tabs-MemberProducts">
+                                    Products
+                                </a>
+                            </li>
+                        </ul>
+                        <div id="tabs-1">
+                            @Html.Partial("_ServiceRequestHistory", Model)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+
+        $("#btnEditMemberProgram").click(function () {
+            $("#divMemberProgram").hide();
+            $("#divEditMemberProgram").show();
+        });
+
+        $("#btnCancelMemberProgram").click(function () {
+            if (IsMyContainerDirty('frmEditMemberProgram')) {
+                $.modal.confirm('Are you sure?', function () {
+
+                    CleanMyContainer('frmEditMemberProgram');
+                    $("#divMemberProgram").show();
+                    $("#divEditMemberProgram").hide();
+                    HideValidationMessage($("#MemberProgramChangeComments"));
+                    HideValidationMessage($('input[name="MemberToProgramID_input"]'));
+                    $("#MemberToProgramID").data("kendoComboBox").select(0);
+                    $("#MemberProgramChangeComments").val('');
+                }, function () {
+
+                });
+            }
+            else {
+                $("#divMemberProgram").show();
+                $("#divEditMemberProgram").hide();
+                HideValidationMessage($("#MemberProgramChangeComments"));
+                HideValidationMessage($('input[name="MemberToProgramID_input"]'));
+            }
+
+        });
+
+        $("#btnUpdateMemberProgram").click(function () {
+            var errorFound = false;
+            var memberToProgramID = $("#MemberToProgramID").data("kendoComboBox").value();
+            var Comments = $("#MemberProgramChangeComments").val();
+            if (memberToProgramID == null || memberToProgramID == "" || memberToProgramID == " " || memberToProgramID == 0) {
+                ShowValidationMessage($("input[name='MemberToProgramID_input']"), "* This field is required.");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="MemberToProgramID_input"]'));
+            }
+            if ($.trim(Comments).length <= 0) {
+                ShowValidationMessage($("#MemberProgramChangeComments"), "* Please Enter Comments");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($("#MemberProgramChangeComments"));
+            }
+            if (errorFound == true) {
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateMembersProgram", "Member", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                data: { programID: memberToProgramID, comments: Comments },
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmEditMemberProgram');
+                        openAlertMessage("Member's Program Updated", function () {
+                            $('#RequestTabs').tabs('load', 2);
+                            GetCallSummary();
+                            GetMemberProductsDetails();
+                        });
+                    }
+                    else if (msg.Status == "Error") {
+                        openAlertMessage(msg.Data);
+                    }
+                }
+            });
+
+        });
+
+
+
+        $("#btnEditMemberName_Member").click(function () {
+            $("#divMemberName_Member").hide();
+            $("#divEditMemberName_Member").show();
+        });
+
+        $("#btnCancelMemberName_Member").click(function () {
+            if (IsMyContainerDirty('frmEditMemberName_Member')) {
+                $.modal.confirm('Are you sure?', function () {
+                    $("#MembershipInformation_FirstName").val("@Model.MembershipInformation.FirstName");
+                    $("#MembershipInformation_MiddleName").val("@Model.MembershipInformation.MiddleName");
+                    $("#MembershipInformation_LastName").val("@Model.MembershipInformation.LastName");
+                    HideValidationMessage($("#MembershipInformation_LastName"));
+                    CleanMyContainer('frmEditMemberName_Member');
+                    $("#divMemberName_Member").show();
+                    $("#divEditMemberName_Member").hide();
+                }, function () {
+
+                });
+            }
+            else {
+                $("#divMemberName_Member").show();
+                $("#divEditMemberName_Member").hide();
+                HideValidationMessage($("#MembershipInformation_LastName"));
+            }
+
+        });
+
+        $("#btnUpdateMemberName_Member").click(function () {
+            var errorFound = false;
+            var firstName = $("#MembershipInformation_FirstName").val();
+            var middleName = $("#MembershipInformation_MiddleName").val();
+            var lastName = $("#MembershipInformation_LastName").val();
+            if ($.trim(lastName).length <= 0) {
+                ShowValidationMessage($("#MembershipInformation_LastName"), "* Please Enter Last Name");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($("#MembershipInformation_LastName"));
+            }
+            if (errorFound == true) {
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveMemberName", "Member", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                data: { firstName: firstName, middleName: middleName, lastName: lastName },
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmEditMemberName_Member');
+                        openAlertMessage("Member's Name Updated", function () {
+                            $('#RequestTabs').tabs('load', 2);
+                            GetCallSummary();
+                            GetMemberProductsDetails();
+                        });
+                    }
+                    else if (msg.Status == "Error") {
+                        openAlertMessage(msg.Data);
+                    }
+                }
+            });
+
+        });
+
+        $("#btnEditMemberExpirationDate_Member").click(function () {
+
+            $("#divMemberExpirationDate_Member").hide();
+            $("#divEditMemberExpirationDate_Member").show();
+        });
+
+        $("#btnCancelMemberExpirationDate_Member").click(function () {
+            if (IsMyContainerDirty('frmEditMemberExpirationDate_Member')) {
+                $.modal.confirm('Are you sure?', function () {
+                    $("#MemberExpirationDateChangeComments_Member").val("");
+                    $("#MembershipInformation_ExpirationDate").data("kendoDatePicker").value("@membersExpirationDate");
+                    $("#divMemberExpirationDate_Member").show();
+                    $("#divEditMemberExpirationDate_Member").hide();
+                    HideValidationMessage($('input[id="MembershipInformation_ExpirationDate"]'));
+                    HideValidationMessage($("#MemberExpirationDateChangeComments_Member"));
+                    CleanMyContainer('frmEditMemberExpirationDate_Member');
+                }, function () {
+
+                });
+            }
+            else {
+                $("#divMemberExpirationDate_Member").show();
+                $("#divEditMemberExpirationDate_Member").hide();
+                HideValidationMessage($('input[id="MembershipInformation_ExpirationDate"]'));
+                HideValidationMessage($("#MemberExpirationDateChangeComments_Member"));
+            }
+        });
+
+        $("#btnUpdateMemberExpirationDate_Member").click(function () {
+            var errorFound = false;
+            var membersExpirationDate = $("#MembershipInformation_ExpirationDate").data("kendoDatePicker").value();
+            var Comments = $("#MemberExpirationDateChangeComments_Member").val();
+            if (membersExpirationDate == null) {
+                ShowValidationMessage($("input[id='MembershipInformation_ExpirationDate']"), "* Expiration Date is Required");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($('input[id="MembershipInformation_ExpirationDate"]'));
+            }
+            if ($.trim(Comments).length <= 0) {
+                ShowValidationMessage($("#MemberExpirationDateChangeComments_Member"), "* Please Enter Comments");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($("#MemberExpirationDateChangeComments_Member"));
+            }
+            if (errorFound == true) {
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateMembersExpirationDate", "Member", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                data: { expirationDate: kendo.toString(membersExpirationDate, "d"), comments: Comments },
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmEditMemberExpirationDate_Member');
+                        openAlertMessage("Member's Expiration Date Updated", function () {
+                            $('#RequestTabs').tabs('load', 2);
+                            GetCallSummary();
+                            GetMemberProductsDetails();
+                        });
+                    }
+                    else if (msg.Status == "Error") {
+                        openAlertMessage(msg.Data);
+                    }
+                }
+            });
+
+        });
+        function validateMemberTab() {
+            if ($("#frmMemberDetails").validationEngine('validate') == false) {
+                return false;
+            }
+            return true;
+        }
+        function SaveMemberDetails() {
+            // Jeevan
+            // 15-Nov-2012
+
+            //TFS:163
+            if (validateMemberTab() == false) {
+                StyleTabAfterValidation("member", true);
+                return false;
+            }
+            else {
+                StyleTabAfterValidation("member", false);
+            }
+
+            var memberEmail = $("#Email").val();
+            var postData = $('#frmMemberDetails').serializeArray();
+            postData.push({ name: "HomePhone.PhoneNumber", value: GetPhoneNumberForDB('PhoneNumber') });
+            postData.push({ name: "CellPhone.PhoneNumber", value: GetPhoneNumberForDB('CellPhone') });
+            postData.push({ name: "WorkPhone.PhoneNumber", value: GetPhoneNumberForDB('WorkPhone') });
+
+            postData.push({ name: "HomePhone.PhoneTypeID", value: $('#PhoneNumber_ddlPhoneType').val() });
+            postData.push({ name: "CellPhone.PhoneTypeID", value: $('#CellPhone_ddlPhoneType').val() });
+            postData.push({ name: "WorkPhone.PhoneTypeID", value: $('#WorkPhone_ddlPhoneType').val() });
+
+            postData.push({ name: "HomePhone.ID", value: $('#HomePhoneID').val() });
+            postData.push({ name: "CellPhone.ID", value: $('#CellPhoneID').val() });
+            postData.push({ name: "WorkPhone.ID", value: $('#WorkPhoneID').val() });
+
+            postData.push({ name: "CallbackNumber.PhoneNumber", value: GetPhoneNumberForDB('MemberCallbackNumber') });
+            postData.push({ name: "AlternateCallbackNumber.PhoneNumber", value: GetPhoneNumberForDB('MemberAlternateCallbackNumber') });
+
+            postData.push({ name: "CallbackNumber.PhoneTypeID", value: $('#MemberCallbackNumber_ddlPhoneType').val() });
+            postData.push({ name: "AlternateCallbackNumber.PhoneTypeID", value: $('#MemberAlternateCallbackNumber_ddlPhoneType').val() });
+
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveMemberDetails", "Member")',
+                traditional: true,
+                cache: false,
+                data: postData,
+                async: false,
+                success: function (msg) {
+                    // KB & RH  : No need to sync this field with the one on the map tab.
+                    /*if ($('#txtMapTabMemberEmail').length > 0) {
+                    $('#txtMapTabMemberEmail').val(memberEmail);
+                    }*/
+                    CleanMyContainer("frmMemberDetails");
+
+                    return true;
+                }
+            });
+            return true;
+        };
+
+        fnSaveTab = SaveMemberDetails;
+
+        $(function () {
+
+            var tabValidationStatus = '@ViewData[Martex.DMS.Common.StringConstants.TAB_VALIDATION_STATUS]';
+
+            StyleTabUsingValidationStatus("member", tabValidationStatus);
+
+            if (tabValidationStatus == '2') {
+                setTimeout(function () { validateMemberTab(); }, 800);
+            }
+
+            WatchMyContainer('frmMemberDetails', null, null);
+            $("#SearchHistoryCriteriaTab").tabs();
+            $("#StateProvinceID").data("kendoComboBox").list.width(250);
+            $('#Email').change(function () {
+                $('#Email').val($.trim($('#Email').val()));
+
+            });
+            $("#RequestTabs").tabs("option", "disabled", [0]);
+
+            // Re-cache map and finish tabs if they were already loaded.
+            if ($("#btnALocate").length > 0) {
+                // map is loaded.
+                console.log("Caching map tab");
+                var mapTabAnchor = $("#RequestTabs").data('tabs').anchors[5];
+                $(mapTabAnchor).data('cache.tabs', true);
+            }
+
+            if ($("#ClosedLoopStatus").length > 0) {
+                // Finish was already loaded.
+                console.log("Caching Finish tab");
+                var finishTabAnchor = $("#RequestTabs").data('tabs').anchors[11];
+                $(finishTabAnchor).data('cache.tabs', true);
+            }
+
+            $('#frmMemberDetails').validationEngine();
+            $('#MemberCallbackNumber_ddlPhoneType').val($('#MemberCallbackNumberPhoneType').val());
+            $('#MemberAlternateCallbackNumber_ddlPhoneType').val($('#MemberAlternateCallbackNumberPhoneType').val());
+            // Set phone types on home, work and cell.
+            //PhoneNumber CellPhone WorkPhone
+            $('#PhoneNumber_ddlPhoneType').val($('#HomePhoneTypeID').val());
+            $('#CellPhone_ddlPhoneType').val($('#CellPhoneTypeID').val());
+            $('#WorkPhone_ddlPhoneType').val($('#WorkPhoneTypeID').val());
+            PopulateRightPanelWithProgramInfo('@DMSCallContext.ProgramID');
+
+
+            $('#btnUpdateMember').click(function () {
+                openAlertMessage('Work in progress');
+            });
+
+
+
+        })
+    </script>
+}
+
+
+<script type="text/javascript">
+    $(function () {
+        if ('@IsMemberProductsFound' != "False") {
+            $('#SearchHistoryCriteriaTab').tabs('select', 2);
+        }
+        var allowPayment = '@DMSCallContext.AllowPaymentProcessing.ToString().ToLower()';
+        if (allowPayment == 'false') {
+            $("#RequestTabs").tabs("disable", 9);
+            $("#tbPayment").addClass("disabled");
+        }
+        else {
+            $("#RequestTabs").tabs("enable", 9);
+            $("#tbPayment").removeClass("disabled");
+        }
+        //PAY_AS_YOU_GO: Estimate tab
+        var allowEstimate = '@DMSCallContext.AllowEstimateProcessing.ToString().ToLower()';
+        if (allowEstimate == 'false') {
+            $("#RequestTabs").tabs("disable", 6);
+            $("#tbEstimate").addClass("disabled");
+        }
+        else {
+            $("#RequestTabs").tabs("enable", 6);
+            $("#tbEstimate").removeClass("disabled");
+        }
+    });
+</script>

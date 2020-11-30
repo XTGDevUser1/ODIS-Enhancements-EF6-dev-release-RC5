@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+            xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+            xmlns:custom="clr-namespace:ODISMember.CustomControls;assembly=ODISMember"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+            Style="{StaticResource BaseContentPage}"
+            x:Class="ODISMember.VehicleDetails">
+  <ScrollView x:Name="mainScroll">
+      <StackLayout Padding="0" BackgroundColor="{x:Static Resource:ColorResources.VehiclesListBackgroundColor}" Spacing="0" VerticalOptions="FillAndExpand">
+        <!--<ffimageloading:CachedImage x:Name="vehicleImage"  Aspect="AspectFit"/>-->
+        <StackLayout BackgroundColor="{x:Static Resource:ColorResources.VehicleYearMakeModelBackgroundColor}" Padding="20" Spacing="0">
+          <controls:ExtendedLabel x:Name="lblVehicleYaerMakeModel" Style="{StaticResource VehicleYearMakeModelStyle}" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" />
+        </StackLayout>
+        <StackLayout BackgroundColor="{x:Static Resource:ColorResources.VehiclesListBackgroundColor}" Padding="5">
+          <controls:ExtendedLabel x:Name="lblVehicleType" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+        <Grid BackgroundColor="White" Padding="20,20,20,20" RowSpacing="15">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <widget:LabelValueVertical x:Name="lblYear" LabelText="YEAR"   Grid.Row="0" Grid.Column="0" />
+          <widget:LabelValueVertical x:Name="lblMake" LabelText="MAKE"   Grid.Row="0" Grid.Column="1" />
+          <widget:LabelValueVertical x:Name="lblModel" LabelText="MODEL"   Grid.Row="0" Grid.Column="2" />
+          <widget:LabelValueVertical x:Name="lblColor" LabelText="COLOR"   Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" />
+          <widget:LabelValueVertical x:Name="lblVin" LabelText="VIN #"  Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" />
+          <widget:LabelValueVertical x:Name="lblLicenseCountry" LabelText="COUNTRY"  Grid.Row="3" Grid.Column="0" />
+          <widget:LabelValueVertical x:Name="lblLicenseState" LabelText="STATE"   Grid.Row="3" Grid.Column="1" />
+          <widget:LabelValueVertical x:Name="lblLicenseNumber" LabelText="LICENSE"   Grid.Row="3" Grid.Column="2" />
+
+        </Grid>
+      </StackLayout>
+    </ScrollView>
+
+</ContentPage>

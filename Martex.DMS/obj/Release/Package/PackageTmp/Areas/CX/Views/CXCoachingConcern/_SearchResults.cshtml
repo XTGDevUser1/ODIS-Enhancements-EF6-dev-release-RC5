@@ -1,0 +1,142 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+<script type="text/javascript">
+
+    var coachingConcernWindow;
+
+    function GrdCoachingConcern_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+    }
+
+    function ManageCoachingConcern(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            if (e.data.commandName == 'View') {
+                LoadCoachingConcernsDetails(recordID, "View", "View : " + recordID);
+            }
+            else if (e.data.commandName == 'Edit') {
+                LoadCoachingConcernsDetails(recordID, "Edit", "Edit : " + recordID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                $.modal.confirm('Are you sure you want to delete this Coaching Concern?', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeleteCoachingConcern", "CXCoachingConcern", new { area = "CX" })',
+                        data: { recordID: recordID },
+                        success: function (msg) {
+                            openAlertMessage('Coaching Concern Deleted Successfully');
+                            $('#GrdCoachingConcern').data('kendoGrid').dataSource.read();
+                        }
+                    });
+                }, function () {
+
+                });
+            }
+        }
+        else {
+            LoadCoachingConcernsDetails(0, "Add", "Add");
+        }
+        return false;
+    }
+
+    function LoadCoachingConcernsDetails(recordID, mode, title) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_CoachingConcernDetails", "CXCoachingConcern", new { area = "CX" })',
+            data: { recordID: recordID, mode: mode },
+            cache: false,
+            success: function (msg) {
+                coachingConcernWindow = $("<div id='coachingConcernMaintenanceWindow' />").appendTo(document.body);
+                coachingConcernWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#frmCoachingConcernDetails').validationEngine('hideAll');
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmCoachingConcernDetails')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmCoachingConcernDetails');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                coachingConcernWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="columns">
+    <div class="new-row twelve-columns">
+        @(Html.Kendo().Grid<CoachingConcerns_List_Result>()
+                      .Name("GrdCoachingConcern")
+              .Columns(column =>
+                {
+                    column.Bound(a => a.ID).Title("ID");
+                    column.Bound(a => a.UserName).Title("User Name");
+                    column.Bound(a => a.Concern).Title("Concern");
+                    column.Bound(a => a.Coached).Title("Coached");
+                    column.Bound(a => a.TeamManager).Title("Team Manager");
+                    column.Bound(a => a.Area).Title("Area");
+                    column.Bound(a => a.CreateDate).Title("CreateDate").Format("{0:MM/dd/yyyy}");
+                    column.Bound(a => a.Documents).Title("Documents");
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageCoachingConcern").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                        command.Custom("Edit").Click("ManageCoachingConcern").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                        command.Custom("Delete").Click("ManageCoachingConcern").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                    }).Width(175)
+                      .Title("Action(s)");
+
+                })
+                   .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageCoachingConcern(null)' ><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Concern</label></a>"))
+           .Events(e =>
+            {
+                e.DataBound("GrdCoachingConcern_OnDataBound");
+            })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("CoachingConcernList", "CXCoachingConcern", new { area = "CX" }).Data("GetSelectionCriteriaForGrid"))
+        .PageSize(10)
+    )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdCoachingConcern"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdCoachingConcern>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

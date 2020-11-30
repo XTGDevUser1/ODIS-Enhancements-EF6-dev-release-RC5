@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <color name="primary">#FFFFFF</color>
+  <color name="primaryDark">#757575</color>
+  <color name="accent">#6c0521</color>
+  <color name="window_background">#FFFFFF</color>
+  <color name="Black">#000000</color>
+  <color name="ListViewSelected">#222233</color>
+</resources>

@@ -1,0 +1,120 @@
+﻿@using Telerik.Web.Mvc.UI;
+<script type="text/javascript">
+    function GrdPhone_onError(args) {
+
+    }
+    function GrdPhone_onDataBinding(e) {
+
+        var grid = $(this).data('tGrid');
+        if (grid.hasChanges()) {
+            // Throw a message
+        }
+    }
+
+    function GrdPhone_OnEdit(e) {
+        
+        // PhoneType
+        var $combo = $(e.cell).find('#PhoneType');
+        if ($combo.length > 0) {
+            var combo = $combo.data('tComboBox');
+            if (e.dataItem['PhoneType'] != null && e.dataItem['PhoneType'].ID != '0') {
+                combo.fill(function () {
+                    combo.value(e.dataItem['PhoneType'].ID)
+                });
+            }
+        }
+
+        // Phone number
+        $combo = $(e.cell).find('#ddlCountryCode');
+        var $phoneNumber = $(e.cell).find('#PhoneNumber_txtPhoneNumber');
+        if ($combo.length > 0) {
+            var combo = $combo.data('tComboBox');
+//            if (e.dataItem['PhoneType'] != null && e.dataItem['PhoneType'].ID != '0') {
+//                combo.fill(function () {
+//                    combo.value(e.dataItem['PhoneType'].ID)
+//                });
+            //            }
+
+            $phoneNumber.val(e.dataItem["PhoneNumber"]);
+        }
+        
+    }
+
+    function GrdPhone_OnSave(e) {
+        
+        //Phone Type
+        var $combo = $(e.cell).find('#PhoneType');
+        if ($combo.length > 0) {
+            var combo = $combo.data("tComboBox"),
+                    selectItem = combo.selectedIndex > -1 ? combo.data[combo.selectedIndex] : null;
+
+            if (selectItem) {
+                e.values["PhoneType"] = { ID: selectItem.Value || selectItem.Text, Name: selectItem.Text };
+                e.values["PhoneTypeID"] = selectItem.Value;
+            } else {
+                var value = combo.value();
+                e.values["PhoneType"] = { ID: value, Name: value };
+                e.values["PhoneTypeID"] = value;
+            }
+        }
+        // PhoneNumber
+        $combo = $(e.cell).find('#ddlCountryCode');
+        var $phoneNumber = $(e.cell).find('#PhoneNumber_txtPhoneNumber');
+        if ($combo.length > 0) {
+            // Validate the phone number using Google api
+            var phoneNumberValue = $phoneNumber.val();
+            var isValidNumber = IsPhoneNumberValid(phoneNumberValue, "US");
+            if(!isValidNumber)
+            {   
+                e.preventDefault();
+            }
+            else
+            {
+                e.values["PhoneNumber"] = GetFormattedPhoneNumber(phoneNumberValue,'US');
+            }
+        }
+    }
+</script>
+
+@(Html.Telerik().Grid<Martex.DMS.DAL.PhoneEntity>()
+                        .Name("GrdPhone")
+                        .DataKeys(keys =>
+                                    {
+                                        keys.Add(a => a.ID);
+                                    })
+                        .ToolBar(commands =>
+                        {
+                            commands.Insert()
+                                .ButtonType(GridButtonType.Image)
+                                .ImageHtmlAttributes(new { @class = "t-icon t-add", title = "Add" })
+                                .HtmlAttributes(new { @class = "with-tooltip" });
+
+
+                        })
+                                                    .DataBinding(dataBinding => dataBinding.Ajax().Select("_SelectPhoneDetails", "Phone", new { area = "Common", recordId = ViewData["entityId"] }))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(p => p.PhoneType).Width(50).EditorTemplateName("PhoneType").EditorViewData(new { entityName = ViewData["entityName"] }).ClientTemplate("<#= PhoneType.Name #>");
+                                    columns.Bound(p => p.PhoneNumber).Width(80).EditorTemplateName("Phone").ClientTemplate("<#= PhoneNumber #>");
+                                    
+                                    columns.Command(commands =>
+                                        {
+                                            commands.Delete()
+                                                .Text("Delete")
+                                               .ButtonType(GridButtonType.Image)
+                                               .ImageHtmlAttributes(new { @class = "t-icon t-delete", title = "Delete" })
+                                               .HtmlAttributes(new { @class = "with-tooltip" });
+
+                                        }).Width(80).Title("Actions");
+                                })
+                               .ClientEvents(events => events.OnDataBinding("GrdPhone_onDataBinding")
+                                   .OnError("GrdPhone_onError")
+                                                   .OnEdit("GrdPhone_OnEdit")
+                                                   .OnSave("GrdPhone_OnSave"))
+                       .Editable(editing => editing.Mode(GridEditMode.InCell))
+                       .Pageable(p => { p.Enabled(false); })
+                       .Sortable(p => { p.Enabled(false); })
+                       .Filterable(p => { p.Enabled(false); })
+                       .KeyboardNavigation()
+
+        )

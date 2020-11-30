@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Martex.DMS.DAL.Entities" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Martex.DMS.DAL.Entities" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://infhydcrm4d:82/ClientPortalMemberService.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Martex.DMS.DAL" />
+  <xs:complexType name="MemberModel">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AddressLine1" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AddressLine2" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AddressLine3" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AddressTypeID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="CaseID" type="xs:int" />
+      <xs:element minOccurs="0" name="City" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Martex.DMS.DAL" minOccurs="0" name="ClientReferenceControlData" nillable="true" type="q1:ProgramDataItemForClientReference_Result" />
+      <xs:element minOccurs="0" name="ClientReferenceNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Country" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="EffectiveDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExpirationDate" nillable="true" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="FirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MemberID" type="xs:int" />
+      <xs:element minOccurs="0" name="MiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PhoneNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PhoneType" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="PostalCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Prefix" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="ProgramID" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="State" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="Suffix" nillable="true" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MemberModel" nillable="true" type="tns:MemberModel" />
+</xs:schema>

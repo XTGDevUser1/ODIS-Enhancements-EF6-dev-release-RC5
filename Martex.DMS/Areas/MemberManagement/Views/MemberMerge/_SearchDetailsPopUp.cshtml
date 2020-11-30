@@ -1,0 +1,161 @@
+﻿@model Martex.DMS.BLL.Model.MemberSearchDetails
+@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@using System.Text
+@{
+    var memberDetails = Model.MemberInformation.Where(m => m.MemberID == Martex.DMS.Areas.Application.Models.DMSCallContext.MemberID).FirstOrDefault();
+    if (memberDetails == null)
+    {
+        memberDetails = new Martex.DMS.DAL.Member_Information_Result();
+    }
+    var masterMembers = Model.MemberInformation.Where(a => a.MasterMember.Equals("*") == true).ToList<Martex.DMS.DAL.Member_Information_Result>();
+    var nonMasterMembers = Model.MemberInformation.Where(a => a.MasterMember.Equals("*") == false).ToList<Martex.DMS.DAL.Member_Information_Result>();
+    
+   
+
+}
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $("#btnBackToResult").click(function () {
+
+            $("#div_memberDetails").html('');
+            $("#div_memberDetails").hide();
+            $("#div_searchMemberList").show();
+            return false;
+        });
+        $(".k-grid-content").css("height", "320px");
+    });
+       
+</script>
+
+<div class="columns">
+    <div class="twelve-columns">
+        <a id="btnBackToResult" class=" float-left icon-backward" href="javascript:void(0);">
+            Back to Results </a>
+    </div>
+   <!-- Member Information -->
+    
+    <div class="three-columns">
+        <div class="full-width">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    Member Information</h3>
+                <div class="scrollable">
+                    @if (memberDetails != null)
+                    {
+                        <div class="boxed left-border">
+                            <p>
+                                <strong class="blue">@memberDetails.MemberName</strong></p>
+                            <p>@memberDetails.MembershipNumber</p>
+                            <p>
+                                @if (@memberDetails.MemberStatus == "Active")
+                                {
+                                    <small class="tag green-bg">@memberDetails.MemberStatus</small>
+                                }
+                                else
+                                {
+                                    <small class="tag red-bg">@memberDetails.MemberStatus</small>
+                                }
+                            </p>
+                            <p>
+                                @memberDetails.Program</p>
+                            <p>@memberDetails.Line1</p>
+                            <p>@memberDetails.CityStateZip</p>
+                            <p>@memberDetails.CountryName</p>
+                            <p>
+                                @if (!string.IsNullOrEmpty(memberDetails.HomePhoneNumber))
+                                { 
+                                    <text><strong>Home :</strong></text> @Html.Editor("MemberDetailHomePhoneNumber", "Phone", new { Value = memberDetails.HomePhoneNumber, ReadOnly = true, CallType = "Member" })
+                                }
+                            </p>
+                            <p>
+                                @if (!string.IsNullOrEmpty(memberDetails.WorkPhoneNumber))
+                                { 
+                                    <text><strong>Work :</strong></text> @Html.Editor("MemberDetailWorkPhoneNumber", "Phone", new { Value = memberDetails.WorkPhoneNumber, ReadOnly = true, CallType = "Member" })
+                                }
+                            </p>
+                            <p>
+                                @if (!string.IsNullOrEmpty(memberDetails.CellPhoneNumber))
+                                { 
+                                    <text><strong>Cell :</strong></text> @Html.Editor("MemberDetailCellPhoneNumber", "Phone", new { Value = memberDetails.CellPhoneNumber, ReadOnly = true, CallType = "Member" })
+                                }
+                            </p>
+                            <p>@memberDetails.Email</p>
+                            @Html.Hidden("ClientName", memberDetails.ClientName)
+                            @{
+                                var expirationDate = memberDetails.ExpirationDate;
+                                string formattedExpirationDate = string.Empty;
+                                if (expirationDate.HasValue)
+                                {
+                                    formattedExpirationDate = expirationDate.Value.ToString("MM/dd/yyyy");
+                                }
+                            }
+                            <p>
+                                Expiration @formattedExpirationDate
+                            </p>
+                            <h5 class="underline">
+                                <strong>ID # @memberDetails.MembershipNumber</strong> Members List</h5>
+                            @if (masterMembers != null)
+                            {
+                                foreach (var item in masterMembers)
+                                {
+                                <p>
+                                    * @item.MemberName</p>
+                                }
+                            }
+                            @if (nonMasterMembers != null)
+                            {
+                                foreach (var i in nonMasterMembers)
+                                {
+                                <p>
+                                    @i.MemberName</p>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Vehicle Information -->
+    <div class="three-columns">
+        <div class="full-width">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    Vehicle Information</h3>
+                <div class="scrollable">
+                    @{
+                        string vehicleMake = string.Empty;
+                        string vehicleModel = string.Empty;
+                    }
+                    @foreach (var item in Model.Vehicle)
+                    {
+                        <div class="with-padding">
+                            <p>
+                                @{
+                        if (item.Make != null)
+                        {
+                            vehicleMake = (item.Make.Equals("Other", StringComparison.InvariantCultureIgnoreCase) ? item.MakeOther : item.Make);
+                        }
+                        if (item.Model != null)
+                        {
+                            vehicleModel = (item.Model.Equals("Other", StringComparison.InvariantCultureIgnoreCase) ? item.ModelOther : item.Model);
+                        }
+                                }
+                                @string.Join(" ", new string[] { item.Year, vehicleMake, vehicleModel })
+                            </p>
+                            <p>
+                                @item.Color</p>
+                            <p>
+                                VIN : @item.VIN</p>
+                            <p>
+                                License :@string.Join(" ", new string[] { item.LicenseNumber, item.LicenseState })</p>
+                            <hr />
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>

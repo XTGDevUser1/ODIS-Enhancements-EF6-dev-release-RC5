@@ -1,0 +1,43 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+}
+<form id="frmVendorDetailsInsuranceSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+<p class="button-height inline-label small-margin-bottom">
+    <label for="InsuranceExpirationDate" class="label">
+        Expiration Date</label>
+    @(Html.Kendo().DatePicker()
+                   .Name("BasicInformation.InsuranceExpirationDate")
+                   .Value(Model.BasicInformation.InsuranceExpirationDate)
+                   .HtmlAttributes(new { id = "InsuranceExpirationDate_" + suffixVendorID, type = "text" })
+      )
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="InsuranceCarrierName" class="label">
+        Carrier Name</label>
+    @Html.TextBoxFor(u => u.BasicInformation.InsuranceCarrierName, new { @class = "input full-width", id = "InsuranceCarrierName_" + suffixVendorID, @maxLength = "255" })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="InsurancePolicyNumber" class="label">
+        Policy Number</label>
+    @Html.TextBoxFor(u => u.BasicInformation.InsurancePolicyNumber, new { @class = "input full-width", id = "InsurancePolicyNumber_" + suffixVendorID, @maxLength = "50" })
+</p>
+<p class="button-height inline-label small-margin-bottom">
+    <label for="IsInsuranceCertificateOnFile" class="label">
+        Certificate on File</label>
+    @Html.CheckBox("BasicInformation.IsInsuranceCertificateOnFile", Model.BasicInformation.IsInsuranceCertificateOnFile.HasValue ? Model.BasicInformation.IsInsuranceCertificateOnFile.Value : false, new { @class = "checkbox full-width", id = "IsInsuranceCertificateOnFile_" + suffixVendorID })
+</p>
+@*Lakshmi - Addition Check box on Insurance - Vendor tab*@
+<p class="button-height inline-label small-margin-bottom">
+    <label for="IsInsuranceAdditional" class="label">
+        Additional Insured</label>
+    @Html.CheckBox("BasicInformation.IsInsuranceAdditional", Model.BasicInformation.IsInsuranceAdditional.HasValue ? Model.BasicInformation.IsInsuranceAdditional.Value : false, new { @class = "checkbox full-width", id = "IsInsuranceAdditional_" + suffixVendorID })
+</p>
+@* end*@
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsInsuranceSection_@suffixVendorID').validationEngine();
+    });   
+</script>

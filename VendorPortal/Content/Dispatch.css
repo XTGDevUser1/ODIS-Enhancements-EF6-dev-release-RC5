@@ -1,0 +1,527 @@
+﻿/*html
+{
+    height: 100%;
+}
+
+body
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}*/
+
+#top
+{
+    width: 800px;
+    
+}
+
+#search
+{
+    width: 800px;
+}
+
+#sourceSearch
+{
+    float: left;
+    width: 395px;
+}
+
+#destinationSearch
+{
+    float: right;
+    width: 395px;
+}
+
+#clear
+{
+    clear: both;
+}
+
+#modeButtonContainer
+{
+    padding-top: 20px;
+}
+
+.map
+{
+    position: relative;
+    height:95%;
+    width:99%
+}
+
+.directions
+{
+    position: absolute;
+    top: 930px;
+    left: 10px;
+    width: 750px;
+}
+
+.searchBox
+{
+    width: 276px;
+}
+
+.coordinateBox
+{
+    width: 100px;
+}
+
+.searchResultsDropDown
+{
+    width: 295px;
+}
+
+.findBusinessBox
+{
+    width: 234px;
+}
+
+
+.custom-infobox
+{
+    background-color: #ffffff;
+    border-color: #888888;
+    border-style: solid;
+    border-width: 1px;
+    height: 126px;
+    left: -40px !important;
+    position: absolute;
+    top: -165px;
+    width: 256px;
+}
+
+infobox-button
+{
+    margin-left: 10px;
+}
+
+.custom-infobox-stalk
+{
+    width: 33px;
+    height: 38px;
+    overflow: hidden;
+    position: absolute;
+    z-index: 1;
+    left: 25px !important;
+    top: 35px !important;
+}
+
+
+
+
+/*
+
+
+
+
+html
+{
+    height: 100%;
+}
+body
+{
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+.custom-infobox
+{
+    background-color: #ffffff;
+    border-color: #888888;
+    border-style: solid;
+    border-width: 1px;
+    height: 126px;
+    left: -40px!important;
+    position: absolute;
+    top: -165px;    
+    width: 256px;
+}
+infobox-button { margin-left:10px;}
+
+.custom-infobox-stalk { 
+width: 33px;
+height: 38px;
+overflow: hidden;
+position: absolute;
+z-index: 1;
+left: 25px!important;
+top:35px!important;
+}
+
+.loading_bar{
+  position: absolute;
+  display: none;
+  height: 100%;
+  width: 100%;
+  z-index: 99;
+  background: transparent url(/content/images/ajax-loader-1.gif) no-repeat 50% 50%;
+}
+
+#SearchResultsSelectList 
+{
+    width: 500px;
+}
+
+#SourceSearch
+{
+    position: relative;
+    width: 350px;
+    float: left;
+}
+
+#DestinationSearch
+{
+    position: relative;
+    width: 350px;
+    float: left;
+}
+
+#SearchTextBox
+{
+    width: 250px;
+}
+
+#SearchButton
+{
+    position: relative;
+    left: 10px;
+    width: 75px;
+}
+
+#modeButtonContainer
+{
+    position: relative;
+    left: 10px;
+    top: 25px;
+    width: 800px;
+}
+
+.coordinateText
+{
+    width: 92px;
+}
+
+#ReverseGeocodeButton
+{
+    position: relative;
+    left: 11px;
+    width: 130px;
+}
+
+#SearchResultsSelectList
+{
+    position: relative;
+    top: 25px;
+    width: 350px;
+}
+
+#PinSelectionButton
+{
+    position: relative;
+}
+*/
+
+div.MapMain
+{
+    overflow:hidden;
+}
+div.leftSearchPanelItem a img
+{
+    height:19px;
+    vertical-align:middle;
+    border:none;
+}
+div.leftSearchPanelItem label.information
+{
+    width:300px;
+    display:inline-block;
+}
+div.leftSearchPanelItem label
+{
+    width:125px;
+    display:inline-block;
+}
+div.leftSearchPanelItem input[type='text']
+{
+    width:150px;
+    height:18px;
+}
+
+div.leftSearchPanelItem
+{
+    clear:both;
+    margin:5px;
+    line-height:24px;
+}
+/*div.leftSearchPanel
+{
+    clear:both;
+    border:1px solid #CCCCCC;
+    padding:10px;
+    float:left;
+    width:300px;
+    overflow:auto;
+   
+}
+div.RightSearchPanel
+{
+    float:right;
+    padding:10px;
+    border:1px solid #CCCCCC
+}*/
+p.full-label input,select
+{
+    width: 290px;
+}
+
+p.full-label label
+{
+     width: 290px;
+     padding :5px;
+     float: left;
+     line-height: 20px;
+     font-weight: bold;
+     font-family:"Trebuchet MS",Verdana,Helvetica,Sans-Serif;
+} 
+p.label label
+{
+   padding :1px;
+   float: left;
+   line-height: 20px;
+   width: 150px;
+}
+/*div.button input[type='button']
+{
+    width: 140px;
+    float:left;
+    margin:5px;
+   height:25px;
+   border:none;
+    
+}*/
+p.leftMapPanel
+{
+    margin-bottom:12px;
+}
+p.leftMapPanel input[type='text']
+{
+    width:150px;
+}
+p.leftMapPanel label
+{
+    margin-left:5px;
+    margin-right:5px;
+    width:115px;
+    display: inline-block;
+}
+
+
+.leftMapPanel-small-select
+{
+    width:120px;
+}
+p.full-width input[type='text']
+{
+     margin-left:5px;
+     width:280px;
+     
+}
+
+
+p.full-width-help input[type='text']
+{
+     width:250px;   
+}
+p.full-width-help a img
+{
+    height:18px;
+    width:18px;
+    border:none;
+    margin:-6px;
+}
+
+p.full-width input[type='button']
+{
+     width:260px;
+      margin-left:5px;
+}
+
+.area-full-width
+{
+     width:265px;
+     height:80px;
+     margin-left:5px;
+     
+}
+
+.area-full-width-help
+{
+     width:230px;
+     height:80px;
+     margin-left:5px;
+     
+}
+
+/* For Telerik Drop Downs 
+div.leftMapPanel
+{
+    float:left;
+    margin-bottom:8px;
+  
+}
+
+div.leftMapPanel label
+{
+    float:left;
+    width:125px;
+    margin-left:5px;
+}*/
+
+div.LocalPSAP
+{
+    min-height:100px;
+    width:240px;
+    border: 1px solid #CCCCCC;
+    color: #444444;
+    font-size: 1.2em;
+    box-shadow: 0 0 0 1px rgba(51, 153, 255, 0) inset, 0 2px 5px rgba(0, 0, 0, 0.35) inset, 0 1px 1px rgba(255, 255, 255, 0.5), 0 0 0 rgba(51, 153, 255, 0);
+    margin-left:5px;
+    display:inline-block;
+    padding:5px;
+}
+div.LocalPSAP span
+{
+   color:Red;
+}
+
+
+/*.t-combobox .t-input
+{
+    height: 24px!important;
+    line-height: 16px;
+    border: 0;
+    margin: 0;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #666666;
+    background: #d6dadf url(../Content/img/old-browsers/colors/bg_button.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#efeff4), to(#d6dadf));
+    background: -webkit-linear-gradient(top, #efeff4, #d6dadf);
+    background: -moz-linear-gradient(top, #efeff4, #d6dadf);
+    background: -ms-linear-gradient(top, #efeff4, #d6dadf);
+    background: -o-linear-gradient(top, #efeff4, #d6dadf);
+    background: linear-gradient(top, #efeff4, #d6dadf);
+    border-color: #cccccc;
+}
+
+.t-picker-wrap .t-select, .t-dropdown-wrap .t-select
+{
+    height: 26px;
+    line-height: 20px;
+}
+
+
+.t-combobox .t-select
+{
+    border-width: 0 0 0 1px;
+    border-style: solid;
+    border-color: #ccc;
+    -webkit-background-clip: padding-box;
+    border-style: solid;
+    width: 25px;
+    color: #666666;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf);
+}
+
+.t-dropdown-wrap
+{
+}
+.t-combobox.t-header
+{
+    background: transparent;
+    border: none;
+}
+.t-combobox > .t-state-default
+{
+    border-color: #cccccc; /* Your border color
+}
+.t-combobox > .t-dropdown-wrap
+{
+    height: 26px;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf); /* Your background color
+    border-radius: 4px;
+}
+.t-combobox > .t-dropdown-wrap > .t-select
+{
+}
+.t-combobox > .t-dropdown-wrap > .t-input
+{
+    background: transparent;
+}
+
+.t-arrow-down
+{
+    background-position: -12px -171px;
+}*/
+.mapDivComments
+{
+   margin-top:10px;
+   height:100px;
+   margin-bottom:10px;
+}
+.labelMapDivComments
+{
+    display:inline-block;
+    margin-bottom:3px;
+}
+
+div.previousCalls
+{
+    border:1px solid #CCCCCC;
+    height:150px;
+    width:99%;
+    display:inline-block;
+}
+div.previousCalls p.title
+{
+    background-color:#CCCCCC;
+    margin:0px;
+}
+div.previousCallsContent
+{
+      height:110px;
+      width:99%;
+}
+div.mapInlineButton
+{
+    display:inline-block;
+}
+div.previousCallsContent + div
+{
+    padding:5px;
+    display:inline;
+}
+
+

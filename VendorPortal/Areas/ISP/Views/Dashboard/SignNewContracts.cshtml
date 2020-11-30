@@ -1,0 +1,188 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "SignNewContracts";
+}
+<div class="with-padding-with-panels">
+    <div class="row">
+        <div class="twelve-columns">
+            <form id="frmSignNewContracts" method="post" action="javascript:void(0)">
+                <p style="text-align:justify">
+                    We are excited to announce our new name.
+                    This change will bring about new opportunities for both of us!
+                    As part of this change we need to get signatures on existing agreements and rate schedules that reflect the new company names.
+                    To make this as easy as possible we are providing this page so you can electronically sign the new agreements.
+                    We will also need to get a new insurance certificate.
+                </p>
+                <p class="message-flat green-bg">Electronic Signature: You MUST open and view the Service Provider Agreement and Rate Schedule PDF's. Please save a copy of the documents for your records.   </p>
+                <h4>Service Provider Agreement</h4>
+                <p class="strong"><span class="icon-right-fat icon-size2 red"></span> <a href="@Url.Content("~/ReferenceForms/Pinnacle-Partners-Solutions_SPA_v032016.pdf")" target="_blank" id="lnkNewContractSPA">CLICK HERE to view and save the agreement.</a></p>
+                <p class="button-height ">
+                    <label for="tc" class="label">
+                        @Html.CheckBox("chkAgreeSPA", false, new { @class = "checkbox", id = "chkAgreeSPA", disabled = "" }) <span class="star red">*</span>
+                        <b>I have read the Service Provider Agreement</b>
+                    </label>
+                </p>
+
+                <h4>Rate Schedule</h4>
+                <p class="strong"><span class="icon-right-fat icon-size2 red"></span><a href="@Url.Content("~/ISP/VendorRates/GetRatesForPreview")" target="_blank" id="lnkNewContractRS">CLICK HERE to view and save the rate schedule.</a></p>
+<p class="button-height">
+                    <label for="tc" class="label">
+                        @Html.CheckBox("chkAgreeRS", false, new { @class = "checkbox", id = "chkAgreeRS", disabled = "" }) <span class="star red">*</span>
+                        <b> I have reviewed the rate schedule</b>
+                    </label>
+                </p>
+                <br />
+                <p class="message-flat">
+                    <strong>IN WITNESS WHERE OF</strong>, this Agreement has been executed by the duly authorized representatives of the parties hereto as of the date
+                    accepted and executed by Pinnacle Motor Club as set forth below.
+                </p>
+                <p class="button-height inline-label ">
+                    <label for="witness" class="label">
+                        Name <span class="star red">*</span>
+                    </label>
+                    @Html.TextBox("NewContractName", "", new { @class = "input full-width2 validate[required, maxSize[255]]" })
+                </p>
+                <p class="button-height inline-label ">
+                    <label for="witnessTitle" class="label">
+                        Title <span class="star red">*</span>
+                    </label>
+                    @Html.TextBox("NewContractTitle", "", new { @class = "input full-width2 validate[required, maxSize[50]]" })
+                </p>
+                <p class="button-height inline-label ">
+                    <label for="witnessTitle" class="label">
+                        Date <span class="star red">*</span>
+                    </label>
+                    @Html.Kendo().DatePicker().Name("NewContractDate").HtmlAttributes(new { style = "width:85%", type="text" })
+                    @*@Html.TextBox("NewContractDate", "", new { @class = "input full-width2 validate[funcCall[CheckDate]]" })*@
+                </p>
+                <h4>Insurance Certificate</h4>
+                <p style="text-align:justify">
+                    Please request a new insurance certificate showing Pinnacle Motor Club as an additional insured. Include your Service Provider/Vendor ID # on the insurance certificate.
+                    Once you have the certificate go to your Account - Documents tab and upload the document.
+                </p>
+            </form>
+        </div>
+        <br />
+        <div class="columns">
+            <div class="new twelve-columns">
+                <button id="btnSubmitSignNewContracts" class="button blue-gradient float-right mid-margin-left margin-bottom" type="button">
+                    Save
+                </button>
+               
+                <button id="btnCancelSignNewContracts" class="button silver-gradient float-right margin-bottom" type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+        <p><i>If you have any questions or issues please contact your Vendor Representative.</i></p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#lnkNewContractSPA").click(function () {
+        $("#chkAgreeSPA").removeAttr("disabled").removeClass("disabled").parent().removeClass("disabled");
+    });
+    $("#lnkNewContractRS").click(function () {
+        $("#chkAgreeRS").removeAttr("disabled").removeClass("disabled").parent().removeClass("disabled");
+    });
+    $(function () {
+        $("#frmSignNewContracts").validationEngine();
+        WatchMyContainer("frmSignNewContracts");
+
+        var kendoWindowId = $(".k-window-content").attr("id");
+        var kendoWindowDialog = $("#" + kendoWindowId).data('kendoWindow');
+        kendoWindowDialog.title("Action Items");
+        kendoWindowDialog.setOptions({
+            height: (200 + $("#frmSignNewContracts").height())
+        });
+    });
+
+    $("#btnCancelSignNewContracts").click(function (e) {
+
+
+        HideValidationMessage($('input[name="NewContractDate"]'));
+        if (IsMyContainerDirty("frmSignNewContracts")) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmSignNewContracts");
+                HideValidationMessage($("#chkAgreeRS"));
+                HideValidationMessage($("#chkAgreeSPA"));
+                HideValidationMessage($("#NewContractName"));
+                HideValidationMessage($("#NewContractTitle"));
+                HideValidationMessage($('input[name="NewContractDate"]'));
+                var kendoWindowId = $(".k-window-content").attr("id");
+                $("#" + kendoWindowId).data('kendoWindow').close();
+            }, function () {
+                // Do Nothing
+            });
+        } else {
+            HideValidationMessage($("#chkAgreeRS"));
+            HideValidationMessage($("#chkAgreeSPA"));
+            HideValidationMessage($("#NewContractName"));
+            HideValidationMessage($("#NewContractTitle"));
+            HideValidationMessage($('input[name="NewContractDate"]'));
+            var kendoWindowId = $(".k-window-content").attr("id");
+            $("#" + kendoWindowId).data('kendoWindow').close();
+        }
+    });
+
+
+    $("#btnSubmitSignNewContracts").click(function (e) {
+        var errorfound = false;
+        if ($("#frmSignNewContracts").validationEngine("validate") == false) {
+            errorfound = true;
+        }
+        if ($("#chkAgreeSPA").is(":checked") == false) {
+            errorfound = true;
+            ShowValidationMessage($("#chkAgreeSPA"), "* This field is required");
+        }
+        else {
+            HideValidationMessage($("#chkAgreeSPA"));
+        }
+
+        if ($("#chkAgreeRS").is(":checked") == false) {
+            errorfound = true;
+            ShowValidationMessage($("#chkAgreeRS"), "* This field is required");
+        }
+        else {
+            HideValidationMessage($("#chkAgreeRS"));
+        }
+
+        var endPicker = $("#NewContractDate").data("kendoDatePicker");
+        var endPickerVal = endPicker.value();
+
+        if ($.trim(endPickerVal).length == 0) {
+            errorfound = true;
+            ShowValidationMessage($('input[name="NewContractDate"]'), "* This field is required.");
+        }
+        else {
+            HideValidationMessage($('input[name="NewContractDate"]'));
+        }
+
+        if (errorfound == true) {
+            e.preventDefault();
+            return false;
+        }
+        var formData = $("#frmSignNewContracts").serializeArray();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitSignNewContracts", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: formData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer("frmSignNewContracts");
+                    document.dialogResult = "OK";
+                    openAlertMessage("Thank You! Your information has been updated.");
+                    var kendoWindowID = $(".k-window-content").attr("id");
+                    $("#" + kendoWindowID).data('kendoWindow').close();
+                }
+            }
+        }); // end of ajax
+
+    });
+</script>

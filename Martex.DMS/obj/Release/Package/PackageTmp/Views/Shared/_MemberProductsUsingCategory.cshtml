@@ -1,0 +1,18 @@
+﻿@model List<Martex.DMS.DAL.MemberProductsUsingCategory_Result>
+<div class="with-padding">
+    @if (Model != null && Model.Count > 0)
+    {
+        <hr />
+        <strong>Related Coverage</strong>
+        <div class="new-row tweleve-columns">
+            <ul>
+                @foreach (var item in Model)
+                {
+                    <li>@item.AdditionalProduct
+                        @if (item.HelpText != "")
+                        {@Html.Partial("_Help", @item.HelpText)}</li>
+                }
+            </ul>
+        </div>
+    }
+</div>

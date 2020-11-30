@@ -1,0 +1,22 @@
+﻿@model Martex.DMS.DAL.Vehicle
+
+<form name="frm_RVTab" id="frm_RVTab" action="#">
+@Html.Partial("_RVBasicInformation", Model)
+@Html.Partial("_Specifications", Model)
+@Html.Partial("_WarrantyInformation", Model)
+</form>
+
+<script type="text/javascript">
+
+    function SaveRV() {
+        
+        return SaveForm('frm_RVTab', "RV");
+    }
+
+    fnSaveTab = SaveRV;
+    $(function () {
+        CleanAllContainers();
+        $("#frm_RVTab").validationEngine();
+        WatchMyContainer('frm_RVTab', null, null);
+    });
+</script>

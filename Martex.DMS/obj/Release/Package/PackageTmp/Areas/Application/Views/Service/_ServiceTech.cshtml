@@ -1,0 +1,432 @@
+﻿@model Martex.DMS.Areas.Application.Models.ServiceTechModel
+@{
+    var isFordClient = "Ford".Equals(Martex.DMS.Areas.Application.Models.DMSCallContext.ClientName, StringComparison.CurrentCultureIgnoreCase);
+    string column1Class = Model.TrackRepairStatus ? "three-columns" : "five-columns";
+    string column2Class = Model.TrackRepairStatus ? "four-columns" : "six-columns";
+}
+<div class="columns with-padding">
+    @Html.Hidden("vehlTypeID", ViewData["VehicleTypeId"]);
+
+    <div class="@column1Class">
+
+        <div class="full-width">
+            <h3 class="thin underline">
+                Comments
+            </h3>
+            <p>
+                <button id="btnAddNewTechComments" class="button green-gradient full-width small-margin-right small-margin-bottom"
+                        type="button">
+                    Add Comment
+                </button>
+            </p>
+        </div>
+
+        <div class="full-width" id="divServiceTechAddComment" style="display:none">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    New Comments
+                </h3>
+                <div>
+                    <p>
+                        @Html.TextArea("txtTechComments", ViewData[Martex.DMS.Common.StringConstants.SERVICE_TECH_COMMENT] == null ? string.Empty : ViewData[Martex.DMS.Common.StringConstants.SERVICE_TECH_COMMENT].ToString(), new { @class = "input full-width", rows = 20, cols = 50 })
+                        <!-- ID to help add/ update the current comment during tab switch -->
+                    </p>
+                    <p style="direction:rtl; margin-top:10px;">
+
+                        <button id="btnSaveComments" class="button green-gradient small-margin-right small-margin-bottom"
+                                type="button">
+                            Save
+                        </button>
+                        <button id="btnCancelComments" class="button gray-gradient small-margin-right small-margin-bottom"
+                                type="button">
+                            Cancel
+                        </button>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="full-width boxed white-bg">
+            <div class=" margin-bottom">
+                <div class="columns">
+                    <div class="ten-columns">
+                        <h5 class=" underline">
+                            Previous Comments
+                        </h5>
+                    </div>
+                    <div class="two-columns" style="text-align:right;">
+                        <a href="javascript:void(0);" class="icon-refresh icon-size2" title="Refresh" onclick="fnRefreshComments();">
+                        </a>
+                    </div>
+                </div>
+                <div class="scrollable twenty-rows">
+                    <div class="with-padding">
+                        <div class="" id="previousComments">
+                            @if (Model.PreviousComments != null && Model.PreviousComments.Count > 0)
+                            {
+
+                                @Html.Partial("_PreviousComments", Model)
+
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="@column2Class">
+        <div class="full-width">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    Diagnostic Codes
+                </h3>
+                <div class="scrollable twenty-rows">
+                    <div class="">
+                        <p>
+                            <button id="btnCodes" class="button green-gradient full-width small-margin-right small-margin-bottom"
+                                    type="button">
+                                Select Codes
+                            </button>
+                        </p>
+                        <div id="selectedCodes">
+                            @Html.Partial("_ServiceRequestDiagnosticCodes", Model.DiagnosticCodes)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="four-columns">
+        @Html.Partial("_ServiceTechRepairDetails")
+    </div>
+
+    <div class="new-row twelve-columns">
+        <div class="full-width">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    Vehicle Information
+                </h3>
+                <div class="with-padding">
+                    <div id="ServiceTechTabs2" class="standard-tabs">
+                        <ul class="tabs">
+                            @if ((int?)ViewData["VehicleTypeId"] == 2)
+                            {
+                                <li id="tbRV">
+                                    <a id="hypRV" href="@Url.Action("_ServiceRVTab", "Service", new { area = "Application" })">
+                                        RV
+                                    </a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li id="tbRV1"><a id="hypRV1" href="#STtabs-1">RV</a></li>
+                            }
+                            <li id="tbAuto" class="disabled">
+                                <a id="hypAuto" href="@Url.Action("_ServiceAutoTab", "Service", new { area = "Application" })">
+                                    Auto
+                                </a>
+                            </li>
+                        </ul>
+                        <div id="STtabs-1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function checkVIN(field, rules, i, options) {
+        var len = field.val().length;
+        if (len < 17 || len > 17) {
+            return "VIN must be 17 characters";
+        }
+    }
+
+    function RVCheckVIN(field, rules, i, options) {
+
+        var len = field.val().length;
+        if (len < 9) {
+            return "VIN Minimum value is 9";
+        }
+        else if (len > 17) {
+            return "VIN Maximum value is 17";
+        }
+    }
+    var dCodesWin = null;
+    var activeVehicleTypeId = '@ViewData["VehicleTypeId"]';
+    $(function () {
+
+        $('#ServiceTechTabs2').tabs({ disabled: [1] });
+        $('#btnCodes').click(function () {
+            ShowCodes();
+        });
+
+        var vTypeID = '@ViewData["VehicleTypeId"]'
+        if (vTypeID == 1) {
+            $("#ServiceTechTabs2").tabs("enable", 1);
+            $("#tbAuto").removeClass("disabled");
+            $("#hypAuto").click();
+            $("#ServiceTechTabs2").tabs({ disabled: [0] });
+            $("#tbRV").addClass("disabled");
+
+        }
+        else if (vTypeID == 2) {
+            $("#hypRV").click();
+        }
+    });
+
+    function RefreshSelectedCodes() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetDiagnosticCodesForServiceRequest", "Service")',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#selectedCodes").html(msg);
+            }
+        });
+    }
+
+    function SaveTechTab() {
+        var commentText = $("#txtTechComments").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveTechComments", "Service")',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { commentText: commentText },
+            success: function (msg) {
+                $('#previousComments').html(msg);
+                $("#txtTechComments").val('');
+                $("#divServiceTechAddComment").hide();
+                $("#btnAddNewTechComments").show();
+            }
+        });
+
+    }
+    function ShowCodes() {
+
+        var title = 'Diagnostic Codes';
+        dCodesWin = $("<div id='dCodesWin' />").appendTo(document.body);
+        dCodesWin.kendoWindow({
+
+            title: title,
+            content: "@Url.Action("GetDiagnosticCodes", "Service", new { area = "Application" })",
+            modal: true,
+            width: 1000,
+            height: GetPopupWindowHeight(),
+            deactivate: function () {
+                this.destroy();
+            },
+            close: function (e) {
+                if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                    document.dialogResult = null;
+                    if (!IsPageDirty()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+                if (document.dialogResult == "OK") {
+                    ClearDirtyFlag("popupcontainer");
+                    RefreshSelectedCodes();
+                }
+                isdirty = false;
+
+                return true;
+            }
+        });
+        dCodesWin.data('kendoWindow').center().open();
+
+    }
+
+    function SaveTechVehicle(formId, tabName) {
+
+        var retVal = false;
+        var $form = $("#" + formId);
+        if ($form.validationEngine('validate') == false) {
+            return retVal;
+        }
+        else {
+            $form.validationEngine('hide');
+
+        }
+        if ('@isFordClient' == 'True' && (tabName == "RV" || tabName == "Auto")) {
+            // var formdata = $form.serializearray();
+            if ($.trim($form.find("#VIN").val()).length == 0 && $.trim($("#CurrentMileage").val()).length == 0) {
+                ShowValidationMessage($form.find("#VIN"), "VIN field is required");
+                ShowValidationMessage($("#CurrentMileage"), "Mileage field is required");
+                return retVal;
+            }
+            else if ($.trim($form.find("#VIN").val()).length == 0) {
+                ShowValidationMessage($form.find("#VIN"), "VIN field is required");
+                HideValidationMessage($("#CurrentMileage"));
+                return retVal;
+            }
+            else if ($.trim($("#CurrentMileage").val()).length == 0) {
+                ShowValidationMessage($("#CurrentMileage"), "Mileage field is required");
+                HideValidationMessage($form.find("#VIN"));
+                return retVal;
+            }
+            else {
+                HideValidationMessage($form.find("#VIN"));
+                HideValidationMessage($("#CurrentMileage"));
+            }
+        }
+
+        var validationArray = {};
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetValidationRequiredFields", "Vehicle", new { area = "Application" })',
+            data: formdata,
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                validationArray = msg.Data;
+            }
+        });
+        var isVehicleLicenseStateRequired = false;
+        var isVehicleLicenseNumberRequired = false;
+        $.each(validationArray, function (i, item) {
+            switch (item.Name) {
+                case "VehicleLicenseStateRequired":
+                    {
+                        isVehicleLicenseStateRequired = true;
+                        break;
+                    }
+                case "VehicleLicenseNumberRequired":
+                    {
+                        isVehicleLicenseNumberRequired = true;
+                        break;
+                    }
+            }
+        });
+
+        if (isVehicleLicenseStateRequired && isVehicleLicenseNumberRequired &&
+          $.trim($("#LicenseState").data('kendoComboBox').value()).length == 0
+           && $.trim($form.find("#LicenseNumber").val()).length == 0) {
+            ShowValidationMessage($form.find('input[name="LicenseState_input"]'), "License State field is required");
+            ShowValidationMessage($form.find("#LicenseNumber"), "License Number field is required");
+            return retVal;
+        }
+        else if (isVehicleLicenseStateRequired && $.trim($("#LicenseState").data('kendoComboBox').value()).length == 0) {
+            ShowValidationMessage($form.find('input[name="LicenseState_input"]'), "License State field is required");
+            HideValidationMessage($form.find("#LicenseNumber"));
+            return retVal;
+        }
+        else if (isVehicleLicenseNumberRequired && $.trim($form.find("#LicenseNumber").val()).length == 0) {
+            ShowValidationMessage($form.find("#LicenseNumber"), "License Number field is required");
+            HideValidationMessage($form.find('input[name="LicenseState_input"]'));
+            return retVal;
+        }
+        else {
+            HideValidationMessage($form.find('input[name="LicenseState_input"]'));
+            HideValidationMessage($form.find("#LicenseNumber"));
+        }
+
+        var isFirstOwner = $('input:radio[id=rdFirstOwner]:checked').val();
+
+        if (isFirstOwner === undefined) {
+            isFirstOwner = null;
+        }
+        else {
+            isFirstOwner = isFirstOwner == "1" ? "true" : "false";
+        }
+
+        var isSportUtility = $('input:radio[id=rdSportUtility]:checked').val();
+
+        if (isSportUtility === undefined) {
+            isSportUtility = null;
+        }
+        else {
+            isSportUtility = isSportUtility == "1" ? "true" : "false";
+        }
+
+        var vehicleIDValue = $("#vehicleID").val();
+        var formdata = $form.serializeArray();
+        formdata.push({ name: "tabName", value: tabName });
+        formdata.push({ name: "IsFirstOwner", value: isFirstOwner });
+        formdata.push({ name: "IsSportUtilityRV", value: isSportUtility });
+        formdata.push({ name: "mainTabName", value: "ServiceTab" });
+
+        formdata.push({ name: "ID", value: vehicleIDValue });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Save", "Vehicle", new { area = "Application" })',
+            data: formdata,
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+
+                retVal = true;
+            }
+        });
+    }
+
+    $(function () {
+        $('#btnSaveComments').click(function () {
+            SaveTechTab();
+        });
+        $("#btnCancelComments").click(function () {
+            if ($("#txtTechComments").val().length > 0) {
+                if (confirm("Your changes will be lost. Do you want to continue?")) {
+                    $("#txtTechComments").val('');
+                    $("#divServiceTechAddComment").hide();
+                    $("#btnAddNewTechComments").show();
+                }
+            }
+            else {
+                $("#txtTechComments").val('');
+                $("#divServiceTechAddComment").hide();
+                $("#btnAddNewTechComments").show();
+            }
+        });
+        $('#txtTechComments').change(function () {
+            var commentText = $("#txtTechComments").val();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveTechCommentsInSession", "Service")',
+                traditional: true,
+                cache: false,
+                async: true,
+                global: false,
+                data: { commentText: commentText },
+                success: function (msg) {
+                }
+            });
+
+        });
+    });
+
+    function fnRefreshComments() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveTechComments", "Service")',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { commentText: "" },
+            success: function (msg) {
+                $('#previousComments').html(msg);
+            }
+        });
+    }
+
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        $("#btnAddNewTechComments").click(function (e) {
+            $("#divServiceTechAddComment").show();
+            $("#btnAddNewTechComments").hide();
+        });
+    });
+</script>

@@ -1,0 +1,172 @@
+﻿@model Martex.DMS.DAL.ProgramManagementProgramServiceCategory_Result
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Program Service Category";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    int maxSequence = Model.MaxSequnceNumber.GetValueOrDefault();
+    if (ViewData["mode"].ToString().Equals("edit"))
+    {
+        isEdit = true;
+    }
+    
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/styles/form.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<form method="post" action="" id="form-ProgramServiceCategories">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Program Service Category</legend>
+        <div>
+            <div class="inline-label mid-margin-bottom">
+                <label for="ProductCategoryID" class="label">
+                    Product Category</label>
+                @(Html.Kendo().ComboBoxFor(a => a.ProductCategoryID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProductCategory.ToString()] as IEnumerable<SelectListItem>))
+                @*, "Value", "Text", Model != null && Model.ProductCategoryID != null ? Model.ProductCategoryID.ToString() : "")))*@
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="VehicleTypeID" class="label">
+                    Vehicle Type
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.VehicleTypeID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.VehicleTypeID != null ? Model.VehicleTypeID.ToString() : "")))
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="VehicleCategoryID" class="label">
+                    Vehicle Category</label>
+                @(Html.Kendo().ComboBoxFor(a => a.VehicleCategoryID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.VehicleCategoryID != null ? Model.VehicleCategoryID.ToString() : "")))
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="Sequence" class="label">
+                    Sequence</label>
+                @Html.TextBoxFor(u => u.Sequence, new { @class = "input full-width validate[custom[integer],max[" + maxSequence + "]]" })
+            </p>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="IsActive" class="label">
+                    Is Active</label>
+                @Html.CheckBoxFor(a => a.IsActive, new { @class = "full-width checkbox" })
+            </div>
+            <br />
+            <div class="field-block button-height">
+                <button id="btnAddServiceCategory" class="button green-gradient glossy float-right mid-margin-left"
+                    type="submit">
+                    @if (isEdit)
+                    {
+                        @Html.Raw("Update")
+                    }
+                    else
+                    {
+                        @Html.Raw("Add")
+                    }
+                </button>
+                <button id="btnCancelServiceCategory" class="button gray-gradient glossy  float-right"
+                    type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("pageMode", ViewData["mode"])
+@Html.HiddenFor(x => x.ProgramID)
+@Html.HiddenFor(x => x.ID)
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        CleanMyContainer('form-ProgramServiceCategories');
+        WatchMyContainer('form-ProgramServiceCategories');
+        $('#form-ProgramServiceCategories').validationEngine();
+        
+        var combo = $('#ProductCategoryID').data('kendoComboBox');
+        if (combo.text() == 1) {
+            combo.text("Select");
+            combo.value(null);
+        }
+
+
+        $('#btnCancelServiceCategory').die('click');
+        $('#btnCancelServiceCategory').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#form-ProgramServiceCategories').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                programServiceCategoriesWindow.data('kendoWindow').close();
+            }
+        });
+
+        $('#btnAddServiceCategory').die('click');
+        $('#btnAddServiceCategory').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var errorfound = false;
+                if ($("#form-ProgramServiceCategories").validationEngine("validate") == false) {
+                    errorfound = true;
+                }
+                var state = $('#ProductCategoryID').data('kendoComboBox').value();
+                if ($.trim(state).length == 0) {
+                    ShowValidationMessage($('input[name="ProductCategoryID_input"]'), "* This field is required.");
+                    errorfound = true;
+                }
+                else {
+                    HideValidationMessage($('input[name="ProductCategoryID_input"]'));
+                }
+                if (errorfound == true) {
+                    return false;
+                }
+
+                document.dialogResult = "OK";
+                var postData = $(this).parents('form').serializeArray();
+                var mode = $("#pageMode").val();
+                var programId = $("#ProgramID").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SaveServiceCategoryInformation", "ProgramManagement", new { area = "Admin" })',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            CleanMyContainer('form-ProgramServiceCategories');
+                            if (mode == "add") {
+                                openAlertMessage('Program ServiceCategory successfully added!');
+                            }
+                            else if (mode == "edit") {
+                                openAlertMessage('Program ServiceCategory successfully updated!');
+                            }
+                            $('#form-ProgramServiceCategories').validationEngine('hideAll');
+                            programServiceCategoriesWindow.data('kendoWindow').close();
+                            $('#GrdProgramManagementServiceCategories_' + programId).data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+
+            }
+            return false;
+        });
+    });
+</script>

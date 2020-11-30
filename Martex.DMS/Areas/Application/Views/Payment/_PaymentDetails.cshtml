@@ -1,0 +1,990 @@
+﻿@using Martex.DMS.Models
+@model Martex.DMS.BLL.Model.PaymentInformation
+@using Kendo.Mvc.UI
+@{
+    bool isnew = Model.Mode.Equals("add");
+    bool isCredit = Model.Mode.Equals("credit");
+    bool isView = Model.Mode.Equals("view");
+    bool isCopy = Model.Mode.Equals("copy");
+    bool isCharge = false;
+    bool isCreditTrue = false;
+
+    if (isnew)
+    {
+        isCharge = true;
+    }
+    if (isCredit)
+    {
+        isCreditTrue = true;
+    }
+    if (Model.Payment.PaymentTransactionTypeID != null)
+    {
+        isCharge = Model.Payment.PaymentTransactionTypeID.Value == 1;
+        isCreditTrue = Model.Payment.PaymentTransactionTypeID.Value == 2 || Model.Payment.PaymentTransactionTypeID.Value == 3;
+    }
+}
+<style type="text/css">
+    .divHeader {
+        float: left;
+        width: 125px;
+    }
+
+        .divHeader hr {
+            width: 80px;
+        }
+</style>
+<script language="javascript" type="text/javascript">
+
+
+    function onComboBoxChange_SR_ContactMethodID(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+
+        var contactMethod = $('#SR_ContactMethodID').data('kendoComboBox').text();
+        if (contactMethod == null || contactMethod == "Select" || contactMethod == "") {
+            ContactMethodShowOrHide('Email');
+        }
+        else {
+            ContactMethodShowOrHide(contactMethod);
+        }
+    }
+
+    function ContactMethodShowOrHide(contactMethod) {
+        switch (contactMethod) {
+            case "Email":
+                {
+                    $("#pText").hide();
+                    $("#pEmail").show();
+                    break;
+                }
+            case "Text":
+                {
+                    $("#pEmail").hide();
+                    $("#pText").show();
+                    break;
+                }
+        }
+    }
+</script>
+<script type="text/javascript">
+    function PaymentReason_Change(e) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        var comboVal = combo.text();
+        if (comboVal == 'Other') {
+            $('#POtherReason').show();
+        }
+        else {
+            $('#POtherReason').hide();
+        }
+    }
+
+    function Country_OnChange(e) {
+
+        var countrycombo = e.sender;
+        var comboChild = $("#Payment_BillingStateProvinceID").data("kendoComboBox");
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(countrycombo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+            //PV
+
+        else {
+            var combo = $("#Payment_BillingCountryID").data("kendoComboBox");
+
+            var comboChildInputField = $('input[name="Payment_BillingStateProvinceID_input"]');
+
+            if (combo.value != '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                    data: { countryId: combo.value() },
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        comboChild.setDataSource(msg);
+                        comboChild.value('');
+                        SetFocusOnField("Payment_BillingStateProvinceID");
+                    }
+
+                });
+            }
+        }
+
+    }
+
+    function GetPaymentReason(transactionTypeID) {
+
+        if (transactionTypeID == 1) {
+            $('#btnChargeCardButton').html("Charge Card");
+        }
+        else {
+            $('#btnChargeCardButton').html("Apply Credit");
+        }
+        var comboChild = $("#Payment_PaymentReasonID").data("kendoComboBox");
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetPaymentReason", "ReferenceData", new { area = "Common" })',
+            data: { transactionType: transactionTypeID },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                comboChild.setDataSource(msg);
+                comboChild.value('');
+            }
+
+        });
+    }
+</script>
+<div class="six-columns">
+    @Html.HiddenFor(u => u.CurrentMonth)
+    @Html.HiddenFor(u => u.CurrentYear)
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Year" class="label">
+            Card Type<span class="spanstar">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("Payment.PaymentTypeID")
+        .Suggest(true)
+        .HighlightFirst(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PaymentType.ToString()] as IEnumerable<SelectListItem>)
+        .HtmlAttributes(new { style = "width:157px;vertical-align:middle;", @class = "comboRequired", data = "Payment.PaymentTypeID" })
+        .Value(Model.Payment.PaymentTypeID == null ? string.Empty : Model.Payment.PaymentTypeID.ToString())
+        .Enable(@Model.Mode == "add" ? true : false)
+        .SelectedIndex(0)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo");
+        })
+        )
+    </div>
+    <p class="inline-label">
+        <label for="FirstName" class="label">
+            Card Number <span class="spanstar">*</span>
+        </label>
+        @if (isnew)
+        {
+            @Html.TextBoxFor(u => u.Payment.CCAccountNumber, new { @class = "validate[required,minSize[14],maxSize[16],custom[integer]] input full-width2" })
+        }
+        else
+        {
+            @Html.HiddenFor(u => u.Payment.CCAccountNumber)
+            @Html.TextBoxFor(u => u.Payment.CCPartial, new { @class = "input full-width2 disabled", @readonly = "readonly" })
+        }
+    </p>
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Year" class="label">
+            Expiration Date<span class="spanstar">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+                      .Name("CardExpirationMonth")
+                      .Suggest(true)
+                      .HighlightFirst(true)
+                      .Filter(FilterType.StartsWith).MinLength(0)
+                      .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CreditCardExpirationMonths.ToString()] as IEnumerable<SelectListItem>)
+                      .Value(Model.CardExpirationMonth <= 0 ? string.Empty : Model.CardExpirationMonth.ToString())
+                      .SelectedIndex(0)
+                                      .HtmlAttributes(new { style = "width:120px;vertical-align:middle;", @class = "comboRequired", data = "CardExpirationMonth" })
+                      .Enable(@Model.Mode == "add" ? true : false)
+                         .Events(events =>
+                         {
+                             events.Change("ValidateInputForKendoCombo");
+                         })
+
+        )
+        &nbsp;
+        @(Html.Kendo().ComboBox()
+                .Name("CardExpirationYear")
+                        .Suggest(true)
+                        .HighlightFirst(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CreditCardExpirationYear.ToString()] as IEnumerable<SelectListItem>)
+                                .Value(Model.CardExpirationYear <= 0 ? string.Empty : Model.CardExpirationYear.ToString())
+                                .SelectedIndex(0)
+                                .HtmlAttributes(new { style = "width:80px;vertical-align:middle;", @class = "comboRequired", data = "CardExpirationYear" })
+                .Enable(@Model.Mode == "add" ? true : false)
+                                .Events(events =>
+                        {
+                            events.Change("ValidateInputForKendoCombo");
+                        })
+
+        )
+    </div>
+    <p class="inline-label">
+        <label for="SecurityCode" class="label">
+            Security Code
+        </label>
+        @if (isnew)
+        {
+            @Html.TextBox("SecurityCode", null, new { @class = "validate[maxSize[100],custom[integer]] input inputSmall" })
+        }
+        else
+        {
+            @Html.TextBox("SecurityCode", null, new { @class = "input inputSmall disabled", @readonly = "readonly" })
+        }
+    </p>
+    <p class="inline-label">
+        <label for="NameonCard" class="label">
+            Name on Card<span class="spanstar">*</span>
+        </label>
+        @if (isnew)
+        {
+            @Html.TextBoxFor(u => u.Payment.CCNameOnCard, new { @class = "validate[required,maxSize[50]] input full-width2" })
+        }
+        else
+        {
+            @Html.TextBoxFor(u => u.Payment.CCNameOnCard, new { @class = "input full-width2 disabled", @readonly = "readonly" })
+        }
+    </p>
+    <p class="inline-label">
+        <label for="BillingAddress" class="label" style="font-style: italic;">
+            Billing Address
+        </label>
+        @if (isnew)
+        {
+            @Html.CheckBox("BillingAddress", false, new { @class = "checkbox" })
+        }
+        else
+        {
+            @Html.CheckBox("BillingAddress", false, new { @class = "checkbox disabled" })
+        }
+        Use Member's Address
+    </p>
+    <div id="DIVbillingAddress">
+        <p class="inline-label">
+            <label for="Address1" class="label">
+                Address 1
+            </label>
+            @if (isnew)
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingLine1, new { @class = "validate[maxSize[100]] input full-width2" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingLine1, new { @class = "input full-width2 disabled", @readonly = "readonly" })
+            }
+        </p>
+        <p class="inline-label">
+            <label for="Address2" class="label">
+                Address 2
+            </label>
+            @if (isnew)
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingLine2, new { @class = "validate[maxSize[100]] input full-width2" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingLine2, new { @class = "input full-width2 disabled", @readonly = "readonly" })
+            }
+        </p>
+        <p class="inline-label">
+            <label for="City" class="label">
+                City
+            </label>
+            @if (isnew)
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingCity, new { @class = "validate[maxSize[100]] input full-width2" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingCity, new { @class = "input full-width2 disabled", @readonly = "readonly" })
+            }
+        </p>
+        <div class="button-height inline-label mid-margin-bottom">
+            <label for="StateCountry" class="label">
+                Country, State
+            </label>
+            @(Html.Kendo().ComboBox()
+                .Name("Payment.BillingCountryID")
+                .Suggest(true)
+                .HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                .Value(Model.Payment.BillingCountryID == null ? string.Empty : Model.Payment.BillingCountryID.ToString())
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:157px;vertical-align:middle;" })
+                .Enable(@Model.Mode == "add" ? true : false)
+                         .Events(events =>
+                 {
+                     events.Change("Country_OnChange");
+                 })
+
+            )
+            &nbsp;&nbsp;
+            @(Html.Kendo().ComboBox()
+                             .Name("Payment.BillingStateProvinceID")
+                             .Suggest(true)
+                             .HighlightFirst(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+                             .HtmlAttributes(new { style = "width:157px;vertical-align:middle;" })
+                             .Value(Model.Payment.BillingStateProvinceID == null ? string.Empty : Model.Payment.BillingStateProvinceID.ToString())
+                             .SelectedIndex(0)
+                             .Enable(@Model.Mode == "add" ? true : false)
+                                      .Events(events =>
+                                      {
+                                          events.Change("ValidateInputForKendoCombo");
+                                      })
+
+
+            )
+        </div>
+        <p class="inline-label">
+            <label for="PostalCode" class="label">
+                Postal Code
+            </label>
+            @if (isnew)
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingPostalCode, new { @class = "validate[maxSize[20]] input inputSmall mid-margin-bottom" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => Model.Payment.BillingPostalCode, new { @class = "input inputSmall  disabled mid-margin-bottom", @readonly = "readonly" })
+            }
+        </p>
+    </div>
+    <p class="inline-label">
+        <label for="Comments" class="label">
+            Comments
+        </label>
+        @if (isnew || isCredit || isCopy)
+        {
+            @Html.TextAreaFor(u => u.Payment.Comments, new { @class = "input full-width2 small-margin-top" })
+        }
+        else
+        {
+            @Html.TextAreaFor(u => u.Payment.Comments, new { @class = "input full-width2 small-margin-top disabled", @readonly = "readonly" })
+        }
+    </p>
+</div>
+<div class="six-columns">
+    <p class="inline-label">
+        <label for="TransactionType" class="label">
+            Transaction Type
+        </label>
+        @if (isnew)
+        {
+            @Html.RadioButton("Payment.PaymentTransactionTypeID", "1", isCharge, new { @class = "radio small-margin-right" })
+        }
+        else if (isCopy)
+        {
+            @Html.RadioButton("Payment.PaymentTransactionTypeID", "1", true, new { @class = "radio small-margin-right disabled" })
+        }
+        else
+        {
+            @Html.RadioButton("Payment.PaymentTransactionTypeID", "1", isCharge, new { @class = "radio small-margin-right disabled" })
+        }
+        Charge &nbsp;
+        @if (isCredit)
+        {
+            @Html.RadioButton("Payment.PaymentTransactionTypeID", "2", isCreditTrue, new { @class = "radio small-margin-right" })
+        }
+        else
+        {
+            @Html.RadioButton("Payment.PaymentTransactionTypeID", "2", isCreditTrue, new { @class = "radio small-margin-right disabled" })
+        }
+        Credit
+    </p>
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Amount" class="label">
+            Amount <span class="spanstar">*</span>
+        </label>
+        <div class="float-left">
+            @Html.HiddenFor(u => u.MaximunAmount)
+            @Html.HiddenFor(u => u.MinimumAmount)
+            @if (isnew || isCredit || isCopy)
+            {
+                @Html.TextBoxFor(u => u.Payment.Amount, "{0:N2}", new { @class = "validate[required,maxSize[10],custom[number]] input inputSmall " })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => u.Payment.Amount, "{0:N2}", new { @class = "input inputSmall disabled", @readonly = "readonly" })
+            }
+        </div>
+        &nbsp;
+        <div class="float-left small-margin-bottom small-margin-left">
+            @(Html.Kendo().ComboBox()
+                    .Name("Payment.CurrencyTypeID")
+                    .Suggest(true)
+                    .HighlightFirst(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Enable(false)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CurrencyType.ToString()] as IEnumerable<SelectListItem>)
+                    .Value(Model.Payment.CurrencyTypeID == null ? string.Empty : Model.Payment.CurrencyTypeID.Value.ToString())
+                    .HtmlAttributes(new { style = "width:70px;" })
+                             .Events(events =>
+                             {
+                                 events.Change("ValidateInputForKendoCombo");
+                             })
+            )
+        </div>
+    </div>
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Reason" class="label">
+            Reason <span class="spanstar">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+                        .Name("Payment.PaymentReasonID")
+                        .Suggest(true)
+                        .HighlightFirst(true)
+
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PaymentReason.ToString()] as IEnumerable<SelectListItem>)
+                        .SelectedIndex(0)
+                        .Value(Model.Payment.PaymentReasonID == null ? string.Empty : Model.Payment.PaymentReasonID.ToString())
+                                        .HtmlAttributes(new { style = "width:157px;vertical-align:middle;", @class = "comboRequired", data = "Payment.PaymentReasonID" })
+                        .Events(events => events.Change("PaymentReason_Change"))
+                        .Enable(isnew || isCredit || isCopy ? true : false)
+
+        )
+    </div>
+    <p class="inline-label" id="POtherReason" style="display: none;">
+        <label for="PaymentReasonOther" class="label">
+            &nbsp;&nbsp;if other
+        </label>
+        @if (isnew || isCredit || isCopy)
+        {
+            @Html.TextBoxFor(u => u.Payment.PaymentReasonOther, new { @class = "validate[required,maxSize[50]] input small-width" })
+        }
+        else
+        {
+            @Html.TextBoxFor(u => u.Payment.PaymentReasonOther, new { @class = "input small-width disabled", @readonly = "readonly" })
+        }
+    </p>
+    <p class="message" id="statusIndicator">
+        <span class="block-arrow"><span></span></span><span class="statusMessage"></span>
+    </p>
+    <div>
+        @if (isnew)
+        {
+            <button id="btnChargeCardButton" class="button green-gradient glossy float-left small-margin-right small-margin-bottom"
+                    type="button">
+                Charge Card
+            </button>
+        }
+        else if (isCredit)
+        {
+            <button id="btnChargeCardButton" class="button green-gradient glossy float-left small-margin-right small-margin-bottom"
+                    type="button">
+                Apply Credit
+            </button>
+        }
+        else if (isCopy)
+        {
+            <button id="btnChargeCardButton" class="button green-gradient glossy float-left small-margin-right small-margin-bottom"
+                    type="button">
+                @if (@isCharge || @isCopy)
+                {
+                    @Html.Raw("Charge Card")
+                }
+                else
+                {
+                    @Html.Raw("Apply Credit")
+                }
+            </button>
+        }
+        else
+        {
+            <button id="btnChargeCardButton" class="button green-gradient glossy float-left small-margin-right small-margin-bottom disabled"
+                    disabled="disabled" type="button">
+                @if (@isCharge)
+                {
+                    @Html.Raw("Charge Card")
+                }
+                else
+                {
+                    @Html.Raw("Apply Credit")
+                }
+            </button>
+        }
+        @if (Model.PaymentStatus != null && Model.PaymentStatus.Equals("Approved"))
+        {
+            <form id="frmSendReciept" action="javascript:void(0);" method="post">
+                @Html.HiddenFor(u => u.SR_PaymentID)
+                <div>
+                    <div class="clear">
+                        &nbsp;
+                    </div>
+                    <fieldset class="fieldset margin-top">
+                        <legend class="legend">Send Receipt</legend>
+                        <div class="button-height inline-label small-margin-bottom small-margin-right">
+                            <label for="SendType" class="label">
+                                Send Type <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                                     .Name("SR_ContactMethodID")
+                                      .Suggest(true)
+
+                                      .HighlightFirst(true)
+                                      .Filter(FilterType.StartsWith).MinLength(0)
+
+                                      .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.SendRecieptType.ToString()] as IEnumerable<SelectListItem>)
+                                        .Events(events =>
+                                        {
+                                            events.Change("onComboBoxChange_SR_ContactMethodID");
+                                        })
+                                        .HtmlAttributes(new { @class = "selectlabel comboRequired", @style = "width:75px" })
+                                        .Enable(isView ? true : false)
+                                        .SelectedIndex(0)
+                                .Value(Model.SR_ContactMethodID == null ? string.Empty : Model.SR_ContactMethodID.Value.ToString())
+                            )
+                            @if (isView)
+                            {
+                                <button id="btnSendReceipt" class="button compact blue-gradient small-margin-left small-margin-top"
+                                        type="button">
+                                    Send Receipt
+                                </button>
+                            }
+                            else
+                            {
+                                <button id="btnSendReceipt" class="button compact blue-gradient small-margin-left small-margin-top disabled"
+                                        disabled="disabled" type="button">
+                                    Send Receipt
+                                </button>
+                            }
+                        </div>
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom" id="pText">
+                                @if (isView)
+                                {
+                                    @Html.Editor("SRPhoneNumber", "Phone", new { Value = Model.SR_PhoneNumber, entityName = "Member", ShowPhoneType = true, ShowCallIcon = false, IsRequired = true })
+                                }
+                                else
+                                {
+                                    @Html.Editor("SRPhoneNumber", "Phone", new { Value = Model.SR_PhoneNumber, entityName = "Member", ShowPhoneType = true, ShowCallIcon = false, IsRequired = true, ReadOnly = true })
+                                }
+                            </p>
+                            <p class="button-height inline-label small-margin-bottom" id="pEmail">
+                                @if (isView)
+                                {
+                                    @Html.TextBox("SR_Email", Model.SR_Email, new { @class = "validate[maxSize[255]] input  small-margin-right small-margin-bottom full-width2" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("SR_Email", Model.SR_Email, new { @class = "validate[maxSize[255]] input  small-margin-right small-margin-bottom disabled full-width2", @readonly = "readonly" })
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom">
+                                @if (isView)
+                                {
+                                    <a id="btnViewSendHistory_Payment">View Send History </a>
+                                }
+                                else
+                                {
+                                    <a id="btnViewSendHistory_Payment" class="noAction">View Send History </a>
+                                }
+                            </p>
+                            <div id="divSendHistory_Payment" class="five-rows scrollable dotted-border with-padding margin-top">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </form>
+        }
+    </div>
+    <div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        var comboBox = $('#Payment_PaymentReasonID').data("kendoComboBox");
+        try {
+            if (comboBox.text() == 'Other') {
+                $('#POtherReason').show();
+            }
+            else {
+                $('#POtherReason').hide();
+            }
+
+        } catch (e) {
+            $('#POtherReason').hide();
+        }
+
+
+        $("#divSendHistory_Payment").hide();
+        $("#btnViewSendHistory_Payment").toggle(function () {
+            if ($(this).hasClass("noAction")) {
+                return false;
+            }
+            $("#divSendHistory_Payment").show();
+            RefreshSendHistory();
+            $(this).text("Hide Send History");
+        },
+        function () {
+            $("#divSendHistory_Payment").hide();
+            $(this).text("View Send History");
+        });
+    });
+
+    function RefreshSendHistory()
+    {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_GetContactLogs", "Payment")',
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $("#divSendHistory_Payment").html("");
+                $("#divSendHistory_Payment").html(msg);
+            }
+        });
+    }
+
+    function HideStatus() {
+        var $msg = $(".message");
+        $msg.hide();
+    }
+
+
+    function CountryChange(countryID) {
+
+        var comboChild = $("#Payment_BillingStateProvinceID").data("kendoComboBox");
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+            data: { countryId: countryID },
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                comboChild.setDataSource(msg);
+                comboChild.value('');
+            }
+        });
+    }
+    function ShowStatus(status, msg) {
+        var $msg = $(".message");
+        if ($msg.hasClass("blue-gradient")) {
+            $msg.removeClass("blue-gradient");
+        }
+        else if ($msg.hasClass("red-gradient")) {
+            $msg.removeClass("red-gradient");
+        }
+        else if ($msg.hasClass("green-gradient")) {
+            $msg.removeClass("green-gradient");
+        }
+
+        if (status == "success") {
+            $(".message").addClass("green-gradient");
+        }
+        else if (status == "inprogress") {
+            $(".message").addClass("blue-gradient");
+        }
+        else if (status == "error") {
+            $(".message").addClass("red-gradient");
+        }
+        $msg.show();
+        $(".message .statusMessage").text(msg);
+    }
+    $(function () {
+
+        HideStatus();
+        $('#frmPaymentInformation').validationEngine();
+
+
+        $('#BillingAddress').change(function () {
+            if ($('#BillingAddress').is(':checked')) {
+                // Ajax Call to get the Member Address.
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_GetMemberAddress", "Payment", new { area = "Application" })',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        var address = msg.Data;
+                        // Bind the address fields
+                        if (msg.Data != null) {
+                            $("#Payment_BillingLine1").val(address.Line1);
+                            $("#Payment_BillingLine2").val(address.Line2);
+                            $("#Payment_BillingCity").val(address.City);
+                            $("#Payment_BillingCountryID").data('kendoComboBox').value(address.CountryID);
+                            CountryChange(address.CountryID)
+
+
+
+                            $("#Payment_BillingPostalCode").val(address.PostalCode);
+                            var selectItem = function (dataItem) {
+                                //dataItem argument is a ComboBox data item.
+                                return dataItem.Value == address.StateProvinceID;
+                            }
+                            $("#Payment_BillingStateProvinceID").data('kendoComboBox').select(selectItem);
+                        }
+                    }
+                });
+            }
+        });
+
+        $('.radio').change(function () {
+            var radioInput = $('input:radio[id=Payment_PaymentTransactionTypeID]:checked').val();
+            GetPaymentReason(radioInput);
+        });
+
+        // KS : Format amount as currency.
+        $("#Payment_Amount").change(function () {
+            var sval = $(this).val();
+            var fVal = 0;
+            try {
+
+                fVal = parseFloat(sval);
+                if (isNaN(fVal)) {
+                    fVal = 0;
+                }
+            }
+            catch (error) {
+                fVal = 0;
+            }
+
+            $(this).val(fVal.toFixed(2));
+        });
+
+        $('#btnChargeCardButton').click(function () {
+            ShowStatus("inprogress", "Verifying information ...");
+            var errorFound = false;
+            if ($('#frmPaymentInformation').validationEngine('validate') == false) {
+                errorFound = true;
+            }
+            var first = true;
+            // Validate telerik comboboxes.
+            $('#frmPaymentInformation .comboRequired').each(function () {
+
+                if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                    var val = $(this).attr('data');
+
+                    if (val != undefined) {
+                        var controlID = $(this).attr("id");
+                        var that = $(this);
+                        var inputField = null;
+                        var combo = $('#' + controlID).data('kendoComboBox');
+
+                        if (combo.value() == '' || combo.value() == 'Select') {
+                            errorFound = true;
+                            var errorField = $('input[name="' + val + '_input"]');
+                            errorField.attr("id", val + 'jqv');
+                            ShowValidationMessage(errorField, "Please select value");
+                        }
+                        else {
+                            var errorField = $('input[name="' + val + '_input"]');
+                            errorField.attr("id", val + 'jqv');
+                            HideValidationMessage(errorField);
+                        }
+                    }
+                }
+            });
+
+            var amount = $('#Payment_Amount').val();
+            var maxAmount = parseFloat($('#MaximunAmount').val());
+            var minAmount = parseFloat($('#MinimumAmount').val());
+            var iAmount = 0;
+
+            try {
+                iAmount = parseFloat(amount);
+                if ('@isCredit' == 'True') {
+                    if (iAmount > maxAmount) {
+                        $('#Payment_Amount').validationEngine('showPrompt', 'Credit amount cannot be greater than the remaining balance of <$' + maxAmount + '> on the original payment', '', 'topRight', true);
+                        setTimeout(function () { ShowStatus("error", "Payment data invalid") }, 1000);
+                        return false;
+                    }
+                }
+
+            }
+            catch (error) {
+                $('#Payment_Amount').validationEngine('showPrompt', 'Amount is not valid', '', 'topRight', true);
+                setTimeout(function () { ShowStatus("error", "Payment data invalid") }, 1000);
+                return false;
+            }
+            // KB: Validate the month in conjunction with the year.
+            var expiryYear = $('#CardExpirationYear').data('kendoComboBox').value();
+            var expiryMonth = $('#CardExpirationMonth').data('kendoComboBox').value();
+            if (isNaN(expiryYear)) {
+                errorFound = true;
+                setTimeout(function () { ShowStatus("error", "Expiry Year is not valid") }, 1000);
+                return false;
+            }
+
+            var iExpiryYear = parseInt(expiryYear, 10);
+            var currentYear = parseInt($('#CurrentYear').val(), 10);
+            var currentMonth = parseInt($('#CurrentMonth').val(), 10);
+
+
+            if (iExpiryYear == currentYear) {
+
+                if (expiryMonth < currentMonth) {
+                    errorFound = true;
+                    setTimeout(function () { ShowStatus("error", "Expiry Month is not valid") }, 1000);
+                    return false;
+                }
+            }
+
+            var radioInput = $('input:radio[id=Payment_PaymentTransactionTypeID]:checked').val();
+            if (radioInput === undefined) {
+                $('input:radio[id=Payment_PaymentTransactionTypeID]').validationEngine('showPrompt', 'Transaction type is required', '', 'topRight', true);
+                errorFound = true;
+                return false;
+            }
+            if (errorFound) {
+                setTimeout(function () { ShowStatus("error", "Missing required fields") }, 1000);
+                return false;
+            }
+
+            $('#frmPaymentInformation').validationEngine('hideAll');
+            HideStatus();
+
+            ShowStatus("inprogress", "Processing Credit Card…");
+            // Ajax Call To Make Request
+            var paymentModel = $('#frmPaymentInformation').serializeArray();
+            //Send these parmeters explicitly beacuse while serialization combo box values are missing when it's disbaled.
+            paymentModel.push({ name: 'CardExpirationMonth', value: $('#CardExpirationMonth').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'CardExpirationYear', value: $('#CardExpirationYear').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'Payment.PaymentTransactionTypeID', value: radioInput });
+            paymentModel.push({ name: 'Payment.PaymentTypeID', value: $('#Payment_PaymentTypeID').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'Payment.CurrencyTypeID', value: $('#Payment_CurrencyTypeID').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'Payment.BillingStateProvinceID', value: $('#Payment_BillingStateProvinceID').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'Payment.BillingCountryID', value: $('#Payment_BillingCountryID').data('kendoComboBox').value() });
+
+            try {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("DoPaymentTransaction", "Payment", new { area = "Application" })',
+                    data: paymentModel,
+                    cache: false,
+                    success: function (msg) {
+
+                        if (msg.OperationType == "Success") {
+                            openAlertMessage('Credit card transaction was approved');
+                            LoadPaymentForm('view');
+                            CleanMyContainer('frmPaymentInformation');
+                        }
+                        else {
+                            ShowStatus("error", msg.ErrorMessage);
+                            $("#paymentTabs").tabs("select", 1);
+                        }
+                        ClearDirtyFlag("pagecontainer");
+                        $('#GrdPaymentDetails').data('kendoGrid').dataSource.read();
+                        $('#GrdPaymentTransactions').data('kendoGrid').dataSource.read();
+                    },
+                    error: function (msg) {
+
+                        ShowStatus("error", "An error had occured while processing the request.");
+                    }
+                });
+
+            } catch (e) {
+                ShowStatus("error", "An error had occured while processing the request.");
+            }
+        });
+    });
+
+
+</script>
+<script type="text/javascript">
+
+    $(function () {
+        $("#Payment_BillingCountryID").data("kendoComboBox").list.width(250);
+        $("#Payment_BillingStateProvinceID").data("kendoComboBox").list.width(250);
+
+        try {
+            var contactMethod = $('#SR_ContactMethodID').data('kendoComboBox').text();
+            if (contactMethod == null || contactMethod == "Select" || contactMethod == "") {
+                ContactMethodShowOrHide('Email');
+            }
+            ContactMethodShowOrHide(contactMethod);
+
+        } catch (e) {
+            ContactMethodShowOrHide('Email');
+        }
+
+
+        $('#btnSendReceipt').click(function () {
+
+            var contactMethodValue = $('#SR_ContactMethodID').data('kendoComboBox').value();
+            var contactMethodText = $('#SR_ContactMethodID').data('kendoComboBox').text();
+
+            if (contactMethodValue == '' || contactMethodValue == null) {
+                ShowValidationMessage($('input[name="SR_ContactMethodID_input"]'), "Please select a value");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input[name="SR_ContactMethodID_input"]'));
+            }
+
+            if (contactMethodText == 'Email') {
+                if ($.trim($('#SR_Email').val()).length == 0) {
+                    ShowValidationMessage($("#SR_Email"), "Please select a value");
+                    return false;
+                }
+                else {
+
+                    var regex = $.validationEngineLanguage.allRules["email"].regex;
+
+                    var pattern = new RegExp(regex);
+
+                    if (!pattern.test($.trim($('#SR_Email').val()))) {
+                        ShowValidationMessage($("#SR_Email"), "Invalid Email address");
+                        return false;
+                    }
+
+                    else {
+                        HideValidationMessage($("#SR_Email"));
+                    }
+
+                }
+            }
+
+            // Do Processing
+            ProcessSendReciept();
+            return false;
+        });
+    });
+
+
+    function ProcessSendReciept() {
+        var contactMethod = $('#SR_ContactMethodID').data('kendoComboBox');
+        var postData = new Array();
+        postData.push({ name: 'PaymentID', value: $('#SR_PaymentID').val() });
+        postData.push({ name: 'ContactMethodID', value: contactMethod.value() });
+        postData.push({ name: 'ContactMethodName', value: contactMethod.text() });
+        postData.push({ name: 'Email', value: $('#SR_Email').val() });
+        postData.push({ name: 'PhoneNumber', value: GetPhoneNumberForDB("SRPhoneNumber") });
+        postData.push({ name: 'PhoneTypeID', value: $('#SRPhoneNumber_ddlPhoneType').val() });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ProcessSendReciept", "Payment", new { area = "Application" })',
+            data: postData,
+            cache: false,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+
+                    ClearDirtyFlag("pagecontainer");
+                    openAlertMessage('Send Receipt Success');
+                    RefreshSendHistory();
+                    CleanMyContainer('frmPaymentInformation');
+                }
+                else {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+            },
+            error: function (msg) {
+                openAlertMessage("An error had occured while processing the request.");
+            }
+        });
+    }
+</script>

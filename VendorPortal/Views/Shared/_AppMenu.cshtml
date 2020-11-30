@@ -1,0 +1,29 @@
+﻿@using VendorPortal.Models
+<ul class="AppMenu">
+    @*@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_VENDOR_ADMIN) == AccessType.ReadWrite)
+    {
+    <li><a href="@Url.Action("Index", "Home", new { area = "Users" })" id="menu_top_vendor_admin" data="Users">
+        Admin</a></li>
+    }*@
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_ISP) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "Dashboard", new { area = "ISP" })" id="menu_top_ISP" data = "ISP" class="white" title="Dashboard">
+            - </a></li>
+    }
+</ul>
+<script type="text/javascript">
+    var area = '@ViewContext.RouteData.DataTokens["area"]';
+    $(function () {
+        //        $('.AppMenu li a').each(function () {
+        //            $(this).removeClass("orange");
+        //        });
+
+        //        if (area.length != 0) {            
+        //            $('.AppMenu li a').each(function () {
+        //                if ($(this).attr('data') == area) {
+        //                    $(this).addClass("orange");
+        //                }
+        //            });
+        //        }
+    });
+</script>

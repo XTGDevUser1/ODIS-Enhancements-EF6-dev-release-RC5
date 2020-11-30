@@ -1,0 +1,95 @@
+﻿@{
+    ViewBag.Title = "Client Rep";
+    Layout = "~/Areas/ClientManagement/Views/Shared/_ClientManagementLayout.cshtml";
+}
+
+<div class="with-padding">
+    <hgroup id="main-title" class="thin">
+        <h1>
+            Client Rep Maintenance
+        </h1>
+    </hgroup>
+    <div id="ClientRepMaintenanceTabs" class="standard-tabs same-height" data="clientRepMaintenanceDynamicTabs">
+        <ul class="tabs">
+            <li><a href="#tabs-1" class="icon-list">Client Rep</a></li>
+        </ul>
+        <div id="tabs-1" class="clientRepMaintenanceDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResults")
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var tabObject = null;
+    $(function () {
+        tabObject = $('#ClientRepMaintenanceTabs').tabs();
+    });
+
+
+    function RemoveClientRepAvatar(suffixClientRepID) {
+        var message = "Are you sure you want to delete this image?";
+        $.modal.confirm(message, function () {
+            $.ajax({
+                type: 'POST',
+                url: '/ClientManagement/ClientRep/_RemoveClientRepAvatar',
+                traditional: true,
+                data: { clientRepID: suffixClientRepID },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    CleanMyContainer('formClientRepMaintenanceDetails');
+                    clientRepMaintenanceWindow.data('kendoWindow').close();
+                    setTimeout(
+                        function () { LoadClientRepDetails(suffixClientRepID, "Edit", "Edit : " + suffixClientRepID) }, 500);
+                    openAlertMessage("Avatar removed successfully.");
+                }
+            });
+        }, function () {
+            // Do Nothing
+        });
+    }
+
+    function ChangeClientRepAvatar(suffixClientID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Client_Avatar", "Client", new { area = "ClientManagement" })',
+            traditional: true,
+            data: { entityID: suffixClientID, entity: "ClientRep" },
+            cache: false,
+            async: false,
+            error: function (msg) {
+
+            },
+            success: function (msg) {
+                clientDetailAvatarWindow = $("<div id='clientDetailAvatarWindow' />").appendTo(document.body);
+                clientDetailAvatarWindow.kendoWindow({
+                    title: "Change Client Avatar",
+                    modal: true,
+                    width: 1200,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmAvatar')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmAvatar');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                clientDetailAvatarWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+</script>

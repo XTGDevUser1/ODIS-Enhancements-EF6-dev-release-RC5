@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             VerticalOptions="FillAndExpand"
+             x:Class="ODISMember.Pages.Tabs.Home">
+  <ScrollView Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="#f2f2f4">
+    <StackLayout BackgroundColor="Transparent" VerticalOptions="FillAndExpand">
+      <RelativeLayout HeightRequest="130" BackgroundColor="Transparent">
+        <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.HomeLogoBackground}" Aspect="AspectFill" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" />
+        <StackLayout RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}"
+                                    RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" BackgroundColor="Transparent" Padding="20,0,20,0">
+          <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.LogoImage}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" Aspect="AspectFit" HeightRequest="80" />
+        </StackLayout>
+      </RelativeLayout>
+      <StackLayout x:Name="ShowMemberInactive" IsVisible="False">
+       <StackLayout Padding="0,16,0,14" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+         <controls:ExtendedLabel x:Name="lblMemberInactiveHeader" HorizontalOptions="Center" Style="{StaticResource HeaderLineStyle}" />
+      </StackLayout>
+      <StackLayout x:Name="memberInactiveLayout" Spacing="0" BackgroundColor="Transparent" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+        </StackLayout>
+      <StackLayout x:Name="serviceRequestLayout">
+     <StackLayout Padding="0,16,0,14" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+       <controls:ExtendedLabel x:Name="lblServiceRequstsHeader" Style="{StaticResource HeaderLineStyle}" HorizontalOptions="Center" />
+      </StackLayout>
+      <StackLayout x:Name="mainLayout" Spacing="0" BackgroundColor="Transparent" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+        </StackLayout>
+      <StackLayout Padding="0,16,0,14" Orientation="Vertical" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <controls:ExtendedLabel Text="- EXPLORE PINNACLE MOTOR CLUB -" Style="{StaticResource HeaderLineStyle}" HorizontalOptions="Center" />
+      </StackLayout>
+      <StackLayout x:Name="wpPosts" Spacing="0" BackgroundColor="Transparent" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"></StackLayout>
+    </StackLayout>
+  </ScrollView>
+</ContentView>

@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Martex.DMS.DAL.NMC" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+  <EntityContainer Name="NMC_ETLEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+    <FunctionImport Name="CreateExecutionLog">
+      <Parameter Name="Description" Mode="In" Type="String" />
+      <Parameter Name="UserName" Mode="In" Type="String" />
+      <Parameter Name="LogID" Mode="InOut" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="UpdateExecutionLog">
+      <Parameter Name="LogID" Mode="In" Type="Int32" />
+      <Parameter Name="Status" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <FunctionImport Name="UpdateStatusOnStagingTables">
+      <Parameter Name="etlExecutionLogID" Mode="In" Type="Int64" />
+    </FunctionImport>
+    <FunctionImport Name="UpdateStatusOnInvoiceRequest">
+      <Parameter Name="etlExecutionLogID" Mode="In" Type="Int64" />
+    </FunctionImport>
+    <FunctionImport Name="UpdateExecutionLogForBilling">
+      <Parameter Name="LogID" Mode="In" Type="Int32" />
+      <Parameter Name="Status" Mode="In" Type="Int32" />
+    </FunctionImport>
+    <EntitySet Name="ExecutionLogs" EntityType="Martex.DMS.DAL.NMC.ExecutionLog" />
+    <EntitySet Name="APCheckRequests" EntityType="Martex.DMS.DAL.NMC.APCheckRequest" />
+    <EntitySet Name="APVendorMasters" EntityType="Martex.DMS.DAL.NMC.APVendorMaster" />
+    <EntitySet Name="InvoiceRequests" EntityType="Martex.DMS.DAL.NMC.InvoiceRequest" />
+  </EntityContainer>
+  <EntityType Name="ExecutionLog">
+    <Key>
+      <PropertyRef Name="LogID" />
+    </Key>
+    <Property Name="LogID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+    <Property Name="ParentLogID" Type="Int32" />
+    <Property Name="Description" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="PackageName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="PackageGuid" Type="Guid" Nullable="false" />
+    <Property Name="MachineName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="ExecutionGuid" Type="Guid" Nullable="false" />
+    <Property Name="LogicalDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="Operator" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+    <Property Name="StartTime" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="EndTime" Type="DateTime" Precision="3" />
+    <Property Name="Status" Type="Byte" Nullable="false" />
+    <Property Name="FailureTask" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+  </EntityType>
+  <EntityType Name="APCheckRequest">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+    <Property Name="ETL_Load_ID" Type="Int32" />
+    <Property Name="ProcessFlag" Type="Boolean" />
+    <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+    <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+    <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+    <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+    <Property Name="VendorNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+    <Property Name="InvoiceNumber" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+    <Property Name="InvoiceDueDate" Type="DateTime" Precision="3" />
+    <Property Name="Comment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="SeparateCheck" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="InvoiceAmount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="GLExpenseAccount" Type="String" MaxLength="11" FixedLength="false" Unicode="true" />
+    <Property Name="ExpenseAmount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="AdditionalComment" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="PaymentMethod" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="DocumentNoteID" Type="Int32" />
+    <Property Name="PONumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="POIssuedDate" Type="DateTime" Precision="3" />
+    <Property Name="VendorInvoiceNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+    <Property Name="ReceivedDate" Type="DateTime" Precision="3" />
+    <Property Name="VendorRepContactName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="VendorRepContactPhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="VendorRepContactEmail" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="ProgramName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ProgramRefNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="RegionNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DivisionNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DistrictNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="Leader" Type="Boolean" />
+    <Property Name="Bulletin" Type="Boolean" />
+    <Property Name="ContractedDate" Type="DateTime" Precision="3" />
+    <Property Name="CancelledDate" Type="DateTime" Precision="3" />
+    <Property Name="BegDebitBalance" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="FirstyearCommissions" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Renewals" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Comissions" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Advances" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Backend" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="ServiceCharge" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Other" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="TotalCharges" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="EndDebitBalance" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="EstRemainFirstYear" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="QualityRatioPct" Type="Decimal" Precision="7" Scale="2" />
+    <Property Name="SilverRenewalQaulifier" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="EarnedCommYTD" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="AdvancesYTD" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="SilverRenewalText" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="QCQYTD" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="AdvancesQualityYTD" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="PersonalMembershipCount" Type="Int32" />
+    <Property Name="PersonalMemberCount" Type="Int32" />
+    <Property Name="PersonalNBAV" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="PersonalAdvance" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="PersonalBonus" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="OverrideMembershipCount" Type="Int32" />
+    <Property Name="OverrideMemberCount" Type="Int32" />
+    <Property Name="OverrideNBAV" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="OverrideAdvance" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="OverrideBonus" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="TIPS" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="Multiplier" Type="Decimal" Precision="7" Scale="2" />
+    <Property Name="AdjustmentAmount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="ContractType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="PersonalOverrideAdvance" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="DetailItem1Date" Type="DateTime" Precision="3" />
+    <Property Name="DetailItem1Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem1Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem1Amount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="DetailItem2Date" Type="DateTime" Precision="3" />
+    <Property Name="DetailItem2Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem2Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem2Amount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="DetailItem3Date" Type="DateTime" Precision="3" />
+    <Property Name="DetailItem3Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem3Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem3Amount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="DetailItem4Date" Type="DateTime" Precision="3" />
+    <Property Name="DetailItem4Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem4Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem4Amount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="DetailItem5Date" Type="DateTime" Precision="3" />
+    <Property Name="DetailItem5Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem5Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="DetailItem5Amount" Type="Decimal" Precision="19" Scale="4" />
+    <Property Name="ClientName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ClientAddress1" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="ClientAddress2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+    <Property Name="ClientCity" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ClientState" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="ClientZip" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="APVendorMaster">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+    <Property Name="ETL_Load_ID" Type="Int32" />
+    <Property Name="ProcessFlag" Type="Boolean" />
+    <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+    <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+    <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+    <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+    <Property Name="VendorNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+    <Property Name="VendorName" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="AddressLine1" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="AddressLine2" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="AddressLine3" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="City" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+    <Property Name="State" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+    <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="PhoneNumber" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+    <Property Name="VendorRef" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+    <Property Name="MasterFileComment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="SSN" Type="String" MaxLength="9" FixedLength="false" Unicode="true" />
+    <Property Name="Fax" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+    <Property Name="EmailAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ISRNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="ContractType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Name="BankAccountNumber" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+    <Property Name="BankTransitNumber" Type="String" MaxLength="9" FixedLength="false" Unicode="true" />
+    <Property Name="BankAccountType" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+    <Property Name="CountryCode" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="InvoiceRequest">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+    <Property Name="ETL_Load_ID" Type="Int32" />
+    <Property Name="ProcessFlag" Type="Boolean" />
+    <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+    <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+    <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+    <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+    <Property Name="CustomerNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+    <Property Name="InvoiceNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+    <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+    <Property Name="InvoiceDueDate" Type="DateTime" Precision="3" />
+    <Property Name="TermsCode" Type="Decimal" Precision="2" Scale="0" />
+    <Property Name="CustomerPONumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+    <Property Name="Comment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+    <Property Name="ItemCode" Type="String" MaxLength="14" FixedLength="false" Unicode="true" />
+    <Property Name="LineAmount" Type="Decimal" Precision="9" Scale="2" />
+    <Property Name="AdditionalComment" Type="String" MaxLength="2048" FixedLength="false" Unicode="true" />
+    <Property Name="AccountingSystemAddressCode" Type="String" MaxLength="4" FixedLength="false" Unicode="true" />
+    <Property Name="POPrefix" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+    <Property Name="BillingPeriodEndDate" Type="DateTime" Precision="3" />
+    <Property Name="InvoiceDescription" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="LineQuantity" Type="Decimal" Precision="6" Scale="0" />
+    <Property Name="LineCost" Type="Decimal" Precision="7" Scale="2" />
+    <Property Name="LineNumber" Type="Decimal" Precision="3" Scale="0" />
+  </EntityType>
+</Schema>

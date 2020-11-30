@@ -1,0 +1,82 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "Index";
+}
+<style>
+     #Users-list img {
+        width: 16px;
+        height: 16px;
+        border:none;
+    }
+    #Users-list .k-item > span:first-child{
+        width: 30px;
+    }
+    #Users-list .k-item > span{
+        display: inline-block;
+        vertical-align: top;
+    }
+</style>
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <div class="inline-medium-label medium-margin-bottom">
+                <label class="label">
+                    Broad Cast Massage</label>
+                @Html.TextBox("BroadCastMessage", string.Empty, new { @class = "input" })
+            </div>
+            <button class="button green-gradient glossy  float-right" type="button" onclick="BroadCastMessageTest();">
+                Broad Cast
+            </button>
+        </div>
+        <div class="twelve-columns">
+            <div class="inline-medium-label medium-margin-bottom">
+                <label class="label">
+                    User Name</label>
+                @Html.TextBox("UserName", string.Empty, new { @class = "input" })
+            </div>
+            <div class="inline-medium-label medium-margin-bottom">
+                <label class="label">
+                    Message</label>
+                @Html.TextBox("Message", string.Empty, new { @class = "input" })
+            </div>
+            <div class="demo-section">
+                <h2>
+                    ODIS Users</h2>
+                @(Html.Kendo().ComboBox()
+          .Name("Users")
+          .DataTextField("UserName")
+          .DataValueField("UserID")
+          .HtmlAttributes(new { style = "width: 400px" })
+          .DataSource(source =>
+          {
+              source.Read(read =>
+              {
+                  read.Action("ChatUsers", "POC");
+              });
+          })
+          .Filter("startswith")
+          .Height(300)
+          .Template("<span class=\"k-state-default\"><img src=\"" + Url.Content("~/Content/img/#if(data.IsOnline){#online-icon.png#} else {#blocked-offline-icon.png#}#") + "\"/></span>" +
+          "<span class=\"k-state-default\"><p>#: data.UserName # Active Connections : #: data.UserID #</p></span>")
+    )
+            </div>
+            <button class="button green-gradient glossy  float-right" type="button" onclick="SendMessageTest();">
+                Send
+            </button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function BroadCastMessageTest() {
+        var message = $('#BroadCastMessage').val();
+        ServerBroadCastMessage(message);
+    }
+
+    function SendMessageTest() {
+        var whom = $('#UserName').val();
+        var message = $('#Message').val();
+        ServerSendMessage(whom, message);
+    }
+</script>
+
+

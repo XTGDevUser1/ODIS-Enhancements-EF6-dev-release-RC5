@@ -1,0 +1,180 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.VendorContractDetails_Result
+@{
+    string suffixVendorID = ViewData["vendorID"].ToString();
+    string contractID = Model.ID.ToString();
+}
+<script language="javascript" type="text/javascript">
+    function OnTermsChange(e, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var selectedID = combo.value();
+        
+        var terms = JSON.parse($("#hdnTerms_" + suffixVendorID).val());
+        var fileName = '';
+        for (var i = 0, l = terms.length; i < l; i++) {
+            if (terms[i].ID == selectedID) {
+                fileName = terms[i].FileName;
+                break;
+            }
+        }
+        $("#lnkTerms_" + suffixVendorID).attr("href", "/ReferenceForms/" + fileName);
+        
+    }
+</script>
+<form name="frmVendorContractDetails_@suffixVendorID" id="frmVendorContractDetails_@suffixVendorID" action="javascript:void(0);">
+    @Html.Hidden("pageMode_" + suffixVendorID, (string)ViewBag.Mode)
+    @Html.HiddenFor(u => u.ID)
+    @Html.Hidden("hdnTerms_" + suffixVendorID, (string)ViewData["JSON_VendorTermAgreements"])
+    <div class="with-padding">
+        <div class="columns">
+            <div class="twelve-columns">
+                <fieldset class="fieldset">
+                    <legend class="legend">Contract</legend>
+                    <div class="columns">
+                        <div class="four-columns">
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="ContractStatusID" class="label">
+                                    Status <span class="star">*</span>
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                            .Name("ContractStatusID_" + suffixVendorID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "ContractStatusID_" + suffixVendorID })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContractStatus.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ContractStatusID != null ? Model.ContractStatusID.Value.ToString() : " ")
+                                )
+                            </div>
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="StartDate" class="label">
+                                    Start Date <span class="star">*</span>
+                                </label>
+                                @(Html.Kendo().DatePickerFor(u => u.StartDate)
+                            .HtmlAttributes(new { style = "width:90%;", id = "StartDate_" + suffixVendorID, type = "text" })
+                                )
+                            </div>
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="EndDate" class="label">
+                                    End Date
+                                </label>
+                                @(Html.Kendo().DatePickerFor(u => u.EndDate)
+                            .HtmlAttributes(new { style = "width:90%;", id = "EndDate_" + suffixVendorID, type = "text" })
+                                )
+                            </div>
+                        </div>
+                        <div class="four-columns">
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="SignedDate" class="label">
+                                    Signed Date
+                                </label>
+                                @(Html.Kendo().DatePickerFor(u => u.SignedDate)
+                            .HtmlAttributes(new { style = "width:90%;", id = "SignedDate_" + suffixVendorID, type = "text" })
+                                )
+                            </div>
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="SignedBy" class="label">
+                                    Signed By
+                                </label>
+                                @Html.TextBoxFor(u => u.SignedBy, new { @class = "validate[maxSize[256]], input full-width", id = "SignedBy_" + suffixVendorID })
+                            </div>
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="SignedByTitle" class="label">
+                                    Signed By Title
+                                </label>
+                                @Html.TextBoxFor(u => u.SignedByTitle, new { @class = "validate[maxSize[256]], input full-width", id = "SignedByTitle_" + suffixVendorID })
+                            </div>
+                        </div>
+                        <div class="four-columns">
+                            <div class="button-height inline-label small-margin-bottom">
+                                <label for="VTAID" class="label">
+                                    Terms & Agreement Version <span class="star">*</span>
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                            .Name("VTAID_" + suffixVendorID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            .HtmlAttributes(new { style = "width:90%;", id = "VTAID_" + suffixVendorID })
+                            .Events(events => events.Change(@<text> function(e){ OnTermsChange(e,'@suffixVendorID');}</text>))
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorTermAgreements.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.VTAID != null ? Model.VTAID.ToString() : "")
+                                )
+                            </div>
+                            <div class="button-height inline-label small-margin-bottom">
+                                <p class="  small-margin-bottom">
+                                    <a id="lnkTerms_@suffixVendorID" href="#" target="_blank">
+                                        View Terms
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="new-row six-columns">
+                <div class="with-padding">
+                    <p class=" inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Source
+                        </label>
+                        @Html.DisplayFor(u => u.Source)
+                    </p>
+                    <p class=" inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Create Date
+                        </label>
+                        @Html.DisplayFor(u => u.CreateBy)
+                        @Html.DisplayFor(u => u.CreateDate)
+                    </p>
+                    <p class="inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Last Updated
+                        </label>
+                        @Html.DisplayFor(u => u.ModifyBy)
+                        @Html.DisplayFor(u => u.ModifyDate)
+                    </p>
+                </div>
+            </div>
+            <div class="six-columns">
+                <div id="divVendorContractActions_@suffixVendorID">
+                    <button id="btnSaveVendorContractSection_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                            type="button" onclick="SaveVendorContractInformation(this,'@contractID','@suffixVendorID');">
+                        Save
+                    </button>
+                    <button id="btnCancelVendorInfoSection_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                            type="button" onclick="CancelVendorContractInformation('@contractID','@suffixVendorID');">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        var currentMode = $("#pageMode_@suffixVendorID").val();
+        $("#VTAID_@suffixVendorID").data("kendoComboBox").trigger("change");
+        if (currentMode == "View") {
+            $("#ContractStatusID_@suffixVendorID").data("kendoComboBox").enable(false);
+            $("#VTAID_@suffixVendorID").data("kendoComboBox").enable(false);
+            $("#StartDate_@suffixVendorID").data("kendoDatePicker").enable(false);
+            $("#EndDate_@suffixVendorID").data("kendoDatePicker").enable(false);
+            $("#SignedDate_@suffixVendorID").data("kendoDatePicker").enable(false);
+            $("#frmVendorContractDetails_@suffixVendorID").find("input,textarea,select,button").each(function () {
+                $(this).parent().addClass("disabled");
+                $(this).attr("disabled", "disabled");
+            });
+            $("#divVendorContractActions_@suffixVendorID").hide();
+        }
+        $("#frmVendorContractDetails_@suffixVendorID").validationEngine();
+    });
+</script>

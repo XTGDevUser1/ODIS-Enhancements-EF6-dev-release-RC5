@@ -1,0 +1,49 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimInformationModel
+@{
+    var suffixClaimID = Model.Claim.ID.ToString();
+}
+<div class="with-padding">
+    <div class="columns">
+        <div class="eleven-columns">
+            @if (Model.Claim.ID == 0)
+            {
+                @Html.Partial("_ValidateClaim", suffixClaimID)                
+            }
+        </div>
+        <div class="one-columns" style="float: right;">
+            <div style="min-height: 25px; margin: 5px;" id="divClaimDetails_@suffixClaimID">
+                <div style="display: inline-block; vertical-align: top; float: right;">
+                    <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('frmClaimContainerForDirtyFlag_@suffixClaimID');">
+                        X</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="with-padding">
+    <div id="frmClaimContainerForDirtyFlag_@suffixClaimID">
+        <div id="ClaimContainer_@suffixClaimID">
+            @Html.Partial("_ClaimTabs", Model)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var fnbuttonHandler = function (sender, routedValues) {
+            
+            var buttonHandler = $('#' + routedValues[2].value);
+            buttonHandler.show();
+        }
+
+        var routedValues = [];
+        routedValues.push({ name: "FormName", value: "frmClaimContainerForDirtyFlag_@suffixClaimID" });
+        routedValues.push({ name: "RecordID", value: "@suffixClaimID" });
+        routedValues.push({ name: "RelatedButtonHandler", value: "btnSaveClaimSection_@suffixClaimID" });
+
+        WatchMyContainer('frmClaimContainerForDirtyFlag_@suffixClaimID', null, fnbuttonHandler, routedValues)
+    });
+
+    function DeleteTab(containerName) {
+        deleteGenericTab(containerName, tabObject);
+    }
+</script>

@@ -1,0 +1,200 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.PurchaseOrder
+@{
+    var isFromHistory = ViewData["IsFromHistory"].ToString();
+}
+<script type="text/javascript">
+    function oncomboboxchange_VehicleWieght(e) {
+        var combo = $('#copyVehicleWieght').data('kendoComboBox');
+        HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            BindServiceType();
+        }
+    }
+
+    function onComboBoxChange_ServiceType(e) {
+        HideValidationMessage($('input[name="copyServiceType_input"]'));
+        var combo = $('#copyServiceType').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+    function BindServiceType() {
+        var serviceTypeCombo = $('#copyServiceType').data('kendoComboBox');
+        var wieght_value = $('#copyVehicleWieght').data('kendoComboBox').value();
+        if (wieght_value != null && wieght_value != '') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetCopyPOProduct", "PO", new { area = "Application" })',
+                traditional: true,
+                data: { weightId: wieght_value },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    serviceTypeCombo.setDataSource(msg);
+                    serviceTypeCombo.value('');
+                }
+            });
+        }
+        else {
+            var placeHolder = [{ Selected: "True", Text: "Select", Value: ""}];
+            serviceTypeCombo.dataBind(placeHolder);
+            serviceTypeCombo.select(0);
+        }
+    }
+</script>
+<p>
+    To change this PO select a weight class and a service from the drop down list and click Save. This will delete all of the current detail lines and add new ones.  If you do not want to change this PO then click Cancel.</p>
+<form name="frmChangeServicepo" id="frmChangeServicepo" action="#">
+@Html.HiddenFor(p => p.ID)
+@Html.Hidden("CopyPOID", Model.ID)
+<div class="with-padding">
+    <div class="columns">
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="WeightClass" class="label">
+                Weight Class</label>
+            @(Html.Kendo().ComboBox()
+                .Name("copyVehicleWieght")
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("oncomboboxchange_VehicleWieght"))
+                .Suggest(true)
+                .HtmlAttributes(new { @class = "selectlabel full-width2" })
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>)
+                .Value(Model.VehicleCategoryID.ToString())
+                )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="ServiceType" class="label">
+                Service Type</label>
+            @(Html.Kendo().ComboBox()
+            .Name("copyServiceType")
+            .DataTextField("Text")
+            .DataValueField("Value")
+            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+            .Events(events => events.Change("onComboBoxChange_ServiceType"))
+            .Suggest(true)
+                    .HtmlAttributes(new { @class = "selectlabel full-width2" })
+            )
+        </div>
+    </div>
+    <div class="clear">
+    </div>
+    <div>
+        <button id="btnCancel" class="button silver-gradient  float-right margin-top small-margin-bottom  margin-left"
+            type="button" value="Auto">
+            Cancel</button>
+        <button id="btnCopyPO" class="button green-gradient  float-right margin-top small-margin-bottom"
+            type="button" value="Auto">
+            Save</button>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        WatchMyContainer('frmChangeServicepo');
+
+        //KB: Set the width of the dropdown container to be 250px
+        $("#copyServiceType").data("kendoComboBox").list.width(250);
+
+        BindServiceType();
+        $("#btnCancel").on('click', function () {
+            if (IsMyContainerDirty('frmChangeServicepo')) {
+                var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+                $.modal.confirm(message, function () {
+                    HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                    HideValidationMessage($('input[name="copyServiceType_input"]'));
+                    document.dialogResult = "CANCEL";
+                    CleanMyContainer("frmChangeServicepo");
+                    POChangeServiceWindow.data('kendoWindow').close();
+
+                }, function () {
+                    return false;
+                });
+            }
+            else {
+                HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                HideValidationMessage($('input[name="copyServiceType_input"]'));
+                document.dialogResult = "CANCEL";
+                CleanMyContainer("frmChangeServicepo");
+                POChangeServiceWindow.data('kendoWindow').close();
+            }
+
+        });
+
+        $("#btnCopyPO").on('click', function () {
+            var retVal = false;
+            var copyRefresh = false;
+            var oldPOId= $("#CopyPOID").val();
+            var $form = $("#frmChangeServicepo");
+            if ($form.validationEngine('validate') == false) {
+                return retVal;
+            }
+
+            var formdata = $form.serializeArray();
+            var isFormValid = true;
+            var $wieght = $("#copyVehicleWieght").data("kendoComboBox").value();
+            var $serviceType = $("#copyServiceType").data("kendoComboBox").value();
+
+            if ($.trim($wieght).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="copyVehicleWieght_input"]'), "Weight Class is required. ");
+                $('#copyVehicleWieght-input').focus();
+            }
+            else if ($.trim($serviceType).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="copyServiceType_input"]'), "Service Type is required. ");
+                $('#copyServiceType-input').focus();
+            }
+
+            if (!isFormValid) {
+                return false;
+            }
+            formdata.push({ name: "VehicleCategoryID", value: $wieght });
+            var newPoId;
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ChangeService", "PO")',
+                traditional: true,
+                data: formdata,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        newPoId = msg.Data;
+                        if ("@isFromHistory" == "True") {
+                            PODeleteTab('formPO_' + oldPOId);
+                            LoadHistoryPoDetails(newPoId, null, 'Edit');
+                        }
+                        else {
+                            copyRefresh = true;
+                        }
+                        HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                        HideValidationMessage($('input[name="copyServiceType_input"]'));
+                        CleanMyContainer("frmChangeServicepo");
+                        POChangeServiceWindow.data('kendoWindow').close();
+                    }
+                }
+            });
+            if (copyRefresh) {
+                var mode = "Edit";
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_AddPO", "PO")',
+                    traditional: true,
+                    data: { poId: newPoId, mode: mode },
+                    cache: false,
+                    async: false,
+                    success: function (msg) {
+                        $("#topSection").html("");
+                        $("#topSection").html(msg);
+                    }
+                });
+                $("#POList").data('kendoGrid').dataSource.read();
+                $("#PODetails").data('kendoGrid').dataSource.read();
+            }
+        });
+    });
+</script>

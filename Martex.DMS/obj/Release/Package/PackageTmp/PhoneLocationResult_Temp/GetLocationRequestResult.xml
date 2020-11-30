@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<locationResponse>
+  <responseHeader>
+    <status>SUCCESS</status>
+    <errorCode>0</errorCode>
+    <errorMessage>Success</errorMessage>
+    <LocationRequestStatus>Location Request Success</LocationRequestStatus>
+    <tn>7604385115</tn>
+    <smsAvailable>False</smsAvailable>
+    <rowsReturned>1</rowsReturned>
+  </responseHeader>
+  <responseDetail>
+    <locationQualifier>at</locationQualifier>
+    <requestTime>2/26/2012 6:00:00 PM</requestTime>
+    <geoAddress>
+      <accuracy>0</accuracy>
+    </geoAddress>
+    <civicAddress>
+      <streetAddress>2030 Corte Del Nogal Ste 200</streetAddress>
+      <city>Carlsbad</city>
+      <county>San Diego</county>
+      <state>CA</state>
+      <zip>92011-1474</zip>
+      <country>US</country>
+      <distance>0</distance>
+      <direction>N </direction>
+      <latitude>33.118561</latitude>
+      <longitude>-117.279641</longitude>
+    </civicAddress>
+    <extAddress>
+      <nearCrossStreet>
+        <street1>Cam Vida Roble</street1>
+        <distance>60</distance>
+        <direction>N </direction>
+        <latitude>33.118037</latitude>
+        <longitude>-117.279489</longitude>
+      </nearCrossStreet>
+      <nearIntersection>
+        <street1>el Camino Real</street1>
+        <street2>Palomar Airport Rd</street2>
+        <distance>1711</distance>
+        <direction>SW</direction>
+        <latitude>33.129532</latitude>
+        <longitude>-117.266764</longitude>
+      </nearIntersection>
+    </extAddress>
+  </responseDetail>
+</locationResponse>

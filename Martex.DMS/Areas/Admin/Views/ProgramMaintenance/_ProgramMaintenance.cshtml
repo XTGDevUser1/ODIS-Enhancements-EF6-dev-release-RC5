@@ -1,0 +1,230 @@
+﻿@model Martex.DMS.DAL.Program
+@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "Program Maintenance";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    bool isView = false;
+
+    if (ViewData["mode"] != null && ViewData["mode"].ToString().Equals("edit"))
+    {
+        isEdit = true;
+    }
+    if (ViewData["mode"] != null && ViewData["mode"].ToString().Equals("view"))
+    {
+        isView = true;
+    }
+       
+}
+
+<script type="text/javascript">
+    function ProgramModificationClientOnChange(e) {
+        var combo = $("#ClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboProgram = $("#ParentProgramID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("ProgramMaintenanceParentProgram", "ReferenceData", new { area = "Common" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboProgram.setDataSource(msg);
+                comboProgram.select(0);
+                SetFocusOnField("Claim_Search_ProgramID");
+            }
+
+        })
+    }
+</script>
+
+<form method="post" action="" id="form-ProgramMaintenance">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Program Maintenance</legend>
+        <div>
+            <div>
+                <label for="Client" class="label-no-inline">
+                    Client <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ClientID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ClientID != null ? Model.ClientID.ToString() : ""))
+                    .Enable(false)
+                    )
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ClientID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ProgramModificationClientOnChange"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ClientID != null ? Model.ClientID.ToString() : ""))
+                    .SelectedIndex(0)
+                    )                                    
+                }
+            </div>
+            <br />
+            <div>
+                <label for="ParentProgram" class="label-no-inline">
+                    Parent Program</label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                        .Name("ParentProgramID")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Programs.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model != null && Model.ParentProgramID != null ? Model.ParentProgramID.ToString() : ""))
+                        .Enable(false)
+                        )
+                }
+                else
+                {
+
+                    @(Html.Kendo().ComboBox()
+                        .Name("ParentProgramID")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Programs.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model != null && Model.ParentProgramID != null ? Model.ParentProgramID.ToString() : ""))
+                        .SelectedIndex(0)
+                        )
+                }
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="Code" class="label">
+                    Program Code <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.Code, new { @class = "validate[required,maxSize[20]], input full-width2", disabled = "disabled", @readonly = "true" })
+                }
+                else if (isEdit)
+                {
+                    @Html.TextBoxFor(u => Model.Code, new { @class = "validate[required,maxSize[20]]], input full-width2", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.Code, new { @class = "validate[required,maxSize[20]]], input full-width2", @error_required = "Please type program code." })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="Name" class="label">
+                    Program Name <span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.Name, new { @class = "validate[required,maxSize[50]], input full-width", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.Name, new { @class = "validate[required,maxSize[50]]], input full-width", @error_required = "Please type program name." })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="Description" class="label">
+                    Description</label>
+                @if (isView)
+                {
+                    @Html.TextAreaFor(u => Model.Description, new { @class = "validate[maxSize[50]], input full-width", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextAreaFor(u => Model.Description, new { @class = "validate[maxSize[50]]], input full-width" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="CallFee" class="label">
+                    Call Fee</label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.CallFee, new { @class = "validate[custom[number]], input full-width2", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.CallFee, new { @class = "validate[custom[number]]], input full-width2" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="DispatchFee" class="label">
+                    Dispatch Fee</label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => Model.DispatchFee, new { @class = "validate[custom[number]], input full-width2", disabled = "disabled", @readonly = "true" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.DispatchFee, new { @class = "validate[custom[number]]], input full-width2" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="IsActive" class="label">
+                    Is Active?</label>
+                @if (isView)
+                {
+                    @Html.CheckBoxFor(u => u.IsActive, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.CheckBoxFor(u => u.IsActive, new { @class = "checkbox" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="IsGroup" class="label">
+                    Is Group?</label>
+                @if (isView)
+                {
+                    @Html.CheckBoxFor(u => u.IsGroup, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.CheckBoxFor(u => u.IsGroup, new { @class = "checkbox" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="LastUpdated" class="label">
+                    Last update:</label>
+                @Html.DisplayFor(u => Model.ModifyBy) &nbsp;
+                @Html.DisplayFor(u => Model.ModifyDate)
+            </p>
+            <div class="field-block button-height">
+                @if (!@isView)
+                {
+                    <button id="btnAddProgram" class="button green-gradient glossy float-right mid-margin-left"
+                        type="submit">
+                        @if (@isEdit)
+                        {
+                            @Html.Raw("Update")
+                        }
+                        else
+                        {
+                            @Html.Raw("Save")
+                            
+                        }
+                    </button>
+                }
+                <button id="btnCancelProgram" class="button gray-gradient glossy  float-right" type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("hdnfldMode", ViewData["mode"])
+@Html.HiddenFor(u => Model.ID)
+</form>
+<script src="@Url.Content("~/Scripts/ProgramMaintenance.js")" type="text/javascript"></script>
+<script type="text/javascript" language="javascript">
+
+    $(function () {
+
+        CleanMyContainer('form-ProgramMaintenance');
+        WatchMyContainer('form-ProgramMaintenance');
+
+        $("#ParentProgramID").data("kendoComboBox").list.width(250);
+        $("#ClientID").data("kendoComboBox").list.width(250); 
+    });
+</script>

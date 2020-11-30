@@ -1,0 +1,85 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+@{
+    var iconConfig = new VendorListIconConfig();
+    var contractStatusIconStyle = iconConfig.GetIconStyle("Contracted");
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    function onDataBound(e) {
+        $(".k-grid-Select").addClass("with-tooltip active").html('<span class="k-icon k-i-restore"/>');
+        $(".starred").addClass("with-tooltip message-status dispatchstar");
+        $(".unstarred").addClass("with-tooltip message-status dispatchstar");
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 5);
+        FormatPhoneNumber(table, 6);
+    }
+
+
+    function ManageVendors(e) {
+        var vendorID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+        if (e.data.commandName == "Select") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVendorDetailsOfVendor", "VendorMerge", new { area = "VendorManagement" })',
+                data: { vendorID: vendorID, prefixName: "TargetVendor" },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#TargetVendor_divVendorDetails").html(msg);
+                    //$("#@ViewData.TemplateInfo.HtmlFieldPrefix" + "_divVendorDetails").show();
+                }
+            });
+        }
+        return false;
+    }
+
+    function GetDuplicateVendorFilterParams() {
+        return {
+            vendorID: $("#SourceVendor_VendorID").val()
+        };
+    }
+</script>
+<div class="with-padding">
+    <fieldset class="fieldset">
+        <legend class="legend">Potential Matches</legend>
+        @(Html.Kendo().Grid <Martex.DMS.DAL.DuplicateVendors_Result>()
+        .Name("GrdMatchedVendors")
+        .Columns(columns =>
+        {
+            columns.Bound(a => a.VendorNumber).Title("Vendor #");
+            columns.Bound(a => a.Name).Title("Vendor Name")
+                .ClientTemplate("<span style='height: 16px;' ' #= ContractStauts=='Contracted' ? Class = 'class=starred' : Class = 'class=unstarred' # #= ContractStauts=='Contracted' ? Title = 'title=Contracted' : Title = 'title=NotContracted' # >&nbsp;</span>#= Name #");
+            columns.Bound(a => a.VendorStatus).Title("Status");
+            columns.Bound(a => a.Address1).Title("Address");
+            columns.Bound(a => a.StateCountryCityZip).Title("City");
+            columns.Bound(a => a.DispatchNumber).Title("Dispatch Number").Width("120px");
+            columns.Bound(a => a.OfficeNumber).Title("Office Number").Width("120px");
+            columns.Command(command =>
+            {
+                command.Custom("Select").Click("ManageVendors").HtmlAttributes(new { style = "min-width:26px;", title = "Select" });
+            }).Width(50).Title("Action(s)");
+        })
+        .Events(e =>
+        {
+            e.DataBound("onDataBound");
+        })
+        .Sortable()
+        .Pageable(pager => pager
+            .Refresh(true)
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("GetVendorDuplicates", "VendorMerge").Data("GetDuplicateVendorFilterParams"))
+        .Model(u => u.Id(p => p.ID))
+        .PageSize(10)
+        .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+        )
+        .Resizable(resize => resize.Columns(true))
+        .EnableCustomBinding(true)
+        )
+    </fieldset>
+</div>

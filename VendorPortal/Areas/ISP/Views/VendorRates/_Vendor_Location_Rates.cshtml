@@ -1,0 +1,60 @@
+﻿@model int
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@using VendorPortal.ActionFilters;
+@{
+    string suffixVendorLocationID = Model.ToString();
+}
+<div class="with-padding">
+    <div class="columns">
+        <div class="new-row twelve-columns">
+            @(Html.Kendo().Grid<VendorServicesAndRates_Result>()
+                .Name("GrdVendorLocationServiceRates_" + suffixVendorLocationID)
+                .Columns(column =>
+                {
+                    column.Bound(pd => pd.Name).Title("Service");
+                    column.Bound(pd => pd.BaseRate).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Base Rate").Format("{0:c}");
+                    column.Bound(pd => pd.EnrouteRate).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Rate").Format("{0:c}");
+                    column.Bound(pd => pd.EnrouteFreeMiles).HtmlAttributes(new { @style = "text-align:right;"}).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Free Miles");
+                    column.Bound(pd => pd.ServiceRate).HtmlAttributes(new { @style = "text-align:right;"}).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Rate").Format("{0:c}");
+                    column.Bound(pd => pd.ServiceFreeMiles).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Free Miles");
+                    column.Bound(pd => pd.HourlyRate).HtmlAttributes(new { @style = "text-align:right;"}).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Hourly Rate").Format("{0:c}");
+                    column.Bound(pd => pd.GoaRate).HtmlAttributes(new { @style = "text-align:right;"}).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("GOA Rate").Format("{0:c}");
+                })
+                    .Pageable()
+                    .Sortable(sort => sort.Enabled(false))
+                    .Scrollable()
+                    .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                    .Pageable(pager => pager
+                    .Refresh(true)
+                    .PageSizes(new int[] { 10, 20, 50, 100 })
+                )
+                .DataSource(datasource => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("_GetVendorLocationRates", "VendorRates", new { area = "ISP" }).Data(@<text>function(e){return {vendorLocationID : '@suffixVendorLocationID'}}</text>))
+                .PageSize(50)
+                )
+                .Resizable(resize => resize.Columns(true))
+                .EnableCustomBinding(true)
+        )
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdUsers"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        350
+                                        );
+        $("#GrdVendorLocationServiceRates_@suffixVendorLocationID>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

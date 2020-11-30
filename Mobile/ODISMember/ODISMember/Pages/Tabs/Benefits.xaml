@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+              VerticalOptions="FillAndExpand"
+             x:Class="ODISMember.Pages.Tabs.Benefits">
+  <ScrollView>
+    <StackLayout Spacing="20">
+      <ffimageloading:CachedImage x:Name="productImage" VerticalOptions="CenterAndExpand"/>
+      <StackLayout Spacing="20" Padding="30">
+        <controls:ExtendedLabel x:Name="lblThankyou" Style="{StaticResource SubHeaderLabelStyle}" FontAttributes="Bold"/>
+        <controls:ExtendedLabel Style="{StaticResource BaseLabelStyle}" Text="As a member, you are entitled to many fine benefits and services through Pinnacle Motor Club.  Your membership begins on the day your payment for membership is processed, usually within 24 hours of completing your application."/>
+        <controls:ExtendedLabel x:Name="lblMemberPlan" Style="{StaticResource BaseLabelStyle}"/>
+        <controls:ExtendedLabel x:Name="lblMemberServicesNumber" Style="{StaticResource BaseLabelStyle}"/>
+        <controls:ExtendedLabel Style="{StaticResource BaseLabelStyle}" Text="THIS IS NOT AN INSURANCE CONTRACT.  THIS IS NOT A SERVICE CONTRACT AND DOES NOT COMPLY WITH ANY FINANCIAL RESPONSIBILITY LAWS.  THIS IS NOT AN AUTOMOBILE LIABILITY OR PHYSICAL DAMAGE INSURANCE CONTRACT"/>
+        <StackLayout Spacing="0" Padding="0,20,0,20">
+          <Button x:Name="btnBenefitGuide" Style="{StaticResource BaseButtonStyle}" Text="VIEW BENEFIT GUIDE" VerticalOptions="End"/>
+        </StackLayout>
+      </StackLayout>
+      <StackLayout BackgroundColor="#929292" Padding="10,10,10,20" VerticalOptions="EndAndExpand">
+        <controls:ExtendedLabel FontAttributes="Italic" FontSize="12" Text="Benefits and services provided by Pinnacle Motor Club.  Please see Membership Guidelines at the end of this guide for service terms and for other matters that apply to specific states." Style="{StaticResource BaseLabelStyle_Italic}" TextColor="White"/>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+</ContentView>

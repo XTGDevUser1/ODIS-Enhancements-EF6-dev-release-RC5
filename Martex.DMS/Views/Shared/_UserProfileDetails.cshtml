@@ -1,0 +1,26 @@
+﻿@model Martex.DMS.Models.RegisterUserModel
+ 
+ @{
+     Layout = "";
+        Martex.DMS.Models.RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as Martex.DMS.Models.RegisterUserModel;
+        if (userProfile == null)
+        {
+            Response.Redirect("~/Account/LogOn");
+            return;
+        }
+}
+
+   User Name : @Model.UserName
+   <br />
+  Name : @Model.FirstName @Model.LastName
+    <br />
+  Email : @Model.Email
+    <br />
+   Agent # : @Model.AgentNumber
+    <br />
+   Organizations : @Model.OrganizationName
+    <br />
+   Roles : @string.Join(",",Model.UserRoles)
+   
+   
+  

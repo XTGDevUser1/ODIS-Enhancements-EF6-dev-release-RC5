@@ -1,0 +1,34 @@
+[
+    {
+      "key": "Dodge Sprinter",
+      "value": 1
+    },
+    {
+      "key": "Ford",
+      "value": 2
+    },
+    {
+      "key": "Freightliner",
+      "value": 3
+    },
+    {
+      "key": "Open field",
+      "value": 4
+    },
+    {
+      "key": "Roadmaster",
+      "value": 5
+    },
+    {
+      "key": "Spartan",
+      "value": 6
+    },
+    {
+      "key": "Workhorse",
+      "value": 7
+    },
+    {
+      "key": "Other",
+      "value": 8
+    }
+]

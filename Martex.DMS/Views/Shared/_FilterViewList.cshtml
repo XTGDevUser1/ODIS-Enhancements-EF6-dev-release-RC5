@@ -1,0 +1,41 @@
+﻿@using Martex.DMS.DAL.Entities;
+@using Martex.DMS.DAL;
+@model FilterViewEntity
+@{
+    var filterModel = Model;
+    List<ListViewFilter> viewList = null;
+    if (filterModel != null)
+    {
+        viewList = filterModel.Views;
+    }
+}
+<table class="simple-table responsive-table">
+    <tbody>
+        @if (viewList != null)
+        {
+            foreach (ListViewFilter view in viewList)
+            {
+            <tr class="small-margin-bottom">
+                <td>
+                    <p>
+                        <small>@view.FilterName</small></p>
+                </td>
+                <td class="align-right vertical-center">
+                    <a href="javascript:void(0);" class="icon-read with-tooltip icon-size1" title="Apply" onclick="CallBackHandlerForFilterView('@view.ID','@filterModel.EventHandlerCallBack')">
+                    </a>&nbsp; &nbsp; <a href="javascript:void(0);" class="icon-trash with-tooltip icon-size1"
+                        title="Delete" onclick="DeleteFilterViewRecord('@view.ID','@filterModel.PageName', '@filterModel.EventHandlerCallBack','@filterModel.UniqueID','@filterModel.SaveMethodName','@filterModel.JSCollectDataHandler')"></a>
+                </td>
+            </tr>
+       
+            }
+        }
+        @if (viewList == null || viewList.Count == 0)
+        {
+            <tr>
+                <td colspan="2">
+                    <small>No Views found !</small>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,16 @@
+﻿@model Martex.DMS.DAL.Vehicle
+<div class="with-padding" id="serviceTechRV">
+    <div class="columns">
+        <div class="twelve-columns">
+            <form name="frm_ServiceRVTab" id="frm_ServiceRVTab" action="#">
+            @Html.Partial("_RVBasicInformation", Model)
+            @Html.Partial("_Specifications", Model)
+            @Html.Partial("_WarrantyInformation", Model)
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">    $(function () {
+        $("#frm_ServiceRVTab").validationEngine();
+    });
+</script>

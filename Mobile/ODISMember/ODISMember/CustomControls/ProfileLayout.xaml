@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<StackLayout xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:fftransformations="clr-namespace:FFImageLoading.Transformations;assembly=FFImageLoading.Transformations"
+              BackgroundColor="{x:Static Resource:ColorResources.VehiclesListBackgroundColor}"
+             Spacing="20"
+             x:Class="ODISMember.CustomControls.ProfileLayout">
+  <StackLayout BackgroundColor="White" Spacing="0" HorizontalOptions="FillAndExpand">
+    <ffimageloading:CachedImage x:Name="profileImage" Source="{x:Static Resource:ImagePathResources.ProfileMenuDeafultImage}" VerticalOptions="CenterAndExpand" HeightRequest="80" WidthRequest="80" >
+      <ffimageloading:CachedImage.Transformations>
+        <fftransformations:CircleTransformation />
+      </ffimageloading:CachedImage.Transformations>
+    </ffimageloading:CachedImage>
+    <controls:ExtendedLabel x:Name="lblFullName" Style="{StaticResource ProfileUserLabelStyle}" HorizontalTextAlignment="Center"/>
+  </StackLayout>
+  <StackLayout>
+    <widget:ProfileLabelValueVertical x:Name="widgetMemberNumber" LabelText="- MEMBER NUMBER -"/>
+    <widget:ProfileLabelValueVertical x:Name="widgetUserName" LabelText="- USERNAME -"/>
+    <widget:ProfileLabelValueVertical x:Name="widgetDOB" LabelText="- DATE OF BIRTH -"/>
+    <widget:ProfileLabelValueVertical x:Name="widgetPhoneNumber" LabelText="- PHONE NUMBER -"/>
+    <widget:ProfileLabelValueVertical x:Name="widgetEmail" LabelText="- EMAIL ADDRESS -"/>
+    <StackLayout x:Name="stackChangePassword" Spacing="10">
+      <controls:ExtendedLabel Text="- SECURITY -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalOptions="Start"/>
+
+      <RelativeLayout HeightRequest="50">
+        <StackLayout VerticalOptions="StartAndExpand" BackgroundColor="White" Orientation="Horizontal" RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToParent,
+            Property=Width,Factor=0,Constant=0}"
+        RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToParent,
+            Property=Height,Factor=0,Constant=0}"
+        RelativeLayout.WidthConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Width,Factor=1,Constant=0}"
+        RelativeLayout.HeightConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Height,Factor=1,Constant=0}" Padding="0">
+          <Button Text="CHANGE PASSWORD" Style="{StaticResource LabledButtonStyle}" TextColor="{x:Static Resource:ColorResources.ChangePasswordTextColor}" HorizontalOptions="StartAndExpand"/>
+          <ffimageloading:CachedImage x:Name="imgBtnChangePassword" Source="{x:Static Resource:ImagePathResources.ArrowSymbol}" VerticalOptions="CenterAndExpand" />
+        </StackLayout>
+        <Button x:Name="btnChagePassword" BackgroundColor="Transparent" RelativeLayout.XConstraint="{ConstraintExpression Type=RelativeToParent,
+            Property=Width,Factor=0,Constant=0}"
+      RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToParent,
+            Property=Height,Factor=0,Constant=0}"
+      RelativeLayout.WidthConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Width,Factor=1,Constant=0}"
+      RelativeLayout.HeightConstraint="{ConstraintExpression
+            Type=RelativeToParent,Property=Height,Factor=1,Constant=0}" HorizontalOptions="FillAndExpand"/>
+      </RelativeLayout>
+    </StackLayout>
+  </StackLayout>
+  <StackLayout x:Name="stackButtons" Spacing="10">
+    <Button x:Name="btnEmailSetup" Style="{StaticResource BoldLabelButtonStyle}" TextColor="{x:Static Resource:ColorResources.EmailSetupButtonColor}" Text="EMAIL SETUP INSTRUCTIONS"/>
+    <!--<Button x:Name="btnDeleteMember" Style="{StaticResource BaseButtonStyle}" Text="DELETE MEMBER"/>-->
+  </StackLayout>
+</StackLayout>

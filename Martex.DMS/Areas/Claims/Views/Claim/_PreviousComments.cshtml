@@ -1,0 +1,10 @@
+﻿@using Martex.DMS.DAL.Entities.Claims;
+@model ClaimInformationModel
+
+@foreach (var item in Model.PreviousComments)
+{
+    <li><strong>@item.Description</strong><br />
+        @item.CreateBy &nbsp;|&nbsp;
+        @item.CreateDate<br />
+    </li>
+}

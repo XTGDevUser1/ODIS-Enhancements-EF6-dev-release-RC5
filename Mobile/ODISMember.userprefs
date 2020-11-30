@@ -1,0 +1,9 @@
+﻿<Properties StartupItem="ODISMember\ODISMember.Droid\ODISMember.Droid.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.ODISMember.Droid PreferredExecutionTarget="Android.4.2.2" />
+  <MonoDevelop.Ide.Workbench />
+</Properties>

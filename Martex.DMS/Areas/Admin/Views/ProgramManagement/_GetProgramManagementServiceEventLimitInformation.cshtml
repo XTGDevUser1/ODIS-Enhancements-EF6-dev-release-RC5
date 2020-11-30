@@ -1,0 +1,270 @@
+﻿@model ProgramServiceEventLimit
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Program Service Event Limit";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    if (ViewData["mode"].ToString().Equals("edit"))
+    {
+        isEdit = true;
+    }
+    
+}
+<script type="text/javascript">
+    function ProductCategoryComboChange(e) {
+        var combo = $("#ProductCategoryID").data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var productCategory = combo.value();
+
+        var comboChild = $("#ProductID").data("kendoComboBox");
+        //if (combo.value() != '' && combo.value() != null) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ProductsRelatedToProductCategory", "ReferenceData", new { area = "Common" })',
+            data: { productCategoryId: productCategory },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                comboChild.setDataSource(msg);
+                if (e != undefined) {
+                    comboChild.select(0);
+                }
+
+                SetFocusOnField("ProductID");
+            }
+
+        });
+        //        }
+        //        else {
+        //            comboChild.select(0);
+        //        }
+
+    }
+</script>
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/styles/form.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<form method="post" action="" id="frmProgramServiceEventLimits">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Service Event Limit</legend>
+        <div>
+            <div class="inline-label mid-margin-bottom">
+                <label for="ProductCategoryID" class="label">
+                    Product Category</label>
+                @(Html.Kendo().ComboBoxFor(a => a.ProductCategoryID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ProductCategoryComboChange"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ProductCategoryForRules.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ProductCategoryID != null ? Model.ProductCategoryID.ToString() : ""))
+                )
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="ProductID" class="label">
+                    Product
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.ProductID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .DataTextField("Text")
+                .DataValueField("Value")
+                )
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="VehicleTypeID" class="label">
+                    Vehicle Type
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.VehicleTypeID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.VehicleTypeID != null ? Model.VehicleTypeID.ToString() : ""))
+                        //.Enable(false)
+                )
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="VehicleCategoryID" class="label">
+                    Vehicle Category
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.VehicleCategoryID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.VehicleCategoryID != null ? Model.VehicleCategoryID.ToString() : ""))
+                        //.Enable(false)
+                )
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="Description" class="label">
+                    Description</label>
+                @Html.TextAreaFor(u => u.Description, new { @class = "input full-width validate[required,maxSize[255]]", rows = "4" })
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="Limit" class="label">
+                    Limit</label>
+                @(Html.Kendo().NumericTextBoxFor(v => v.Limit).Format("N0").Spinners(false))
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="LimitDuration" class="label">
+                    Limit Duration</label>
+                @(Html.Kendo().NumericTextBoxFor(v => v.LimitDuration).Format("N0").Spinners(false))
+            </p>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="LimitDurationUOM" class="label">
+                    Limit Duration UOM
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.LimitDurationUOM)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.WarrantyPeriodUOM.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.LimitDurationUOM != null ? Model.LimitDurationUOM : ""))
+                        //.Enable(false)
+                )
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="IsActive" class="label">
+                    Is Active</label>
+                @Html.CheckBoxFor(a => a.IsActive, new { @class = "full-width checkbox" })
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="StoredProcedureName" class="label">
+                    Stored Procedure
+                </label>
+                @Html.TextBoxFor(u => u.StoredProcedureName, new { @class = "input full-width " })
+            </p>
+            <br />
+            <div class="field-block button-height">
+                <button id="btnAddServiceEventLimit" class="button green-gradient glossy float-right mid-margin-left"
+                    type="submit">
+                    @if (isEdit)
+                    {
+                        @Html.Raw("Update")
+                    }
+                    else
+                    {
+                        @Html.Raw("Add")
+                    }
+                </button>
+                <button id="btnCancelServiceEventLimit" class="button gray-gradient glossy  float-right"
+                    type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("pageMode", ViewData["mode"])
+@Html.HiddenFor(x => x.ProgramID)
+@Html.HiddenFor(x => x.ID)
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        CleanMyContainer('frmProgramServiceEventLimits');
+        WatchMyContainer('frmProgramServiceEventLimits');
+        $('#frmProgramServiceEventLimits').validationEngine();
+        ProductCategoryComboChange();
+        //        var combo = $('#ProductCategoryID').data('kendoComboBox');
+        //        if (combo.text() == 1) {
+        //            combo.text("Select");
+        //            combo.value(null);
+        //        }
+
+
+        $('#btnCancelServiceEventLimit').die('click');
+        $('#btnCancelServiceEventLimit').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#frmProgramServiceEventLimits').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                ProgramServiceEventLimitsWindow.data('kendoWindow').close();
+            }
+        });
+
+        $('#btnAddServiceEventLimit').die('click');
+        $('#btnAddServiceEventLimit').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var errorfound = false;
+                if ($("#frmProgramServiceEventLimits").validationEngine("validate") == false) {
+                    errorfound = true;
+                }
+                //                var dataType = $('#DataTypeID').data('kendoComboBox').value();
+                //                if ($.trim(dataType).length == 0) {
+                //                    ShowValidationMessage($('input[name="DataTypeID_input"]'), "* This field is required.");
+                //                    errorfound = true;
+                //                }
+                //                else {
+                //                    HideValidationMessage($('input[name="DataTypeID_input"]'));
+                //                }
+                //                var controlType = $('#ControlTypeID').data('kendoComboBox').value();
+                //                if ($.trim(controlType).length == 0) {
+                //                    ShowValidationMessage($('input[name="ControlTypeID_input"]'), "* This field is required.");
+                //                    errorfound = true;
+                //                }
+                //                else {
+                //                    HideValidationMessage($('input[name="ControlTypeID_input"]'));
+                //                }
+                if (errorfound == true) {
+                    return false;
+                }
+
+                document.dialogResult = "OK";
+                var postData = $(this).parents('form').serializeArray();
+                var mode = $("#pageMode").val();
+                var programId = $("#ProgramID").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SaveProgramManagementServiceEventLimitInformation", "ProgramManagement", new { area = "Admin" })',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            CleanMyContainer('frmProgramServiceEventLimits');
+                            if (mode == "add") {
+                                openAlertMessage('Program ServiceEventLimit successfully added!');
+                            }
+                            else if (mode == "edit") {
+                                openAlertMessage('Program ServiceEventLimit successfully updated!');
+                            }
+                            $('#frmProgramServiceEventLimits').validationEngine('hideAll');
+                            ProgramServiceEventLimitsWindow.data('kendoWindow').close();
+                            $('#GrdProgramManagementProgramServiceEventLimits_' + programId).data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+
+            }
+            return false;
+        });
+    });
+</script>

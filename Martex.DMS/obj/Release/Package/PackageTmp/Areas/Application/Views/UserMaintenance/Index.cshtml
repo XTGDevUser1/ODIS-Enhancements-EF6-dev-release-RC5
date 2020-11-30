@@ -1,0 +1,28 @@
+﻿@using Martex.DMS.Models
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/DMSTabs.css")" rel="stylesheet" type="text/css" />
+<div class="with-padding">
+    <hgroup id="main-title" class="thin">
+			<h1>User Maintenance</h1>			
+		</hgroup>
+    <div id="AdminUserMaintenanceTabs" class="standard-tabs same-height">
+        <ul class="tabs">
+            @if (User.IsInRole(Martex.DMS.Common.RoleConstants.SysAdmin) || User.IsInRole(Martex.DMS.Common.RoleConstants.ClientAdmin))
+            { 
+                <li id="Users"><a href="@Url.Action("Index", "Users", new { area = "admin" })" class="icon-user">
+                    User</a></li>
+            }
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#AdminUserMaintenanceTabs').tabs();
+    });
+</script>
+
+

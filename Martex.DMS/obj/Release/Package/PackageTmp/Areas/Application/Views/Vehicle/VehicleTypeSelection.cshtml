@@ -1,0 +1,96 @@
+﻿@using Martex.DMS.Areas.Application.Models;
+@using Martex.DMS.DAL;
+@model Vehicle
+@{
+    var activeProgrameType = ViewBag.ActiveProgrameVehicleType;
+    var activeButtons = activeProgrameType.RecordCount;
+    var IsShowCVAllowed = ViewBag.ShowCommercialVehicle;
+    string lastUpdatedTab = DMSCallContext.LastUpdatedVehicleType;
+    string AutoButtonName = IsShowCVAllowed ? "Auto/Commercial" : "Auto";
+}
+<form id="frmVehicleTypeSelection">
+<div class="with-padding">
+    <div class="new-row twelve-colums">
+        <fieldset class="fieldset">
+            <legend class="legend">Select the vehicle type to enter </legend>
+            <div class="with-padding">
+                @if (activeProgrameType.IsAuto)
+                {
+                                
+                    <button class="button huge green-gradient" type="button" onclick="UpdateVehicleType('Auto');">
+                        @AutoButtonName
+                    </button>
+                   
+                }
+                else
+                { 
+                    <button class="button huge green-gradient " type="button" disabled="disabled">
+                        Auto
+                    </button>
+                }
+                @if (activeProgrameType.IsRV)
+                {
+                    <button class="button huge green-gradient" type="button" onclick="UpdateVehicleType('RV');">
+                        RV
+                    </button>
+                 
+                }
+                else
+                { 
+                    <button class="button huge green-gradient " type="button" disabled="disabled">
+                        RV
+                    </button>
+                }
+                @if (activeProgrameType.Motorcycle)
+                {
+                    <button class="button huge green-gradient" type="button" onclick="UpdateVehicleType('Motorcycle');"
+                        value="Motorcycle">
+                        Motorcycle
+                    </button>
+                   
+               
+                }
+                else
+                { 
+                    <button class="button huge green-gradient " type="button" disabled="disabled" value="Motorcycle">
+                        Motorcycle
+                    </button>
+                    
+               
+                }
+                @if (activeProgrameType.Trailer)
+                {
+                    <button class="button huge green-gradient" type="button" onclick="UpdateVehicleType('Trailer');">
+                        Trailer
+                    </button>
+                   
+                }
+                else
+                {
+                    <button class="button green-gradient huge " type="button" value="Trailer" disabled="disabled">
+                        Trailer
+                    </button>
+                  
+                }
+            </div>
+        </fieldset>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    function UpdateVehicleType(vehicleType) {
+        $.ajax({
+            type: 'POST',
+            url: '/Application/Vehicle/UpdateVehicleTypeDetails',
+            data: { vehicleID: '@Model.ID', VehcileTypeSelection: vehicleType },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleTypeSelectionWindow.data('kendoWindow').close();
+                LoadVehiclesTypes(vehicleType, '@Model.ID', 0);
+            }
+        });
+        return false;
+    }
+</script>

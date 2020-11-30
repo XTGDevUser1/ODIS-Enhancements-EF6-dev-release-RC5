@@ -1,0 +1,378 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    <!-- ID Section -->
+    if (!string.IsNullOrEmpty(Model.LookUpTypeName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="LookUpTypeName">X</a>
+        @Html.Raw("- Type : ")
+        @Html.DisplayFor(u => Model.LookUpTypeName)
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.LookUpTypeValue))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="LookUpTypeValue">X</a>
+        @Html.Raw("- ID : ")
+        @Html.DisplayFor(u => Model.LookUpTypeValue)
+    </p>
+    }
+    
+    <!-- Name Section -->
+    if (!string.IsNullOrEmpty(Model.NameTypeName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameTypeName">X</a>
+        @Html.Raw("- Name Type : ")
+        @Html.DisplayFor(u => Model.NameTypeName)
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.NameTypeValue))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="NameTypeValue" relatedcombo="NameOperatorValue">
+            X</a>
+        @Html.Raw("- Name : ")
+        @Html.DisplayFor(u => Model.NameTypeValue)
+    </p>
+    }
+    if (!string.IsNullOrEmpty(Model.NameOperatorValue))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameOperatorValue"
+            relatedtexbox="NameTypeValue">X</a>
+        @Html.Raw("- value that : ")
+        @Html.DisplayFor(u => Model.NameOperator)
+    </p>
+    }
+    
+    <!-- Claim Type Section-->
+    foreach (CheckBoxLookUp result in Model.ClaimTypes)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ClaimTypes_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Claim Types : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    {
+        i = 0;
+    }
+    <!-- Claim Status Section-->
+    foreach (CheckBoxLookUp result in Model.ClaimStatus)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ClaimStatus_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Claim Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    {
+        i = 0;
+    }
+    
+    <!-- Claim ACES Status Section-->
+    foreach (CheckBoxLookUp result in Model.ACESStatus)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ACESStatus_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Claim ACES Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    {
+        i = 0;
+    }
+    <!-- Claim Category Section-->
+    foreach (CheckBoxLookUp result in Model.ClaimCategory)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ClaimCategory_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Claim Category : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    
+    <!-- Client and Program Section-->
+    if (Model.ClientID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Claim_Search_ClientID">
+            X</a>
+        @Html.Raw("- Client Name : ")
+        @Html.DisplayFor(u => Model.ClientIDValue)
+    </p>
+    }
+    if (Model.ProgramID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Claim_Search_ProgramID">
+            X</a>
+        @Html.Raw("- Program Name : ")
+        @Html.DisplayFor(u => Model.ProgramIDValue)
+    </p>
+    }
+
+    if (Model.ReceivedFromDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ReceivedFromDate">
+            X</a>
+        @Html.Raw("- Received Date From : ")
+        @Model.ReceivedFromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.ReceivedToDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ReceivedToDate">X</a>
+        @Html.Raw("- Received Date To : ")
+        @Model.ReceivedToDate.Value.ToShortDateString()
+    </p>
+    }
+    <!-- Claim Date Range -->
+    if (Model.Preset.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="kendoNumeric" data="Preset">X</a>
+        @Html.Raw("- Preset : ")
+        @Html.DisplayFor(u => u.Preset)
+    </p>
+    }
+    if (Model.ClaimDateFrom.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ClaimDateFrom">X</a>
+        @Html.Raw("- Claim Date From : ")
+        <span id="selectedCriteriaClaimDateFrom">@Model.ClaimDateFrom.Value.ToShortDateString()</span>
+    </p>
+    }
+    if (Model.ClaimDateTo.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ClaimDateTo">X</a>
+        @Html.Raw("- Claim Date To : ")
+        <span id="selectedCriteriaClaimDateTo">@Model.ClaimDateTo.Value.ToShortDateString()</span>
+    </p>
+    }
+    
+    <!-- ACES Date Range -->
+    if (Model.ACESSubmitFromDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ACESSubmitFromDate">
+            X</a>
+        @Html.Raw("- ACES Submit Date From : ")
+        @Model.ACESSubmitFromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.ACESSubmitToDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ACESSubmitToDate">X</a>
+        @Html.Raw("- ACES Submit Date To : ")
+        @Model.ACESSubmitToDate.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ACESClearedFromDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ACESClearedFromDate">
+            X</a>
+        @Html.Raw("- ACES Cleared Date From : ")
+        @Model.ACESClearedFromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.ACESClearedToDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ACESClearedToDate">
+            X</a>
+        @Html.Raw("- ACES Cleared Date To : ")
+        @Model.ACESClearedToDate.Value.ToShortDateString()
+    </p>
+    }
+    
+    <!-- Amount Range -->
+    if (Model.ClaimAmountEnd.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="slider" data="AmountRangeSlider">X</a>
+        @Html.Raw("- Amount Range : ")
+        @Model.ClaimAmountStart - @Model.ClaimAmountEnd
+    </p>
+    }
+    <!-- Check Information -->
+    if (!string.IsNullOrEmpty(Model.CheckNumber))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckNumber">X</a>
+        @Html.Raw("- Check Number : ")
+        @Html.DisplayFor(u => Model.CheckNumber)
+    </p>
+    }
+    if (Model.CheckFromDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckFromDate">X</a>
+        @Html.Raw("- Check Date From : ")
+        @Model.CheckFromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.CheckToDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="CheckToDate">X</a>
+        @Html.Raw("- Check Date To : ")
+        @Model.CheckToDate.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ReadyForPaymentStartDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ReadyForPaymentStartDate">
+            X</a>
+        @Html.Raw("- Ready for Payment From : ")
+        @Model.ReadyForPaymentStartDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.ReadyForPaymentEndDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ReadyForPaymentEndDate">
+            X</a>
+        @Html.Raw("- Ready for Payment To : ")
+        @Model.ReadyForPaymentEndDate.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ExportBatchID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="ExportBatchID">X</a>
+        @Html.Raw("- Export Batch : ")
+        @Model.ExportBatchName
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                    }
+                }
+                else if (role == "slider") {
+                    $('#' + element).data("kendoRangeSlider").value([0, 10000]);
+                    $('#ClaimAmountStart').val('');
+                    $('#ClaimAmountEnd').val('');
+                }
+                else if (role == "kendoNumeric") {
+                    $('#' + element).data('kendoNumericTextBox').value('');
+                }
+                if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+
+                    if (element == 'CountryID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+
+                    if (element == 'Member_Search_ClientID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdClaims').data('kendoGrid').dataSource.read();
+            SynchronizeCheckBoxesForClaimsStatus();
+            return false;
+        });
+    });
+</script>

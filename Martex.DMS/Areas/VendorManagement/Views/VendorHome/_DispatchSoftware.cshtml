@@ -1,0 +1,98 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+
+    string classNameForDispatchSoftwareProduct = "hidden";
+    if (Model.BasicInformation.DispatchSoftwareProduct != null && Model.BasicInformation.DispatchSoftwareProduct.SoftwareName.Equals("Other"))
+    {
+        classNameForDispatchSoftwareProduct = "";
+    }
+
+    string classNameForDriverSoftwareProduct = "hidden";
+    if (Model.BasicInformation.DispatchSoftwareProduct1 != null && Model.BasicInformation.DispatchSoftwareProduct1.SoftwareName.Equals("Other"))
+    {
+        classNameForDriverSoftwareProduct = "";
+    }
+
+    string classNameForDispatchGPSNetwork = "hidden";
+    if (Model.BasicInformation.DispatchGPSNetwork != null && Model.BasicInformation.DispatchGPSNetwork.Name.Equals("Other"))
+    {
+        classNameForDispatchGPSNetwork = "";
+    }
+}
+<form id="frmVendorDetailsDispatchSoftwareSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedbuttons="PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Dispatch Software" class="label">
+            Dispatch Software
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("DispatchSoftwareProductID_" + suffixVendorID)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchSoftwareOther(e,'@suffixVendorID');}</text>)))
+        .Value(Model.BasicInformation.DispatchSoftwareProductID == null ? string.Empty : Model.BasicInformation.DispatchSoftwareProductID.GetValueOrDefault().ToString())
+        .HtmlAttributes(new { id = "DispatchSoftwareProductID_" + @suffixVendorID, style = "width:90%;" })
+        )
+    </div>
+    <div class="button-height inline-label small-margin-bottom @classNameForDispatchSoftwareProduct" id="PlaceHolder_DispatchSoftwareProductOther_@suffixVendorID">
+        <label for="DispatchSoftwareProductOther" class="label">
+            <i> Other Description</i>
+        </label>
+        @Html.TextBoxFor(u => u.BasicInformation.DispatchSoftwareProductOther, new { @class = "input full-width", id = "DispatchSoftwareProductOther_" + suffixVendorID, @maxLength = "255" })
+    </div>
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Dispatch Software" class="label">
+            Driver Software
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("DriverSoftwareProductID_" + suffixVendorID)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDriverSoftwareOther(e,'@suffixVendorID');}</text>)))
+        .Value(Model.BasicInformation.DriverSoftwareProductID == null ? string.Empty : Model.BasicInformation.DriverSoftwareProductID.GetValueOrDefault().ToString())
+        .HtmlAttributes(new { id = "DriverSoftwareProductID_" + @suffixVendorID, style = "width:90%;" })
+        )
+    </div>
+    <div class="button-height inline-label small-margin-bottom @classNameForDriverSoftwareProduct" id="PlaceHolder_DriverSoftwareProductOther_@suffixVendorID">
+        <label for="DispatchSoftwareProductOther" class="label">
+            <i> Other Description</i>
+        </label>
+        @Html.TextBoxFor(u => u.BasicInformation.DriverSoftwareProductOther, new { @class = "input full-width", id = "DriverSoftwareProductOther_" + suffixVendorID, @maxLength = "255" })
+    </div>
+    <div class="button-height inline-label small-margin-bottom">
+        <label for="Dispatch Software" class="label">
+            Driver GPS
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("DispatchGPSNetworkID_" + suffixVendorID)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.DispatchGPSNetwork.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchGPSNetworkOther(e,'@suffixVendorID');}</text>)))
+        .Value(Model.BasicInformation.DispatchGPSNetworkID == null ? string.Empty : Model.BasicInformation.DispatchGPSNetworkID.GetValueOrDefault().ToString())
+        .HtmlAttributes(new { id = "DispatchGPSNetworkID_" + @suffixVendorID, style = "width:90%;" })
+        )
+    </div>
+    <div class="button-height inline-label small-margin-bottom @classNameForDispatchGPSNetwork" id="PlaceHolder_DispatchGPSNetworkOther_@suffixVendorID">
+        <label for="DispatchGPSNetworkOther" class="label">
+            <i> Other Description</i>
+        </label>
+        @Html.TextBoxFor(u => u.BasicInformation.DispatchGPSNetworkOther, new { @class = "input full-width", id = "DispatchGPSNetworkOther_" + suffixVendorID, @maxLength = "255" })
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsDispatchSoftwareSection_@suffixVendorID').validationEngine();
+    });
+
+   
+</script>

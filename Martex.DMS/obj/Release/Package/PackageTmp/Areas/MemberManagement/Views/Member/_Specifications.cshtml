@@ -1,0 +1,114 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@{
+    ViewBag.Title = "_Specifications";
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<div class="four-columns float-left large-margin-left">
+    <fieldset class="fieldset">
+        <legend class="legend">Specifications</legend>
+        <div class="with-small-padding">
+            <div class="button-height small-margin-bottom inline-label">
+                <label for="Length" class="label">
+                    Length</label>
+                @Html.TextBoxFor(v => v.Length, new { @class = "validate[custom[integer] maxSize[10]] input full-width2", id = "Length_" + suffixMembershipID, maxLength = 10 })
+            </div>
+            <div class="button-height small-margin-bottom inline-label">
+                <label for="Height" class="label">
+                    Height</label>
+                @Html.TextBoxFor(v => v.Height, new { @class = "validate[maxSize[5]] input full-width2", id = "Height_" + suffixMembershipID, maxLength = 5 })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Chassis" class="label">
+                        Chassis</label>
+                    @Html.TextBoxFor(v => v.Chassis, new { @class = "validate[maxSize[100]] input full-width2", id = "Chassis_" + suffixMembershipID, maxLength = 100 })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Engine" class="label">
+                        Engine</label>
+                    @Html.TextBoxFor(v => v.Engine, new { @class = "validate[maxSize[100]] input full-width2", id = "Engine_" + suffixMembershipID, maxLength = 100 })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Transmission" class="label">
+                        Transmission</label>
+                    @Html.TextBoxFor(v => v.Transmission, new { @class = "validate[maxSize[100]] input full-width2", id = "Transmission_" + suffixMembershipID, maxLength = 100 })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="GVWR" class="label">
+                        GVWR</label>
+                    @Html.TextBoxFor(v => v.GVWR, new { @class = "validate[custom[integer] maxSize[10]] input full-width2", id = "GVWR_" + suffixMembershipID, maxLength = 10 })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="TitleBrand" class="label">
+                    Tire Brand</label>
+                @Html.TextBoxFor(v => v.TireBrand, new { @class = "validate[maxSize[50]] input full-width2", id = "TireBrand_" + suffixMembershipID, maxLength = 50 })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Other" class="label">
+                        Other</label>
+                    @Html.TextBoxFor(v => v.TireBrandOther, new { @class = "validate[maxSize[50]] input full-width2", id = "TireBrandOther_" + suffixMembershipID, maxLength = 50 })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="TireSize" class="label">
+                        TireSize</label>
+                    @Html.TextBoxFor(v => v.TireSize, new { @class = "validate[maxSize[50]] input full-width2", id = "TireSize_" + suffixMembershipID, maxLength = 50 })
+                </p>
+            </div>
+            <p class="button-height inline-label">
+                <label for="SportUtility" class="label">
+                    Sport Utility</label>
+                @if (Model.IsSportUtilityRV.HasValue)
+                { 
+                    @Html.RadioButton("rdSportUtility_" + suffixMembershipID, "1", Model.IsSportUtilityRV.Value, new { @class = "radio small-margin-right" })
+                    <text>Yes &nbsp;</text>
+                    @Html.RadioButton("rdSportUtility_" + suffixMembershipID, "0", !Model.IsSportUtilityRV.Value, new { @class = "radio small-margin-right" })
+                    <text> No</text>
+                }
+                else
+                { 
+                    @Html.RadioButton("rdSportUtility_" + suffixMembershipID, "1", false, new { @class = "radio small-margin-right" })
+                    <text>Yes &nbsp;</text>
+                    @Html.RadioButton("rdSportUtility_" + suffixMembershipID, "0", false, new { @class = "radio small-margin-right" })
+                    <text> No</text>
+                }
+            </p>
+            <div>
+                <a href="javascript:void(0)" id="RVTypes_@suffixMembershipID" onclick="OnRVTypes();">
+                    RV Types</a></div>
+        </div>
+    </fieldset>
+</div>
+<script type="text/javascript">
+    var rvTypeMode;
+    function OnRVTypes() {
+
+        rvTypeMode = $("<div id='rvTypeMode' />").appendTo(document.body);
+
+        rvTypeMode.kendoWindow({
+            title: "RV Types",
+            content: "/Content/img/RVType.png",
+            iframe: true,
+            modal: true,
+            width: 800,
+            height: 596,
+            deactivate: function () {
+                this.destroy();
+            },
+            close: function (e) {
+                return true;
+            }
+        });
+        rvTypeMode.data('kendoWindow').center().open();
+
+    }
+</script>

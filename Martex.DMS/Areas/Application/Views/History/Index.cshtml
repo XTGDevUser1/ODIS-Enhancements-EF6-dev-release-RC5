@@ -1,0 +1,566 @@
+﻿@model Martex.DMS.DAL.Entities.HistorySearchCriteria
+@using Kendo.Mvc.UI
+@using Martex.DMS.Areas.Application.Models
+@{
+    ViewBag.Title = "History";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+}
+<style type="text/css">
+    .standard-tabs > .tabs > li.ui-state-active > a
+    {
+        background: none !important;
+    }
+</style>
+<link href="@Url.Content("~/Content/DMSTabs.css")" rel="stylesheet" type="text/css" />
+<hgroup id="main-title" class="thin">
+    <h1>
+        History</h1>
+</hgroup>
+<div class="with-padding">
+    <div id="SearchHistoryCriteriaTab" class="standard-tabs same-height" data="historyDynamicTabs">
+        <ul class="tabs">
+            <li id="tbHistorySearchCriteria"><a id="hypSearchCriteria" href="#tabs-1">Search</a>
+            </li>
+        </ul>
+        <div id="tabs-1" class="historyDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchCriteria", Model)
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $("#SearchHistoryCriteriaTab").tabs({ select: function (event, ui) {
+            ClearValidationMessages();
+            if ($(ui.tab).parents("li").context.hash == "#tabs-1") {
+                var data = GetData();
+                $('#ulHistorySearchCriteriaRight').html('');
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetSearchCriteriaRestore", "History", new { area = "Application" })',
+                    data: data,
+                    traditional: true,
+                    cache: false,
+                    async: false,
+                    global: false,
+                    success: function (msg) {
+                        $('#tabs-1').html('<div class="with-padding">' + msg + '</div>');
+                    }
+                });
+            }
+            else {
+                var data = GetData();
+                $('#tabs-1').html('');
+                LoadSearchCriteriaRight(data);
+            }
+        }
+        });
+    });
+    var selectedSearchPanel = null;
+    var tabObject;
+    var isFromFinish = '@DMSCallContext.IsFromHistoryList.ToString().ToLower()';
+    function fnPanelCollapseR(e) {
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        $('#' + panelName).val("false");
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+    }
+    function fnPanelExpandR(e) {
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        $('#' + panelName).val("true");
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+    }
+    $(function () {
+        window.onerror = function (errorMsg, url, lineNumber) {
+            $.unblockUI();
+            $('html').css('cursor', 'pointer');
+            return true;
+        }
+        tabObject = $("#SearchHistoryCriteriaTab").tabs();
+        LoadSearchCriteria();
+        if (isFromFinish == 'true') {
+            $('.btnSearch').click();
+        }
+
+        $("span.ui-icon-close").live("click", function (e) {
+            var panelId = $(this).closest("li").remove().attr("aria-controls");
+            $("#" + panelId).remove();
+            tabObject.tabs("refresh");
+        });
+    });
+
+    function PerformSearch(sender) {
+        HideValidationMessage($(sender));
+
+        var element = $('#dynamicSelectionItems p');
+        if (element.length > 0) {
+            // Validation for Name Section Type 
+            var NameSection = $("#NameSectionType").data("kendoComboBox").value();
+            var filterType = $("#NameSectionFilter").data("kendoComboBox").value();
+            if (NameSection > 0) {
+
+                if (filterType == "") {
+                    ShowValidationMessage($('input[name="NameSectionFilter_input"]'), "Please select Filter Type");
+                    return false;
+                }
+                else {
+                    HideValidationMessage($('input[name="NameSectionFilter_input"]'));
+                }
+            }
+
+            // Validation for Date 
+            var fromDate = $("#DateSectionFromDate").data("kendoDatePicker").value();
+            var toDate = $("#DateSectionToDate").data("kendoDatePicker").value(); ;
+            if (toDate != null && fromDate == null) {
+                ShowValidationMessage($('#DateSectionFromDate'), "Please enter from date");
+                $('#DateSectionFromDate').focus();
+                return false;
+            }
+            else {
+                HideValidationMessage($('#DateSectionFromDate'));
+            }
+
+            var postData = GetData();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SearchRecords", "History", new { area = "Application" })',
+                data: postData,
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+
+                    if (msg.Data && msg.Data == "0") {
+                        openAlertMessage("No results found");
+                    }
+                    else {
+                        $("#VehicleYear").data("kendoComboBox").destroy();
+                        $("#VehicleMake").data("kendoComboBox").destroy();
+                        $("#VehicleModel").data("kendoComboBox").destroy();
+
+                        LoadListTab(msg);
+                        var data = GetData();
+                        // Remove All the drop down from DOM
+
+                        $('#tabs-1').html('');
+                        LoadSearchCriteriaRight(postData);
+
+                    }
+                }
+            });
+
+        }
+        else {
+            ShowValidationMessage($(sender), "Please select at least one search criteria");
+        }
+    }
+
+    function LoadPoDetails(poID, poNumber) {
+        if (poNumber == undefined) {
+            poNumber = '';
+        }
+        var nameToCheck = "PO(" + poID.toString() + ")" + poNumber.toString();
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#SearchHistoryCriteriaTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container to add new tab');
+        }
+        else {
+            // Step 1: Veirfy that Current Tab is not added
+
+            if (canAddGenericTabInCurrentContainer(nameToCheck, tabObject)) {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("PODetails", "History", new { area = "Application" })',
+                    traditional: true,
+                    data: { poId: poID, pageMode: 'view' },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        addGenericTabWithCurrentContainer(nameToCheck, tabObject, msg);
+                    }
+                });
+            }
+        }
+    }
+
+    function addTabForPo(tabTitle, recordID, pageMode) {
+
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + tabTitle + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+        var numOfTabs = tabCounter - 1;
+        var lastTabId = $($("#SearchHistoryCriteriaTab").find(".historyDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+
+        if (pageMode == null) {
+            pageMode = "view";
+        }
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("PODetails", "History", new { area = "Application" })',
+            traditional: true,
+            data: { poId: recordID, pageMode: pageMode },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").append(li);
+                tabObject.append("<div id='" + id + "' class='historyDynamicTabs ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+    function DeleteTab(junk) {
+        var activeIndex = tabObject.tabs('option', 'selected');
+        tabObject.tabs('select', 0);
+        tabObject.tabs('remove', activeIndex);
+        tabObject.tabs('refresh');
+    }
+
+
+
+
+    function LoadQuequeinEditMode() {
+        // Dummy Function
+    }
+
+
+    //NP : Service Activity Add Contact Start here
+    function openAddSRActivityContactWindow(sender, suffixPOID, serviceRequestID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_PO_Activity_AddContact", "History", new { area = "Application" })',
+            traditional: true,
+            data: { ServiceRequestID: serviceRequestID, POID: suffixPOID },
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (IsMyContainerDirty("formAddSRActivityComment_" + suffixPOID)) {
+                    var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+                    $.modal.confirm(message, function () {
+                        CleanMyContainer("formAddSRActivityComment_" + suffixPOID);
+                        ClearValidationMessages();
+                        $("#SRCommentType_" + suffixPOID).data('kendoComboBox').select(0);
+                        $("#SRComments_" + suffixPOID).val(' ');
+
+                        $("#divAddSRActivityContact_" + suffixPOID).html(msg);
+                        $("#divAddSRActivityContact_" + suffixPOID).show();
+                        $("#divAddSRActivityComment_" + suffixPOID).hide();
+                        return false;
+
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    ClearValidationMessages();
+                    $("#divAddSRActivityContact_" + suffixPOID).html(msg);
+                    $("#divAddSRActivityContact_" + suffixPOID).show();
+                    $("#divAddSRActivityComment_" + suffixPOID).hide();
+                    return false;
+                }
+
+            }
+        });
+
+    }
+
+    function HandleSRActivityContactMethodChange(e, suffixPOID, serviceRequestID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        ClearValidationMessages();
+        var ContactMethodValue = combo.text();
+        if (ContactMethodValue == "Phone" || ContactMethodValue == "Text" || ContactMethodValue == "Fax" || ContactMethodValue == "IVR" || ContactMethodValue == "Verbally") {
+            $("#divSRActivityAddContactMethodPhone_" + suffixPOID).show();
+            $("#divSRActivityAddContactMethodEmail_" + suffixPOID).hide();
+        }
+        else if (ContactMethodValue == "Email" || ContactMethodValue == "Mail") {
+            $("#divSRActivityAddContactMethodEmail_" + suffixPOID).show();
+            $("#divSRActivityAddContactMethodPhone_" + suffixPOID).hide();
+        }
+        else {
+            $("#divSRActivityAddContactMethodEmail_" + suffixPOID).hide();
+            $("#divSRActivityAddContactMethodPhone_" + suffixPOID).hide();
+        }
+        return false;
+    }
+
+    function HandleSRContactCategoryChange(e, suffixPOID, serviceRequestID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var contactCategoryID = combo.value();
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixPOID).data("kendoMultiSelect");
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixPOID).data("kendoMultiSelect");
+        contactReasonMultiSelect.value('');
+        contactActionMultiSelect.value('');
+        if (contactCategoryID != null && contactCategoryID != undefined && contactCategoryID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContactActionsAndReasonsForCategory", "Member", new { area = "MemberManagement" })',
+                data: { contactCategoryID: contactCategoryID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        contactReasonMultiSelect.setDataSource(msg.Data.contactReason);
+                        contactActionMultiSelect.setDataSource(msg.Data.contactAction);
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "ContactCategory_" + suffixPOID + "_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            contactReasonMultiSelect.setDataSource([]);
+            contactActionMultiSelect.setDataSource([]);
+        }
+    }
+
+    function closeAddSRActivityContactWindow(sender, suffixPOID, serviceRequestID) {
+        if (IsMyContainerDirty("formAddSRActivityContact_" + suffixPOID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("formAddSRActivityContact_" + suffixPOID);
+                ClearValidationMessages();
+                $("#divAddSRActivityContact_" + suffixPOID).hide();
+                return false;
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddSRActivityContact_" + suffixPOID).hide();
+            return false;
+        }
+
+    }
+
+    function saveAddSRActivityContact(sender, suffixPOID, serviceRequestID) {
+
+        var errorFound = false;
+        if ($("#formAddSRActivityContact_" + suffixPOID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var contactCategoryCombo = $("#ContactCategory_" + suffixPOID).data('kendoComboBox');
+        var contactCategoryComboInput = "ContactCategory_" + suffixPOID + "_input";
+        if ($.trim(contactCategoryCombo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + contactCategoryComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + contactCategoryComboInput + ']'));
+        }
+
+        var combo = $("#ContactMethod_" + suffixPOID).data('kendoComboBox');
+
+        var ComboInput = "ContactMethod_" + suffixPOID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixPOID).data("kendoMultiSelect");
+        var contactReasonMultiSelectInput = "#ContactReasonID_" + suffixPOID + "_taglist";
+
+        if (contactReasonMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+            ShowValidationMessage($(contactReasonMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+        }
+
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixPOID).data("kendoMultiSelect");
+        var contactActionMultiSelectInput = "#ContactActionID_" + suffixPOID + "_taglist";
+
+        if (contactActionMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactActionMultiSelectInput));
+            ShowValidationMessage($(contactActionMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactActionMultiSelectInput));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+        var formData = $("#formAddSRActivityContact_" + suffixPOID).serializeArray();
+
+        formData.push({ name: "ContactMethod", value: combo.value() });
+        formData.push({ name: "ContactMethodValue", value: combo.text() });
+
+        formData.push({ name: "ContactCategory", value: contactCategoryCombo.value() });
+        formData.push({ name: "ContactCategoryValue", value: contactCategoryCombo.text() });
+
+        formData.push({ name: "Email", value: $("#Email_Activity_" + suffixPOID).val() });
+        formData.push({ name: "TalkedTo", value: $("#TalkedTo__Activity_" + suffixPOID).val() });
+        formData.push({ name: "Notes", value: $("#Notes_" + suffixPOID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("PhoneNumber_Activity_" + suffixPOID) });
+
+        var phoneNumberTypeID = $("#PhoneNumber_Activity_" + suffixPOID + "_ddlPhoneType").val();
+        formData.push({ name: "PhoneNumberType", value: phoneNumberTypeID });
+
+        formData.push({ name: "ServiceRequestID", value: serviceRequestID });
+        //formData.push({ name: "POID", value: suffixPOID });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveSRActivityContact", "History", new { area = "Application" })',
+            data: formData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('formAddSRActivityContact_' + suffixPOID);
+                    openAlertMessage("Contact Added Successfully");
+                    $("#divAddSRActivityContact_" + suffixPOID).hide();
+
+                    $("#GrdActivity_" + suffixPOID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+        });
+        return false;
+    }
+
+    //NP :Service Request Activity Add Contact Ends here
+
+    //NP : Service Request Activity Add Comment Start here
+
+    function openAddSRActivityCommentWindow(sender, suffixPOID, serviceRequestID) {
+        if (IsMyContainerDirty("formAddSRActivityContact_" + suffixPOID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                $("#divAddSRActivityContact_" + suffixPOID).hide();
+                $("#divAddSRActivityComment_" + suffixPOID).show();
+                CleanMyContainer("formAddSRActivityContact_" + suffixPOID);
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddSRActivityContact_" + suffixPOID).hide();
+            $("#divAddSRActivityComment_" + suffixPOID).show();
+            return false;
+        }
+    }
+
+    function closeAddSRActivityCommentWindow(sender, suffixPOID, serviceRequestID) {
+        ClearValidationMessages();
+        if (IsMyContainerDirty("formAddSRActivityComment_" + suffixPOID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                $("#SRCommentType_" + suffixPOID).data('kendoComboBox').select(0);
+                $("#SRComments_" + suffixPOID).val(' ');
+
+                $("#divAddSRActivityComment_" + suffixPOID).hide();
+                CleanMyContainer('formAddSRActivityComment_' + suffixPOID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddSRActivityComment_" + suffixPOID).hide();
+            return false;
+        }
+
+    }
+
+    function saveAddSRActivityComments(sender, suffixPOID, serviceRequestID) {
+        var errorFound = false;
+        if ($("#formAddSRActivityComment_" + suffixPOID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var combo = $("#SRCommentType_" + suffixPOID).data('kendoComboBox');
+
+        var ComboInput = "SRCommentType_" + suffixPOID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+
+        var Comments = $("#SRComments_" + suffixPOID).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveSRActivityComments", "History", new { area = "Application" })',
+            data: { CommentType: combo.value(), Comments: Comments, ServiceRequestID: serviceRequestID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('formAddSRActivityComment_' + suffixPOID);
+                    openAlertMessage("Comment Added Successfully");
+
+                    $("#SRCommentType_" + suffixPOID).data('kendoComboBox').select(0);
+                    $("#SRComments_" + suffixPOID).val(' ');
+
+                    $("#divAddSRActivityComment_" + suffixPOID).hide();
+                    $("#GrdActivity_" + suffixPOID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+
+        });
+        return false;
+    }
+    //NP : Service Request Activity Add Comment Ends here
+</script>
+@{
+    DMSCallContext.IsFromHistoryList = false;
+}

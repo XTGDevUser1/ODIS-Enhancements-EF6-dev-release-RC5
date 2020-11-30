@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../../../../Content/amazonconnect.css">
+</head>
+
+<body>
+
+
+    <div id="gridDiv" class="grid-container">
+        <div id="containerDiv" class="ccp">
+            <!--Amazon CCP will go here-->
+        </div>
+
+        <fieldset class="contactAttributes border">
+            <legend class="border">Contact Details</legend>
+
+            <div id='attributesTable'>
+                <!-- Contact attributes will go here-->
+            </div>
+
+        </fieldset>
+
+
+        <fieldset class="logMessages border">
+            <legend class="border">Log Messages</legend>
+            <!-- Toggle log messages display -->
+            <div id="hiddenAttributes">
+                <input type="button" id="showAttributes" value="Show Log Messages">
+            </div>
+            <div id="visibleAttributes" style="display:none;">
+                <input type="button" id="hideAttributes" value="Hide Log Messages">
+
+                <div class="logMsgsContainer">
+                    <div id="logMsgs">
+                        <!-- Log messages will go here -->
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</body>
+</html>
+
+<script src="../../../Scripts/libs/jquery-1.7.2.min.js"></script>
+<script src="../../../Scripts/amazon-connect-v1.2.0-21-ge9b5224.js"></script>
+<script src="../../../Scripts/script.js"></script>

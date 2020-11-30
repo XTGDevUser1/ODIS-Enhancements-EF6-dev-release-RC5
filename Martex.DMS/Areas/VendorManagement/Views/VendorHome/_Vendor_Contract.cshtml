@@ -1,0 +1,97 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.VendorContractList_Result>
+@{
+    string suffixVendorID = ViewData["vendorID"].ToString();
+    var functionHandler = "onclick=ManageVendorContracts(null," + suffixVendorID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Contract</label></a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function grdVendorContracts_OnDataBound() {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+    }
+
+    function VendorContractSearchCriteria() {
+        return { VendorId: '@suffixVendorID' };
+    }
+</script>
+<div class="with-padding">
+    <div id="topSection_@suffixVendorID">
+        @Html.Partial("_Vendor_Contract_Details", ViewBag.latestContract as Martex.DMS.DAL.VendorContractDetails_Result)
+    </div>
+    <div class="new twelve-columns margin-top">
+        <div class="boxed emboss glow silver-gradient">
+            <h3>
+                Contracts
+            </h3>
+            @(Html.Kendo().Grid(Model)
+            .Name("GrdVendorContracts_" + suffixVendorID)
+            .Columns(column =>
+            {
+                column.Bound(a => a.StartDate).Format("{0:MM/dd/yyyy}").Title("Start Date");
+                column.Bound(a => a.EndDate).Format("{0:MM/dd/yyyy}").Title("End Date");
+                column.Bound(a => a.Status).Title("Status");
+                column.Bound(a => a.SignedDate).Format("{0:MM/dd/yyyy}").Title("Date Signed");
+                column.Bound(a => a.SignedBy).Title("Signed By");
+                column.Bound(a => a.SignedByTitle).Title("Signed By Title");
+                column.Command(command =>
+                {
+                    command.Custom("View").Click(@<text>function(e){ ManageVendorContracts(e,'@suffixVendorID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                    command.Custom("Edit").Click(@<text>function(e){ ManageVendorContracts(e,'@suffixVendorID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    command.Custom("Delete").Click(@<text>function(e){ ManageVendorContracts(e,'@suffixVendorID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                }).Width(150)
+                .Title("Action(s)");
+            })
+            .ToolBar(toolBar => toolBar.Template(@addTemplate))
+            .Events(e =>
+            {
+                e.DataBound("grdVendorContracts_OnDataBound");
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+                    //.Filterable(filterable => filterable
+                    //    .Extra(false)
+                    //)
+            .Pageable(pager =>
+                pager.Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+            )
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+            .DataSource(datasource
+                => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read
+                    .Action("_GetVendorContractList", "VendorHome")
+                    .Data("VendorContractSearchCriteria")
+                )
+                .Model(u => u.Id(p => p.ID))
+                .PageSize(10)
+            )
+            .Resizable(resize => resize.Columns(true))
+            .EnableCustomBinding(true)
+            )
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        $('#GrdVendorContracts_@suffixVendorID').data('kendoGrid').dataSource.read();
+    });
+    var suffixVendorID = '@suffixVendorID';
+    $(function () {
+        HandleDblClickOnGrid($("#GrdVendorLocations_@suffixVendorID"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        //$("#GrdVendorContracts_@suffixVendorID>.k-grid-content").css("height", gridContentHeight + "px");
+    });    
+</script>

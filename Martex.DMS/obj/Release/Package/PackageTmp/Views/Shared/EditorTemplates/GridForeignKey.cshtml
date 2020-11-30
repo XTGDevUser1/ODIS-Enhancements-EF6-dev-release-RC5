@@ -1,0 +1,13 @@
+﻿@using Kendo.Mvc.UI
+@model object
+
+@(
+ Html.Kendo().ComboBoxFor(m => m)
+        .BindTo((SelectList)ViewData[ViewData.TemplateInfo.GetFullHtmlFieldName("") + "_Data"])
+        .Events(events => events.Change("onEditorDropDownChange")) // This function is available in CustomJscript
+        .Placeholder("Select")
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Suggest(true).HighlightFirst(true)
+        .SelectedIndex(0)
+)
+

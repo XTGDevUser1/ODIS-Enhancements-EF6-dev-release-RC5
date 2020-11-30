@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:s1="http://tempuri.org/XMLSchema.xsd" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:import namespace="http://tempuri.org/XMLSchema.xsd" />
+      <s:element name="ProcessLocationRequest">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GUID" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="PKID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ProcessLocationRequestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="ProcessLocationRequestResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLocationRequestResult">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="TelephoneNumber" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetLocationRequestResultResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetLocationRequestResultResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendSMSMessage">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GUID" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="TelephoneNumber" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SMSMessage" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendSMSMessageResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" ref="s1:SendSMSMessageResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSDeliveryNotification">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSDeliveryNotificationResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" ref="s1:GetSMSDeliveryNotificationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSMobileOriginated">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GUID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSMobileOriginatedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" ref="s1:GetSMSMobileOriginatedResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="boolean" type="s:boolean" />
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/XMLSchema.xsd">
+      <s:element name="SendSMSMessageResult">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SendSMSResponseStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="id" type="s:integer" />
+            <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="StatusRequestErrorCode" type="s:integer" />
+            <s:element minOccurs="1" maxOccurs="1" name="SMSAvailiable" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="SendSMSRequestErrorCode" type="s:integer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSDeliveryNotificationResult">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SMSDeliveryNotificationStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SMSDeliveryNotificationResp">
+              <s:complexType>
+                <s:sequence>
+                  <s:element minOccurs="1" maxOccurs="1" name="requestTime" type="s:dateTime" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorCode" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorMsg" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="smsId" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="deliveryStatus" type="s:string" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSMSMobileOriginatedResult">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SMSMobileOriginatedStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SMSMobileOriginatedResp">
+              <s:complexType>
+                <s:sequence>
+                  <s:element minOccurs="1" maxOccurs="1" name="requestTime" type="s:dateTime" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorCode" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorMsg" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="smsMessage" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="shortCode" type="s:integer" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SendSMSResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SendSMSResponseStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="id" type="s:integer" />
+            <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="StatusRequestErrorCode" type="s:integer" />
+            <s:element minOccurs="1" maxOccurs="1" name="SMSAvailiable" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="SendSMSRequestErrorCode" type="s:integer" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SMSDeliveryNotification">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SMSDeliveryNotificationStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SMSDeliveryNotificationResp">
+              <s:complexType>
+                <s:sequence>
+                  <s:element minOccurs="1" maxOccurs="1" name="requestTime" type="s:dateTime" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorCode" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorMsg" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="smsId" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="deliveryStatus" type="s:string" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SMSMobileOriginated">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="SMSMobileOriginatedStatus">
+              <s:simpleType>
+                <s:restriction base="s:string">
+                  <s:enumeration value="SUCCESS" />
+                  <s:enumeration value="FAILED" />
+                </s:restriction>
+              </s:simpleType>
+            </s:element>
+            <s:element minOccurs="0" maxOccurs="1" name="ErrorMessage" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SMSMobileOriginatedResp">
+              <s:complexType>
+                <s:sequence>
+                  <s:element minOccurs="1" maxOccurs="1" name="requestTime" type="s:dateTime" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorCode" type="s:integer" />
+                  <s:element minOccurs="0" maxOccurs="1" name="errorMsg" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="tn" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="smsMessage" type="s:string" />
+                  <s:element minOccurs="0" maxOccurs="1" name="shortCode" type="s:integer" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="ProcessLocationRequestSoapIn">
+    <wsdl:part name="parameters" element="tns:ProcessLocationRequest" />
+  </wsdl:message>
+  <wsdl:message name="ProcessLocationRequestSoapOut">
+    <wsdl:part name="parameters" element="tns:ProcessLocationRequestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultSoapIn">
+    <wsdl:part name="parameters" element="tns:GetLocationRequestResult" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultSoapOut">
+    <wsdl:part name="parameters" element="tns:GetLocationRequestResultResponse" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageSoapIn">
+    <wsdl:part name="parameters" element="tns:SendSMSMessage" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageSoapOut">
+    <wsdl:part name="parameters" element="tns:SendSMSMessageResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSMSDeliveryNotification" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSMSDeliveryNotificationResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSMSMobileOriginated" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSMSMobileOriginatedResponse" />
+  </wsdl:message>
+  <wsdl:message name="ProcessLocationRequestHttpGetIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="PKID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProcessLocationRequestHttpGetOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultHttpGetIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="TelephoneNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultHttpGetOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageHttpGetIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="TelephoneNumber" type="s:string" />
+    <wsdl:part name="SMSMessage" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageHttpGetOut">
+    <wsdl:part name="Body" element="s1:SendSMSResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationHttpGetIn">
+    <wsdl:part name="GUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationHttpGetOut">
+    <wsdl:part name="Body" element="s1:SMSDeliveryNotification" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedHttpGetIn">
+    <wsdl:part name="GUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedHttpGetOut">
+    <wsdl:part name="Body" element="s1:SMSMobileOriginated" />
+  </wsdl:message>
+  <wsdl:message name="ProcessLocationRequestHttpPostIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="PKID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ProcessLocationRequestHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultHttpPostIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="TelephoneNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetLocationRequestResultHttpPostOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageHttpPostIn">
+    <wsdl:part name="GUID" type="s:string" />
+    <wsdl:part name="TelephoneNumber" type="s:string" />
+    <wsdl:part name="SMSMessage" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SendSMSMessageHttpPostOut">
+    <wsdl:part name="Body" element="s1:SendSMSResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationHttpPostIn">
+    <wsdl:part name="GUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSDeliveryNotificationHttpPostOut">
+    <wsdl:part name="Body" element="s1:SMSDeliveryNotification" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedHttpPostIn">
+    <wsdl:part name="GUID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSMSMobileOriginatedHttpPostOut">
+    <wsdl:part name="Body" element="s1:SMSMobileOriginated" />
+  </wsdl:message>
+  <wsdl:portType name="LocationRequestSoap">
+    <wsdl:operation name="ProcessLocationRequest">
+      <wsdl:input message="tns:ProcessLocationRequestSoapIn" />
+      <wsdl:output message="tns:ProcessLocationRequestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <wsdl:input message="tns:GetLocationRequestResultSoapIn" />
+      <wsdl:output message="tns:GetLocationRequestResultSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <wsdl:input message="tns:SendSMSMessageSoapIn" />
+      <wsdl:output message="tns:SendSMSMessageSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <wsdl:input message="tns:GetSMSDeliveryNotificationSoapIn" />
+      <wsdl:output message="tns:GetSMSDeliveryNotificationSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <wsdl:input message="tns:GetSMSMobileOriginatedSoapIn" />
+      <wsdl:output message="tns:GetSMSMobileOriginatedSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="LocationRequestHttpGet">
+    <wsdl:operation name="ProcessLocationRequest">
+      <wsdl:input message="tns:ProcessLocationRequestHttpGetIn" />
+      <wsdl:output message="tns:ProcessLocationRequestHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <wsdl:input message="tns:GetLocationRequestResultHttpGetIn" />
+      <wsdl:output message="tns:GetLocationRequestResultHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <wsdl:input message="tns:SendSMSMessageHttpGetIn" />
+      <wsdl:output message="tns:SendSMSMessageHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <wsdl:input message="tns:GetSMSDeliveryNotificationHttpGetIn" />
+      <wsdl:output message="tns:GetSMSDeliveryNotificationHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <wsdl:input message="tns:GetSMSMobileOriginatedHttpGetIn" />
+      <wsdl:output message="tns:GetSMSMobileOriginatedHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="LocationRequestHttpPost">
+    <wsdl:operation name="ProcessLocationRequest">
+      <wsdl:input message="tns:ProcessLocationRequestHttpPostIn" />
+      <wsdl:output message="tns:ProcessLocationRequestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <wsdl:input message="tns:GetLocationRequestResultHttpPostIn" />
+      <wsdl:output message="tns:GetLocationRequestResultHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <wsdl:input message="tns:SendSMSMessageHttpPostIn" />
+      <wsdl:output message="tns:SendSMSMessageHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <wsdl:input message="tns:GetSMSDeliveryNotificationHttpPostIn" />
+      <wsdl:output message="tns:GetSMSDeliveryNotificationHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <wsdl:input message="tns:GetSMSMobileOriginatedHttpPostIn" />
+      <wsdl:output message="tns:GetSMSMobileOriginatedHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="LocationRequestSoap" type="tns:LocationRequestSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ProcessLocationRequest">
+      <soap:operation soapAction="http://tempuri.org/ProcessLocationRequest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <soap:operation soapAction="http://tempuri.org/GetLocationRequestResult" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <soap:operation soapAction="http://tempuri.org/SendSMSMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <soap:operation soapAction="http://tempuri.org/GetSMSDeliveryNotification" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <soap:operation soapAction="http://tempuri.org/GetSMSMobileOriginated" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LocationRequestSoap12" type="tns:LocationRequestSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="ProcessLocationRequest">
+      <soap12:operation soapAction="http://tempuri.org/ProcessLocationRequest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <soap12:operation soapAction="http://tempuri.org/GetLocationRequestResult" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <soap12:operation soapAction="http://tempuri.org/SendSMSMessage" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <soap12:operation soapAction="http://tempuri.org/GetSMSDeliveryNotification" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <soap12:operation soapAction="http://tempuri.org/GetSMSMobileOriginated" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LocationRequestHttpGet" type="tns:LocationRequestHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="ProcessLocationRequest">
+      <http:operation location="/ProcessLocationRequest" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <http:operation location="/GetLocationRequestResult" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <http:operation location="/SendSMSMessage" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <http:operation location="/GetSMSDeliveryNotification" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <http:operation location="/GetSMSMobileOriginated" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="LocationRequestHttpPost" type="tns:LocationRequestHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="ProcessLocationRequest">
+      <http:operation location="/ProcessLocationRequest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetLocationRequestResult">
+      <http:operation location="/GetLocationRequestResult" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendSMSMessage">
+      <http:operation location="/SendSMSMessage" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSDeliveryNotification">
+      <http:operation location="/GetSMSDeliveryNotification" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSMSMobileOriginated">
+      <http:operation location="/GetSMSMobileOriginated" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="LocationRequest">
+    <wsdl:port name="LocationRequestSoap" binding="tns:LocationRequestSoap">
+      <soap:address location="http://test.dispatchwebserv.motorcluboperations.com/LocationRequest.asmx" />
+    </wsdl:port>
+    <wsdl:port name="LocationRequestSoap12" binding="tns:LocationRequestSoap12">
+      <soap12:address location="http://test.dispatchwebserv.motorcluboperations.com/LocationRequest.asmx" />
+    </wsdl:port>
+    <wsdl:port name="LocationRequestHttpGet" binding="tns:LocationRequestHttpGet">
+      <http:address location="http://test.dispatchwebserv.motorcluboperations.com/LocationRequest.asmx" />
+    </wsdl:port>
+    <wsdl:port name="LocationRequestHttpPost" binding="tns:LocationRequestHttpPost">
+      <http:address location="http://test.dispatchwebserv.motorcluboperations.com/LocationRequest.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

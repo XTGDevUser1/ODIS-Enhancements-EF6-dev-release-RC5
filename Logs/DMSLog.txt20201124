@@ -1,0 +1,147 @@
+2020-11-24 16:31:29,998 [JsonLogOn] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [] - Validate credentials
+2020-11-24 16:31:32,734 [LogEvent] INFO  Martex.DMS.BLL.Facade.EventLoggerFacade [] - Trying to log the event LoginSuccess
+2020-11-24 16:31:34,036 [Add] INFO  Martex.DMS.DAO.EventLogRepository [] - EventLog created successfully with ID : 64010861
+2020-11-24 16:31:34,055 [JsonLogOn] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [] - Device name read from the client by the applet : 
+2020-11-24 16:31:36,254 [StoreProfile] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [] - Logging an event for click to call : <EventDetail><Result>False</Result><DeviceName></DeviceName></EventDetail> 
+2020-11-24 16:31:36,257 [LogEvent] INFO  Martex.DMS.BLL.Facade.EventLoggerFacade [] - EventLog = [Source = /Account/JsonLogOn, event Name = DeviceInfoReadByApplet, eventDetailsCount = <EventDetail><Result>False</Result><DeviceName></DeviceName></EventDetail>]
+2020-11-24 16:31:36,523 [LogEvent] INFO  Martex.DMS.BLL.Facade.EventLoggerFacade [] - Trying to log the event DeviceInfoReadByApplet
+2020-11-24 16:31:37,307 [Add] INFO  Martex.DMS.DAO.EventLogRepository [] - EventLog created successfully with ID : 64010862
+2020-11-24 16:31:37,601 [Add] INFO  Martex.DMS.DAO.EventLogRepository [] - Trying add a link for the Event Log ID : 64010862, EntityName :User, Related Record ID : 860
+2020-11-24 16:31:38,499 [Add] INFO  Martex.DMS.DAO.EventLogRepository [] - Added a link for the Event Log ID : 64010862, EntityName :User, Related Record ID : 860, Generated ID is : 70629742
+2020-11-24 16:31:38,500 [LogEvent] INFO  Martex.DMS.BLL.Facade.EventLoggerFacade [] - EventLog [64010862] added successfully
+2020-11-24 16:31:38,501 [StoreProfile] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [] - Device name : , PhoneUserId :  and PhonePassword (available?) : True
+2020-11-24 16:31:38,502 [StoreProfile] WARN  Martex.DMS.Areas.Common.Controllers.BaseController [] - Disabling click-to-call as one of the required parameters is missing
+2020-11-24 16:31:39,104 [JsonLogOn] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [] - Login Successful
+2020-11-24 16:32:10,242 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:11,051 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:11,747 [Index] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - RequestController - Index(), Parameters:  {"id":null}
+2020-11-24 16:32:27,428 [Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside Search() of Member Controller
+2020-11-24 16:32:27,483 [GetProgramForMember] INFO  Martex.DMS.DAO.ReferenceDataRepository [odistestadmin] - ReferenceDataRepository - GetProgramForMember(), Parameters:  {"programID":0}
+2020-11-24 16:32:27,839 [GetProgramForMember] INFO  Martex.DMS.DAO.ReferenceDataRepository [odistestadmin] - ReferenceDataRepository - GetProgramForMember(), Returns:  {"results":[]}
+2020-11-24 16:32:37,031 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:38,119 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:38,519 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumbermetadata.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:39,366 [Application_Error] ERROR Martex.DMS.MvcApplication [odistestadmin] - The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+System.Web.HttpException (0x80004005): The controller for path '/Scripts/libphonenumber/shortnumberinfo.js' was not found or does not implement IController.
+   at System.Web.Mvc.DefaultControllerFactory.GetControllerInstance(RequestContext requestContext, Type controllerType)
+   at System.Web.Mvc.DefaultControllerFactory.CreateController(RequestContext requestContext, String controllerName)
+   at System.Web.Mvc.MvcHandler.ProcessRequestInit(HttpContextBase httpContext, IController& controller, IControllerFactory& factory)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContextBase httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.BeginProcessRequest(HttpContext httpContext, AsyncCallback callback, Object state)
+   at System.Web.Mvc.MvcHandler.System.Web.IHttpAsyncHandler.BeginProcessRequest(HttpContext context, AsyncCallback cb, Object extraData)
+   at System.Web.HttpApplication.CallHandlerExecutionStep.System.Web.HttpApplication.IExecutionStep.Execute()
+   at System.Web.HttpApplication.ExecuteStepImpl(IExecutionStep step)
+   at System.Web.HttpApplication.ExecuteStep(IExecutionStep step, Boolean& completedSynchronously)
+2020-11-24 16:32:41,828 [GetNotificationRecipientType] INFO  Martex.DMS.BLL.Facade.MemberFacade [odistestadmin] - ReferenceDataController - GetNotificationRecipientType() : {"Count":2,"result":[{"Selected":true,"Text":"Select","Value":""},{"Selected":false,"Text":"User","Value":"2"},{"Selected":false,"Text":"Role","Value":"3"}]}
+2020-11-24 16:32:49,400 [GetMemberProducts] INFO  Martex.DMS.BLL.Facade.MemberManagement.MemberBase.MemberManagementBaseFacade [odistestadmin] - MemberManagementFacade - GetMemberProducts(), Parameters : {"memberID":0,"productCategoryID":null,"vinNumber":""}
+2020-11-24 16:32:55,211 [GetProgramInfo] INFO  Martex.DMS.DAL.DAO.ProgramMaintenanceRepository [odistestadmin] - ProgramMaintenanceRepository - GetProgramInfo(), Parameters:  {"programId":0,"configurationType":"Service","configurationCategory":"Validation"}
+2020-11-24 16:33:21,087 [GetUserDetails] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - AccountController - GetUserDetails(), Results:  {"UserDetails":{"FirstName":"odis","LastName":"test","AgentNumber":"1234","OrganizationID":null,"OrganizationName":"System","UserRoles":["SysAdmin"],"SelectedUserRoles":null,"DataGroupsID":null,"SelectedDataGroupsID":null,"Active":false,"LastActivityDate":"0001-01-01T00:00:00","ID":860,"LastUpdated":null,"ModifiedBy":null,"PhoneUserId":null,"PhonePassword":null,"Pin":1398,"IsLoggedInUserPasswordExpired":false,"IsLockedOut":false,"UserName":"odistestadmin","Email":"cnet_services@coach-net.com","Password":null,"ConfirmPassword":null}}
+2020-11-24 16:33:26,064 [StartCall] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Attempting to initialize/initiate a call
+2020-11-24 16:33:26,338 [StartCall] INFO  Martex.DMS.BLL.Facade.CallFacade [odistestadmin] - CallFacade - StartCall(), Parameters : {"userId":"5c8c9bed-73d2-49ff-9009-07d7d26feb47","eventSource":"/Application/Request/StartCall","sessionID":"jenuhyeo5rwvf5wicounoedy"}
+2020-11-24 16:33:26,340 [StartCall] INFO  Martex.DMS.BLL.Facade.CallFacade [odistestadmin] - Attempting to create InboundCall and EventLog records
+2020-11-24 16:33:28,907 [StartCall] INFO  Martex.DMS.BLL.Facade.CallFacade [odistestadmin] - Trying to log the event StartCall
+2020-11-24 16:33:29,208 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010863
+2020-11-24 16:33:29,461 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010863, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:33:29,745 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010863, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629743
+2020-11-24 16:33:29,746 [StartCall] INFO  Martex.DMS.BLL.Facade.CallFacade [odistestadmin] - CallFacade - StartCall(), Inbound call records created : 1855299
+2020-11-24 16:33:30,008 [StartCall] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call initiated @ 1855299
+2020-11-24 16:33:34,874 [SetProgramID] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - RequestController - SetProgramID() - Setting {"programID":567} in session
+2020-11-24 16:33:35,666 [SetProgramID] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - RequestController - SetProgramID(), {"ClientName":"Outdoorsy"}
+2020-11-24 16:33:36,211 [GetCallScripts] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - ProgramMaintenanceController - GetCallScripts() - programId : 567
+2020-11-24 16:33:36,213 [GetProgramInfo] INFO  Martex.DMS.DAL.DAO.ProgramMaintenanceRepository [odistestadmin] - ProgramMaintenanceRepository - GetProgramInfo(), Parameters:  {"programId":567,"configurationType":"CallScript","configurationCategory":"Welcome"}
+2020-11-24 16:33:36,979 [GetProgramInformationDuringCall] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - ProgramMaintenanceController - GetProgramInformationDuringCall() - programId : 567, isCoverageInfoVisible : False
+2020-11-24 16:33:36,981 [GetProgramInfo] INFO  Martex.DMS.DAL.DAO.ProgramMaintenanceRepository [odistestadmin] - ProgramMaintenanceRepository - GetProgramInfo(), Parameters:  {"programId":567,"configurationType":"ProgramInfo","configurationCategory":null}
+2020-11-24 16:33:37,700 [GetMemberProducts] INFO  Martex.DMS.BLL.Facade.MemberManagement.MemberBase.MemberManagementBaseFacade [odistestadmin] - MemberManagementFacade - GetMemberProducts(), Parameters : {"memberID":0,"productCategoryID":null,"vinNumber":""}
+2020-11-24 16:33:40,545 [_GetChildrenPrograms] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _GetChildrenPrograms() - programID : 567
+2020-11-24 16:33:40,546 [GetProgramForMember] INFO  Martex.DMS.DAO.ReferenceDataRepository [odistestadmin] - ReferenceDataRepository - GetProgramForMember(), Parameters:  {"programID":567}
+2020-11-24 16:33:40,867 [GetProgramForMember] INFO  Martex.DMS.DAO.ReferenceDataRepository [odistestadmin] - ReferenceDataRepository - GetProgramForMember(), Returns:  {"results":[{"ProgramID":570,"ProgramName":"ODSY Premier Coach","ClientID":85},{"ProgramID":569,"ProgramName":"ODSY Premier Towable","ClientID":85},{"ProgramID":568,"ProgramName":"ODSY Rental","ClientID":85}]}
+2020-11-24 16:33:40,876 [_GetChildrenPrograms] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _GetChildrenPrograms() - isHagertyProgram : False
+2020-11-24 16:33:41,251 [GetProgramDynamicFields] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - RequestController - GetProgramDynamicFields() - screenName : StartCall, programID : 567
+2020-11-24 16:33:41,262 [GetDynamicFields] INFO  Martex.DMS.DAL.DAO.ProgramMaintenanceRepository [odistestadmin] - ProgramMaintenanceRepository - GetDynamicFields(), Parameters:  {"screenName":"StartCall","programID":567}
+2020-11-24 16:33:45,066 [GetProgramInfo] INFO  Martex.DMS.DAL.DAO.ProgramMaintenanceRepository [odistestadmin] - ProgramMaintenanceRepository - GetProgramInfo(), Parameters:  {"programId":567,"configurationType":"Application","configurationCategory":"Rule"}
+2020-11-24 16:33:45,411 [GetProgramConfig] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Returning Program configuration data for Program ID = 567, ConfigurationType = Application, ConfigurationCategory = Rule, name = AllowRegisterMember
+2020-11-24 16:33:49,544 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _Search(), Parameters:  {"request":{"Page":1,"PageSize":10,"Sorts":[],"Filters":[],"Groups":[],"Aggregates":[]},"searchCriteria":{"MemberID":0,"MembershipID":null,"MemberNumber":"1001276372","LastName":null,"FirstName":null,"MemberProgramID":null,"ProgramID":567,"Phone":null,"VIN":null,"State":null,"ZipCode":null,"MemberFoundFromMobile":false,"CommaSepratedMemberIDList":null,"EmployeeInd":false}}
+2020-11-24 16:33:49,550 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside SearchList() of Member Controller
+2020-11-24 16:33:50,091 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside _Search() method in Member Controller, trying to Search Member with Params User : odistestadmin, Inbound Call Id: 1855299, Program ID : 567 
+2020-11-24 16:34:08,817 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010864
+2020-11-24 16:34:09,074 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010864, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:34:09,840 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010864, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629744
+2020-11-24 16:35:27,987 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call the view by sending 1 number of records
+2020-11-24 16:37:13,881 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _Search(), Parameters:  {"request":{"Page":1,"PageSize":10,"Sorts":[],"Filters":[],"Groups":[],"Aggregates":[]},"searchCriteria":{"MemberID":0,"MembershipID":null,"MemberNumber":"1001276372","LastName":null,"FirstName":null,"MemberProgramID":568,"ProgramID":567,"Phone":"909-260-3156","VIN":null,"State":null,"ZipCode":null,"MemberFoundFromMobile":false,"CommaSepratedMemberIDList":null,"EmployeeInd":false}}
+2020-11-24 16:37:14,209 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside SearchList() of Member Controller
+2020-11-24 16:37:15,751 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside _Search() method in Member Controller, trying to Search Member with Params User : odistestadmin, Inbound Call Id: 1855299, Program ID : 567 
+2020-11-24 16:37:16,825 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010865
+2020-11-24 16:37:17,078 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010865, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:37:17,845 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010865, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629745
+2020-11-24 16:37:21,665 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call the view by sending 0 number of records
+2020-11-24 16:37:59,094 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _Search(), Parameters:  {"request":{"Page":1,"PageSize":10,"Sorts":[],"Filters":[],"Groups":[],"Aggregates":[]},"searchCriteria":{"MemberID":0,"MembershipID":null,"MemberNumber":null,"LastName":null,"FirstName":null,"MemberProgramID":568,"ProgramID":567,"Phone":"909-260-3156","VIN":null,"State":null,"ZipCode":null,"MemberFoundFromMobile":false,"CommaSepratedMemberIDList":null,"EmployeeInd":false}}
+2020-11-24 16:38:18,367 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside SearchList() of Member Controller
+2020-11-24 16:38:40,380 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside _Search() method in Member Controller, trying to Search Member with Params User : odistestadmin, Inbound Call Id: 1855299, Program ID : 567 
+2020-11-24 16:39:00,928 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010866
+2020-11-24 16:39:01,181 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010866, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:39:01,936 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010866, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629746
+2020-11-24 16:46:37,925 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call the view by sending 0 number of records
+2020-11-24 16:49:15,419 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _Search(), Parameters:  {"request":{"Page":1,"PageSize":10,"Sorts":[],"Filters":[],"Groups":[],"Aggregates":[]},"searchCriteria":{"MemberID":0,"MembershipID":null,"MemberNumber":null,"LastName":null,"FirstName":null,"MemberProgramID":568,"ProgramID":567,"Phone":"1 9092603156","VIN":null,"State":null,"ZipCode":null,"MemberFoundFromMobile":false,"CommaSepratedMemberIDList":null,"EmployeeInd":false}}
+2020-11-24 16:49:15,699 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside SearchList() of Member Controller
+2020-11-24 16:49:16,253 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside _Search() method in Member Controller, trying to Search Member with Params User : odistestadmin, Inbound Call Id: 1855299, Program ID : 567 
+2020-11-24 16:49:17,318 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010867
+2020-11-24 16:49:17,570 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010867, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:49:18,341 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010867, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629747
+2020-11-24 16:49:21,001 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call the view by sending 1 number of records
+2020-11-24 16:59:20,853 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - MemberController - _Search(), Parameters:  {"request":{"Page":1,"PageSize":10,"Sorts":[],"Filters":[],"Groups":[],"Aggregates":[]},"searchCriteria":{"MemberID":0,"MembershipID":null,"MemberNumber":null,"LastName":null,"FirstName":null,"MemberProgramID":568,"ProgramID":567,"Phone":"1 9092603156","VIN":null,"State":null,"ZipCode":null,"MemberFoundFromMobile":false,"CommaSepratedMemberIDList":null,"EmployeeInd":false}}
+2020-11-24 16:59:22,124 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside SearchList() of Member Controller
+2020-11-24 16:59:23,679 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Inside _Search() method in Member Controller, trying to Search Member with Params User : odistestadmin, Inbound Call Id: 1855299, Program ID : 567 
+2020-11-24 16:59:24,726 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - EventLog created successfully with ID : 64010872
+2020-11-24 16:59:24,978 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Trying add a link for the Event Log ID : 64010872, EntityName :InboundCall, Related Record ID : 1855299
+2020-11-24 16:59:25,729 [Add] INFO  Martex.DMS.DAO.EventLogRepository [odistestadmin] - Added a link for the Event Log ID : 64010872, EntityName :InboundCall, Related Record ID : 1855299, Generated ID is : 70629750
+2020-11-24 16:59:28,217 [_Search] INFO  Martex.DMS.Areas.Common.Controllers.BaseController [odistestadmin] - Call the view by sending 1 number of records

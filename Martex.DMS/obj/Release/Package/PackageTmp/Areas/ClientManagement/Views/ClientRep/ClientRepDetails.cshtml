@@ -1,0 +1,238 @@
+﻿@model Martex.DMS.BLL.Model.ClientRepDetailsModel
+@using Kendo.Mvc.UI
+@{
+    bool IsEnabled = true;
+
+    if (ViewBag.PageMode != null && "View".Equals(ViewBag.PageMode))
+    {
+        IsEnabled = false;
+    }
+    int? suffixClientRepID = null;
+    suffixClientRepID = Model != null && Model.ClientRep != null ? Model.ClientRep.ID : suffixClientRepID;
+}
+<form method="post" action="javascript:void(0);" id="formClientRepMaintenanceDetails">
+    @Html.HiddenFor(u => u.ClientRep.ID)
+    <div class="with-padding-with-panels">
+        <fieldset class="fieldset">
+            <legend class="legend">Client Rep Details</legend>
+            <br />
+            <div class="form-group">
+                <div class="inline-label margin-bottom">
+                    <div>
+                        @if (Model != null && Model.ClientRep.Avatar != null && Model.ClientRep.Avatar != null)
+                        {
+                            <div class="fileinput-new thumbnail" style="width: 200px; height: 200px;">
+                                <img src="@Model.ClientRep.Avatar" />
+                            </div>
+                            if (IsEnabled)
+                            {
+                                <p><a href="javascript:void(0)" id="btnRemoveAvatar" onclick="RemoveClientRepAvatar('@suffixClientRepID');">Remove Avatar</a></p>
+                                <p><a href="javascript:void(0)" id="btnChangeAvatar" onclick="ChangeClientRepAvatar('@suffixClientRepID');">Change Avatar</a></p>
+                            }
+                        }
+                        else
+                        {
+                            <div class="fileinput-new thumbnail">
+                                <img src="@Url.Content("~/Content/images/noImage.gif")" alt="">
+                            </div>
+                            if (IsEnabled)
+                            {
+                                <p><a href="javascript:void(0)" id="btnAddAvatar" onclick="ChangeClientRepAvatar('@suffixClientRepID');">Add Avatar</a></p>
+                            }
+
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <p class="inline-label">
+                <label class="label">
+                    First Name <span class="spanstar">*</span>
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.FirstName, new { @class = "validate[required], input full-width2", @error_required = "Please type first name.", @maxLength = "510" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.FirstName, new { @class = "validate[required], input full-width2", @error_required = "Please type first name.", @maxLength = "510", @readonly = true })
+                }
+            </p>
+            <p class="inline-label">
+                <label class="label">
+                    Last Name <span class="spanstar">*</span>
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.LastName, new { @class = "validate[required], input full-width2", @error_required = "Please type last name." })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.LastName, new { @class = "validate[required], input full-width2", @error_required = "Please type last name.", @readonly = true })
+                }
+            </p>
+            <p class="inline-label">
+                <label class="label">
+                    Title <span class="spanstar">*</span>
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.Title, new { @class = "validate[required], input full-width2", @error_required = "Please type title." })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.Title, new { @class = "validate[required], input full-width2", @error_required = "Please type title.", @readonly = true })
+                }
+            </p>
+            <p class="inline-label">
+                <label class="label">
+                    Email <span class="spanstar">*</span>
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.Email, new { @class = "validate[required,custom[email]], input full-width2", @error_required = "Please type name." })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => Model.ClientRep.Email, new { @class = "validate[required,custom[email]], input full-width2", @error_required = "Please type last name.", @readonly = true })
+                }
+            </p>
+
+            <p class="inline-label">
+                <label class="label">
+                    Phone <span class="spanstar">*</span>
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.Editor("PhoneNumber", "Phone", new { Value = Model.ClientRep.PhoneNumber, ShowPhoneType = true, IsRequired = true, ShowCallIcon = false, PhoneTypeValue = Model.ClientRep.PhoneNumberTypeID })
+                }
+                else
+                {
+                    @Html.Editor("PhoneNumber", "Phone", new { Value = Model.ClientRep.PhoneNumber, ShowPhoneType = true, ReadOnly = true, ShowCallIcon = false, PhoneTypeValue = Model.ClientRep.PhoneNumberTypeID })
+                }
+                @Html.Hidden("PhoneNumberPhoneType", Model.ClientRep.PhoneNumberTypeID)
+            </p>
+
+            <p class="inline-label">
+                <label class="label">
+                    Mobile
+                </label>
+                @if (IsEnabled)
+                {
+                    @Html.Editor("MobileNumber", "Phone", new { Value = Model.ClientRep.MobileNumber, ShowPhoneType = false, ShowCallIcon = false })
+                }
+                else
+                {
+                    @Html.Editor("MobileNumber", "Phone", new { Value = Model.ClientRep.MobileNumber, ShowPhoneType = false, ReadOnly = true, ShowCallIcon = false })
+                }
+            </p>
+
+            @if (Model.ClientRep.ID > 0)
+            {
+                <p class="inline-label">
+                    <label for="Clients" class="label">
+                        Clients:
+                    </label>
+                    <span class="button-height">
+
+                        @foreach (var client in Model.ClientsList)
+                        {
+                            <span class="button disabled compact">@client.Name </span>
+                        }
+
+                    </span>
+
+                </p>
+
+                <p class="inline-label">
+                    <label for="LastUpdated" class="label">
+                        Last update:
+                    </label>
+                    @if (Model.ClientRep.ModifyBy != null || Model.ClientRep.ModifyDate != null)
+                    {
+                        @Html.DisplayFor(u => Model.ClientRep.ModifyBy)@Html.Raw(" ")
+                        @Html.DisplayFor(u => Model.ClientRep.ModifyDate)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(u => Model.ClientRep.CreateBy)@Html.Raw(" ")
+                        @Html.DisplayFor(u => Model.ClientRep.CreateDate)
+                    }                    
+                </p>
+
+            }
+            <div class="field-block button-height">
+                @if (IsEnabled)
+                {
+                    if (Model.ClientRep.ID > 0)
+                    {
+                        <button id="btnSaveClientRepDetails" class="button green-gradient glossy float-right mid-margin-left"
+                                type="button">
+                            Update
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="btnSaveClientRepDetails" class="button green-gradient glossy float-right mid-margin-left"
+                                type="button">
+                            Save
+                        </button>
+                    }
+                }
+                <button id="btnCancelClientRepDetails" class="button gray-gradient glossy  float-right"
+                        type="button">
+                    Cancel
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</form>
+
+<script type="text/javascript">
+    $(function () {
+
+        $('#formClientRepMaintenanceDetails').validationEngine();
+
+        CleanMyContainer('formClientRepMaintenanceDetails');
+        WatchMyContainer('formClientRepMaintenanceDetails');
+
+        $('#btnCancelClientRepDetails').click(function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#formClientRepMaintenanceDetails').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                clientRepMaintenanceWindow.data('kendoWindow').close();
+            }
+            return false;
+        });
+
+        $('#btnSaveClientRepDetails').click(function () {
+            var IsFormValid = true;
+
+            if ($("#formClientRepMaintenanceDetails").validationEngine('validate') == false) {
+                IsFormValid = false;
+            }
+
+            if (IsFormValid) {
+                var postData = $("#formClientRepMaintenanceDetails").serializeArray();
+                postData.push({ name: "ClientRep.PhoneNumberTypeID", value: $('#PhoneNumber_ddlPhoneType').val() });
+                postData.push({ name: "ClientRep.PhoneNumber", value: GetPhoneNumberForDB('PhoneNumber') });
+                postData.push({ name: "ClientRep.MobileNumber", value: GetPhoneNumberForDB('MobileNumber') });
+                $.ajax({
+                    url: '@Url.Action("SaveClientRepDetails", "ClientRep", new { area = "ClientManagement" })',
+                    type: 'POST',
+                    data: postData,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            CleanMyContainer('formClientRepMaintenanceDetails');
+                            openAlertMessage('ClientRep Details saved Successfully');
+                            clientRepMaintenanceWindow.data('kendoWindow').close();
+                            $('#GrdClientRepMaintenance').data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>

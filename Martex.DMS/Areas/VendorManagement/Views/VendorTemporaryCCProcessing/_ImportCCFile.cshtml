@@ -1,0 +1,165 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.Areas.VendorManagement.Models.ImportCCUplaodModel
+<style type="text/css">
+    .k-upload-selected /*.k-upload-action */
+    {
+        display: none;
+    }
+</style>
+<script language="javascript" type="text/javascript">
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+        }, 500);
+        $.map(e.files, function (file) {
+            var info = file.name;
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+
+            if (file.extension.toLowerCase() != ".csv") {
+                openAlertMessage("Only CSV file can be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    }
+    function UploadCCFile(e) {
+
+        var postData = $("#frmCCUplaod").serializeArray();
+        var nvp = {};
+        for (var i = 0, l = postData.length; i < l; i++) {
+            if (nvp[postData[i].name] == null) {
+                nvp[postData[i].name] = postData[i].value;
+            }
+        }
+        e.data = nvp;
+    }
+
+    function UploadSuccess(e) {
+
+        if (e.response.Status == "Success") {
+            CloseImportCCFileDialog();
+            $.modal.VerificationResults(e.response.Data.Message, function () { }, function () {
+                $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+            });
+            setTimeout(function () {
+                $("#modals .workExceptions").addClass("hidden");
+            }, 500);
+        }
+        else {
+            openAlertMessage(e.response.ErrorMessage);
+        }
+
+    }
+
+    function UploadError(e) {
+        HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details");
+    }
+
+    function UploadComplete(e) {
+        $(".k-widget.k-upload").find("ul").remove();
+        HideLoadingIndicator();
+    }
+
+    function HideLoadingIndicator() {
+        $.unblockUI();
+        $('html').css('cursor', 'pointer');
+    }
+</script>
+<form id="frmCCUplaod" action="javascript:void(0);" method="post" enctype="multipart/form-data">
+<div class="columns popupcontainer">
+    <div class="twelve-columns">
+        <div class="button-height inline-label small-margin-bottom small-margin-top">
+            <label for="FileType" class="label">
+                File Type <span class="star red">*</span></label>
+            @(Html.Kendo().ComboBoxFor(u => u.FileType)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ImportCCFileTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:80%;" })
+                    .Suggest(true)
+                    )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="File" class="label">
+                File <span class="star red">*</span></label>
+            @(Html.Kendo().Upload()
+                          .Name("CCDocument")
+                          .Async(a => a
+                          .Save("UplaodCCFile", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })
+                          .AutoUpload(false)
+                    .RemoveUrl("/Remove")
+            )
+            .Events(e => e.Select("OnFileSelect").Upload("UploadCCFile").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+            .Multiple(false)
+            .ShowFileList(true)
+            .HtmlAttributes(new { @style = "text-align:right;" })
+        )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="File" class="label">
+                &nbsp; <span></span>
+            </label>
+            @Html.Partial("_Help", "File selected must be comma-delimited with extension .csv")
+        </div>
+        <div class="button-height inline-label small-margin-bottom small-margin-top">
+            <label class="label">
+                &nbsp;
+            </label>
+            <button type="button" class="button gray-gradient glossy small-margin-top" onclick="CloseImportCCFileDialog();">
+                Cancel</button>
+            <button type="button" class="button green-gradient glossy small-margin-top" onclick="StartImportCCFileProcessing();">
+                Import File</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmCCUplaod').validationEngine();
+    });
+
+    function CloseImportCCFileDialog() {
+        $('#frmCCUplaod').validationEngine("hideAll");
+        Dialog_Container_File_Import.data('kendoWindow').close();
+    }
+
+    function StartImportCCFileProcessing() {
+        var IsCCImportValid = true;
+        var value = $('#FileType').data('kendoComboBox').value();
+
+        if (value == undefined || value == "" || value == null) {
+            ShowValidationMessage($("input[name= FileType_input]"), "* File Type is required.");
+            IsCCImportValid = false;
+        }
+        else {
+            HideValidationMessage($("input[name= FileType_input]"));
+        }
+
+        if ($('#frmCCUplaod').validationEngine("validate") != true) {
+            IsCCImportValid = false;
+        }
+
+        if ($(".k-upload-selected").length <= 0) {
+            ShowValidationMessage($("input[id= CCDocument]"), "* File is required.");
+            IsCCImportValid = false;
+        }
+        else {
+            HideValidationMessage($("input[id= CCDocument]"));
+        }
+        if (IsCCImportValid) {
+            $(".k-upload-selected").click();
+        }
+        return false;
+    }
+</script>

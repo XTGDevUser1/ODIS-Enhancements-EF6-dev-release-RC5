@@ -1,0 +1,185 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/DigitalDispatch/Views/Shared/_DigitalDipatchLayout.cshtml";
+}
+@model Martex.DMS.BLL.Model.DigitalDispatch.RSPModel
+<form id="formRSP">
+
+    <div class="columns">
+        <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+
+            <fieldset class="fieldset">
+                <legend class="legend">RSP</legend>
+                <div>
+                    <h4>Message Header</h4>
+                    <p class="inline-label">
+                        <label for="HeaderVersion" class="label">
+                            Header Version
+                        </label>
+                        @Html.TextBoxFor(a => a.HeaderVersion, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="Key" class="label">
+                            Key
+                        </label>
+                        @Html.TextBoxFor(a => a.Key, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ContractorID" class="label">
+                            Contractor ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ContractorID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseID" class="label">
+                            Response ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="TransType" class="label">
+                            Trans Type
+                        </label>
+                        @Html.TextBoxFor(a => a.TransType, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MsgVersion" class="label">
+                            Msg Version
+                        </label>
+                        @Html.TextBoxFor(a => a.MsgVersion, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ConRequired" class="label">
+                            Con Required
+                        </label>
+                        @Html.TextBoxFor(a => a.ConRequired, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseType" class="label">
+                            Response Type
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseType, new { @class = "input full-width2" })
+                    </p>
+                    <h4>RSP Message</h4>
+                    <p class="inline-label">
+                        <label for="JobID" class="label">
+                            Job ID
+                        </label>
+                        @Html.TextBoxFor(a => a.JobID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MotorClubResponseCode" class="label">
+                            Motor Club Response Code
+                        </label>
+                        @Html.TextBoxFor(a => a.MotorClubResponseCode, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="AuthorizationNumber" class="label">
+                            Authorization Number
+                        </label>
+                        @Html.TextBoxFor(a => a.AuthorizationNumber, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MemberID" class="label">
+                            Member ID
+                        </label>
+                        @Html.TextBoxFor(a => a.MemberID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MemberCallBackNum" class="label">
+                            Member CallBack Num
+                        </label>
+                        @Html.TextBoxFor(a => a.MemberCallBackNum, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="BenefitMileLimit" class="label">
+                            Benefit Mile Limit
+                        </label>
+                        @Html.TextBoxFor(a => a.BenefitMileLimit, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="BenefitDollarLimit" class="label">
+                            Benefit Dollar Limit
+                        </label>
+                        @Html.TextBoxFor(a => a.BenefitDollarLimit, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="OverMileageRate" class="label">
+                            Over Mileage Rate
+                        </label>
+                        @Html.TextBoxFor(a => a.OverMileageRate, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ExpectedTowMiles" class="label">
+                            Expected Tow Miles
+                        </label>
+                        @Html.TextBoxFor(a => a.ExpectedTowMiles, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="CashPaymentOnly" class="label">
+                            Cash Payment Only
+                        </label>
+                        @Html.TextBoxFor(a => a.CashPaymentOnly, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="CoPayAmount" class="label">
+                            Co-Pay Amount
+                        </label>
+                        @Html.TextBoxFor(a => a.CoPayAmount, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Remarks" class="label">
+                            Remarks
+                        </label>
+                        @Html.TextBoxFor(a => a.Remarks, new { @class = "input full-width2" })
+                    </p>
+                    <div>
+                        <button id="btnSubmitRSP" class="button green-gradient float-right" type="button">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</form>
+<div class="columns" id="divRSPResponse">
+    <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+        <p class="inline-label">
+            <label class="label">
+                Response
+            </label>
+            @Html.TextArea("RSPResponseMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Request
+            </label>
+            @Html.TextArea("RSPRequestMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btnSubmitRSP").click(function () {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitRSP", "RSP", new { area = "DigitalDispatch" })',
+            data: $("#formRSP").serializeArray(),
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#RSPResponseMessage").html(msg.Data.Response);
+                $("#RSPRequestMessage").html(msg.Data.Request);
+                $("#divRSPResponse").show();
+            }
+
+        });
+
+    });
+    $(function () {
+        $("#divRSPResponse").hide();
+    });
+</script>

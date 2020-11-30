@@ -1,0 +1,151 @@
+﻿@model Martex.DMS.DAL.TemporaryCCCardDetails_Result
+@using Kendo.Mvc.UI;
+@{
+    
+    int i = 0;
+}
+<form id="frmTemporaryCCCardDetails" action="javascript:void(0);" method="post">
+<div class="columns popupcontainer">
+    <div class="twelve-columns">
+        <fieldset class="fieldset">
+            <legend class="legend">Temporary Credit Card Transaction</legend>
+            @Html.HiddenFor(a => a.ID)
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="TempCC" class="label">
+                        Temp CC#
+                    </label>
+                    @Html.DisplayFor(a => a.TempCC)
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="CCCharge" class="label">
+                        CC Charge
+                    </label>
+                    @(Html.Kendo().NumericTextBoxFor(a => a.CCCharge)
+                    .Format("{0:C}")
+                    .Min(0)
+                    .Spinners(false)
+                    .Enable(false)
+                    .HtmlAttributes(new { style = "width:85%;", dmsrole = "numericTextBox" })
+                    )
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="IssueStatus" class="label">
+                        Issue Status
+                    </label>
+                    @Html.DisplayFor(a => a.IssueStatus)
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="MatchStatus" class="label">
+                        Match Status
+                    </label>
+                    @Html.DisplayFor(a => a.MatchStatus)
+                    @Html.HiddenFor(a => a.MatchStatus);
+                    @if (Model.MatchStatus == "Exception")
+                    {<text>-</text> @Html.DisplayFor(a => a.ExceptionMessage)}
+                </p>
+            </div>
+            @if (Model.MatchStatus == "Exception")
+            {
+                 <p class="inline-medium-label medium-margin-bottom">
+                    <label for="Active" class="label">
+                        Override Exception</label>
+                         @Html.CheckBox("IsExceptionOverride", Model.IsExceptionOverride.HasValue ? Model.IsExceptionOverride.Value : false, new { @class = "checkbox full-width", id = "IsExceptionOverride"  })
+                        
+                        </p>
+            }
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="CCOrigPO" class="label">
+                        CC Orig PO#
+                    </label>
+                    @Html.DisplayFor(a => a.CCOrigPO, new { @class = "input full-width2 " })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="CCRefPO" class="label">
+                        CC Ref PO# <span class="star red">*</span></label>
+                    @Html.TextBoxFor(a => a.CCRefPO, new { @class = "validate[required] input validate[maxSize[50] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Note" class="label">
+                        Note <span class="star red">*</span></label>
+                </p>
+            </div>
+            @Html.TextAreaFor(a => a.Note, new { @class = "validate[required] input validate[maxSize[1000] full-width" })
+            <div class="clear">
+            </div>
+            <div class="twelve-columns">
+                <br />
+                <div class="seven-columns">
+                    <button id="btnSaveCCDetails" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                        type="button">
+                        Save</button>
+                    <button id="btnCancelCCDetails" class="button gray-gradient  float-right margin-bottom"
+                        type="button">
+                        Cancel</button>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+        WatchMyContainer('frmTemporaryCCCardDetails', null, null);
+    });
+
+    $(function () {
+        $("#frmTemporaryCCCardDetails").validationEngine();
+        $("#btnSaveCCDetails").die('click');
+        $("#btnSaveCCDetails").live('click', function () {
+
+            var errorfound = false;
+            if ($("#frmTemporaryCCCardDetails").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            var formData = $("#frmTemporaryCCCardDetails").serializeArray();
+            if ($("#IsExceptionOverride").length > 0) {
+                var isoverrideexception = $("#IsExceptionOverride").is(':checked');
+                formData.push({ name: "IsExceptionOverride", value: isoverrideexception });
+                formData.push({ name: "MatchStatus", value: $("#MatchStatus").val() });
+            }
+           
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveTemporaryCCDetails", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                ajax: true,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("frmTemporaryCCCardDetails");
+                        document.dialogResult = "OK";
+                        winCCCardDetails.data('kendoWindow').close();
+                    }
+                }
+            }); // end of ajax
+
+        });
+
+        $("#btnCancelCCDetails").click(function () {
+            document.dialogResult = "CANCEL";
+            winCCCardDetails.data('kendoWindow').close();
+        });
+    });
+</script>

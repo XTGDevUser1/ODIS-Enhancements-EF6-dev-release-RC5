@@ -1,0 +1,119 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    int suffixVendorID = int.Parse(ViewData["VendorId"].ToString());
+}
+
+<form id="frmAddVendorLocation_@suffixVendorID"  action="javascript:void(0);" method="post" class="pagecontainer">
+<div class="columns pagecontainer">
+    <div class="twelve-columns">
+        <fieldset class="fieldset">
+            <legend class="legend">Add Vendor Location</legend>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="StateZip" class="label">
+                    Copy From Location <span class="star">*</span></label>
+                @(Html.Kendo().ComboBox()
+                .Name("LocationList_" + suffixVendorID)
+                .Events(events => events.Change(@<text>function(e){ HandleLocationListChange(e,'@suffixVendorID');}</text>))
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Suggest(true)
+                .SelectedIndex(0)
+                .DataTextField("Text")
+                .DataValueField("Value")
+                .HtmlAttributes(new { style = "width:85%;" })
+                .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.LocationList.ToString()] as IEnumerable<SelectListItem>)
+                
+                )
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address1" class="label">
+                        Address 1 <span class="star">*</span></label>
+                    @Html.TextBox("LocationAddress1_" + suffixVendorID, null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address2" class="label">
+                        Address 2</label>
+                    @Html.TextBox("LocationAddress2_" + suffixVendorID, null, new { @class = "input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address3" class="label">
+                        Address 3</label>
+                    @Html.TextBox("LocationAddress3_" + suffixVendorID, null, new { @class = "input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="City" class="label">
+                        City <span class="star">*</span></label>
+                    @Html.TextBox("LocationCity_" + suffixVendorID, null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="StateZip" class="label">
+                    State / Postal <span class="star">*</span></label>
+                @(Html.Kendo().ComboBox()
+                .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                .Name("LocationCountry_" + suffixVendorID)
+                .Events(events =>
+                {
+                    events.Change(@<text>function(e){ HandleCountryChange(e,'LocationState_@suffixVendorID');
+                }</text>);
+                })
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Suggest(true)
+                .HtmlAttributes(new { style = "width:25% " })
+                .SelectedIndex(0)
+                )
+                @(Html.Kendo().ComboBox()
+                .Name("LocationState_" + suffixVendorID)
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .HtmlAttributes(new { style = "width:30% " })
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .DataTextField("Text")
+                .DataValueField("Value"))
+                @Html.TextBox("LocationPostalCode_" + suffixVendorID, null, new { @class = "validate[required] validate[maxSize[20]], input margin-left", @style = "width:25%",maxLength ="20" })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="LocationDispatchNumber" class="label">
+                        Dispatch Phone <span class="star">*</span></label>
+                    @Html.Editor("LocationDispatchNumber_" + suffixVendorID, "Phone", new { entityName = "Vendor", ShowPhoneType = false, IsRequired = true })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="LocationFaxNumber" class="label">
+                        Fax Phone <span class="star">*</span></label>
+                    @Html.Editor("LocationFaxNumber_" + suffixVendorID, "Phone", new { entityName = "Vendor", ShowPhoneType = false, IsRequired = true })
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <button id="btnSaveandEditLocation_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveAddVendorLocation(@suffixVendorID,true)">
+                    Save & Edit</button>
+                <button id="btnSaveLocation_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveAddVendorLocation(@suffixVendorID,false)">
+                    Save</button>
+                <button id="btnCancelLocation_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelAddVendorLocation('@suffixVendorID')">
+                    Cancel</button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+    $(function () {
+        
+        HandleCountryComboChange('LocationCountry_@suffixVendorID', 'LocationState_@suffixVendorID');
+        
+        $("#frmAddVendorLocation_@suffixVendorID").validationEngine();
+    });
+</script>

@@ -1,0 +1,110 @@
+﻿@model VendorPortal.Models.LogOnModel
+@{
+    ViewBag.Title = "Transition Verify";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<div class="leader relative">
+    &nbsp;</div>
+<div class="constrain">
+    <div class="alert alert-info">
+        <h2 class="thin margin-bottom">
+            We Have Upgraded! Getting registered is as easy as 1-2-3.</h2>
+        <p>
+            If you are a current service provider in the Coach-Net Vendor Network, then “yes”
+            you are in the right place! You have been re-directed to the new Vendor Portal,
+            the home of all things online for our Network. In order to better serve you, we
+            have upgraded the website to provide an expanded set of services. You have landed
+            on the page where you will register your business for online access to the new Coach-Net
+            Vendor Portal!
+        </p>
+        <p class="margin-top">
+            <strong>Step 1</strong> – Verify your current account credentials</p>
+        <p>
+            <strong>Step 2</strong> – Register your business and create a new password</p>
+        <p>
+            <strong>Step 3</strong> – Login and experience the new Vendor Portal!</p>
+    </div>
+    <div id="PlaceHolderForVendorTransition">
+        <div class="columns with-padding">
+            <div class="new-row-tablet new-row-mobile seven-columns twelve-columns-tablet instructions margin-top ">
+                <p>
+                    <strong>Step 1 - Verify your current account credentials</strong>
+                </p>
+                <p>
+                    Just to make sure we know who you are, please enter your current nmc.com username
+                    and password in the boxes to the right and click on Verify Current Account.
+                </p>
+                <p class="margin-top">
+                    <strong>You will need the following information:</strong>
+                </p>
+                <div class="margin-left">
+                <ul>
+                <li>Current username and password</li>
+                <li>Coach-Net Vendor ID #</li>
+                <li>Federal Tax ID</li>
+                <li>Valid Email Address</li>
+                </ul>
+               </div>
+            </div>
+            <div class="new-row-tablet new-row-mobile one-column twelve-columns-tablet">
+            </div>
+            <div class="new-row-tablet new-row-mobile four-columns twelve-columns-tablet margin-top">
+                <form method="post" action="@Url.Action("RegisterVendorTransition", "TransitionRegister")" id="form_login_transition"
+    formtitle="Transition Login" class="frmWrapper">
+                @Html.Hidden("returnUrl", Request.QueryString["returnUrl"])
+                <p class="button-height block-label">
+                    <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                    <label for="input" class="label">
+                    <small>Enter Your Vendor ID Number</small>
+                        Username 
+                    </label>
+                    @Html.TextBoxFor(m => m.UserName, new
+   {
+       name = "login_username",
+       id = "login_username",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right",
+       autocomplsete = "off",
+       title = "User name",
+       @error_required = "Please type your User name"
+   })
+                </p>
+                <p class="button-height block-label">
+                    <label for="input" class="label">
+                        <small>NMC.COM 4 digit Password</small>
+                        Password
+                    </label>
+                    @Html.PasswordFor(m => m.Password, new
+   {
+       name = "login_password",
+       id = "login_password",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right",
+       autocomplete = "off",
+       title = "Password",
+
+       @error_required = "Please type your password"
+   })
+                </p>
+                <button type="submit" class="btn btn-large btn-primary"
+                    id="btnTransitionLoginVerify">
+                    Step 1 - Verify Current Account</button>
+                <div id="AccountTransitionRegisteredMessage" class="hidden">
+                    <p class="message  red-gradient mid-margin-top">
+                        <span class="block-arrow top"><span></span></span>You are already registered for
+                        the new Vendor Portal. Go to the Log In page and Log in using your username (Vendor
+                        ID #) and NEW (7) digit password you setup. <a href="/Account/Login" style="text-decoration: underline;" class="white">
+                            Go to Log In Page</a>
+                    </p>
+                </div>
+                @Html.Hidden("VendorID", "0")
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#form_login_transition').validationEngine({ promptPosition: "topLeft" });
+    });
+</script>

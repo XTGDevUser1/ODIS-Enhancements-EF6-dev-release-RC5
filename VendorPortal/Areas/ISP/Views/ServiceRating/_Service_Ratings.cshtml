@@ -1,0 +1,197 @@
+﻿@model List<Martex.DMS.DAL.ServiceRatingsProductCategoryList_Result>
+@using Martex.DMS.DAL
+@using Kendo.Mvc.UI;
+@{
+    string classColumns = "four-columns";
+    int counter = 0;
+}
+<style type="text/css">
+    .ServiceRatingGauge
+    {
+        margin: 0 auto 0;
+        border-color: transparent;
+    }
+    .searchItem
+    {
+        padding: 5px;
+        height: 10px;
+        width: auto;
+        float: left;
+        display: inline-block;
+    }
+</style>
+<script type="text/javascript" language="javascript">
+    function dataBound() {
+        this.expandRow(this.tbody.find("tr.k-master-row").first());
+    }
+</script>
+<div class="with-padding">
+    <fieldset class="fieldset">
+        <legend class="legend">Service Categories</legend>
+        <div class="columns">
+            <div class="clear">
+            </div>
+            @foreach (var productCategory in Model)
+            {
+                if (counter % 6 == 0)
+                {
+                    classColumns = "new-row two-columns";
+                }
+                else
+                {
+                    classColumns = "two-columns";
+                }
+                var productCategoryName = productCategory.ProductCategoryName;
+                productCategoryName = productCategoryName.Replace(' ', '_');
+
+                var productCategoryValue = productCategory.AvgProductRating;
+                int serviceRating = (int)productCategoryValue.GetValueOrDefault();
+                <div class="@classColumns" style="text-align: center">
+                    @(Html.Kendo().RadialGauge()
+                    .Name("ServiceRatingGauge_" + productCategoryName).HtmlAttributes(new { @class = "ServiceRatingGauge" })
+                    .Pointer(pointer => pointer.Value((double)productCategoryValue.GetValueOrDefault()))
+                    .Scale(scale => scale
+                    .MinorUnit(5)
+                    .StartAngle(-60)
+                    .EndAngle(240)
+                    .Min(0)
+                    .Max(100)
+                    .Labels(labels => labels
+                    .Position(GaugeRadialScaleLabelsPosition.Outside)
+                    )
+                    .Ranges(ranges =>
+                    {
+                        ranges.Add().From(0).To(40).Color("#cc3333");
+                        ranges.Add().From(40).To(70).Color("#ffc700");
+                        ranges.Add().From(70).To(100).Color("#006633");
+                    })
+                    ))
+                    <a href="javascript:void(0);" onclick="FilterServiceRatings('@productCategoryName')">@productCategoryName</a>
+                    @Html.Kendo().Tooltip().Position(TooltipPosition.Top).For("#ServiceRatingGauge_" + productCategoryName).Content(productCategoryName + " - " + serviceRating)
+                    @{counter++;
+                    }
+                </div>
+            }
+            <div class="new-row twelve-columns" style="text-align: right">
+                <div class="with-padding">
+                    @if (Model != null && Model.Count > 1)
+                    {
+                        <div>
+                            <a href="javascript:void(0);" onclick="ClearServiceRatings()">Clear filters</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </fieldset>
+    <div class="with-padding">
+        @(Html.Kendo().Grid<ServiceRatingsProductList_Result>()
+        .Name("GrdServiceRatingsProductList")
+        .Columns(column =>
+        {
+            column.Bound(u => u.ProductCategoryName).Title("Product");
+        })
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .Events(events => events.DataBound("dataBound"))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetServiceRatingProductsList", "ServiceRating", new { area = "ISP" })
+            )
+        )
+        .ClientDetailTemplateId("serviceRatings")
+        .Resizable(resize => resize.Columns(true))
+        )
+    </div>
+</div>
+<script id="serviceRatings" type="text/kendo-tmpl">
+   
+        @(Html.Kendo().Grid<VendorPortalServiceRatingsList_Result>()
+        .Name("GrdServiceRatingsList_#=ProductCategoryID#")
+        .Columns(column =>
+        {
+            column.Bound(u => u.ProductName).Title("Service");
+            column.Bound(u => u.ProductRating).Title("Rating").Width(75);
+            column.Bound(u => u.CreateDate).Title("Last Activity Date").Width(150).Format("{0:MM/dd/yyyy}");
+        })
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(e =>
+            {
+                e.Error("KendoGridErrorHandler");
+            })
+            .Read(read => read.Action("_GetServiceRatingList", "ServiceRating", new { area = "ISP", productCategoryID = "#=ProductCategoryID#" })
+            )
+        )
+        .Pageable(pager => pager
+                .Refresh(true)
+                .Info(true)
+                .PageSizes(false)
+                .PreviousNext(false)
+                .Numeric(false)
+        )
+        .ClientDetailTemplateId("contactActions")
+        .Resizable(resize => resize.Columns(true))
+        .Sortable()
+        .ToClientTemplate()
+        )
+</script>
+<script id="contactActions" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<VendorPortalServiceContactActionsList_Result>()
+    .Name("gridContactActions_#=ProductID#")
+    .Columns(columns =>
+    {
+        columns.Bound(o => o.Date).Title("Date").Format("{0:MM/dd/yyyy}");
+        columns.Bound(o => o.TalkedTo).Title("Talked To");
+        columns.Bound(o => o.Reason).Title("Reason");
+        columns.Bound(o => o.PONumber).Title("PO Number");
+
+    })
+    .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("GetContactActionsList", "ServiceRating", new { area = "ISP", productID = "#=ProductID#" }))
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Resizable(resize => resize.Columns(true))
+    .ToClientTemplate()
+    )
+    
+</script>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                                $("#menu-horizontal").height() +
+                                                $(".k-toolbar").height() +
+                                                $(".k-grid-header").height() +
+                                                $(".k-grid-bottom").height() +
+                                                $(".footer").height() +
+                                                250
+                                                );
+        $("#GrdServiceRatingsProductList").css("min-height", gridContentHeight + "px");
+    });
+    function FilterServiceRatings(category) {
+        var grid = $("#GrdServiceRatingsProductList").data("kendoGrid");
+        var dataSource = grid.dataSource;
+        dataSource.filter([{ field: "ProductCategoryName", operator: "eq", value: category}]);
+        dataSource.filter();
+    }
+
+    function ClearServiceRatings() {
+        var grid = $("#GrdServiceRatingsProductList").data("kendoGrid");
+        var dataSource = grid.dataSource;
+        dataSource.filter([]);
+        dataSource.filter();
+    }
+
+    
+</script>

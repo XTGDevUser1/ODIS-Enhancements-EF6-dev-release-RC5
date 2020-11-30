@@ -1,0 +1,273 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@{
+    bool IsAutoCloseEnabled = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.SPINNER_NOTIFICATION_AUTOCLOSE) == AccessType.ReadWrite;
+}
+<script type="text/javascript">
+
+    function GetNotificationHistory() {
+        $.ajax({
+            type: 'POST',
+            url: '/Common/Notification/GetNotificationHistory',
+            traditional: true,
+            cache: false,
+            async: true,
+            global: false,
+            success: function (msg) {
+                var $history = $("#divNotificationHistory");
+                $history.html(msg);
+                $history.show("highlight", { color: "#FFBB2B" }, 800, null);
+            },
+            error: function (err) {
+                console.log("Error while retrieving Notification history " + err);
+            }
+
+        });
+
+    }
+    function HandleNotificationRecipentTypeChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var notificationRecipentID = combo.value();
+        var notificationUserRoleMultiSelect = $("#NotificationUserRoleID").data("kendoMultiSelect");
+        notificationUserRoleMultiSelect.value('');
+        if (notificationRecipentID != null && notificationRecipentID != undefined && notificationRecipentID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '/Common/Notification/GetUsersOrRolesRecipents',
+                data: { notificationRecipentID: notificationRecipentID },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        notificationUserRoleMultiSelect.setDataSource(msg.Data);
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "NotificationRecipentType_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            notificationUserRoleMultiSelect.setDataSource([]);
+        }
+    }
+</script>
+<form id="formSendNotification" action="javascript:void(0)" method="post">
+<div class="with-padding" id="divNotificationButtonSection">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_ADD_NOTIFICATION) == AccessType.ReadWrite)
+        {
+        <a href="javascript:void(0);" class="with-tooltip icon-plus large-margin-left" id="btnShowNotificationSection"
+            title="Add">Add Notification</a>
+        }
+    <a href="javascript:void(0);" class="button  icon-size2 icon-refresh with-tooltip margin-left"
+        title="Refresh Notifications" onclick="GetNotificationHistory(); return false;">
+    </a>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding silver-bg" id="divNotificationSection" style="display: none;">
+    <div class="button-height block-label small-margin-bottom">
+        <label class="label">
+            Type <span class="star">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("NotificationRecipentType")
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .DataSource(source =>
+        {
+            source.Read(read =>
+            {
+                read.Action("GetNotificationRecipientType", "ReferenceData", new { area = "Common" });
+            });
+        })
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.Contains).MinLength(0)
+        .Events(events => events.Change(@<text>function(e){HandleNotificationRecipentTypeChange(e);}</text>))
+        .HtmlAttributes(new { style = "width:90%;" })
+        .Suggest(true)
+        )
+    </div>
+    <div class="button-height block-label small-margin-bottom">
+        <label class="label">
+            User / Role <span class="star">*</span>
+        </label>
+        @(Html.Kendo().MultiSelect()
+        .Name("NotificationUserRoleID")
+         .Placeholder("Select")
+         .DataTextField("Text")
+         .DataValueField("Value")
+         )
+    </div>
+    <div class="button-height block-label small-margin-bottom">
+        <label class="label">
+            Auto close (in seconds) <span class="info-spot"><span class="icon-info-round"></span>
+                <span class="info-bubble">Enter 0 to force user to click the close icon.</span></span>
+        </label>
+        @(Html.Kendo().NumericTextBox<int>()
+        .Name("NotificationSeconds")
+        .Format("N0")
+        .Min(0)
+        .Max(60)
+        .Step(1)
+        .Value(0)
+        .Enable(IsAutoCloseEnabled)
+        .HtmlAttributes(new { style = "width:60px;" })
+        )
+    </div>
+    <div class="button-height block-label small-margin-bottom">
+        <label class="label">
+            Message<span class="star">*</span>
+        </label>
+    </div>
+    <div class="button-height small-margin-bottom">
+        @Html.TextArea("NotificationMessage", new { @class = "input validate[required maxSize[275]] full-width", onkeyup = "textCounter(this,'lblCounterRemaining',275);", rows = "5", cols = "40" })
+        <small><span id="lblCounterRemaining">275 Characters remaining </span></small>
+    </div>
+    @*<div class="button-height small-margin-bottom">
+        <label class="label">
+            <span id="lblCounterRemaining">275 Characters remaining </span>
+        </label>
+    </div>*@
+    <div class="button-height small-margin-bottom">
+        <button class="button green-gradient mid-margin-left margin-bottom float-right" type="button"
+            id="btnSendNotification">
+            Send</button>
+        <button class="button gray-gradient mid-margin-left margin-bottom float-right" type="button"
+            id="btnCancelSendNotification">
+            Cancel</button>
+    </div>
+    <div class="button-height small-margin-bottom">
+        &nbsp;
+    </div>
+</div>
+</form>
+<div class="clear">
+</div>
+<div id="divNotificationHistory">
+</div>
+<script type="text/javascript">
+    function textCounter(field, field2, maxlimit) {
+        var countfield = document.getElementById(field2);
+        if (field.value.length > maxlimit) {
+            field.value = field.value.substring(0, maxlimit);
+            return false;
+        } else {
+            $(countfield).html((maxlimit - field.value.length) + ' Characters remaining');
+        }
+    }
+
+    $(function () {
+
+        //setInterval(function () { GetNotificationHistory(); }, 5000);
+        GetNotificationHistory();
+
+        WatchMyContainer('formSendNotification', null, null);
+
+        $("#formSendNotification").validationEngine();
+
+        $("#formSendNotification")
+
+        $("#btnShowNotificationSection").click(function () {
+            $("#divNotificationSection").show();
+            $("#divNotificationButtonSection").hide();
+        });
+        $("#btnSendNotification").click(function () {
+
+            ClearValidationMessages();
+
+            //Validate the fields.
+            if ($("#formSendNotification").validationEngine('validate') == false) {
+                return false;
+            }
+
+            var $ddlNotificationRecipientType = $("#NotificationRecipentType").data("kendoComboBox");
+            var $usersOrRoles = $("#NotificationUserRoleID").data("kendoMultiSelect");
+            var $notificationMessage = $("#NotificationMessage");
+            var errorsFound = false;
+            if ($.trim($ddlNotificationRecipientType.value()).length == 0) {
+                errorsFound = true;
+                ShowValidationMessage($('input[name="NotificationRecipentType_input"]'), "* This field is required.", "topLeft");
+            }
+            else {
+                HideValidationMessage($('input[name="NotificationRecipentType_input"]'));
+            }
+
+            if ($.trim($usersOrRoles.value()).length == 0) {
+                errorsFound = true;
+                ShowValidationMessage($('#NotificationUserRoleID').parent(".k-multiselect"), "* This field is required.", "topLeft");
+            }
+            else {
+                HideValidationMessage($('#NotificationUserRoleID').parent(".k-multiselect"));
+            }
+
+            if ($.trim($notificationMessage.val()).length == 0) {
+                errorsFound = true;
+                ShowValidationMessage($notificationMessage, "* This field is required.", "topLeft");
+            }
+            else {
+                HideValidationMessage($notificationMessage);
+            }
+
+
+            if (!errorsFound) {
+                var formData = $("#formSendNotification").serializeArray();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Common/Notification/SendNotificationMessage',
+                    data: formData,
+                    traditional: true,
+                    cache: false,
+                    ajax: true,
+                    async: true,
+                    modal: true,
+                    success: function (msg) {
+                        openAlertMessage("Notification sent successfully");
+                        ResetNotificationForm();
+                    }
+                });
+            }
+            return false;
+        });
+
+        function ResetNotificationForm() {
+
+            ClearValidationMessages();
+
+            $("#NotificationRecipentType").data("kendoComboBox").value("");
+
+            $("#NotificationUserRoleID").data("kendoMultiSelect").setDataSource([]);
+            $("#NotificationUserRoleID").data("kendoMultiSelect").value("");
+
+            $("#NotificationSeconds").data("kendoNumericTextBox").value('0');
+            $("#NotificationMessage").val("");
+
+            $("#lblCounterRemaining").html("275 Characters remaining");
+            $("#divNotificationButtonSection").show();
+            $("#divNotificationSection").hide();
+
+            CleanMyContainer("formSendNotification");
+        }
+        $("#btnCancelSendNotification").click(function () {
+
+            if (IsMyContainerDirty("formSendNotification")) {
+                $.modal.confirm('Are you sure you want to cancel?', function () {
+                    ResetNotificationForm();
+                }, function () {
+
+                });
+            }
+            else {
+                ResetNotificationForm();
+            }
+        });
+    });
+</script>

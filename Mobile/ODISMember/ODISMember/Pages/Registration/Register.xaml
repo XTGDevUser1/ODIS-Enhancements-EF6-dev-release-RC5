@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+x:Class="ODISMember.Pages.Registration.Register"
+Style="{StaticResource BaseContentPage}">
+  <RelativeLayout x:Name="mainLayout">
+    <ScrollView Style="{StaticResource MainLayout}" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}">
+      <StackLayout BackgroundColor="#F8F8F9">
+        <widget:CustomIconActionBar Title="Register" x:Name="widgetActionBar" VerticalOptions="Start"/>
+        <StackLayout VerticalOptions="Start">
+          <controls:ExtendedLabel Text="- ACCOUNT SETUP -" Style="{StaticResource SubHeaderLabelStyle}" HorizontalTextAlignment="Center"/>
+          <controls:ExtendedLabel Text="Now please choose a username and enter a strong password you will remember." Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start"/>
+        </StackLayout>
+        <StackLayout VerticalOptions="CenterAndExpand">
+          <widget:LabelEntryVertical EntryHint="User Name"  IsRemoveWhiteBackground="true" IsLabelVisible="False" IsLeftAlign="True" x:Name="widgetUserName"/>
+          <widget:LabelEntryVertical EntryHint="Password" IsRemoveWhiteBackground="true" IsLabelVisible="False" IsLeftAlign="True" x:Name="widgetPassword" IsPasswordEntry="true"/>
+          <widget:LabelEntryVertical EntryHint="Confirm Password" IsRemoveWhiteBackground="true" IsLabelVisible="False" IsLeftAlign="True" x:Name="widgetConfirmPassword" IsPasswordEntry="true"/>
+          <widget:LabelDropdownEntryHorizontal x:Name="widgetContact" IsLabelVisible="False" EntryHint="Phone Number" EntryHintDropdown="Country" KeyboardEntry="Numeric"/>
+          <widget:LabelEntryVertical EntryHint="Email" IsLabelVisible="False" IsRemoveWhiteBackground="true" IsLeftAlign="True" KeyboardEntry="Email" x:Name="widgetEmail"/>
+          <Button x:Name="btnRegister" Style="{StaticResource BaseButtonStyle}" Text="CREATE ACCOUNT"/>
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </RelativeLayout>
+</BaseContentPage>

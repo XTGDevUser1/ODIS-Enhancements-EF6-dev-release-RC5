@@ -1,0 +1,233 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using models = Martex.DMS.Areas.Application.Models
+<div class="clear">
+</div>
+<script type="text/javascript" language="javascript">
+
+    function HandleBillingDefinitionInvoiceLines() {
+        var combo = $("#SearchBillingEvent").data('kendoComboBox');
+        var selectedLines = [];
+        $("#chkBillingDefinitionInvoiceLines input:checked").each(function (e) {
+            selectedLines.push($(this).attr("recorID"));
+        });
+        var stringLineID = selectedLines.join(',');
+
+        $.ajax({
+            url: '@Url.Action("GetBillingEvents", "ReferenceData", new { area = "Common" })',
+            data: { lineID: stringLineID },
+            success: function (msg) {
+                combo.setDataSource(msg);
+                combo.select(0);
+                SetFocusOnField("SearchBillingEvent");
+            }
+        })
+    }
+
+
+    function GrdClientBillableEvents_DataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+    }
+
+
+    function ClientBillableEventProcessingSearchCriteria(e) {
+        if ($("#frmClientBillableEventProcessingSearchCriteria").length > 0) {
+            var newArray = [];
+
+            var clientBillableEventProcessingCriteria = {};
+
+            $("#frmClientBillableEventProcessingSearchCriteria").find("#chkBillingDefinitionInvoiceLines input:checkbox").each(function (index) {
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClientBillableEventProcessingSearchCriteria").find("#chkDetailStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "DetailStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "DetailStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "DetailStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClientBillableEventProcessingSearchCriteria").find("#chkDispositionStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "DispositionStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "DispositionStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "DispositionStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            var postData = $("#frmClientBillableEventProcessingSearchCriteria").serializeArray();
+            newArray = newArray.concat(postData);
+            for (var i = 0; i < newArray.length; ++i) {
+                clientBillableEventProcessingCriteria[newArray[i].name] = newArray[i].value;
+            }
+
+
+            return clientBillableEventProcessingCriteria;
+        }
+    }
+    function ManageClientEvents(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).BillingInvoiceDetailID;
+            if (e.data.commandName == 'Edit') {
+                LoadBillingDetailsMaintenanceScreen(recordID, "Edit")
+            }
+            else if (e.data.commandName == 'View') {
+                LoadBillingDetailsMaintenanceScreen(recordID, "View")
+            }
+        }
+    }
+
+    function LoadBillingDetailsMaintenanceScreen(recordID, mode) {
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container to add new tab');
+        }
+        else {
+            // Step 1: Veirfy that Current Tab is not added
+            var tabTitle = "Detail " + recordID;
+            if (canAddGenericTabInCurrentContainer(tabTitle, tabObject)) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_BillingInvoiceDetails", "ClientBillableEventProcessing", new { area = "ClientManagement" })',
+                    traditional: true,
+                    data: { recordID: recordID, mode: mode, gridName: "GrdClientBillableEvents", tabName: "List" },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        addGenericTabWithCurrentContainer(tabTitle, tabObject, msg);
+                    }
+                });
+            }
+        }
+    }
+</script>
+<div class="with-padding" id="PlaceHolder_ClientBillableEventProcessingList">
+    <div class="tabs-content">
+        <div class="columns">
+            <div class="twelve-columns">
+                @(Html.Kendo().Grid<ClientBillableEventProcessingList_Result>()
+        .Name("GrdClientBillableEvents")
+        .Columns(column =>
+        {
+            column.Bound(u => u.BillingInvoiceDetailID).Hidden().Title("Detail ID").Width(100);
+            column.Bound(u => u.BillingType).Hidden().Title("Billing Type").Width(100);
+            column.Bound(u => u.InvoiceDefinition).Title("Invoice Definition").Width(100);
+            column.Bound(u => u.Client).Title("Client").Width(100);
+            column.Bound(u => u.LineSequence).Title("Line Sequence").Width(100);
+            column.Bound(u => u.LineName).Title("Line Name").Width(100);
+            column.Bound(u => u.ServiceCode).Title("Service Code").Width(100);
+            column.Bound(u => u.BillingDetailName).Title("Billing Detail Name").Width(100);
+            column.Bound(u => u.Quantity).Title("Quantity").Width(100);
+            column.Bound(u => u.EventAmount).Format("{0:C}").Title("Amount").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.RateTypeName).Title("Rate Type").Width(100);
+            column.Bound(u => u.DetailStatus).Title("Detail Status").Width(100);
+            column.Bound(u => u.DetailDisposition).Title("Disposition").Width(100);
+            column.Bound(u => u.AdjustmentReason).Title("Adjustment Reason").Width(100);
+            column.Bound(u => u.AdjustmentDate).Format("{0:MM/dd/yyyy}").Title("Adjustment Date").Width(100);
+            column.Bound(u => u.AdjustedBy).Title("Adjusted By").Width(100);
+            column.Bound(u => u.ExcludedReason).Title("Exclude Reason").Width(100);
+            column.Bound(u => u.ExcludeDate).Format("{0:MM/dd/yyyy}").Title("Exclude Date").Width(100);
+            column.Bound(u => u.ExcludedBy).Title("Excluded By").Width(100);
+            column.Bound(u => u.Entity).Title("Entity").Width(100);
+            column.Bound(u => u.SourceRecordNumber).Title("Record Number").Width(100);
+            column.Command(command =>
+            {
+                command.Custom("View").Click("ManageClientEvents").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                command.Custom("Edit").Click("ManageClientEvents").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+            })
+            .Width(100)
+            .Title("Action(s)");
+        })
+        .Sortable()
+        .Scrollable()
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Events(e =>
+              {
+                  e.DataBound("GrdClientBillableEvents_DataBound");
+              })
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(1000)
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetClientBillableEventProcessingList", "ClientBillableEventProcessing", new { area = "ClientManagement" })
+            .Data(@<text>function(e){return ClientBillableEventProcessingSearchCriteria()}</text>)
+
+        )
+        )
+        .Resizable(resize => resize.Columns(true))
+        )
+            </div>
+            <div class="new-row twelve-columns">
+                <button class="button blue-gradient large-margin-bottom float-right" type="button"
+                    onclick="RegenerateBillingEvent();">
+                    Re-Gen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var POPUP_RE_GENERATE_BILLING_EVENTS = null;
+    $(function () {
+
+
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdClientBillableEvents").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-View').click();
+        });
+    });
+
+
+    function RegenerateBillingEvent() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ReGenerateBillingEventDetails", "ClientBillableEventProcessing", new { area = "ClientManagement" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                POPUP_RE_GENERATE_BILLING_EVENTS = $("<div id='ReGenerateBillingEventDetails' />").appendTo(document.body);
+                POPUP_RE_GENERATE_BILLING_EVENTS.kendoWindow({
+                    title: "Re-generate Billing Event Details",
+                    modal: true,
+                    width: 600,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#formReGenerateBillingEvents').validationEngine('hideAll'); // to hide the validation message of the popup 
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('formReGenerateBillingEvents')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('formReGenerateBillingEvents');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                POPUP_RE_GENERATE_BILLING_EVENTS.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+    
+</script>

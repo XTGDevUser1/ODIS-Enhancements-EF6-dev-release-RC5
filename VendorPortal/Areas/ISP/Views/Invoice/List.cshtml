@@ -1,0 +1,25 @@
+﻿@{
+    ViewBag.Title = "InvoiceHistory";
+    Layout = "~/Views/Shared/_ContentMaster-vendor.cshtml";
+}
+<hgroup id="main-title" class="thin">
+			<h1>Invoice History</h1>			
+		</hgroup>
+<div class="with-padding">
+    <div id="VendorInvoiceDetailsTab" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li><a href="@Url.Action("_Vendor_Invoice", "Invoice", new { area = "ISP" })" id="#VendorInvoicesListTab">
+                Invoices</a></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#VendorInvoiceDetailsTab').tabs({
+            ajaxOptions: {
+            },
+            cache: false
+        });
+        LoadHelpText("_InvoiceHistoryHelp");
+    });   
+</script>

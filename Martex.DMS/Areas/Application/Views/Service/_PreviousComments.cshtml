@@ -1,0 +1,9 @@
+﻿@model Martex.DMS.Areas.Application.Models.ServiceTechModel
+
+@foreach (var item in Model.PreviousComments)
+{
+    <p><strong>@item.Description</strong><br />
+        @item.CreateBy &nbsp;|&nbsp;
+        @item.CreateDate<br />
+    </p>
+}

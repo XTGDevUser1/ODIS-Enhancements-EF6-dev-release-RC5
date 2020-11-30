@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ODISMember.Pages.Tabs.SettingsNotification"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms">
+  <StackLayout Padding="5,10,0,0" Spacing="50" VerticalOptions="FillAndExpand">
+    <controls:ExtendedLabel Text="Get notified about your roadside service" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+    <StackLayout Orientation="Horizontal" VerticalOptions="Start">
+      <controls:ExtendedLabel Text="Notifications" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+      <Switch x:Name="switchNotification" IsToggled="False" HorizontalOptions="EndAndExpand" VerticalOptions="Center"/>
+    </StackLayout>
+  </StackLayout>
+</ContentPage>

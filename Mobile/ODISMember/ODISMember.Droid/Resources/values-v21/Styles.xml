@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <style name="MyTheme" parent="android:Theme.Material.Light">
+    <item name="android:colorPrimary">#FFFFFF</item>
+    <item name="android:colorPrimaryDark">#757575</item>
+    <item name="android:colorAccent">#6c0521</item>
+    <item name="android:textAllCaps">false</item>
+    <item name="android:colorActivatedHighlight">@color/ListViewSelected</item>
+  </style>
+  <color name="ListViewSelected">#222233</color>
+
+</resources>
+<!--<resources>
+<style name="MyTheme" parent="MyTheme.Base">
+  <item name="android:colorPrimary">#FFFFFF</item>
+  <item name="android:colorPrimaryDark">#757575</item>
+  <item name="android:colorAccent">#6c0521</item>
+  <item name="android:textAllCaps">false</item>
+  <item name="android:buttonStyle">@style/NoShadowButton</item>
+  <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+  <item name="android:statusBarColor">@android:color/transparent</item>
+  <item name="android:colorActivatedHighlight">@color/ListViewSelected</item>
+</style>
+  <style name="NoShadowButton" parent="android:style/Widget.Button">
+    <item name="android:stateListAnimator">@null</item>
+  </style>
+</resources>-->

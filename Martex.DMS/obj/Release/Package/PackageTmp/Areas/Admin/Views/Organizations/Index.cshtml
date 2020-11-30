@@ -1,0 +1,172 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.SearchOrganizations_Result>
+@{
+    ViewBag.Title = "Index";
+    Layout = "";
+}
+<script type="text/javascript">
+    function onDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+    }
+
+    $("#GrdOrganizations").delegate("tbody>tr", "dblclick", function () {
+        $(this).find('.k-grid-Edit').click();
+    });
+
+    function ManageOrganizations(e) {
+        var mode = "view";
+        var title = "Organization Maintenance";
+
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            if (e.data.commandName == 'View') {
+                GetManageOrganizations(recordID, "view", 'Organization ID: ' + recordID);
+            }
+            else if (e.data.commandName == 'Edit') {
+                GetManageOrganizations(recordID, "edit", 'Organization ID: ' + recordID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteOrganizations(recordID);
+            }
+        }
+        else {
+            GetManageOrganizations(recordID, 'add', 'New Organization Record');
+        }
+
+        return false;
+    }
+    function DeleteOrganizations(recordID) {
+        $.modal.confirm('Are you sure you want to delete this Organization?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Delete", "Organizations")',
+                traditional: true,
+                cache: false,
+                data: { selectedOrganizationId: recordID },
+                async: false,
+                success: function (msg) {
+                    $('#GrdOrganizations').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function GetManageOrganizations(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Get", "Organizations")',
+            traditional: true,
+            data: { selectedOrganizationId: recordID, mode: mode },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                organizationDetailWindow = $("<div id='organizationDetailWindow' />").appendTo(document.body);
+                organizationDetailWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 1050,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-OrganizationRegistration').validationEngine('hideAll'); // to hide the validation message of the popup 
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-OrganizationRegistration')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-OrganizationRegistration');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                organizationDetailWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+    
+<form method="post" action="" id="form-Organization">
+<div class="with-padding">
+    <!--start of tabs-->
+    <div class="standard-tabs margin-bottom" id="add-tabs">
+        <div class="tabs-content">
+            <div id="tab-client" class="with-padding">
+                @(Html.Kendo().Grid(Model)
+                .Name("GrdOrganizations")
+                .Columns(column =>
+                {
+                    column.Bound(a => a.ID).Title("ID").Width(100).Filterable(false).Sortable(false);
+                    column.Bound(a => a.OrganizationName).Title("Organization Name");
+                    column.Bound(a => a.ParentOrganizationName).Title("Parent Organization Name");
+                    column.Bound(a => a.Description).Title("Description");
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageOrganizations").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                        command.Custom("Edit").Click("ManageOrganizations").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" }); ;
+                        command.Custom("Delete").Click("ManageOrganizations").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" }); ;
+                    }).Width(150)
+
+                    .Title("Action(s)");
+                })
+                        .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageOrganizations(null)'><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Organization</label></a>"))
+
+                        .Events(e =>
+                        {
+                            e.DataBound("onDataBound");
+                        })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Extra(false)                    
+                )
+                .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("List", "Organizations"))
+                    .Model(u => u.Id(p => p.ID))
+
+                )
+                .Resizable(resize => resize.Columns(true))
+
+            )
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+   
+    var organizationDetailWindow;
+</script>
+</form>

@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Applet test</title>
+<script language="javascript" type="text/javascript">
+function GetMessage()
+{
+	alert(document.applets[0].getDeviceName());
+}
+</script>
+</head>
+<body>
+<APPLET CODE="ClickToCallApplet.class" Width="1000" Height="100" archive="SignedApplet_v831.jar">
+    <param name="DeviceRegistryPath" value="HKCU\Software\Cisco Systems,Inc.\Communicator\HostName"/>
+</APPLET>
+
+<button id="btnTest" onclick="GetMessage()">Test</button>
+
+</body>
+</html>

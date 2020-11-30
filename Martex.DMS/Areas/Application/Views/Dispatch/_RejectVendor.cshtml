@@ -1,0 +1,175 @@
+﻿@using Kendo.Mvc.UI
+<script language="javascript" type="text/javascript">
+<!--
+    function IsTalkedToMandatory(contactActionID) {
+        for (var i = 0, l = contactActionsForTalkedTo.length; i < l; i++) {
+            if (contactActionsForTalkedTo[i].Name == contactActionID) {
+                return (contactActionsForTalkedTo[i].Value == "true");
+            }
+        }
+        return false;
+    }
+
+    function ContactAction_onChange(e) {
+        var combo = $('#ContactAction').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            if (e.value != "") {
+                HideValidationMessage($('#ContactAction-input'));
+            }
+        }
+        if (IsTalkedToMandatory(combo.value())) {
+            $(".reqTalkedTo").html("*");
+        }
+        else {
+            $(".reqTalkedTo").html("");
+        }
+    }
+//-->
+</script>
+<form id="frmRejectVendor" action="javascript:void(0);" method="post">
+<div class="with-padding popupcontainer">
+    <div class="columns">
+        <div class="twelve-columns">
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="ContactAction" class="label">
+                    Reject Reason <span class="spanstar">*</span></label>
+                @(Html.Kendo().ComboBox()
+            .Name("ContactAction")
+            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+            .Events(events => events.Change("ContactAction_onChange"))
+            .Suggest(true)
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactActions.ToString()] as IEnumerable<SelectListItem>)
+            .SelectedIndex(0)
+            )
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="PossibleRetry" class="label">
+                        Possible Retry</label>
+                    @Html.CheckBox("PossibleRetry", new { @class = "checkbox" })
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="TalkedTo" class="label">
+                        Talked To <span class="spanstar reqTalkedTo"></span>
+                    </label>
+                    @Html.TextBox("RejectTalkedTo", "", new { @class = "input full-width2 validate[maxSize[50]]" })
+                    @Html.Hidden("hdnContactActionsForTalkedTo", ViewData["ContactActionsForTalkedTo"])
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Comments" class="label">
+                        Comments</label>
+                    @Html.TextArea("RejectComments", new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <button id="btnSubmitRejection" class="button green-gradient glossy float-right mid-margin-left small-margin-bottom"
+                    type="button">
+                    Save</button>
+                <button id="btnCancelRejection" class="button gray-gradient glossy float-right small-margin-bottom"
+                    type="button">
+                    Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    var contactActionsForTalkedTo = [];
+
+    $(function () {
+        $('#frmRejectVendor').validationEngine();
+
+        WatchMyContainer('frmRejectVendor', null, null);
+
+        //KB: Set the width of the dropdown container to be 250px
+        var contactActionKendoDropdown = $("#ContactAction").data("kendoComboBox");
+        contactActionKendoDropdown.list.width(250);
+
+        //KB: Set the focus to the contact action text field
+        SetFocusOnField("ContactAction");
+        contactActionsForTalkedTo = JSON.parse($("#hdnContactActionsForTalkedTo").val());
+
+        $("#RejectTalkedTo").val($("#DispatchTalkedTo").val());
+        $("#btnSubmitRejection").click(function () {
+
+            if ($.trim($("#ContactAction").data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage($('input[name="ContactAction_input"]'), "Please select a value. ");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input[name="ContactAction_input"]'));
+            }
+
+            if (IsTalkedToMandatory($("#ContactAction").data("kendoComboBox").value())) {
+                if ($.trim($("#RejectTalkedTo").val()).length == 0) {
+                    ShowValidationMessage($("#RejectTalkedTo"), "This field is required");
+                    return false;
+                }
+                else {
+                    HideValidationMessage($("#RejectTalkedTo"));
+                }
+            }
+
+            document.dialogResult = "OK";
+            var formData = $("#frmRejectVendor").serializeArray();
+
+
+            formData.push({ name: "VendorID", value: currentVendorID });
+            formData.push({ name: "VendorLocationID", value: currentVendorLocationID });
+            formData.push({ name: "Source", value: currentVendorSource });
+            formData.push({ name: "VendorName", value: currentVendorName });
+            formData.push({ name: "TalkedTo", value: $("#RejectTalkedTo").val() });
+            formData.push({ name: "PhoneNumber", value: phoneNumber });
+            formData.push({ name: "PhoneType", value: phoneType });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("RejectVendor", "Dispatch", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+
+                        CleanMyContainer("frmRejectVendor");
+
+                        HideValidationMessage($('input[name="ContactAction_input"]'));
+                        HideValidationMessage($("#RejectTalkedTo"));
+                        isCallMade = false;
+                        winRejectVendor.data('kendoWindow').close();
+                    }
+                }
+            }); // end of ajax.
+
+        });
+
+        $("#btnCancelRejection").click(function () {
+            document.dialogResult = "CANCEL";
+            HideValidationMessage($('input[name="ContactAction_input"]'));
+            HideValidationMessage($("#RejectTalkedTo"));
+            winRejectVendor.data('kendoWindow').close();
+        });
+
+    });
+
+//-->
+
+</script>

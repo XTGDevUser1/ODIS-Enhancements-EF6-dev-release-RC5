@@ -1,0 +1,21 @@
+﻿@model Martex.DMS.DAL.Vehicle
+
+<form name="frm_Trailer" id="frm_Trailer" action="#">
+@Html.Partial("_TrailerBasicInformation", Model)
+@Html.Partial("_TrailerSpecifications", Model)
+</form>
+
+<script type="text/javascript">
+
+    function SaveTrailer() {
+        
+        return SaveForm('frm_Trailer', "Trailer");
+    }
+
+    fnSaveTab = SaveTrailer;
+    $(function () {
+        CleanAllContainers();
+        $("#frm_Trailer").validationEngine();
+        WatchMyContainer('frm_Trailer', null, null);
+    });
+</script>

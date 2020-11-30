@@ -1,0 +1,235 @@
+﻿@model Martex.DMS.DAL.ProgramConfiguration
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Program Configuration";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    bool isView = false;
+    if (ViewData["mode"].ToString().Equals("edit") || ViewData["mode"].ToString().Equals("view"))
+    {
+        isEdit = true;
+        if (ViewData["mode"].ToString().Equals("view"))
+        {
+            isView = true;
+        }
+    }
+    
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/styles/form.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<form method="post" action="" id="form-ProgramConfiguration">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Program Configuration</legend>
+        <div>
+        <p class="inline-label">
+                <label for="Name" class="label">
+                    Name</label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => u.Name, new { @class = "input full-width2", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => u.Name, new { @class = "validate[maxSize[50]], input full-width2", maxlength = 50 })
+                }
+            </p>
+             <p class="inline-label">
+                <label for="Value" class="label">
+                    Value</label>
+               @if (isView)
+                {
+                    @Html.TextAreaFor(u => u.Value, new { @class = "input full-width", rows = "4", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.TextAreaFor(u => u.Value, new { @class = "validate[maxSize[4000]], input full-width", rows = "4", maxlength = 4000 })
+                }
+            </p>
+              <p class="inline-label">
+                <label for="Value" class="label">
+                    Sequence</label>
+               @if (isView)
+                {
+                    @Html.TextBoxFor(u => u.Sequence, new { @class = "input full-width2", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => u.Sequence, new { @class = "input full-width2,validate[custom[integer]" })
+                }
+            </p>
+             <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="ConfigurationTypeID" class="label">
+                    Configuration Type</label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ConfigurationTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ConfigurationType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ConfigurationTypeID != null ? Model.ConfigurationTypeID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ConfigurationTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ConfigurationType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ConfigurationTypeID != null ? Model.ConfigurationTypeID.ToString() : "")))
+                }
+            </div>
+            <br />
+               <div class="inline-label mid-margin-bottom">
+                <label for="ConfigurationCategoryID" class="label">
+                    Configuration Category</label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                        .Name("ConfigurationCategoryID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                            .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ConfigurationCategory.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ConfigurationCategoryID != null ? Model.ConfigurationCategoryID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                        .Name("ConfigurationCategoryID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ConfigurationCategory.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ConfigurationCategoryID != null ? Model.ConfigurationCategoryID.ToString() : "")))
+                }
+            </div>
+            <br />
+             <div class="inline-label mid-margin-bottom">
+                <label for="ControlTypeID" class="label">
+                    Control Type</label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ControlTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ControlType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ControlTypeID != null ? Model.ControlTypeID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("ControlTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ControlType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ControlTypeID != null ? Model.ControlTypeID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="DataTypeID" class="label">
+                    Data Type</label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                     .Name("DataTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.DataType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.DataTypeID != null ? Model.DataTypeID.ToString() : ""))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("DataTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.DataType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.DataTypeID != null ? Model.DataTypeID.ToString() : "")))
+                }
+            </div>
+            <br />
+            <div class="field-block button-height">
+                @if (@ViewData["mode"].ToString() != "view")
+                {
+                    <button id="btnAddConfiguration" class="button green-gradient glossy float-right mid-margin-left"
+                        type="submit">
+                        @if (isEdit)
+                        {
+                            @Html.Raw("Update")
+                        }
+                        else
+                        {
+                            @Html.Raw("Add")
+                        }
+                    </button>
+                }
+                <button id="btnCancelConfiguration" class="button gray-gradient glossy  float-right"
+                    type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("pageMode", ViewData["mode"])
+@Html.HiddenFor(x=>x.ProgramID)
+@Html.HiddenFor(x=>x.ID)
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        CleanMyContainer('form-ProgramConfigurationn');
+        WatchMyContainer('form-ProgramConfiguration');
+        $('#form-ProgramConfiguration').validationEngine();
+        $('#btnCancelConfiguration').die('click');
+        $('#btnCancelConfiguration').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#form-ProgramConfiguration').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                programConfigurationWindow.data('kendoWindow').close();
+            }
+        });
+
+        $('#btnAddConfiguration').die('click');
+        $('#btnAddConfiguration').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                document.dialogResult = "OK";
+                var postData = $(this).parents('form').serializeArray();
+                var mode = $("#pageMode").val();
+                var programId = $("#ProgramID").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SaveConfiguration", "ProgramManagement")',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            CleanMyContainer('form-ProgramConfiguration');
+                            if (mode == "add") {
+                                openAlertMessage('Program Configuration successfully added!');
+                            }
+                            else if (mode == "edit") {
+                                openAlertMessage('Program Configuration successfully updated!');
+                            }
+                            $('#form-ProgramConfiguration').validationEngine('hideAll');
+                            programConfigurationWindow.data('kendoWindow').close();
+                            $('#GrdProgramConfiguration_' + programId).data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+                
+            }
+            return false;
+        });
+    });
+</script>

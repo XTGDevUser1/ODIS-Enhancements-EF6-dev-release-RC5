@@ -1,0 +1,549 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@using Martex.DMS.Areas.Application.Models;
+@using Kendo.Mvc.UI;
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+    bool isHagerty = false;    
+    ViewData["UniqueID"] = suffixMembershipID;
+    
+}
+<script type="text/javascript" language="javascript">
+
+    var IsRVBasicInformationLoadingFirstTime = 0;
+
+    function BindModel(selectedModel, uniqueID) {
+        // Fire an AJAX request to bind the Model dropdown.
+        var vehicleModelCombo = $('#Model_' + uniqueID).data('kendoComboBox');
+        var VehicleMake = $('#Make_' + uniqueID).data('kendoComboBox');
+        var VehicleYear = $('#Year_' + uniqueID).data('kendoComboBox');
+        var rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+        var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+        SetImage(-2, uniqueID);
+
+        if (vehicleModelCombo !== null && VehicleMake !== null && VehicleYear !== null) {
+            var VehicleMake_value = VehicleMake.value();
+            var VehicleYear_value = VehicleYear.value();
+            if (VehicleMake_value != null && VehicleMake_value != '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_GetRVModel", "Vehicle", new { area = "Application" })',
+                    traditional: true,
+                    data: { Make: $('#Make_' + uniqueID).data('kendoComboBox').value() },
+                    cache: false,
+                    async: (selectedModel == null), // Make it sync when we want to bind the RVType with existing data. It can be async, the first time the page loads and there is no data.
+                    success: function (msg) {
+                        msg.push({ Selected: "False", Text: "Other", Value: "Other" });
+                        vehicleModelCombo.setDataSource(msg);
+                        if (selectedModel == null) {
+                            vehicleModelCombo.value('');
+                            weightCombo.select(0);
+
+                            $("#MakeOther_" + uniqueID).val("");
+                            $("#ModelOther_" + uniqueID).val("");
+
+                            $('#divMakeOther_' + uniqueID).hide();
+                            $('#divModelOther_' + uniqueID).hide();
+
+                            rvType.setDataSource([]);
+                            rvType.text("");
+
+
+                        }
+                        else {
+                            vehicleModelCombo.value(selectedModel);
+
+                            var _vehicleCategoryID = parseInt('@Model.VehicleCategoryID.GetValueOrDefault()');
+                            console.log("Vehcile Category ID : " + _vehicleCategoryID);
+                            if (isNaN(_vehicleCategoryID)) { _vehicleCategoryID = 0; }
+
+                            console.log("IsRVBasicInformationLoadingFirstTime : " + IsRVBasicInformationLoadingFirstTime);
+
+                            if (IsRVBasicInformationLoadingFirstTime < 2) {
+                                IsRVBasicInformationLoadingFirstTime = IsRVBasicInformationLoadingFirstTime + 1;
+                                if (_vehicleCategoryID == 0) {
+                                    SetDefaultWeight(uniqueID);
+                                }
+                            }
+                            else {
+                                SetDefaultWeight(uniqueID);
+                            }
+
+                        }
+                        SetFocusOnField("Model");
+                        //$('input[name="Model_input"]').focus();
+                        //$('input[name="Model_input"]').select();
+
+                        if (VehicleMake_value == 'Other') {
+                            $('#divMakeOther_' + uniqueID).show();
+                            $('input[name="MakeOther"]').focus();
+                            $('input[name="MakeOther"]').select();
+                        }
+                        else {
+                            $("#MakeOther").val("");
+                            $('#divMakeOther').hide();
+                        }
+
+                        if (selectedModel == 'Other') {
+                            $('#divModelOther_' + uniqueID).show();
+                            $('input[name="ModelOther"]').focus();
+                            $('input[name="ModelOther"]').select();
+                        }
+                        else {
+                            $("#ModelOther_" + uniqueID).val("");
+                            $('#divModelOther_' + uniqueID).hide();
+                        }
+                    }
+                });
+            }
+            else {
+
+                vehicleModelCombo.setDataSource([]);
+                vehicleModelCombo.text("");
+
+                rvType.setDataSource([]);
+                rvType.text("");
+
+                SetImage(-2, uniqueID);
+
+                weightCombo.select(0);
+                SetFocusOnField("Model");
+                //$('input[name="Model_input"]').focus();
+                //$('input[name="Model_input"]').select();
+            }
+
+            if (VehicleMake_value == 'Other') {
+                $('#divMakeOther_' + uniqueID).show();
+                $("#MakeOther_" + uniqueID).focus();
+            }
+            else {
+                $("#MakeOther_" + uniqueID).val("");
+                $('#divMakeOther_' + uniqueID).hide();
+            }
+
+            if (selectedModel == 'Other') {
+                $('#divModelOther_' + uniqueID).show();
+                $("#ModelOther_" + uniqueID).focus();
+            }
+            else {
+                $("#ModelOther_" + uniqueID).val("");
+                $('#divModelOther_' + uniqueID).hide();
+            }
+
+            if (typeof (modelBinding) != "undefined") {
+                window.clearInterval(modelBinding)
+            }
+        }
+    }
+    function onComboBoxChange_VehicleMake(e, uniqueID) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        else {
+            BindModel(null, uniqueID);
+        }
+        //PV
+    }
+
+
+    function BindRVType(RVTypeValue, uniqueID) {
+
+        SetImage(-2, uniqueID);
+        var vehicleModel = $('#Model_' + uniqueID).data('kendoComboBox');
+        if (vehicleModel.value() !== null && vehicleModel.value() != '') {
+            vehicleModelCombo = vehicleModel.text();
+            if (vehicleModelCombo == 'Other') {
+                $('#divModelOther_' + uniqueID).show();
+            }
+            else {
+                $('#divModelOther_' + uniqueID).hide();
+            }
+
+            var $model = $('#Model_' + uniqueID).data('kendoComboBox');
+            var $make = $('#Make_' + uniqueID).data('kendoComboBox');
+            var $rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+            var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+
+            if ($.trim($model).length > 0 && $.trim($make).length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_GetRVTypes", "Vehicle", new { area = "Application" })',
+                    traditional: true,
+                    data: { Make: $make.value(), Model: $model.text() },
+                    cache: false,
+                    async: false,
+                    success: function (msg) {
+                        if (msg.length > 0) {
+                            $rvType.setDataSource(msg);
+                            if (RVTypeValue == null || RVTypeValue == "") {
+                                $rvType.select(0);
+                                SetImage(msg[0].Value, uniqueID);
+                            }
+                            else {
+                                $rvType.value(RVTypeValue);
+                                if ((RVTypeValue - 1) < msg.length) {
+                                    SetImage(msg[RVTypeValue - 1].Value, uniqueID);
+                                }
+                                else {
+                                    SetImage(msg[0].Value, uniqueID);
+                                }
+                            }
+                        }
+                        if ($model.value() == 'Other') {
+                            $('input[name="ModelOther"]').focus();
+                            $('input[name="ModelOther"]').select();
+                        }
+                        else {
+                            SetFocusOnField("RVTypeID");
+                        }
+
+                        var _vehicleCategoryID = parseInt('@Model.VehicleCategoryID.GetValueOrDefault()');
+                        console.log("Vehcile Category ID : " + _vehicleCategoryID);
+                        if (isNaN(_vehicleCategoryID)) { _vehicleCategoryID = 0; }
+
+                        console.log("IsRVBasicInformationLoadingFirstTime : " + IsRVBasicInformationLoadingFirstTime);
+
+                        if (IsRVBasicInformationLoadingFirstTime < 2) {
+                            IsRVBasicInformationLoadingFirstTime = IsRVBasicInformationLoadingFirstTime + 1;
+                            if (_vehicleCategoryID == 0) {
+                                SetDefaultWeight(uniqueID);
+                            }
+                        }
+                        else {
+                            SetDefaultWeight(uniqueID);
+                        }
+                    }
+                });
+            }
+            else {
+                $rvType.setDataSource([]);
+                $rvType.text("");
+                weightCombo.select(0);
+                SetImage(-2, uniqueID);
+            }
+
+
+            if (typeof (rvTypeBinding) != "undefined") {
+                window.clearInterval(rvTypeBinding);
+            }
+        }
+        else {
+            $('#divModelOther_' + uniqueID).hide();
+            var $rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+            var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+
+            $rvType.setDataSource([]);
+            $rvType.text("");
+
+            SetImage(-2, uniqueID);
+
+            weightCombo.select(0);
+
+            SetFocusOnField("Model");
+            //$('input[name="Model_input"]').focus();
+            //$('input[name="Model_input"]').select();
+
+            if (typeof (rvTypeBinding) != "undefined") {
+                window.clearInterval(rvTypeBinding);
+            }
+        }
+    }
+    function SetDefaultWeight(uniqueID) {
+        var selectModel = $('#Model_' + uniqueID).data('kendoComboBox').value();
+        var selectMake = $('#Make_' + uniqueID).data('kendoComboBox').value();
+        var selectedRvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox').value();
+        var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+
+        if ($.trim(selectMake).length > 0 && $.trim(selectModel).length > 0 && $.trim(selectedRvType).length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetRVDefaultWeight", "Vehicle", new { area = "Application" })',
+                traditional: true,
+                data: { make: selectMake, model: selectModel, rvtypeId: selectedRvType },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Data != null) {
+                        weightCombo.value(msg.Data);
+                    }
+                    else {
+                        weightCombo.select(0);
+                    }
+
+                }
+            });
+        }
+        else {
+            weightCombo.select(0);
+        }
+    }
+    function onComboBoxChange_VehicleModelCombo(e, uniqueID) {
+
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        else {
+            BindRVType(null, uniqueID);
+        }
+        //PV
+    }
+    function SetImage(index, uniqueID) {
+
+        var $rvImage = $("#RVImage_" + uniqueID);
+        // Loop through the RVImages array to find out the element with ID = index and pick up the image file
+        var imagefound = false;
+
+        for (var i = 0; i < RVImages.length; i++) {
+
+            if (RVImages[i].ID == index) {
+                if (RVImages[i].ImageFile != null) {
+                    $rvImage.attr("src", "/Content/img/rv-images/" + RVImages[i].ImageFile);
+                    imagefound = true;
+                }
+            }
+        }
+        if (index == "-2") {
+            $rvImage.attr("src", "");
+            imagefound = true;
+        }
+        if (!imagefound) {
+            $rvImage.attr("src", "Content/img/rv-images/RVType-NOIMAGE.gif");
+
+        }
+
+        $rvImage.show();
+
+        if (index == "-2") {
+            $rvImage.hide();
+        }
+    }
+    function onComboBoxChange_RVType(e, uniqueID) {
+        // Render images
+        var $rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox').value();
+        if ($rvType != null && $rvType != undefined && $rvType > 0) {
+            SetImage($rvType, uniqueID);
+        }
+        else {
+            SetImage(-2, uniqueID);
+        }
+        SetDefaultWeight(uniqueID);
+
+    }
+
+</script>
+<div class="four-columns float-left">
+    <fieldset class="fieldset">
+        <legend class="legend">RV Basic Information</legend>
+        @Html.Hidden("vehicleID", Model.ID, new { id = "vehicleID_" + suffixMembershipID})
+        @if (!isHagerty)
+        {
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VIN" class="label">
+                        VIN</label>
+                    @Html.TextBoxFor(v => v.VIN, new { @class = "validate[required,funcCall[RVCheckVIN]] input full-width2", id = "VIN_" + suffixMembershipID })
+                </p>
+            </div>
+        }
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="Year" class="label">
+                Year<span class="spanstar">*</span></label>
+            @(Html.Kendo().ComboBox()
+                .Name("Year")
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModelYear.ToString()] as IEnumerable<SelectListItem>)
+                .Placeholder("Select Year")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events =>
+                 {
+                     events.Change("ValidateInputForKendoCombo");
+                 })
+                .DataValueField("Value")
+                .DataTextField("Text")
+                .HighlightFirst(true)
+                .Value(Model.Year)
+                .HtmlAttributes(new { id = "Year_" + suffixMembershipID })
+            )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="Make" class="label">
+                Make<span class="spanstar">*</span></label>
+            @(Html.Kendo().ComboBox()
+                  .Name("Make")
+                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleMake.ToString()] as IEnumerable<SelectListItem>)
+                  .Placeholder("Select Make")
+                          .Events(events => events.Change(@<text> function(e){ return onComboBoxChange_VehicleMake(e,'@suffixMembershipID'); }</text>).DataBound("DefaultDataBoundToAdjustContainerWidth"))
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .DataValueField("Value")
+                                .DataTextField("Text")
+                                .HighlightFirst(true)
+                                .Value(Model.Make)
+                                .HtmlAttributes(new { id = "Make_" + suffixMembershipID })
+                              )
+        </div>
+        <div id="divMakeOther_@suffixMembershipID" style="display: none;">
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="MakeOther" class="label">
+                    if Other<span class="spanstar">*</span></label>
+                @Html.TextBoxFor(v => v.MakeOther, new { @class = "validate[maxSize[50]] input", id = "MakeOther_" + suffixMembershipID })
+            </p>
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="Model" class="label">
+                Model<span class="spanstar">*</span></label>
+            @(Html.Kendo().ComboBox()
+                  .Name("Model")
+                  .Placeholder("Select Model")
+                  .Suggest(true)
+                  .Filter(FilterType.StartsWith).MinLength(0)
+                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModel.ToString()] as IEnumerable<SelectListItem>)
+                  .Events(events =>
+                  {
+                      events.Change(@<text> function(e){ return onComboBoxChange_VehicleModelCombo(e,'@suffixMembershipID'); }</text>);
+                      events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+
+                  })
+                                     .DataValueField("Value")
+                                     .DataTextField("Text")
+                                     .HighlightFirst(true)
+                                     .Value(Model.Model)
+                                     .HtmlAttributes(new { id = "Model_" + suffixMembershipID })
+                                  )
+        </div>
+        <div id="divModelOther_@suffixMembershipID" style="display: none;">
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="ModelOther" class="label">
+                    if Other<span class="spanstar">*</span></label>
+                @Html.TextBoxFor(v => v.ModelOther, new { @class = "validate[maxSize[50]] input", id = "ModelOther_" + suffixMembershipID })
+            </p>
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="RVType" class="label">
+                RV Type</label>
+            @(Html.Kendo().ComboBox()
+                          .Name("RVTypeID")
+                          .Suggest(true)
+                          .Filter(FilterType.StartsWith).MinLength(0)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.RVType.ToString()] as IEnumerable<SelectListItem>)
+                          .Events(events =>
+                          {
+                              events.Change(@<text> function(e){ return onComboBoxChange_RVType(e,'@suffixMembershipID'); }</text>);
+
+                          })
+                          .DataValueField("Value")
+                          .DataTextField("Text")
+                          .HighlightFirst(true)
+                          .Value(Model.RVTypeID.HasValue ? Model.RVTypeID.ToString() : string.Empty)
+                          .HtmlAttributes(new { id = "RVTypeID_" + suffixMembershipID })
+                )
+        </div>
+        <div>
+            <p class="button-height inline-label small-margin-bottom">
+                <img src="" border="0" id="RVImage_@suffixMembershipID" />
+            </p>
+        </div>
+        @{
+            var iEnumList = ViewData[Martex.DMS.ActionFilters.StaticData.Colors.ToString()] as IEnumerable<SelectListItem>;
+            List<string> colors = (from n in iEnumList
+                                   select n.Text).ToList<string>();
+        }
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="Category" class="label">
+                Weight Class</label>
+            @(Html.Kendo().ComboBox()
+                          .Name("VehicleCategoryID")
+                          .Suggest(true)
+                          .SelectedIndex(0)
+                          .Filter(FilterType.StartsWith).MinLength(0)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>)
+                          .Events(events =>
+                          {
+                              events.Change("ValidateInputForKendoCombo");
+                          })
+                          .DataValueField("Value")
+                          .DataTextField("Text")
+                          .HighlightFirst(true)
+                          .Value(Model.VehicleCategoryID == null ? string.Empty : Model.VehicleCategoryID.Value.ToString())
+                          .HtmlAttributes(new { id = "VehicleCategoryID_" + suffixMembershipID })
+                    )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="Color" class="label">
+                Color</label>
+            @(Html.Kendo().AutoComplete()
+                          .Name("Color")
+                          .HtmlAttributes(new { @class = "input full-width2", @maxLength = 50 })
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(FilterType.StartsWith).MinLength(0)
+                          .BindTo(colors)
+                          .Value(Model.Color)
+                          .HtmlAttributes(new { id = "Color_" + suffixMembershipID })
+                    )
+        </div>
+        @*<div>
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="Mileage" class="label">
+                    Mileage</label>
+                @Html.TextBoxFor(v => v.CurrentMileage, new { @class = "validate[integer] input" })
+            </p>
+        </div>*@
+        @if (!isHagerty)
+        {
+            @Html.Partial("_VehicleLicenseState", Model, ViewData)
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="LicenseNumber" class="label">
+                        License Number</label>
+                    @Html.TextBoxFor(v => v.LicenseNumber, new { @class = "validate[maxSize[20]] input full-width2", style = "text-transform:uppercase;", id = "LicenseNumber_" + suffixMembershipID })
+                </p>
+            </div>
+        }
+        <div>
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="Description" class="label">
+                    Description @Html.Partial("_Help", "Put additional vehicle notes here, these will be printed on the PO")</label>
+                @Html.TextAreaFor(v => v.Description, new { @class = "validate[maxSize[255]] input full-width2", id = "Description_" + suffixMembershipID })
+            </p>
+        </div>
+        <div>
+            <p class="button-height inline-label small-margin-bottom">
+                <label for="Source" class="label">
+                    Source</label>
+                @Html.LabelFor(v => v.Source, Model.Source)
+                @Html.HiddenFor(v => v.VehicleTypeID, new { id = "VehicleTypeID_" + suffixMembershipID })
+                @Html.HiddenFor(v => v.Source,new { id = "Source_" + suffixMembershipID })
+            </p>
+        </div>
+    </fieldset>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+    var RVImages = [];
+    var modelBinding;
+    var rvTypeBinding;
+    $(function () {
+
+        var modelValue = '@Model.Model';
+        var json = '@ViewData["RVImages"]';
+        var RVTypeValue = '@Model.RVTypeID';
+        RVImages = JSON.parse(json.replace(/&quot;/g, '"'));
+
+        $('#RVImage_@suffixMembershipID').hide();
+
+        if (modelValue.length > 0) {
+            modelBinding = window.setInterval(function () { BindModel(modelValue,'@suffixMembershipID'); }, 1500);
+            rvTypeBinding = window.setInterval(function () { BindRVType(RVTypeValue,'@suffixMembershipID'); }, 1500);
+            //            setTimeout(function () { BindModel(modelValue); }, 1500);
+            //            setTimeout(function () { BindRVType(RVTypeValue); }, 1500)
+        }
+    });
+//-->
+</script>

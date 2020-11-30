@@ -1,0 +1,62 @@
+﻿@model List<String>
+@using Martex.DMS.Areas.Application.Models
+
+<div id="businessOptions" class="options">
+    <div>
+        <div class="inline-medium-label">
+            <label class="label">Select a business type</label></div>
+        <div class="">
+       @*@if ("EFG Companies".Equals(DMSCallContext.ClientName, StringComparison.InvariantCultureIgnoreCase)) { 
+            <p>@Html.RadioButton("rdBusiness", "Aamco", false, new { @class = "radio small-margin-right" })Aamco</p>
+            <p>@Html.RadioButton("rdBusiness", "Goodyear", false, new { @class = "radio small-margin-right" })Goodyear</p>
+            <p>@Html.RadioButton("rdBusiness", "Firestone", false, new { @class = "radio small-margin-right" })Firestone</p>
+            <p>@Html.RadioButton("rdBusiness", "NTB National Tire and battery", false, new { @class = "radio small-margin-right" })NTB National Tire and battery</p>
+            <p>@Html.RadioButton("rdBusiness", "Pep Boys", false, new { @class = "radio small-margin-right" })Pep Boys</p>
+       }
+       @foreach (string strValue in Model)
+       {
+            <p>
+                @Html.RadioButton("rdBusiness", strValue, false, new { @class = "radio small-margin-right" })@strValue</p>
+       }*@
+
+            @*KB: New BING business search options *@
+            <p>@Html.RadioButton("rdBusiness", "5511", false, new { @class = "radio small-margin-right" })Auto Dealerships</p>
+            <p>@Html.RadioButton("rdBusiness", "5571", false, new { @class = "radio small-margin-right" })Motorcycle Dealership</p>
+            <p>@Html.RadioButton("rdBusiness", "7538", false, new { @class = "radio small-margin-right" })Auto Service & Maintenance</p>
+
+        </div>
+    </div>
+    <div class="clear">
+    </div>
+    <div>
+        @*<div class="inline-medium-label">
+            <label class="label">Enter Search Text</label>
+        </div>*@
+        <div class="">
+            @*@Html.TextBox("txtBusinessText", string.Empty, new { @class = "validate[maxSize[100]], input full-width2" })*@
+            
+            <button id="btnBusinessApply" class="button compact" type="button">
+                Apply
+            </button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#btnBusinessApply').click(function () {
+            
+            var isSBusinessSelected = $('input:radio[id=rdBusiness]:checked').val();
+            ProcessBusinessApply(isSBusinessSelected);
+            //var freeText = $('#txtBusinessText').val();
+
+            //if (freeText != '') {
+            //    ProcessBusinessApply(freeText);
+            //}
+            //if (freeText == '' && isSBusinessSelected != null) {
+            //    ProcessBusinessApply(isSBusinessSelected);
+            //}
+
+        })
+    });
+</script>

@@ -1,0 +1,248 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackModel
+@using Kendo.Mvc.UI;
+@{
+    var suffixCustomerFeedbackID = Model.CustomerFeedback.ID;
+    var isFormEnabled = suffixCustomerFeedbackID > 0 && !Model.IsRecordLocked;
+
+}
+
+<script type="text/javascript">
+    if(@Model.CustomerFeedback.ID > 0)
+    {
+      $('#OldStatusId_'+ @suffixCustomerFeedbackID).val(@Model.CustomerFeedback.CustomerFeedbackStatusID);      
+    }
+</script>
+
+<form id="frmCustomeerFeedbackInformation_@suffixCustomerFeedbackID" action="javascript:void(0);" method="post">    
+    @Html.HiddenFor(u => u.CustomerFeedback.ID, new { id = "CustomerFeedback_ID" + suffixCustomerFeedbackID })    
+    @Html.HiddenFor(u => u.CustomerFeedback.ServiceRequestID, new { id = "ServiceRequestID" + suffixCustomerFeedbackID })    
+
+    @Html.HiddenFor(u => u.CustomerFeedback.CreateBy, new { id = "CreateBy" + suffixCustomerFeedbackID })
+    @Html.HiddenFor(u => u.CustomerFeedback.CreateDate, new { id = "CreateDate" + suffixCustomerFeedbackID })
+    @Html.Hidden("OldStatusId_"+ suffixCustomerFeedbackID)
+    <div class="with-padding">
+        <div class="columns">
+            <div class="twelve-columns">
+                <fieldset class="fieldset">
+
+                    <legend class="legend">Information</legend>
+                    <div class="columns">
+                        <div class="six-columns">
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Status <span class="spanstar">*</span>
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                           .Name("CustomerFeedbackID_" + suffixCustomerFeedbackID)
+                                           .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackStatus.ToString()] as IEnumerable<SelectListItem>)
+                                             .SelectedIndex(0)
+                                             .HighlightFirst(true)
+                                             .Suggest(true)
+                                             .Enable(isFormEnabled)
+                                             .Filter(FilterType.StartsWith).MinLength(0)
+                                             .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                             .Value(Model.CustomerFeedback.CustomerFeedbackStatusID.HasValue ? Model.CustomerFeedback.CustomerFeedbackStatusID.Value.ToString() : string.Empty)
+                                             .HtmlAttributes(new { id = "CustomerFeedbackStatus_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </div>
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Source <span class="spanstar">*</span>
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                       .Name("CustomerFeedbackSource_" + suffixCustomerFeedbackID)
+                                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackSource.ToString()] as IEnumerable<SelectListItem>)
+                                         .SelectedIndex(0)
+                                         .HighlightFirst(true)
+                                         .Suggest(true)
+                                         .Enable(isFormEnabled)
+                                         .Filter(FilterType.StartsWith).MinLength(0)
+                                         .Events(events => events.Change("CustomerFeedbackSource_OnChange"))
+                                         .Value(Model.CustomerFeedback.CustomerFeedbackSourceID.HasValue ? Model.CustomerFeedback.CustomerFeedbackSourceID.Value.ToString() : string.Empty)
+                                         .HtmlAttributes(new { id = "CustomerFeedbackSource_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </div>
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Priority <span class="spanstar">*</span>
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                   .Name("CustomerFeedbackPriority_" + suffixCustomerFeedbackID)
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackPriority.ToString()] as IEnumerable<SelectListItem>)
+                                     .SelectedIndex(0)
+                                     .HighlightFirst(true)
+                                     .Suggest(true)
+                                     .Enable(isFormEnabled)
+                                     .Filter(FilterType.StartsWith).MinLength(0)
+                                     .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                     .Value(Model.CustomerFeedback.CustomerFeedbackPriorityID.HasValue ? Model.CustomerFeedback.CustomerFeedbackPriorityID.Value.ToString() : string.Empty)
+                                     .HtmlAttributes(new { id = "CustomerFeedbackPriority_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </div>
+                            @* TODO: Need to check this with Rusty *@
+                            @*<div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Requested By 
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                       .Name("CustomerFeedbackRequestedBy_" + suffixCustomerFeedbackID)
+                                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackRequestBy.ToString()] as IEnumerable<SelectListItem>)
+                                         .SelectedIndex(0)
+                                         .HighlightFirst(true)
+                                         .Suggest(true)
+                                         .Enable(isFormEnabled)
+                                         .Filter(FilterType.StartsWith).MinLength(0)
+                                         .Events(events => events.Change(@<text>function(e){HandleClaimInformationStatus(e,'@suffixCustomerFeedbackID')}</text>))                                         
+                                         .HtmlAttributes(new { id = "CustomerFeedbackRequestBy_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </div>*@
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Receive Date<span class="spanstar">*</span>
+                                </label>
+                                @(Html.Kendo().DatePickerFor(u => u.CustomerFeedback.ReceiveDate)
+                                          .Enable(isFormEnabled)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ReceiveDate_" + @suffixCustomerFeedbackID, dmsrole = "DatePicker", type = "text" })
+                                )
+                            </div>
+
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                              <label class="label">
+                                Due Date
+                              </label>
+                              @(Html.Kendo().DatePickerFor(u => u.CustomerFeedback.DueDate)
+                                            .Enable(isFormEnabled)
+                                            .HtmlAttributes(new { style = "width:90%", id = "DueDate_" + @suffixCustomerFeedbackID, dmsrole = "DatePicker", type = "text" })
+                              )
+                            </div>
+
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                              <label class="label">
+                                Worked By
+                              </label>
+                              @(Html.Kendo().ComboBox()
+                                  .Name("WorkedBy_" + suffixCustomerFeedbackID)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.WorkedByUsers.ToString()] as IEnumerable<SelectListItem>)
+                                    .SelectedIndex(0)
+                                    .HighlightFirst(true)
+                                    .Suggest(true)
+                                    .Enable(isFormEnabled)
+                                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                    .Filter(FilterType.StartsWith).MinLength(0)
+                                    .Value(Model.CustomerFeedback.WorkedByUserID.HasValue ? Model.CustomerFeedback.WorkedByUserID.Value.ToString() : string.Empty)
+                                    .HtmlAttributes(new { id = "WorkedBy_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                              )                              
+                            </div>     
+                          
+                          <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                              Call Recording #
+                            </label>
+                            @if (isFormEnabled)
+                            {
+
+                                @Html.TextBoxFor(u => u.CustomerFeedback.CallRecordingNumber, new { @class = "validate[maxSize[50]] input full-width", id = "CallRecordingNumber_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "text" })
+                            }
+
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.CustomerFeedback.CallRecordingNumber, new { @class = "input full-width", id = "CallRecordingNumber_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "text", @disabled = "disabled" })
+                            }
+                          </div>
+
+                          <div class="button-height inline-medium-label small-margin-bottom">
+                            <label class="label">
+                              Description of Concern<span class="spanstar">*</span>
+                            </label>
+                            @if (isFormEnabled)
+                            {
+
+                                @Html.TextAreaFor(u => u.CustomerFeedback.Description, new { @class = "input full-width", id = "DescriptionofConsern_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "text" })
+                            }
+
+                            else
+                            {
+                                @Html.TextAreaFor(u => u.CustomerFeedback.Description, new { @class = "input full-width", id = "DescriptionofConsern_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "text", @disabled = "disabled" })
+                            }
+                          </div>
+                       
+                        </div>
+                        <div class="six-columns">                          
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Next Action
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                   .Name("CustomerFeedbackNextActionBy_" + suffixCustomerFeedbackID)
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackNextaction.ToString()] as IEnumerable<SelectListItem>)
+                                     .SelectedIndex(0)
+                                     .HighlightFirst(true)
+                                     .Suggest(true)
+                                     .Enable(isFormEnabled)
+                                     .Events(events => events.Change("OnNextActionChanged"))
+                                     .Filter(FilterType.StartsWith).MinLength(0)                                    
+                                     .Value(Model.CustomerFeedback.NextActionID.HasValue ? Model.CustomerFeedback.NextActionID.Value.ToString() : string.Empty)
+                                     .HtmlAttributes(new { id = "CustomerFeedbackNextActionBy_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )                             
+                            </div>
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Assigned To
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                   .Name("CustomerFeedbackNextActionAssignedTo_" + suffixCustomerFeedbackID)
+                                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.FinishUsers.ToString()] as IEnumerable<SelectListItem>)                                     
+                                     .SelectedIndex(0)
+                                     .HighlightFirst(true)
+                                     .Suggest(true)
+                                     .Enable(isFormEnabled)
+                                     .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                     .Filter(FilterType.StartsWith).MinLength(0)                                     
+                                     .Value(Model.CustomerFeedback.NextActionAssignedToUserID.HasValue ? Model.CustomerFeedback.NextActionAssignedToUserID.Value.ToString() : string.Empty)
+                                     .HtmlAttributes(new { id = "CustomerFeedbackNextActionAssignedTo_" + @suffixCustomerFeedbackID, style = "width:90%;", dmsrole = "Combo" })
+                                )                              
+                            </div>
+
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Scheduled Date
+                                </label>
+                                @(Html.Kendo().DatePickerFor(u => u.CustomerFeedback.NextActionScheduleDate)
+                                          .Enable(isFormEnabled)
+                                          .Min(DateTime.Now)
+                                          .HtmlAttributes(new { style = "width:90%", id = "ScheduledDate_" + @suffixCustomerFeedbackID, dmsrole = "DatePicker", type = "text" })
+                                )
+                            </div>
+
+                          <div class="button-height small-margin-bottom">
+                           @Html.Action("_CustomerFeedbackDetails", "CXCustomerFeedback", new { area = "CX", customerFeedbackId = suffixCustomerFeedbackID, isLocked = Model.IsRecordLocked })
+                          </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+      $('#frmCustomeerFeedbackInformation_@suffixCustomerFeedbackID').validationEngine();
+
+      if(@Model.CustomerFeedback.ID > 0)
+      {
+        ReloadUsers($("#CustomerFeedbackNextActionAssignedTo_@suffixCustomerFeedbackID").data('kendoComboBox').value(), '@suffixCustomerFeedbackID')
+      }
+    });
+
+
+
+</script>
+@helper GetValue(string value)
+{
+if (!string.IsNullOrEmpty(value))
+{
+        @Html.Raw(value.Trim());
+        <br />
+}
+}

@@ -1,0 +1,162 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.VendorLocationContractRateScheduleProductLog_Result>
+@{
+    var suffixVendorLocationID = ViewData["vendorLocationID"] == null ? string.Empty : ViewData["vendorLocationID"].ToString();
+    var suffixrateScheduleID = ViewData["rateScheduleID"].ToString();
+    
+}
+<script type="text/javascript" language="javascript">
+    function GrdVCLDetail_onDataBound(e) {
+        e.sender.table.find('tr').each(function () {
+            var $BaseRate = $(this).find('.baseRate');
+            var $serviceRate = $(this).find('.serviceRate');
+            var $enrouteRate = $(this).find('.enrouteRate');
+            var $enrouteFreeMiles = $(this).find('.enrouteFreeMiles');
+            var $serviceFreeMiles = $(this).find('.serviceFreeMiles');
+            var $hourlyRate = $(this).find('.hourlyRate');
+            var $goaRate = $(this).find('.goaRate');
+            //Base Rate
+            if ($BaseRate == null || $BaseRate == undefined || $BaseRate == "0") {
+                $BaseRate.html("");
+            }
+            else {
+                if (parseFloat($BaseRate.html()) > 0) {
+                    $BaseRate.html("$" + parseFloat($BaseRate.html()).toFixed(2));
+                }
+                else {
+                    $BaseRate.html("");
+                }
+            }
+
+            //GOA Rate
+            if ($goaRate == null || $goaRate == undefined || $goaRate == "0") {
+                $goaRate.html("");
+            }
+            else {
+                if (parseFloat($goaRate.html()) > 0) {
+                    $goaRate.html("$" + parseFloat($goaRate.html()).toFixed(2));
+                }
+                else {
+                    $goaRate.html("");
+                }
+            }
+
+            //Enroute Rate
+            if ($enrouteRate == null || $enrouteRate == undefined || $enrouteRate == "0") {
+                $enrouteRate.html("");
+            }
+            else {
+                if (parseFloat($enrouteRate.html()) > 0) {
+                    $enrouteRate.html("$" + parseFloat($enrouteRate.html()).toFixed(2));
+                }
+                else {
+                    $enrouteRate.html("");
+                }
+            }
+            //Enroute Free Miles
+            if ($enrouteFreeMiles == null || $enrouteFreeMiles == undefined || $enrouteFreeMiles == "0") {
+                $enrouteFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($enrouteFreeMiles.html()) > 0) {
+                    $enrouteFreeMiles.html(parseFloat($enrouteFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $enrouteFreeMiles.html("");
+                }
+            }
+            //Service Free Miles
+            if ($serviceFreeMiles == null || $serviceFreeMiles == undefined || $serviceFreeMiles == "0") {
+                $serviceFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($serviceFreeMiles.html()) > 0) {
+                    $serviceFreeMiles.html(parseFloat($serviceFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $serviceFreeMiles.html("");
+                }
+            }
+            //Hourly Rate
+            if ($hourlyRate == null || $hourlyRate == undefined || $hourlyRate == "0") {
+                $hourlyRate.html("");
+            }
+            else {
+                if (parseFloat($hourlyRate.html()) > 0) {
+                    $hourlyRate.html("$" + parseFloat($hourlyRate.html()).toFixed(2));
+                }
+                else {
+                    $hourlyRate.html("");
+                }
+            }
+            //serviceRate
+            if ($serviceRate == null || $serviceRate == undefined || $serviceRate == "0") {
+                $serviceRate.html("");
+            }
+            else {
+                if (parseFloat($serviceRate.html()) > 0) {
+                    $serviceRate.html("$" + parseFloat($serviceRate.html()).toFixed(2));
+                }
+                else {
+                    $serviceRate.html("");
+                }
+            }
+        });
+    }
+    function VendorLocationVCLSearchCriteria() {
+        return { VendorLocationId: '@suffixVendorLocationID', rateScheduleID: '@suffixrateScheduleID' };
+    }
+</script>
+<div class="clear">
+</div>
+@if (!string.IsNullOrEmpty(suffixVendorLocationID))
+{
+    <div class="with-padding">
+        <a id="btnHideVendorLocationChangeLog" onclick="HideVendorLocationChangeLog(this,'@suffixVendorLocationID');">
+            Hide Change Log </a>
+    </div>
+}
+<div class="with-padding">
+    @(Html.Kendo().Grid(Model)
+    .Name("grdViewChangeLog" + suffixVendorLocationID)
+    .Columns(column =>
+    {
+        column.Bound(a => a.ID).Title("ID").Hidden();
+        column.Bound(a => a.ActivityType).Title("Activity Type");
+        column.Bound(a => a.ProductName).Title("Service");
+        column.Bound(a => a.RateTypeName).Title("Rate Type");
+        column.Bound(a => a.OldPrice).HtmlAttributes(new { @style = "text-align:right;", @class = "baseRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Before Price");
+        column.Bound(a => a.NewPrice).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("After Price");
+        column.Bound(a => a.OldQuantity).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Before Qty");
+        column.Bound(a => a.NewQuantity).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("After Qty");
+        column.Bound(a => a.CreateDate).Format("{0:MM/dd/yyyy}").Title("Date");
+        column.Bound(a => a.CreateBy).Title("User");
+    })
+    .Events(e =>
+    {
+        e.DataBound("GrdVCLDetail_onDataBound");
+    })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Filterable(filterable => filterable
+        .Extra(false)
+    )
+    .Pageable(pager => pager
+    .Refresh(true)
+    .PageSizes(new int[] { 10, 20, 50, 100 })
+
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_GetVendorLocationViewChangeLog", "VendorHome").Data("VendorLocationVCLSearchCriteria"))
+        .Model(u => u.Id(p => p.ID))
+        .PageSize(10)
+        .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+        )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+</div>

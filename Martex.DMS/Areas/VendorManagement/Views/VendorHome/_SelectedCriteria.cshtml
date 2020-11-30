@@ -1,0 +1,187 @@
+﻿@model Martex.DMS.DAL.Entities.VendorManagementSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    int r = 0;
+    bool hasElement = false;  
+}
+<!--Service Request Section -->
+@if (Model != null)
+{
+    if (!string.IsNullOrEmpty(Model.VendorNumber))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaVendorID">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="VendorNumber">X</a>
+        - Number : @Model.VendorNumber
+    </p>
+    }
+    if (!string.IsNullOrEmpty(Model.VendorName) && Model.VendorNameOperator.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaVendorName">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="VendorName" relatedcombo="VendorNameOperator">
+            X</a> - Name : @Model.VendorName
+    </p>
+    
+    <p id="PSelectedCriteriaVendorNameOperator">
+        <a href="javascript:void(0)" class="delete" role="combo" data="VendorNameOperator"
+            relatedtexbox="VendorName">X</a> - Name Value That : @Model.VendorNameOperatorValue
+    </p>
+                        
+    }
+    if (!string.IsNullOrEmpty(Model.PostalCode))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaPostalCode">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="PostalCode">X</a>
+        - Postal Code : @Model.PostalCode
+    </p>
+                        
+    }
+    if (!string.IsNullOrEmpty(Model.City) && Model.StateProvinceID.HasValue && Model.CountryID.HasValue)
+    {
+        hasElement = true;
+       
+    <p id="PSelectedCriteriaCity">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="City" relatedCombo="CountryID">X</a> - City
+        : @Model.City
+    </p>
+    
+    <p id="PSelectedCriteriaStateProvince">
+        <a href="javascript:void(0)" class="delete" role="combo" data="StateProvinceID" relatedTexBox="City">X</a>
+        - State : @Model.StateProvince
+    </p>
+ 
+    <p id="PSelectedCriteriaCountry">
+        <a href="javascript:void(0)" class="delete" role="combo" data="CountryID" relatedTexBox="City">X</a>
+        - Country : @Model.Country
+    </p>
+                        
+    }
+
+    foreach (CheckBoxLookUp result in Model.VendorStatus)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "VendorStatus_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Vendor Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+
+    foreach (CheckBoxLookUp result in Model.VendorRegion)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "VendorRegion_" + r.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Vendor Region : @result.Name
+    </p>
+        }
+        r = r + 1;
+    }
+
+    if (Model.IsLevy.HasValue && Model.IsLevy.Value)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaIsLevy">
+        <a href="javascript:void(0)" class="delete" role="checkBox" data="IsLevy">X</a>
+        - Is Levy Active : @Model.IsLevy
+    </p>
+    }
+
+    if (Model.HasPo.HasValue && Model.HasPo.Value)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaHasPo">
+        <a href="javascript:void(0)" class="delete" role="checkBox" data="HasPo">X</a> -
+        Has POs : @Model.HasPo
+    </p>
+    }
+
+    if (Model.IsFordDirectTow.HasValue && Model.IsFordDirectTow.Value)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaIsFordDirectTow">
+        <a href="javascript:void(0)" class="delete" role="checkBox" data="IsFordDirectTow">X</a> -
+        Ford Direct Tow : @Model.IsFordDirectTow
+    </p>
+    }
+
+    if (Model.IsCNETDirectPartner.HasValue && Model.IsCNETDirectPartner.Value)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaIsCNETDirectPartner">
+        <a href="javascript:void(0)" class="delete" role="checkBox" data="IsCNETDirectPartner">X</a> -
+        CNET Dealer Partner : @Model.IsCNETDirectPartner
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                        if (relatedCombo == 'CountryID') {
+                            $('#' + relatedCombo).data('kendoComboBox').trigger('change');
+                        }
+                    }
+                }
+                if (role == "combo") {
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+                    $('#' + element).data('kendoComboBox').value('');
+                    if (element == 'CountryID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+                    if (element == 'StateProvinceID') {
+                        $('#CountryID').data('kendoComboBox').value('');
+                        $('#CountryID').data('kendoComboBox').trigger('change');
+                    }
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdVenodors').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+
+
+</script>

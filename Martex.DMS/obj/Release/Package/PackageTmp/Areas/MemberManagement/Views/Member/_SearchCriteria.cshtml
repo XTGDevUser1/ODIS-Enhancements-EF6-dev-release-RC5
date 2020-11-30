@@ -1,0 +1,322 @@
+﻿@model Martex.DMS.DAL.Entities.MemberManagementSearchCriteria
+@using Kendo.Mvc.UI
+@{
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "MemberSearch";
+    string JSMethodNameToCollectData = "GetSearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForMemberSearch";
+    string applyCallBackFuntion = "LoadMemberSearchPredefinedViews";
+}
+<style type="text/css">
+    input.full-width
+    {
+        width: 90% !important;
+    }
+</style>
+<script type="text/javascript">
+    function Country_OnChange(e) {
+
+        var combo = $("#CountryID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboChild = $("#StateProvinceID").data("kendoComboBox");
+        var combo = $("#CountryID").data('kendoComboBox');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                    SetFocusOnField("StateProvinceID");
+                    comboChild.list.width(250);
+                }
+
+            });
+        }
+        else {
+            comboChild.setDataSource([]);
+            comboChild.select(0);
+            comboChild.value('');
+        }
+    }
+
+    function Client_onChange(e) {
+        var combo = $("#Member_Search_ClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboProgram = $("#Member_Search_ProgramID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("GetProgramsUsingAll", "Member", new { area = "MemberManagement" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboProgram.setDataSource(msg);
+                comboProgram.select(0);
+                SetFocusOnField("Member_Search_ProgramID");
+            }
+
+        })
+    }
+</script>
+<li>
+    <form id="frmMemberSearchCriteria" action="javascript:void(0)" method="post">
+    @Html.Hidden("MemberSearchViewID", string.Empty)
+    @Html.HiddenFor(u => u.PanelViewsSelected)
+    @Html.HiddenFor(u => u.PanelItemsSelected)
+    @Html.HiddenFor(u => u.PanelIDSelected)
+    @Html.HiddenFor(u => u.PanelNameSelected)
+    @Html.HiddenFor(u => u.PanelAddressSelected)
+    @Html.HiddenFor(u => u.PanelStatusSelected)
+    @Html.HiddenFor(u => u.PanelPhoneNumberSelected)
+    @Html.HiddenFor(u => u.PanelVINSelected)
+    @Html.HiddenFor(u => u.PanelClientProgramSelected)
+    @Html.HiddenFor(u => u.ResetModelCriteria)
+    @Html.HiddenFor(u => u.GridSortColumnName)
+    @Html.HiddenFor(u => u.GridSortOrder)
+    @(Html.Kendo().PanelBar()
+        .Name("panelbarSearchCriteria")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Events(events => events.Collapse("fnPanelCollapseMember").Expand("fnPanelExpandMember"))
+        .Items(panelbar =>
+        {
+
+            panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="LoadSelectedCriteria();">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+
+            panelbar.Add().Text("Views").Content(
+             @<div class="with-padding small-margin-right">
+                 @Html.Editor("FilterView", "FilterView", new
+            {
+                filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+            })
+             </div>
+         ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+            panelbar.Add().Text("Items Selected").Content(
+            @<div class="with-padding" id="memberSelectedSearchCriteria">
+                @Html.Partial("_SelectedCriteria", Model)
+            </div>
+            ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+
+            panelbar.Add().Text("Number").Expanded(Model.PanelIDSelected.HasValue ? Model.PanelIDSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelIDSelected" })
+                  .Content(@<div class="with-padding">
+                      <p class="inline-label">
+                          <label class="label">
+                              Number</label>
+                          @Html.TextBoxFor(u => Model.MemberNumber, new { @class = "input full-width" })
+                      </p>
+                  </div>
+               );
+            panelbar.Add().Text("Name").Expanded(Model.PanelNameSelected.HasValue ? Model.PanelNameSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelNameSelected" })
+               .Content(@<div class="with-padding">
+                   <p class="inline-label">
+                       <label for="FirstName" class="label">
+                           First Name</label>
+                       @Html.TextBoxFor(u => Model.FirstName, new { @class = "input full-width" })
+                   </p>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="FirstNameOperator" class="label">
+                           value that
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.FirstNameNameOperator)
+                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorSearchCriteriaNameFilterType.ToString()] as IEnumerable<SelectListItem>)
+                       .SelectedIndex(0)
+                       .HighlightFirst(true)
+                       .Suggest(true)
+                       .Filter(FilterType.StartsWith).MinLength(0)
+                       .Events(events => events.Change("ValidateInputForKendoCombo"))
+                               .Value(Model.FirstNameNameOperator == null ? string.Empty : Model.FirstNameNameOperator.Value.ToString())
+                               .HtmlAttributes(new { style = "width:90%;" })
+                               .Suggest(true)
+                       )
+                   </div>
+                   <p class="inline-label">
+                       <label for="LastName" class="label">
+                           Last Name</label>
+                       @Html.TextBoxFor(u => Model.LastName, new { @class = "input full-width" })
+                   </p>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="LastNameOperator" class="label">
+                           value that
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.LastNameOperator)
+                       .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorSearchCriteriaNameFilterType.ToString()] as IEnumerable<SelectListItem>)
+                       .SelectedIndex(0)
+                       .HighlightFirst(true)
+                       .Suggest(true)
+                       .Filter(FilterType.StartsWith).MinLength(0)
+                       .Events(events => events.Change("ValidateInputForKendoCombo"))
+                       .Value(Model.LastNameOperator == null ? string.Empty : Model.LastNameOperator.Value.ToString())
+                               .HtmlAttributes(new { style = "width:90%;" })
+                               .Suggest(true)
+                       )
+                   </div>
+               </div>
+            );
+            panelbar.Add().Text("City/State").Expanded(Model.PanelAddressSelected).LinkHtmlAttributes(new { id = "Panel_PanelAddressSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="Type" class="label">
+                           City</label>
+                       @Html.TextBoxFor(u => Model.City, new { @class = "input full-width" })
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="Type" class="label">
+                           Country</label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.CountryID)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                        .Events(events =>
+                        {
+                            events.Change("Country_OnChange");
+                        })
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .Suggest(true)
+                        .HtmlAttributes(new { style = "width:90%;" })
+                        )
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="Type" class="label">
+                           State</label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.StateProvinceID)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                        .Placeholder("Select Country")
+                        .Suggest(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .HtmlAttributes(new { style = "width:90%;" })
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Value(Model.StateProvinceID.HasValue ? Model.StateProvinceID.Value.ToString() : string.Empty)
+                        .DataTextField("Text")
+                        .DataValueField("Value"))
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="Type" class="label">
+                           Postal Code</label>
+                       @Html.TextBoxFor(u => Model.PostalCode, new { @class = "input full-width" })
+                   </div>
+               </div>
+            );
+
+            panelbar.Add().Text("Phone Number").Expanded(Model.PanelPhoneNumberSelected).LinkHtmlAttributes(new { id = "Panel_PanelPhoneNumberSelected" })
+                  .Content(@<div class="with-padding">
+                      <p class="inline-label">
+                          <label for="PhoneNumber" class="label">
+                              Phone Number</label>
+                          @Html.TextBoxFor(u => Model.PhoneNumber, new { @class = "input full-width" })
+                      </p>
+                  </div>
+               );
+
+            panelbar.Add().Text("VIN").Expanded(Model.PanelVINSelected).LinkHtmlAttributes(new { id = "Panel_PanelVINSelected" })
+                  .Content(@<div class="with-padding">
+                      <p class="inline-label">
+                          <label for="ID" class="label">
+                              VIN</label>
+                          @Html.TextBoxFor(u => Model.VIN, new { @class = "input full-width" })
+                      </p>
+                  </div>
+               );
+
+            panelbar.Add().Text("Status").Expanded(Model.PanelStatusSelected).LinkHtmlAttributes(new { id = "Panel_PanelStatusSelected" })
+               .Content(@<div class="with-padding">
+                   @if (Model.Status != null && Model.Status.Count > 0)
+                   {
+                       for (int i = 0; i < Model.Status.Count; i++)
+                       {
+                       <div class="with-small-padding">
+                           <div>
+                               @Html.HiddenFor(u => Model.Status[i].Name)
+                               @Html.CheckBoxFor(u => Model.Status[i].Selected, new { @class = "checkbox", recorID = Model.Status[i].ID, recordName = Model.Status[i].Name })
+                               @Model.Status[i].Name
+                           </div>
+                       </div>
+                       }
+
+                   }
+               </div>
+             );
+            panelbar.Add().Text("Client/Program").Expanded(Model.PanelPhoneNumberSelected).LinkHtmlAttributes(new { id = "Panel_PanelPhoneNumberSelected" })
+                .Content(@<div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Client" class="label">
+                            Client</label>
+                        @(Html.Kendo().ComboBoxFor(u => u.SearchClientID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("Client_onChange"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "Member_Search_ClientID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.SearchClientID.HasValue ? Model.SearchClientID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Program" class="label">
+                            Program</label>
+                        @(Html.Kendo().ComboBoxFor(u => u.SearchProgramID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "Member_Search_ProgramID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.SearchProgramID.HasValue ? Model.SearchProgramID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                </div>
+             );
+              panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="LoadSelectedCriteria();">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+        })
+    )
+    </form>
+</li>
+<script type="text/javascript">
+    function LoadMemberSearchPredefinedViews(recordID) {
+        $('#MemberSearchViewID').val(recordID);
+        LoadSearchCriteria();
+        var gridReference = $('#GrdSearchMemberList').data('kendoGrid').dataSource;
+        var sortOrder = $('#GridSortOrder').val();
+        var sortColumn = $('#GridSortColumnName').val();
+        if (sortOrder != undefined && sortColumn != undefined) {
+            gridReference.sort({ field: sortColumn, dir: sortOrder });
+        }
+        gridReference.read();
+        setTimeout(function () {
+            $('#MemberSearchViewID').val('');
+        }, 1000);
+    }
+</script>
+
+
+<script type="text/javascript">
+    $(function () {
+        $("#CountryID").data("kendoComboBox").list.width(250);
+        $("#FirstNameNameOperator").data("kendoComboBox").list.width(250);
+        $("#LastNameOperator").data("kendoComboBox").list.width(250);
+        $("#Member_Search_ClientID").data("kendoComboBox").list.width(250);
+        $("#Member_Search_ProgramID").data("kendoComboBox").list.width(250);
+    });
+</script>

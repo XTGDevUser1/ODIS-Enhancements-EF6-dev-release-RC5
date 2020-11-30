@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="ClosedLoopResultsService.ClosedLoopResultsService" CodeBehind="ClosedLoopService.svc.cs" %>

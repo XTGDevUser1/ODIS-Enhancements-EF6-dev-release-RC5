@@ -1,0 +1,27 @@
+﻿@using Kendo.Mvc.UI
+@using VendorPortal.BLL.Models;
+@{
+    var model = ViewData["Value"] as VendorLocationDetails;
+    if (model == null)
+    {
+        model = new VendorLocationDetails();
+    }
+}
+<br />
+<div style="text-align: center">
+    <h5>
+        @Html.Label(model.LocationAddress, new { @class = "blue-gradient" })
+    </h5>
+</div>
+<p class="button-height inline-large-label ">
+    <label for="dispatchPhone" class="label">
+        Dispatch <span class="star red">*</span>
+    </label>
+    @Html.Editor("DispatchPhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false, Value = model.DispatchPhone != null ? model.DispatchPhone.PhoneNumber : string.Empty, ID = model.DispatchPhone != null ? model.DispatchPhone.ID : 0 })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="FaxPhone" class="label">
+        Fax <span class="star red">*</span>
+    </label>
+    @Html.Editor("FaxPhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false, Value = model.FaxPhone != null ? model.FaxPhone.PhoneNumber : string.Empty, ID = model.FaxPhone != null ? model.FaxPhone.ID : 0 })
+</p>

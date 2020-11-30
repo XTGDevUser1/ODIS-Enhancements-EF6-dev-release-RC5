@@ -1,0 +1,831 @@
+﻿@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.DAL.Entities
+@using Martex.DMS.Common
+@model List<Martex.DMS.DAL.ServiceRequest_Result>
+@{
+    ServiceRequest_Result summary = null;
+    if (Model.Count > 0)
+    {
+        summary = Model[0];
+    }
+    var isFromStartCall = ((bool?)ViewBag.FromStartCall).GetValueOrDefault();
+    var iconConfig = new Martex.DMS.Areas.Application.Models.VendorListIconConfig();
+    bool memberEligibleApllies = (bool)ViewData["MemberEligibilityApplies"];
+    List<MemberProductsUsingCategory_Result> memberProducts = ViewData["MemberProductsRelatedCoverage"] as List<MemberProductsUsingCategory_Result>;
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript">
+<!--
+    var isInSRPopup = true;
+//-->
+</script>
+<style>
+    .t-grid-content {
+        height: 300px !important;
+    }
+</style>
+@if (summary != null)
+{
+
+    <form method="post" action="" id="form-Queue">
+        <div class="with-padding">
+            <div class="columns">
+
+                @Html.Partial("_ServiceRequestButtons")
+                <div class="four-columns">
+                    <div class="boxed historytop">
+                        <p class="inline-label">
+                            <label class="label" for="Case">
+                                <strong>Request #</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.RequestNumber)
+                            @Html.Hidden("hdnAssignedTo", ViewData["AssignedTo"])
+                            @Html.Hidden("hdnAssignedToID", ViewData["AssignedToID"])
+                            @Html.Hidden("hdnCaseId", summary.CaseID)
+                            @Html.Hidden("hdnRequestNumber", summary.RequestNumber)
+                            @Html.Hidden("hdnIsLockRequired", ViewData["isLockRequired"])
+                        </p>
+                        <!--TFS # 1420 : Presenting labels even if the values are empty and this is applicable only to the fields in the gray boxes. -->
+                        <p class="inline-label">
+                            <label class="label" for="Status">
+                                <strong>Status</strong>
+                            </label>
+                            <span class="tag">@Html.DisplayFor(a => summary.Status)</span>
+                            @if (summary.SourceSystemName == StringConstants.MEMBER_MOBILE)
+                            {
+                                <span class="tag red-bg">Mobile App</span>
+                            }
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="Priority">
+                                <strong>Priority</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.Priority)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ClosedLoop">
+                                <strong>Created</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.CreateDate)
+                            &nbsp;
+                            @Html.DisplayFor(a => summary.CreateBy)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ClosedLoop">
+                                <strong>Modified</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ModifyDate)
+                            &nbsp;
+                            @Html.DisplayFor(a => summary.ModifyBy)
+                        </p>
+                    </div>
+                </div>
+                <div class="four-columns">
+                    <div class="boxed historytop">
+                        <p class="inline-label">
+                            <label class="label" for="NextAction">
+                                <strong>Next Action:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.NextAction)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="Scheduled">
+                                <strong>Scheduled:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.NextActionScheduledDate)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="NextAssigned">
+                                <strong>Next Assigned:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.NextActionAssignedTo)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ClosedLoop">
+                                <strong>Closed Loop:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ClosedLoop)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="NextSend">
+                                <strong>Next Send:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ClosedLoopNextSend)
+                        </p>
+                    </div>
+                </div>
+                <div class="four-columns">
+                    <div class="boxed historytop">
+                        <p class="inline-label">
+                            <label class="label" for="Service">
+                                <strong>Service:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ServiceCategorySection)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ElapsedTime">
+                                <strong>Elapsed Time :</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.Elapsed)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="IssueDate">
+                                <strong>Issue Date:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.PoMaxIssueDate)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ETADate">
+                                <strong>ETA Date:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.PoMaxETADate)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ExportDate">
+                                <strong>Export Date:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.DataTransferDate)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ProductProvider">
+                                <strong>Product Provider:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ProductProvider)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ProductProviderNumber">
+                                <strong>Provider Number:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ProductProviderNumber)
+                        </p>
+                        <p class="inline-label">
+                            <label class="label" for="ProviderClaimNumber">
+                                <strong>Claim #:</strong>
+                            </label>
+                            @Html.DisplayFor(a => summary.ProviderClaimNumber)
+                        </p>
+                    </div>
+                </div>
+                <div class="new-row three-columns">
+                    <div class="historyboxedmin">
+                        <!-- Member Details -->
+                        <h3 class="underline">
+                            Member
+                        </h3>
+                        @if (!string.IsNullOrEmpty(summary.Member))
+                        {
+                            <p>
+                                <strong class="blue">
+                                    @Html.DisplayFor(a => summary.Member)
+                                </strong>
+                            </p>
+                        }
+                        @if (summary.IsDeliveryDriver)
+                        {
+
+
+                            <p>
+                                <small class="tag paleblue-bg">Delivery Driver</small>
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.MembershipNumber))
+                        {
+                            <p>
+                                ID: @Html.DisplayFor(a => summary.MembershipNumber)
+                            </p>
+                        }
+                        @if (memberEligibleApllies)
+                        {
+
+                            <p>
+                                @if (summary.MemberStatus == "Active")
+                                {
+                                    <small class="tag green-bg">@summary.MemberStatus</small>
+                                }
+                                else
+                                {
+                                    <small class="tag red-bg">@summary.MemberStatus</small>
+                                }
+                                @if (!string.IsNullOrEmpty(summary.ClientMemberType))
+                                {
+                                    switch (summary.ClientMemberType.ToLower())
+                                    {
+                                        case "pcs":
+                                            {
+                                                <small class="tag purple-bg">PCS</small>
+                                                break;
+                                            }
+                                        case "vip":
+                                            {
+                                                <small class="tag purple-bg">VIP</small>
+                                                break;
+                                            }
+                                        case "employee":
+                                            {
+                                                <small class="tag purple-bg">EMPLOYEE</small>
+                                                break;
+                                            }
+
+                                    }
+                                }
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.Client))
+                        {
+                            <p>
+                                Client: @Html.DisplayFor(a => summary.Client)
+                            </p>
+                        }
+                        @*<div>*@
+                        @if (!string.IsNullOrEmpty(summary.ProgramName))
+                        {
+                            <p>
+                                Program: @Html.DisplayFor(a => summary.ProgramName)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.MemberSince))
+                        {
+                            <p>
+                                Member Since : @Html.DisplayFor(a => summary.MemberSince)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.ExpirationDate))
+                        {
+                            <p>
+                                Expiration : @Html.DisplayFor(a => summary.ExpirationDate)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.ClientReferenceNumber))
+                        {
+                            <p>
+                                Client Ref : @Html.DisplayFor(a => summary.ClientReferenceNumber)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.CallbackNumber))
+                        {
+                            @Html.Raw("Callback :")
+                            @Html.Editor("PhoneNumber_CallBack", "Phone", new { Value = summary.CallbackNumber, ReadOnly = true, CallType = "Member" })
+                        }
+                        @*</div>*@
+                        @if (!string.IsNullOrEmpty(summary.AlternateNumber))
+                        {
+                            <p>
+                                Alternate :
+                                @Html.Editor("PhoneNumber_Alternate", "Phone", new { Value = summary.AlternateNumber, ReadOnly = true, CallType = "Member" })
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.Line1))
+                        {
+                            <p>@Html.DisplayFor(a => summary.Line1)</p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.Line2))
+                        {
+                            <p>@Html.DisplayFor(a => summary.Line2)</p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.Line3))
+                        {
+                            <p>@Html.DisplayFor(a => summary.Line3)</p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.MemberCityStateZipCountry))
+                        {
+                            <p>@Html.DisplayFor(a => summary.MemberCityStateZipCountry)</p>
+                        }
+                        @if (memberProducts != null && memberProducts.Count > 0)
+                        {
+                                <!-- Member Products -->
+                            <h3 class="underline">
+                                Member Products
+                            </h3>
+                            foreach (var product in memberProducts)
+                            {
+                                <p>
+                                    @product.AdditionalProduct
+                                    @if (product.HelpText != "")
+                                    {@Html.Partial("_Help", @product.HelpText)}
+                                </p>
+                            }
+                        }
+
+
+                    </div>
+                </div>
+                <div class="three-columns">
+                    <div class="historyboxedmin">
+                        <h3 class="underline">
+                            Vehicle
+                        </h3>
+                        @if (!string.IsNullOrEmpty(summary.YearMakeModel))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.YearMakeModel)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.VehicleTypeAndCategory))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.VehicleTypeAndCategory)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.VehicleVIN))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.VehicleVIN)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.VehicleColor))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.VehicleColor)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.License))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.License)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.VehicleDescription))
+                        {
+                            <p>
+                                @Html.DisplayFor(a => summary.VehicleDescription)
+                            </p>
+                        }
+                        @if (summary.RVType != null)
+                        {
+                            if (!string.IsNullOrEmpty(summary.RVType))
+                            {
+                                <p>
+                                    RVType: @Html.DisplayFor(a => summary.RVType)
+                                </p>
+                            }
+                            if (!string.IsNullOrEmpty(summary.VehicleChassis))
+                            {
+                                <p>
+                                    Chassis : @Html.DisplayFor(a => summary.VehicleChassis)
+                                </p>
+                            }
+                            if (!string.IsNullOrEmpty(summary.VehicleEngine))
+                            {
+                                <p>
+                                    Engine : @Html.DisplayFor(a => summary.VehicleEngine)
+                                </p>
+                            }
+                            if (!string.IsNullOrEmpty(summary.VehicleTransmission))
+                            {
+                                <p>
+                                    Trans :
+                                    @Html.DisplayFor(a => summary.VehicleTransmission)
+                                </p>
+                            }
+                        }
+                        @if (summary.Mileage != null)
+                        {
+                            <p>
+                                Mileage : @Html.DisplayFor(a => summary.Mileage)
+                            </p>
+                        }
+                        <!-- Location Details -->
+                        <h3 class="underline">
+                            Location
+                        </h3>
+                        @Html.DisplayFor(a => summary.ServiceLocationAddress)
+                        @if (!string.IsNullOrEmpty(summary.ServiceLocationDescription))
+                        {
+                            @Html.DisplayFor(a => summary.ServiceLocationDescription)  <br />
+                        }
+                        <!-- Destination Details -->
+                        <h3 class="underline">
+                            Destination
+                        </h3>
+                        @Html.DisplayFor(a => summary.DestinationAddress)
+                        <br />
+                        @if (!string.IsNullOrEmpty(summary.DestinationDescription))
+                        {
+                            @Html.DisplayFor(a => summary.DestinationDescription)  <br />
+                        }
+                    </div>
+                </div>
+                <div class="three-columns">
+                    <div class="historyboxedmin">
+                        <h3 class="underline">
+                            Service
+                        </h3>
+                        @if (!string.IsNullOrEmpty(summary.PrimaryProductName))
+                        {
+                            <p>
+                                <small class="tag grey-bg">
+                                    @if (summary.IsPrimaryOverallCovered.GetValueOrDefault())
+                                    {
+                                        @Html.Raw("COVERED")
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("NOT COVERED")
+                                    }
+                                </small>&nbsp;@Html.DisplayFor(a => summary.PrimaryProductName)
+                            </p>
+                        }
+                        @if (!string.IsNullOrEmpty(summary.PrimaryProductName))
+                        {
+                            if (!summary.IsPrimaryOverallCovered.HasValue)
+                            {
+                                <p class="alert alert-info small-margin-top">
+                                    @Html.DisplayFor(a => summary.PrimaryServiceEligiblityMessage)
+                                </p>
+                            }
+                            else if (summary.IsPrimaryOverallCovered.GetValueOrDefault())
+                            {
+                                <p class="alert alert-success small-margin-top">
+                                    @Html.DisplayFor(a => summary.PrimaryServiceEligiblityMessage)
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="alert alert-wrong small-margin-top">
+                                    @Html.DisplayFor(a => summary.PrimaryServiceEligiblityMessage)
+                                </p>
+                            }
+                        }
+                        @if (ViewData["SRQuestionAnswers"] != null)
+                        {
+                            List<QuestionAnswer_ServiceRequest_Result> resultAnswers = ViewData["SRQuestionAnswers"] as List<QuestionAnswer_ServiceRequest_Result>;
+                            if (resultAnswers != null && resultAnswers.Count > 0)
+                            {
+                                resultAnswers = resultAnswers.Where(u => "Primary".Equals(u.Flag)).ToList();
+                                foreach (QuestionAnswer_ServiceRequest_Result temp in resultAnswers)
+                                {
+                                    <p>
+                                        Q : @temp.QuestionText
+                                    </p>
+                                    <p>
+                                        A : <strong>@temp.Answer</strong>
+                                    </p>
+
+                                }
+                            }
+                        }
+                        @if (summary.IsPossibleTow.GetValueOrDefault())
+                        {
+                            <br />
+                            <p>
+                                <small class="tag grey-bg">
+                                    @if (summary.IsSecondaryOverallCovered.GetValueOrDefault())
+                                    {
+                                        @Html.Raw("COVERED")
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("NOT COVERED")
+                                    }
+                                </small>&nbsp;
+                                @if (!string.IsNullOrEmpty(summary.SecondaryProductName))
+                                {
+                                    @Html.DisplayFor(a => summary.SecondaryProductName)
+                                }
+                                else
+                                {
+                                    @Html.Raw("Possible Tow")
+                                }
+                            </p>
+
+                            if (summary.IsSecondaryOverallCovered.GetValueOrDefault())
+                            {
+                                <p class="alert alert-success small-margin-top">
+                                    @Html.DisplayFor(a => summary.SecondaryServiceEligiblityMessage)
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="alert alert-wrong small-margin-top">
+                                    @Html.DisplayFor(a => summary.SecondaryServiceEligiblityMessage)
+                                </p>
+                            }
+
+                            if (ViewData["SRQuestionAnswers"] != null)
+                            {
+                                List<QuestionAnswer_ServiceRequest_Result> resultAnswers = ViewData["SRQuestionAnswers"] as List<QuestionAnswer_ServiceRequest_Result>;
+                                if (resultAnswers != null && resultAnswers.Count > 0)
+                                {
+                                    resultAnswers = resultAnswers.Where(u => "Secondary".Equals(u.Flag)).ToList();
+                                    foreach (QuestionAnswer_ServiceRequest_Result temp in resultAnswers)
+                                    {
+                                        <p>
+                                            Q : @temp.QuestionText
+                                        </p>
+                                        <p>
+                                            A : <strong>@temp.Answer</strong>
+                                        </p>
+
+                                    }
+                                }
+                            }
+                        }
+                        @if (!string.IsNullOrEmpty(summary.Safe))
+                        {
+                            <p>
+                                Safe :@Html.DisplayFor(a => summary.Safe)
+                            </p>
+                        }
+                    </div>
+                </div>
+                <div class="three-columns">
+                    <div class="historyboxedmin">
+                        <h3 class="underline">
+                            Service Provider
+                        </h3>
+                        @{
+                        List<int?> vendorList = new List<int?>();
+                        foreach (ServiceRequest_Result vendorDetail in Model)
+                        {
+                            if (!vendorList.Contains(vendorDetail.VendorID))
+                            {
+                                vendorList.Add(vendorDetail.VendorID);
+                            }
+                        }
+                        }
+                        @foreach (int? str in vendorList)
+                        {
+                            var vendorDetail = Model.Where(u => u.VendorID == str).FirstOrDefault();
+                            if (vendorDetail != null)
+                            {
+                                if (!string.IsNullOrEmpty(vendorDetail.ContractStatus) && !string.IsNullOrEmpty(vendorDetail.VendorName))
+                                {
+                                    var contractStatusIconStyle = iconConfig.GetIconStyle(vendorDetail.ContractStatus);
+                                    <span class="@contractStatusIconStyle.Class message-status historystar with-tooltip" title="@contractStatusIconStyle.Title" style="height:17px;">
+                                        &nbsp;
+                                    </span>
+                                }
+
+                                @Html.DisplayFor(a => vendorDetail.VendorName)
+
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorNumber))
+                                {
+                                    <p>
+                                        ID : @Html.DisplayFor(a => vendorDetail.VendorNumber)
+                                    </p>
+                                }
+
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorLocationPhoneNumber))
+                                {
+                                    <p>
+                                        24HR :
+                                        @Html.Editor("PhoneNumber_VendorPhoneNumber" + str.Value, "Phone", new { Value = vendorDetail.VendorLocationPhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                                    </p>
+                                }
+
+
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine1))
+                                {
+                                    <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine1)</p>
+                                }
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine2))
+                                {
+                                    <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine2)</p>
+                                }
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine3))
+                                {
+                                    <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine3)</p>
+                                }
+
+                                if (!string.IsNullOrEmpty(vendorDetail.VendorCityStateZipCountry))
+                                {
+                                    <p>
+                                        @Html.DisplayFor(a => vendorDetail.VendorCityStateZipCountry)
+                                    </p>
+                                }
+
+                                //PO For each vendor
+                                {
+                                    if (vendorDetail.VendorID != null)
+                                    {
+                                        List<ServiceRequest_Result> poDetails = Model.Where(u => u.VendorID == vendorDetail.VendorID).ToList<ServiceRequest_Result>();
+                                        foreach (ServiceRequest_Result po in poDetails)
+                                        {
+                                            if (po.PONumber.HasValue)
+                                            {
+                                                <p>
+                                                    <strong>PO : @po.PONumber </strong>
+                                                </p>
+                                            }
+                                            if (!string.IsNullOrEmpty(po.POStatus))
+                                            {
+                                                <p>
+                                                    @po.POStatus
+                                                </p>
+                                            }
+                                            if (!string.IsNullOrEmpty(po.CancelReason))
+                                            {
+                                                <p>
+                                                    @po.CancelReason
+                                                </p>
+                                            }
+
+                                            if (@po.POAmount.HasValue)
+                                            {
+                                                <p>
+                                                    @po.POAmount.Value.ToString("C2")
+                                                </p>
+                                            }
+                                            if (!string.IsNullOrEmpty(po.ServiceType))
+                                            {
+                                                <p>
+                                                    @po.ServiceType
+                                                </p>
+                                            }
+                                            if (po.IssueDate.HasValue)
+                                            {
+                                                <p>
+                                                    Issued : @po.IssueDate
+                                                </p>
+                                            }
+                                            if (po.ETADate.HasValue)
+                                            {
+                                                <p>
+                                                    ETADate : @po.ETADate
+                                                </p>
+                                            }
+                                            if (po.ExtractDate.HasValue)
+                                            {
+                                                <p>
+                                                    Extracted : @po.ExtractDate
+                                                </p>
+                                            }
+
+                                            // Vendor Invoice fields
+                                            if (po.InvoiceDate.HasValue)
+                                            {
+                                                <p>
+                                                    Inv. Date : @po.InvoiceDate.Value.ToString("MM/dd/yyyy")
+                                                </p>
+                                            }
+
+                                            if (!string.IsNullOrEmpty(po.PaymentType))
+                                            {
+                                                <p>
+                                                    Pay # : @po.PaymentType
+                                                </p>
+                                            }
+
+                                            if (po.PaymentAmount.HasValue)
+                                            {
+                                                <p>
+                                                    Pay Amt : @po.PaymentAmount.Value.ToString("C")
+                                                </p>
+                                            }
+
+                                            if (po.PaymentDate.HasValue)
+                                            {
+                                                <p>
+                                                    Pay Date : @po.PaymentDate.Value.ToString("MM/dd/yyyy")
+                                                </p>
+                                            }
+
+                                            if (po.CheckClearedDate.HasValue)
+                                            {
+                                                <p>
+                                                    Cleared Date : @po.CheckClearedDate.Value.ToString("MM/dd/yyyy")
+                                                </p>
+                                            }
+
+                                        }
+                                    }
+                                }
+
+                                <br />
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="new-row twelve-columns">
+                    @{
+    Html.RenderAction("_Activity", "Activity", new { Area = "Application" }); }
+                </div>
+                @Html.Partial("_ServiceRequestButtons")
+            </div>
+        </div>
+    </form>
+}
+<script language="javascript" type="text/javascript">
+
+    function LoadQuequeinEditMode(isOpenClicked) {        
+        var assignedToName = $('#hdnAssignedTo').val();
+        var assignedToID = $('#hdnAssignedToID').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Edit", "Queue")',
+            traditional: true,
+            data: { assignTo: assignedToName, assignToID: assignedToID, caseId: $('#hdnCaseId').val(), serRequest: $('#hdnRequestNumber').val(), isFromStartCall: '@isFromStartCall', isOpenClicked: isOpenClicked },
+            cache: false,
+            async: true,
+            error: function (err, errStatus) {
+                HandleAjaxErrors("error", err);
+            },
+            success: function (msg) {
+                if (msg.Status && msg.Status == "Success") {
+                    if ('@isFromStartCall' == 'True') {
+                        $('ul.tabs > li.disabled').removeClass("disabled");
+                        $("#RequestTabs").tabs("option", "disabled", []);
+                        $("#tbStart").addClass("disabled");
+
+                        if (msg.Data != null) {
+
+                            var allowPayment = msg.Data.AllowPaymentProcessing;
+                            if (allowPayment == false) {
+
+                                $("#RequestTabs").tabs("disable", 9);
+                                $("#tbPayment").addClass("disabled");
+                            }
+
+                            var allowEstimate = msg.Data.AllowEstimateProcessing;
+                            if (allowEstimate == false) {
+
+                                $("#RequestTabs").tabs("disable", 6);
+                                $("#tbEstimate").addClass("disabled");
+                            }
+                        }
+
+                        queueDetailWindow.data('kendoWindow').close();
+                        $('#hypMemberDetails').click();
+                    }
+                    else {
+                        window.location = "/Application/Request?id=Queue";
+                    }
+                }
+                else {
+                    queueEditWindow = $("<div id='queueEditWindow' />").appendTo(document.body);
+                    queueEditWindow.kendoWindow({
+                        title: "Access Restricted",
+                        modal: true,
+                        width: 600,
+                        height: 500,
+                        deactivate: function () { this.destroy(); },
+                        close: function (e) {
+                            HideValidationMessage($("#srComments_" + $('#hdnRequestNumber').val()));
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+
+                                var formName = 'form-AcessControl_' + $('#hdnRequestNumber').val();
+
+                                if (IsMyContainerDirty(formName)) {
+                                    var prompt = PromptForDirtyFlag();
+                                    if (!prompt) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                    CleanMyContainer(formName);
+                                }
+                            }
+
+                            return true;
+                        }
+                    });
+                    queueEditWindow.data('kendoWindow').content(msg).center().open();
+                }
+            }
+        });        // end of ajax
+    }
+    var queueEditWindow;
+    $(document).ready(function () {
+        setTimeout(function () {
+            var win = queueDetailWindow.data('kendoWindow');
+            var assignedTo = $("#hdnAssignedTo").val();
+            var title = "<span class='float-left'>Service Request</span>";
+            if ($.trim(assignedTo).length > 0) {
+
+                if ($("#hdnIsLockRequired").val() == 'True') {
+                    title = "<span class='float-left'>Service Request</span><span class='float-right large-margin-right icon-lock'> Currently Worked By:" + $("#hdnAssignedTo").val() + "</span>";
+                }
+                else {
+                    title = "<span class='float-left'>Service Request</span><span class='float-right large-margin-right'> Next Action Assigned to:  " + $("#hdnAssignedTo").val() + "</span>";
+                }
+            }
+            $(win.element).prev().find(".k-window-title").html(title);
+        }, 1500);
+        $('#btnQueueClose').die('click');
+        $('#btnQueueClose').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                queueDetailWindow.data('kendoWindow').close();
+            }
+        });
+        $('#btnQueueOpenForEdit').die('click');
+        $('#btnQueueOpenForEdit').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                LoadQuequeinEditMode(false);
+            }
+
+        });
+    });
+
+</script>
+<script type="text/javascript">
+
+    $(function () {
+
+        $('#btnQueuePrint').die('click');
+
+        $('#btnQueuePrint').live("click", function () {
+            $(".k-window").print();
+        });
+    });
+</script>

@@ -1,0 +1,884 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimInformationModel
+@using Kendo.Mvc.UI
+@{
+    string suffixClaimID = Model.Claim.ID.ToString();
+    var dummyList = new List<SelectListItem>();
+    bool isPaid = false;
+    if (!string.IsNullOrEmpty(Model.ClaimStatusName))
+    {
+        if (Model.ClaimStatusName.Equals("Paid"))
+        {
+            isPaid = true;
+        }
+    }
+    string hideOwnerFields = string.Empty;
+    if (!string.IsNullOrEmpty(Model.Claim.PayeeType))
+    {
+        if (Model.Claim.PayeeType.Equals("Member"))
+        {
+            hideOwnerFields = "hide";
+        }
+    }
+    //if (!string.IsNullOrEmpty(Model.ClaimTypeName))
+    //{
+    //    if (!Model.ClaimTypeName.Equals("Warranty Repair"))
+    //    {
+    //        warrantyRepair = string.Empty;
+    //    }
+    //}
+}
+<script language="javascript" type="text/javascript">
+
+
+    function Warranty_Change(uniqueID) {
+
+        var $warrantyStartDate = $("#WarrantyStartDate_" + uniqueID).data("kendoDatePicker");
+        var $warrantyYears = $("#WarrantyYears_" + uniqueID).data("kendoNumericTextBox");
+        var $currentMileage = $("#CurrentMiles_" + uniqueID).data("kendoNumericTextBox");
+        var $warrantyMiles = $("#WarrantyMiles_" + uniqueID).data("kendoNumericTextBox");
+        var now = Date.today();
+        var fCurrentMiles = $currentMileage.value();
+        var fWarrantyMiles = $warrantyMiles.value();
+        var currentMiles = parseFloat(isNaN(fCurrentMiles) ? 0 : fCurrentMiles);
+        var warrantyMiles = parseFloat(isNaN(fWarrantyMiles) ? 0 : fWarrantyMiles);
+
+        var $msg = $("#warrantyInfo_" + uniqueID);
+
+        if (($warrantyStartDate.value() != null && $warrantyYears.value() != null) || ($currentMileage.value() != null && $warrantyMiles.value() != null)) {
+            var ahead = null;
+            var dateDiff = null;
+            if ($warrantyStartDate.value() != null && $warrantyYears.value() != null) {
+                var dateVal = $warrantyStartDate.value();
+                var warrantyStartDate = new Date(dateVal.getFullYear(), dateVal.getMonth(), dateVal.getDate());
+
+                ahead = warrantyStartDate.add($warrantyYears.value()).years();
+                dateDiff = new TimeSpan(ahead - now);
+
+            }
+            if ((ahead != null && dateDiff != null && dateDiff.days < 0) ||
+                    currentMiles > warrantyMiles) {
+                $msg.html("Out of warranty").addClass("red");
+            }
+            else {
+                $msg.html("In warranty").removeClass("red");
+            }
+        }
+    }
+    function BindVehicleYears(uniqueID) {
+        var $form = $("#frmClaimVehicles_" + uniqueID);
+        var vehicleTypeCombo = $('#VehicleTypeID_' + uniqueID).data('kendoComboBox');
+        var vehicleYearCombo = $('#VehicleYear_' + uniqueID).data('kendoComboBox');
+        var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("_GetVehicleYears", "EmergencyAssistance", new { area = "Common" })',
+            traditional: true,
+            data: { vehicleTypeID: vehicleTypeCombo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleYearCombo.setDataSource(msg.Data);
+                vehicleYearCombo.value('');
+                SetFocusOnField("VehicleYear", $form);
+            }
+        })
+
+        var vehicleMakeCombo = $('#VehicleMake_' + uniqueID).data('kendoComboBox');
+        var vehicleModelCombo = $('#VehicleModel_' + uniqueID).data('kendoComboBox');
+
+        // Reset Make and Model
+        vehicleMakeCombo.setDataSource([]);
+        vehicleMakeCombo.text("");
+
+        vehicleModelCombo.setDataSource([]);
+        vehicleModelCombo.text("");
+
+        weightCombo.setDataSource([]);
+        weightCombo.text("");
+
+        HandleMakeOther(uniqueID);
+        HandleModelOther(uniqueID);
+
+    }
+
+
+    function HandleMakeOther(uniqueID) {
+        var comboMakeText = $('#VehicleMake_' + uniqueID).data('kendoComboBox').text();
+        if (comboMakeText == "other" || comboMakeText == "Other") {
+            $("#divMakeOther_" + uniqueID).show();
+
+            var vehicleMakeOther = $('#VehicelMakeOther_' + uniqueID)
+
+            vehicleMakeOther.val('');
+            vehicleMakeOther.focus();
+            vehicleMakeOther.select();
+
+        }
+        else {
+            $("#divMakeOther_" + uniqueID).hide();
+        }
+    }
+
+    function HandleModelOther(uniqueID) {
+        var comboModelText = $('#VehicleModel_' + uniqueID).data('kendoComboBox').text();
+        if (comboModelText == "other" || comboModelText == "Other") {
+            $("#divModelOther_" + uniqueID).show();
+
+            var vehicleModelOther = $('#VehicelModelOther_' + uniqueID)
+
+            vehicleModelOther.val('');
+            vehicleModelOther.focus();
+            vehicleModelOther.select();
+
+        }
+        else {
+            $("#divModelOther_" + uniqueID).hide();
+        }
+    }
+
+    function BindVehicleMakes(uniqueID) {
+        var vehicleYearCombo = $('#VehicleYear_' + uniqueID).data('kendoComboBox');
+        var vehicleTypeCombo = $('#VehicleTypeID_' + uniqueID).data('kendoComboBox');
+        var vehicleMakeCombo = $('#VehicleMake_' + uniqueID).data('kendoComboBox');
+        var vehicleModelCombo = $('#VehicleModel_' + uniqueID).data('kendoComboBox');
+        var $form = $("#frmClaimVehicles_" + uniqueID);
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetComboVehicleMake", "EmergencyAssistance", new { area = "Common" })',
+            traditional: true,
+            data: { /*Year: vehicleYearCombo.value(), */ vehicleType: vehicleTypeCombo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleMakeCombo.setDataSource(msg);
+                vehicleMakeCombo.value('');
+                HandleMakeOther(uniqueID);
+                HandleModelOther(uniqueID);
+                SetFocusOnField("Claim.VehicleMake", $form);
+                SetDefaultWeight(uniqueID);
+
+            }
+        });
+
+        //Reset Model Values
+        vehicleModelCombo.setDataSource([]);
+        vehicleModelCombo.text("");
+
+        var rvTypeCombo = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+        rvTypeCombo.setDataSource([]);
+        rvTypeCombo.text("");
+        SetImage(-2, uniqueID);
+
+
+    }
+
+    function BindVehicleModels(uniqueID) {
+        var vehicleYearCombo = $('#VehicleYear_' + uniqueID).data('kendoComboBox');
+        var vehicleTypeCombo = $('#VehicleTypeID_' + uniqueID).data('kendoComboBox');
+        var vehicleMakeCombo = $('#VehicleMake_' + uniqueID).data('kendoComboBox');
+        var vehicleModelCombo = $('#VehicleModel_' + uniqueID).data('kendoComboBox');
+        var $form = $("#frmClaimVehicles_" + uniqueID);
+
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetComboVehicleModel", "EmergencyAssistance", new { area = "Common" })',
+            traditional: true,
+            data: { Make: vehicleMakeCombo.value(), /*year: vehicleYearCombo.value(),*/ vehicleType: vehicleTypeCombo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleModelCombo.setDataSource(msg);
+                vehicleModelCombo.value('');
+                SetFocusOnField("Claim.VehicleModel", $form);
+                HandleMakeOther(uniqueID);
+                SetDefaultWeight(uniqueID);
+            }
+        });
+
+        var rvTypeCombo = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+        rvTypeCombo.setDataSource([]);
+        rvTypeCombo.text("");
+        SetImage(-2, uniqueID);
+    }
+
+    function SetDefaultWeight(uniqueID) {
+        var vehicleType = $('#VehicleTypeID_' + uniqueID).data('kendoComboBox').value();
+        var selectModel = $('#VehicleModel_' + uniqueID).data('kendoComboBox').text();
+        var selectMake = $('#VehicleMake_' + uniqueID).data('kendoComboBox').value();
+        var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+        var rvTypeIDCombo = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+        var $form = $("#frmClaimVehicles_" + uniqueID);
+        var postData = {};
+        if (vehicleType == 2) // RV
+        {
+            postData = { make: selectMake, model: selectModel, rvtypeId: rvTypeIDCombo.value(), vehicleTypeID: vehicleType };
+        }
+        else {
+            postData = { make: selectMake, model: selectModel, vehicleTypeID: vehicleType };
+        }
+
+        if ($.trim(selectMake).length > 0 && $.trim(selectModel).length > 0) {
+            //Bind the Vehicle Categories
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVehicleCategories", "Vehicle", new { area = "Application" })',
+                traditional: true,
+                data: { vehicleTypeID: vehicleType },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    weightCombo.setDataSource(msg)
+                }
+            });
+        }
+
+        if ($.trim(selectMake).length > 0 && $.trim(selectModel).length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetDefaultWeight", "Vehicle", new { area = "Application" })',
+                traditional: true,
+                data: postData,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Data != null) {
+                        weightCombo.value(msg.Data);
+                    }
+                    else {
+                        weightCombo.select(0);
+                    }
+                    if (selectModel == 'Other' && $('#RVTypeID_' + uniqueID).is(":hidden")) {
+                        $form.find('input[name="VehicleModelOther_' + uniqueID + '"]').focus().select();
+
+                    }
+                    else {
+                        SetFocusOnField("Claim.VehicleCategoryID", $form);
+                    }
+                }
+            });
+        }
+        else {
+            weightCombo.setDataSource([]);
+            weightCombo.text("");
+        }
+    }
+
+
+    function BindRVType(uniqueID) {
+
+        SetImage(-2, uniqueID);
+        var vehicleModelCombo = $('#VehicleModel_' + uniqueID).data('kendoComboBox');
+        var $form = $("#frmClaimVehicles_" + uniqueID);
+        if (vehicleModelCombo.value() !== null && vehicleModelCombo.value() != '') {
+            HandleModelOther(uniqueID);
+
+            var vehicleMakeCombo = $('#VehicleMake_' + uniqueID).data('kendoComboBox');
+            var rvTypeCombo = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+            var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+
+            if ($.trim(vehicleMakeCombo.value()).length > 0 && $.trim(vehicleModelCombo.value()).length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_GetRVTypes", "Vehicle", new { area = "Application" })',
+                    traditional: true,
+                    data: { Make: vehicleMakeCombo.value(), Model: vehicleModelCombo.value() },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        if (msg.length > 0) {
+                            rvTypeCombo.setDataSource(msg);
+                            rvTypeCombo.select(0);
+                            SetImage(msg[0].Value, uniqueID);
+
+                        }
+                        if (vehicleModelCombo.value() == 'Other') {
+
+                            $form.find('input[name="VehicleModelOther"]').focus().select();
+
+                        }
+                        else {
+                            SetFocusOnField("RVTypeID", $form);
+                        }
+
+                        SetDefaultWeight(uniqueID);
+                    }
+                });
+            }
+            else {
+                rvTypeCombo.setDataSource([]);
+                rvTypeCombo.text("");
+                weightCombo.select(0);
+                SetImage(-2, uniqueID);
+            }
+        }
+        else {
+            $('#divModelOther_' + uniqueID).hide();
+            var $rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox');
+            var weightCombo = $('#VehicleCategoryID_' + uniqueID).data('kendoComboBox');
+
+            $rvType.setDataSource([]);
+            $rvType.text("");
+
+            SetImage(-2, uniqueID);
+
+            weightCombo.select(0);
+
+            SetFocusOnField("Model");
+        }
+    }
+
+    function onComboBoxChange_VehicleType(e, uniqueID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        BindVehicleYears(uniqueID);
+        BindVehicleMakes(uniqueID);
+        var rvSection = $("#rvType_" + uniqueID);
+        if (combo.value() == 2) {
+            rvSection.show();
+        }
+        else {
+            rvSection.hide();
+        }
+    }
+
+    function Year_OnChange(e, uniqueID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //BindVehicleMakes(uniqueID);
+    }
+
+    function onComboBoxChange_VehicleMake(e, uniqueID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        BindVehicleModels(uniqueID);
+    }
+
+    function onComboBoxChange_VehicleModelCombo(e, uniqueID) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        HandleModelOther(uniqueID);
+        var vehicleType = $('#VehicleTypeID_' + uniqueID).data('kendoComboBox').value();
+        if (vehicleType == 2) {
+            BindRVType(uniqueID);
+        }
+        else {
+            SetDefaultWeight(uniqueID);
+        }
+
+    }
+
+    function onComboBoxChange_RVType(e, uniqueID) {
+        // Render images
+        var $rvType = $('#RVTypeID_' + uniqueID).data('kendoComboBox').value();
+        if ($rvType != null && $rvType != undefined && $rvType > 0) {
+            SetImage($rvType, uniqueID);
+        }
+        else {
+            SetImage(-2, uniqueID);
+        }
+        SetDefaultWeight(uniqueID);
+    }
+
+    function SetImage(index, uniqueID) {
+
+        var $rvImage = $("#RVImage_" + uniqueID);
+        // Loop through the RVImages array to find out the element with ID = index and pick up the image file
+        var imagefound = false;
+        var RVImages = JSON.parse($("#hdnRVImages_" + uniqueID).val());
+
+        for (var i = 0; i < RVImages.length; i++) {
+
+            if (RVImages[i].ID == index) {
+                if (RVImages[i].ImageFile != null) {
+                    $rvImage.attr("src", "/Content/img/rv-images/" + RVImages[i].ImageFile);
+                    imagefound = true;
+                }
+            }
+        }
+        if (index == "-2") {
+            $rvImage.attr("src", "");
+            imagefound = true;
+        }
+        if (!imagefound) {
+            $rvImage.attr("src", "/Content/img/rv-images/RVType-NOIMAGE.gif");
+
+        }
+
+        $rvImage.show();
+
+        if (index == "-2") {
+            $rvImage.hide();
+        }
+    }
+</script>
+<style type="text/css">
+    .input.full-width2
+    {
+        width: 99% !important;
+    }
+</style>
+<form id="frmClaimVehicles_@suffixClaimID" action="javascript:void(0);" method="post" relatedButtons="btnSaveClaimSection_@suffixClaimID">
+<div class="with-padding">
+    <div class="columns">
+        <div class="new-row six-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Vehicle Information</legend>
+                @Html.HiddenFor(a => a.Claim.ID)
+                @Html.HiddenFor(a => a.Claim.VehicleID, new { id = "VehicleID_" + suffixClaimID })
+                @Html.Hidden("hdnRVImages_" + suffixClaimID, ViewData["RVImages"])
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="VIN" class="label">
+                            VIN
+                        </label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => Model.Claim.VehicleVIN, new { @class = "input full-width2", id = "VehicleVIN_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => Model.Claim.VehicleVIN, new { @class = "input full-width", id = "VehicleVIN_" + suffixClaimID, style = "float:left" })
+                        }
+                    </p>
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="vehicleType" class="label">
+                        Type</label>
+                    @(Html.Kendo().ComboBoxFor(item => Model.Claim.VehicleTypeID)
+
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>)
+                            .Placeholder("Select Vehicle Type")
+                            .Suggest(true)
+                            .Enable(!isPaid)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events
+                                    .Change(@<text> function(e){ return onComboBoxChange_VehicleType(e,'@suffixClaimID');
+                    }</text>))
+                                                    .HtmlAttributes(new { id = "VehicleTypeID_" + suffixClaimID, style = "width:100%" })
+                            .Value(Model.Claim.VehicleTypeID != null ? Model.Claim.VehicleTypeID.ToString() : string.Empty)
+                            .DataTextField("Text")
+                            .HighlightFirst(true)
+                            .DataValueField("Value")
+                            )
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Year" class="label">
+                        Year</label>
+                    @(Html.Kendo().ComboBoxFor(v => v.Claim.VehicleYear)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModelYear.ToString()] as IEnumerable<SelectListItem>)
+                .Placeholder("Select Year")
+                .Suggest(true)
+                .Enable(!isPaid)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                         .Events(events =>
+                         {
+                             events.Change(@<text> function(e){ return Year_OnChange(e,'@suffixClaimID');
+                    }</text>);
+                         })
+                .DataValueField("Value")
+                .DataTextField("Text")
+                .HighlightFirst(true)
+                .Value(Model.Claim.VehicleYear)
+                             .HtmlAttributes(new { id = "VehicleYear_" + suffixClaimID, style = "width:100%" })
+                )
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Make" class="label">
+                        Make</label>
+                    @(Html.Kendo().ComboBoxFor(v => v.Claim.VehicleMake)
+                .Suggest(true)
+                .Enable(!isPaid)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Placeholder("Select Make")
+                        .Events(events => events.Change(@<text> function(e){ return onComboBoxChange_VehicleMake(e,'@suffixClaimID');
+                    }</text>).DataBound("DefaultDataBoundToAdjustContainerWidth"))
+                            .DataValueField("Value")
+                            .DataTextField("Text")
+                            .HighlightFirst(true)
+                            .Value(Model.Claim.VehicleMake)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleMake.ToString()] as IEnumerable<SelectListItem>)
+                     .HtmlAttributes(new { id = "VehicleMake_" + suffixClaimID, style = "width:100%" })
+                )
+                </div>
+                <div id="divMakeOther_@suffixClaimID" style="display: none;">
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="MakeOther" class="label">
+                            if Other</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleMakeOther, new { @class = "validate[maxSize[50] input", id = "VehicleMakeOther_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleMakeOther, new { @class = "validate[maxSize[50] input", id = "VehicleMakeOther_" + suffixClaimID })
+                        }
+                    </p>
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Model" class="label">
+                        Model</label>
+                    @(Html.Kendo().ComboBoxFor(v => v.Claim.VehicleModel)
+
+                .Placeholder("Select Model")
+                .Suggest(true)
+                .Enable(!isPaid)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleModel.ToString()] as IEnumerable<SelectListItem>)
+                .Events(events =>
+                {
+                    events.Change(@<text> function(e){ return onComboBoxChange_VehicleModelCombo(e,'@suffixClaimID');
+                    }</text>);
+                    events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                })
+                                .DataValueField("Value")
+                                .DataTextField("Text")
+                                .HighlightFirst(true)
+                                .Value(Model.Claim.VehicleModel)
+                                    .HtmlAttributes(new { id = "VehicleModel_" + suffixClaimID, style = "width:100%" })
+                )
+                </div>
+                <div id="divModelOther_@suffixClaimID" style="display: none;">
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="ModelOther" class="label">
+                            if Other</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleModelOther, new { @class = "validate[maxSize[50]] input full-width2", id = "VehicleModelOther_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleModelOther, new { @class = "validate[maxSize[50]] input full-width2", id = "VehicleModelOther_" + suffixClaimID })
+                        }
+                    </p>
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Category" class="label">
+                        Weight Class</label>
+                    @(Html.Kendo().ComboBoxFor(v => v.Claim.VehicleCategoryID)
+
+                     .Suggest(true)
+                     .Enable(!isPaid)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>)
+                     .Events(events =>
+                     {
+                         events.Change("ValidateInputForKendoCombo");
+                     })
+                      .DataValueField("Value")
+                      .DataTextField("Text")
+                      .HighlightFirst(true)
+                      .Value(Model.Claim.VehicleCategoryID == null ? string.Empty : Model.Claim.VehicleCategoryID.Value.ToString())
+                              .HtmlAttributes(new { id = "VehicleCategoryID_" + suffixClaimID, style = "width:100%" })
+                    )
+                </div>
+                @{
+                    string rvTypeCSS = Model.Claim.RVTypeID != null ? string.Empty : "hide";
+                }
+                <div id="rvType_@suffixClaimID" class="@rvTypeCSS">
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label for="RVType" class="label">
+                            RV Type</label>
+                        @(Html.Kendo().ComboBoxFor(v => v.Claim.RVTypeID)
+                          .Suggest(true)
+                          .Enable(!isPaid)
+                          .Filter(FilterType.StartsWith).MinLength(0)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.RVType.ToString()] as IEnumerable<SelectListItem>)
+                          .Events(events =>
+                          {
+                              events.Change(@<text> function(e){ return onComboBoxChange_RVType(e,'@suffixClaimID');
+                        }</text>);
+
+                          })
+                          .DataValueField("Value")
+                          .DataTextField("Text")
+                          .HighlightFirst(true)
+                          .Value(Model.Claim.RVTypeID.HasValue ? Model.Claim.RVTypeID.ToString() : string.Empty)
+                          .HtmlAttributes(new { id = "RVTypeID_" + suffixClaimID })
+                )
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <img src="" border="0" id="RVImage_@suffixClaimID" />
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="Chassis" class="label">
+                            Chassis</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleChassis, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleChassis_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleChassis, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleChassis_" + suffixClaimID })
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="Engine" class="label">
+                            Engine</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleEngine, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleEngine_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleEngine, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleEngine_" + suffixClaimID })
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="Transmission" class="label">
+                            Transmission</label>
+                        @if (isPaid)
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleTransmission, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleTransmission_" + suffixClaimID, disabled = "disabled" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(v => v.Claim.VehicleTransmission, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleTransmission_" + suffixClaimID })
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="VehicleOwner" class="label">
+                            Vehicle Owner</label>
+                         @if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => v.Claim.VehicleOwnerName, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleOwnerName_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => v.Claim.VehicleOwnerName, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleOwnerName_" + suffixClaimID })
+                            }
+                    </p>
+                </div>
+                <div id="OwnerNameSection_@suffixClaimID" class="hide"> <!-- use @hideOwnerFields later -->
+                
+                @*<h4 class="thin">
+                    Owner Information</h4>
+                
+                    <div class="button-height inline-medium-label small-margin-bottom">
+                        <label for="ownerProgram" class="label">
+                            Program</label>
+                        @(Html.Kendo().ComboBox().Name("OwnerProgram")
+                          .Suggest(true)
+                          .Enable(!isPaid)
+                          .Filter(FilterType.StartsWith).MinLength(0)
+                          .BindTo(ViewData["OwnerPrograms"] as IEnumerable<SelectListItem>)
+                          .Events(events =>
+                          {
+                              events.Change("ValidateInputForKendoCombo");
+
+                          })
+                          .DataValueField("Value")
+                          .DataTextField("Text")
+                          .HighlightFirst(true)
+                          .Value(Model.Claim.ProgramID.HasValue ? Model.Claim.ProgramID.ToString(): string.Empty)
+                          .HtmlAttributes(new { id = "OwnerProgram_" + suffixClaimID })
+                )
+                    </div>
+                    <div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="owner" class="label">
+                                Owner Name</label>
+                            @if (isPaid)
+                            {
+                                @Html.TextBoxFor(v => v.Claim.VehicleOwnerName, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleOwnerName_" + suffixClaimID, disabled = "disabled" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(v => v.Claim.VehicleOwnerName, new { @class = "validate[maxSize[100]] input full-width2", id = "VehicleOwnerName_" + suffixClaimID })
+                            }
+                        </p>
+                    </div>*@
+                </div>
+            </fieldset>
+        </div>
+        <div class="six-columns" id="PlaceHolder_Claim_Vehicle_WarrantyInformation_@suffixClaimID">
+            <fieldset class="fieldset">
+                <legend class="legend">Warranty Information</legend>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="WarrantyYearsAndMiles" class="label">
+                            Warranty Period (yrs/miles)
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(v => v.Claim.WarrantyYears)
+                        .Format("{0:N0}")
+                        .Decimals(0)
+                        .Step(1)
+                        .Min(0)
+                        .HtmlAttributes(new { id = "WarrantyYears_" + suffixClaimID, style = "width:25%" })
+                        .Enable(!isPaid)
+                        .Events(events => events.Change(@<text>function(e) { return Warranty_Change('@suffixClaimID');}</text>))
+                                .Spinners(true).Placeholder("Years")
+                            )
+                            
+                        @(Html.Kendo().NumericTextBoxFor(v => v.Claim.WarrantyMiles)
+                        .Decimals(0)
+                        .Format("{0:N0}")
+                        .Events(events => events.Change(@<text>function(e) { return Warranty_Change('@suffixClaimID');}</text>))
+                                                .HtmlAttributes(new { id = "WarrantyMiles_" + suffixClaimID, style = "width:12%" }).Enable(!isPaid)
+                                                .Spinners(false)
+                                                .Placeholder("Miles")
+                        )
+                        
+                    </p>
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="warrantyStart" class="label">
+                        Warranty Start</label>
+                    @(Html.Kendo().DatePickerFor(v => v.Claim.WarrantyStartDate)
+                             .Enable(!isPaid)
+                    .Format("MM/dd/yyyy")
+
+                                                        .HtmlAttributes(new { id = "WarrantyStartDate_" + suffixClaimID, type="text" })
+                                                        .Events(events => events.Change(@<text>function(e)
+                    { return Warranty_Change('@suffixClaimID');}</text>))
+                )
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="Mileage" class="label">
+                            Current Mileage
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(v => v.Claim.CurrentMiles)
+                        .Decimals(0)
+                        .Format("{0:N0}")
+                        .Events(events => events.Change(@<text>function(e) { return Warranty_Change('@suffixClaimID');}</text>))
+                                        .HtmlAttributes(new { id = "CurrentMiles_" + suffixClaimID }).Enable(!isPaid)
+                                                .Spinners(false)
+                        )
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="wtystatus" class="label">
+                            Warranty Status
+                        </label>
+                        <span id="warrantyInfo_@suffixClaimID"></span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label for="isFirstOwner" class="label">
+                            FirstOwner
+                        </label>
+                        @Html.RadioButtonFor(v => v.Claim.IsFirstOwner, true, new { @class="radio" }) Yes
+                        @Html.RadioButtonFor(v => v.Claim.IsFirstOwner, false, new { @class = "radio" }) No
+                    </p>
+                </div>
+                
+            </fieldset>
+        </div>
+    </div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+
+
+
+    $(function () {
+        $("#frmClaimVehicles_@suffixClaimID").validationEngine();
+        HandleMakeOther('@suffixClaimID');
+        HandleModelOther('@suffixClaimID');
+
+        
+        var rvTypeCSS = '@rvTypeCSS';
+        if (rvTypeCSS != "hide") {
+            SetImage('@Model.Claim.RVTypeID', '@suffixClaimID');
+        }
+
+        $("#CurrentMiles_@suffixClaimID").change(function (e) {
+            Warranty_Change('@suffixClaimID');
+        });
+
+        $("#WarrantyMiles_@suffixClaimID").change(function (e) {
+            Warranty_Change('@suffixClaimID');
+        });
+
+        Warranty_Change('@suffixClaimID')
+
+        var vinField = $("#VehicleVIN_@suffixClaimID");
+        if (!vinField.is(":disabled")) {
+
+            var autoFill = vinField.combogrid({
+                url: '@Url.Action("Search", "VIN", new { area = "Common" })',
+                searchButton: true,
+                width: '1000px',
+                replaceNull: true,
+                colModel: [{ 'columnName': 'VIN', 'width': '10', 'label': 'VIN', 'align': 'left' },
+                        { 'columnName': 'VehicleType', 'width': '10', 'label': 'Type', 'align': 'left' },
+                        { 'columnName': 'RVType', 'width': '7', 'label': 'RV Type', 'align': 'left' },
+                        { 'columnName': 'WeightClass', 'width': '12', 'label': 'Weight Class', 'align': 'left' },
+                        { 'columnName': 'Year', 'width': '7', 'label': 'Year', 'align': 'left' },
+                        { 'columnName': 'Make', 'width': '10', 'label': 'Make', 'align': 'left' },
+                        { 'columnName': 'Model', 'width': '10', 'label': 'Model', 'align': 'left' },
+                        { 'columnName': 'WarrantyStartDate', 'width': '18', 'label': 'Warranty Start Date', 'align': 'left' },
+                //{ 'columnName': 'CreateDate', 'width': '7', 'label': 'CreateDate', 'align': 'left' },
+                        {'columnName': 'MembershipNumber', 'width': '15', 'label': 'Member Number', 'align': 'left' },
+
+                        { 'columnName': 'MemberName', 'width': '20', 'label': 'Member Name', 'align': 'left' },
+                //{ 'columnName': 'EffectiveDate', 'width': '7', 'label': 'Effective Date', 'align': 'left' },
+                //{ 'columnName': 'ExpirationDate', 'width': '7', 'label': 'Expiration Date', 'align': 'left' }
+
+                        ],
+                select: function (event, ui) {
+
+                    $("#VehicleVIN_@suffixClaimID").val(ui.item.VIN);
+                    $("#VehicleID_@suffixClaimID").val(ui.item.VehicleID);
+                    payeeType = $('input[name="cmbPayeeTypes_@suffixClaimID' + '_input"]').val();
+                    ownerName = ui.item.MemberName;
+                    var vehicleID = ui.item.VehicleID;
+                    if (vehicleID != null && vehicleID > 0) {
+
+                        console.log("Loading Vehicle by VIN");
+
+                        $.ajax({
+                            url: '@Url.Action("_Vehicle", "Claim", new { area = "Claims" })',
+                            type: 'POST',
+                            data: { vehicleID: vehicleID, claimID: '@suffixClaimID' },
+                            cache: false,
+                            async: true,
+                            global: true,
+                            success: function (msg) {
+
+                                $("#ClaimsVehicleServiceTab_@suffixClaimID").html("");
+                                $("#ClaimsVehicleServiceTab_@suffixClaimID").html(msg);
+                                //                                setTimeout(function () {
+                                //                                    if (payeeType == "Vendor") {
+                                //                                        console.log("Payee Type is = " + payeeType);
+                                //                                        console.log("Membername = " + ownerName);
+                                //                                        $("#VehicleOwnerName_@suffixClaimID").val(ownerName);
+                                //                                    }
+                                //                                    $("#CurrentMiles_@suffixClaimID").siblings(".k-formatted-value").focus();
+
+                                //                                }, 500);
+                            }
+                        });
+                    }
+                    else {
+                        $("#VehicleVIN_@suffixClaimID").val("");
+                    }
+                    return false;
+                }
+            });
+        }
+    });
+</script>

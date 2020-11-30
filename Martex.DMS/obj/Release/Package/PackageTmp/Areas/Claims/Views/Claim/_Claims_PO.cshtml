@@ -1,0 +1,587 @@
+﻿@model Martex.DMS.BLL.Model.VendorInvoiceInfoCommonModel
+@using System.Collections.Generic;
+@using System.Globalization;
+@using System.Threading;
+@using Martex.DMS.Areas.Application.Models;
+@using Kendo.Mvc.UI;
+@using Martex.DMS.ActionFilters;
+@using Martex.DMS.DAL.DAO;
+@using Martex.DMS.BLL.Common;
+@{
+    var suffixClaimID = ViewData["claimID"];
+    var poId = 0;
+    var poNumber = "";
+    if (Model.VendorInvoicePODetails != null)
+    {
+        poId = Model.VendorInvoicePODetails.ID;
+        poNumber = Model.VendorInvoicePODetails.PONumber;
+    }
+
+    var strInvoiceDifferenceThreshold = AppConfigRepository.GetValue(AppConfigConstants.PO_INVOICE_DIFFERENCE_THRESHOLD);
+     
+}
+<script type="text/javascript" language="javascript">
+    function GrdPODetail_onDataBound(e, poID, that) {
+        $("#tooltips").html("");
+
+        //$(".k-grid-add").addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add PO</label>").attr("title", "Add PO");
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+
+        $(".k-grid-add", ".k-grid-delete").click(function () {
+
+            $("#tooltips").html("");
+        });
+        //handling code
+
+        var grid = e.sender;
+        var subTotal = 0;
+        var isMemberPayValue = 0;
+
+
+        e.sender.table.find('tr').each(function () {
+            var $total = $(this).find('#total');
+            var $isMemberPay = $(this).find('#IsMemberPay');
+            var $totalValue = parseFloat($total.text().replace("$", ''));
+            if (!isNaN($totalValue)) {
+                subTotal = subTotal + $totalValue;
+                if ($isMemberPay.is(':checked')) {
+                    isMemberPayValue = isMemberPayValue + $totalValue;
+                }
+
+                var dataRow = that.dataItem($(this));
+                var calTotal = (dataRow.Rate * dataRow.Quantity);
+                dataRow.ExtendedAmount = calTotal;
+                if (!isNaN(calTotal)) {
+                    $total.html("$" + parseFloat(calTotal).toFixed(2));
+                    if (calTotal < 0) {
+                        $total.addClass("red");
+                    }
+                }
+
+                if (dataRow.Rate < 0) {
+                    this.cells[6].className = "red";
+                }
+                var rowRate = dataRow.Rate;
+                if (rowRate != null) {
+                    this.cells[6].innerText = "$" + rowRate.toFixed(2);
+                }
+                else {
+                    this.cells[6].innerText = "$0.00";
+                }
+            }
+        });
+        $("#txtSubtotal_" + poID).html("$" + subTotal.toFixed(2));
+    }
+    function GetReadParams(sender, currentPOID) {
+
+        return { poID: currentPOID };
+    }
+</script>
+@{
+    SelectListItem emptyItem = new SelectListItem() { Selected = true, Value = string.Empty, Text = "Select" };
+    List<SelectListItem> emptyList = new List<SelectListItem>();
+    emptyList.Add(emptyItem);
+}
+<div class="with-padding">
+    <h3 class="underline">
+        PO Information
+    </h3>
+    <div class="boxed historyboxedmin">
+        <div class="columns with-padding">
+            @if (Model.VendorInvoicePODetails != null)
+            {
+                @Html.HiddenFor(a => a.VendorInvoicePODetails.POAmount, new { id = "hdnPOAmount_" + poId });
+                @Html.Hidden(AppConfigConstants.PO_INVOICE_DIFFERENCE_THRESHOLD, strInvoiceDifferenceThreshold, new { id = "hdn" + AppConfigConstants.PO_INVOICE_DIFFERENCE_THRESHOLD + "_" + poId });
+        
+                <div class="twelve-columns">
+                    <button id="btnViewPO_@poId" class="button green-gradient  float-right mid-margin-left margin-bottom"
+            type="button" onclick="AddPOTab(this,@poId,@poNumber)">
+                        View PO</button>
+                </div>
+            }
+            @Html.HiddenFor(a => a.VendorInvoicePODetails.ID, poId)
+            <div class="new-row six-columns">
+                <div>
+                    <p class="inline-label">
+                        <label for="PONumber" class="label">
+                            PO #
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.PONumber)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.PONumber)
+
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Status" class="label">
+                            Status
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            <span class="tag">@Html.HiddenFor(p => p.VendorInvoicePODetails.POStatus)
+                                @Html.DisplayFor(a => a.VendorInvoicePODetails.POStatus, new { @class = "blue-gradient" })
+                            </span>
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.POStatus)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="POAmount" class="label">
+                            Amount
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            if (Model.VendorInvoicePODetails.POAmount != null)
+                            {
+                            @Html.Raw("$ ")@Html.DisplayFor(a => a.VendorInvoicePODetails.POAmount)@Html.Raw(" USD")
+                            }
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.POAmount)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Service" class="label">
+                            Service
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Service)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Service)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="IssueDate" class="label">
+                            Issue Date
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.IssueDate)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.IssueDate)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="ETADate" class="label">
+                            ETA Date
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.ETADate)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.ETADate)
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="six-columns">
+                @if (Model.VendorInvoiceVendorLocationDetails != null)
+                {
+                    <div>
+                        <h5 class="blue ">
+                            <label class="label">
+                                @{
+                    var iconConfig = new VendorListIconConfig();
+
+                    var contractStatusIconStyle = iconConfig.GetIconStyle(Model.VendorInvoicePODetails.ContractStatus ?? string.Empty);
+                    if (!string.IsNullOrEmpty(Model.VendorInvoicePODetails.ContractStatus))
+                    {
+ 
+                                    <span class="@contractStatusIconStyle.Class vendorinfostarred message-status with-tooltip" title="@contractStatusIconStyle.Title">
+                                        &nbsp;</span>
+                    }
+                                }
+                                @Html.DisplayFor(v => v.VendorInvoiceVendorLocationDetails.Name)
+                                @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.Name)
+                            </label>
+                        </h5>
+                    </div>
+                    <div>
+                        <p>
+                            <label class="label">
+                                @Html.DisplayFor(v => v.VendorInvoiceVendorLocationDetails.VendorNumber)
+                                @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.VendorNumber)
+                            </label>
+                        </p>
+                    </div>
+                    <div>
+                        <p>
+                            <label class="label">
+                                @Html.DisplayFor(v => v.VendorInvoiceVendorLocationDetails.Line1) @Html.DisplayFor(v => v.VendorInvoiceVendorLocationDetails.Line2)<br />
+                                @Html.DisplayFor(v => v.VendorInvoiceVendorLocationDetails.BillingCityStZip)
+                                @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.Line1) @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.Line2)<br />
+                                @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.BillingCityStZip)
+                            </label>
+                        </p>
+                    </div>            
+                    <div>
+                        <p>
+                            <label class="label">
+                                <strong>24hr : </strong>
+                                @if (Model.VendorInvoiceVendorLocationDetails.C24HRNumber != null)
+                                {
+                                    @Html.Editor("VendorInvoiceVendorLocationDetails.C24HRNumber", "Phone", new { Value = Model.VendorInvoiceVendorLocationDetails.C24HRNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+                                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.C24HRNumber)
+                                }
+                            </label>
+                        </p>
+                    </div>            
+                    <div>
+                        <p>
+                            <label class="label">
+                                <strong>Fax : </strong>
+                                @if (Model.VendorInvoiceVendorLocationDetails.FaxNumber != null)
+                                {         
+                                    @Html.Editor("VendorInvoiceVendorLocationDetails.FaxPhoneNumber", "Phone", new { Value = Model.VendorInvoiceVendorLocationDetails.FaxNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+@*@Html.Hidden("vendorFax", Model.VendorInvoiceVendorLocationDetails.FaxNumber)*@
+                                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationDetails.FaxNumber)
+                                }
+                            </label>
+                        </p>
+                    </div>            
+                    <div>
+                        <p>
+                            <label class="label">
+                                <strong>Talked To : </strong>
+                                @if (Model.VendorInvoiceVendorLocationDetails.TalkedTo != null)
+                                {         
+                                    @Html.DisplayFor(a => a.VendorInvoiceVendorLocationDetails.TalkedTo)
+                                    @Html.HiddenFor(a => a.VendorInvoiceVendorLocationDetails.TalkedTo)
+                                }
+                            </label>
+                        </p>
+                    </div>            
+                }
+            </div>
+            <div class="new-row twelve-columns">
+                @(Html.Kendo().Grid<Martex.DMS.DAL.Entities.PurchaseOrderDetailsModel>()
+            .Name("grdPODetails_" + poId)
+            .DataSource(dataBinding =>
+            {
+                dataBinding.Ajax()
+                    .Read(read => read.Action("_SelectPODetails", "PO", new { area = "Application", poID = poId as int? })
+                        .Data(@<text>function(e){return GetReadParams(e,'@poId') }</text>))
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Model(u => u.Id(p => p.ID));
+            })
+            .Columns(columns =>
+            {
+                columns.Bound(pd => pd.ID).Hidden();
+                columns.Bound(pd => pd.Sequence).Title("Line").Width("50px");
+                columns.ForeignKey(pd => pd.ProductID, (System.Collections.IEnumerable)ViewData[StaticData.PODetailsProduct.ToString()], "Value", "Text").Title("Service").Width("100px");
+                columns.ForeignKey(pd => pd.ProductRateID, (System.Collections.IEnumerable)emptyList, "Value", "Text").Title("Rate Type").Width("100px").ClientTemplate("#= typeof(RateType) == \"undefined\" ? '' : RateType.Description!=null?RateType.Description:''  #");
+                columns.Bound(pd => pd.Quantity).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("60px");
+                columns.ForeignKey("UnitOfMeasure", (System.Collections.IEnumerable)ViewData[StaticData.PODetailsUOM.ToString()], "Value", "Text").Title("Units").Width("100px");
+                columns.Bound(pd => pd.Rate).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("100px");
+                columns.Bound(pd => pd.ExtendedAmount).Title("Total").Format("{0:C}").HtmlAttributes(new { @style = "text-align:right;" }).Hidden();
+                columns.Template(@<text>{@(item.Quantity * item.Rate)}</text>).Title("Total").ClientTemplate("<span id='total'> #= Quantity * Rate # </span>").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width("100px");
+                columns.Bound(pd => pd.IsMemberPay).ClientTemplate("<input type='checkbox' disabled ='disabled' id='IsMemberPay' #= IsMemberPay? checked='checked' : '' # />").HtmlAttributes(new { @style = "text-align:center" }).HeaderHtmlAttributes(new { @style = "text-align:center" }).Width("100px");
+            }
+            )
+            .Events(events => events
+                .DataBound(@<text>function(e){return GrdPODetail_onDataBound(e,'@poId', this)}</text>)
+                )
+            .Sortable(p => { p.Enabled(false); })
+            .Filterable(p => { p.Enabled(false); })
+            .Pageable(p => { p.Enabled(false); })
+            .EnableCustomBinding(true)
+            .Scrollable())
+            </div>
+            <div class="new-row six-columns">
+                <div>
+                    <p class="inline-label">
+                        <label for="Client" class="label">
+                            Client
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Client)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Client)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Program" class="label">
+                            Program
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Program)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Program)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="MemberNumber" class="label">
+                            Membership #
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.MemberNumber)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.MemberNumber)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Client" class="label">
+                            Member Name
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Client)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Client)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Client" class="label">
+                            Member Status
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            if (@Model.VendorInvoicePODetails.MemberStatus == "Active")
+                            {
+                            <small class="tag green-bg">Active</small>
+                            }
+                            else
+                            {
+                            <small class="tag red-bg">Inactive</small>
+                            }
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="CallbackNumber" class="label">
+                            Callback Number
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.Editor("VendorInvoicePODetails.CallbackNumber", "Phone", new { Value = Model.VendorInvoicePODetails.CallbackNumber, ShowPhoneType = false, ShowCallIcon = false, ReadOnly = true, CallType = "Vendor" })
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.CallbackNumber)
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="six-columns">
+                <div>
+                    <p class="inline-label">
+                        <label for="SubTotal" class="label">
+                            Sub Total
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            <label id="txtSubtotal_@poId" readonly="readonly"
+                        value="0.00" style="text-align: right" />                            
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Tax" class="label">
+                            Tax
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            if (Model.VendorInvoicePODetails.Tax != null)
+                            {
+                            @Html.Raw("$")}@Html.DisplayFor(a => a.VendorInvoicePODetails.Tax)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Tax)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="ServiceTotal" class="label">
+                            Service Total
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.Raw("$")@Html.DisplayFor(a => a.VendorInvoicePODetails.ServiceTotal)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.ServiceTotal)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="CoachNetPays" class="label">
+                            Coach-Net Pays
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.Raw("$")@Html.DisplayFor(a => a.VendorInvoicePODetails.CoachNetPays)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.CoachNetPays)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="MemberPays" class="label">
+                            Member Pays
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.Raw("$")@Html.DisplayFor(a => a.VendorInvoicePODetails.MemberPays)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.MemberPays)
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="new-row six-columns">
+                <div>
+                    <p class="inline-label">
+                        <label for="VehicleType" class="label">
+                            Vehicle Type
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.VehicleType)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.VehicleType)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Vehicle" class="label">
+                            Vehicle
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Vehicle)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Vehicle)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="VIN" class="label">
+                            VIN
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.VIN)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.VIN)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Color" class="label">
+                            Color
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Color)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Color)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="License" class="label">
+                            License
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.License)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.License)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Mileage" class="label">
+                            Mileage
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Mileage)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Mileage)
+                        }
+                    </p>
+                </div>
+            </div>
+            <div class="six-columns">
+                <div>
+                    <p class="inline-label">
+                        <label for="Location" class="label">
+                            Location
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Location)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Location)
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="inline-label">
+                        <label for="Destination" class="label">
+                            Destination
+                        </label>
+                        @if (Model.VendorInvoicePODetails != null)
+                        {
+                            @Html.DisplayFor(a => a.VendorInvoicePODetails.Destination)
+                            @Html.HiddenFor(a => a.VendorInvoicePODetails.Destination)
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <p class="inline-label">
+            <label for="CreateDate" class="label">
+                Create Date
+            </label>
+            @if (Model.VendorInvoicePODetails != null)
+            {
+                @Html.DisplayFor(a => a.VendorInvoicePODetails.CreateBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoicePODetails.CreateDate) 
+            }
+        </p>
+    </div>
+    <div>
+        <p class="inline-label">
+            <label for="ModifiedDate" class="label">
+                Modified Date
+            </label>
+            @if (Model.VendorInvoicePODetails != null)
+            {
+                @Html.DisplayFor(a => a.VendorInvoicePODetails.ModifyBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoicePODetails.ModifyDate) 
+            }
+        </p>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    function AddPOTab(sender,poID, poNumber) {
+        if (poNumber == undefined) {
+            poNumber = '';
+        }
+        var tabTitle = "PO(" + poID.toString() + ")" + poNumber.toString();
+
+        if (canAddGenericTabInCurrentContainer(tabTitle, tabObject)) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("PODetails", "History", new { area = "Application" })',
+                traditional: true,
+                data: { poId: poID, pageMode: 'view' },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    addGenericTabWithCurrentContainer(tabTitle, tabObject, msg);
+                }
+            });
+        }
+    }
+</script>

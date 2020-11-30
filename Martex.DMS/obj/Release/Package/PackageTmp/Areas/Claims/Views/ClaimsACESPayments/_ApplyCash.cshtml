@@ -1,0 +1,367 @@
+﻿@model Martex.DMS.BLL.Model.ApplyCashClaimsModel
+@using Kendo.Mvc.UI;
+<script type="text/javascript" language="javascript">
+
+    function updateAmount(cb) {
+        var onAccount = $("#OnAccount").val().replace("$", "");
+        var onAccountParsedValue = parseFloat(onAccount);
+        var $chk = $(cb);
+        var grid = $("#GrdClaimsList").data("kendoGrid");
+        var tr = $chk.parents("tr");
+        var appliedAmountValue = 0;
+        var $acesAmount = tr.find(".approvedAmount");
+        var $acesFeeAmount = tr.find(".acesFeeAmount");
+        var $appliedAmount = tr.find(".appliedAmount");
+        var $totalAmount = parseFloat($("#txtTotalAmount").val());
+
+        if ($chk.is(":checked")) {
+            
+            if (!isNaN(parseFloat($acesAmount.html().replace("$", "")))) {
+                appliedAmountValue = parseFloat($acesAmount.html().replace("$", "").replace(",", ""));
+
+                acesFeeAmountValue = parseFloat($acesFeeAmount.html().replace("$", "").replace(",", ""));
+
+                if (!isNaN(parseFloat($acesFeeAmount.html().replace("$", "")))) {
+                    totalAmountToBeApplied = appliedAmountValue + acesFeeAmountValue;
+                }
+                else {
+                    totalAmountToBeApplied = appliedAmountValue;
+                }
+                if (onAccountParsedValue <= 0) {
+                    $chk.attr("checked", false);
+                    openAlertMessage("There is not enough money to pay the given claim");
+                    return;
+                }
+                if ((totalAmountToBeApplied + $totalAmount) > onAccountParsedValue) {
+                    $chk.attr("checked", false);
+                    openAlertMessage("There is not enough money to pay the given claim");
+                    return;
+                }
+                $appliedAmount.html("$" + totalAmountToBeApplied.toFixed(2));
+            }
+            else {
+                $chk.attr("checked", false);
+                openAlertMessage("There is not enough money to pay the given claim");
+                return;
+            }
+        }
+        else {
+            $appliedAmount.html("");
+        }
+
+        var totalAppliedAmount = 0;
+        $(".appliedAmount").each(function () {
+
+            var that = $(this);
+            var text = that.text().replace("$", "").replace(",", "");
+            var amount = 0;
+            var parsedValue = parseFloat(text);
+            if (!isNaN(parsedValue)) {
+                totalAppliedAmount += parsedValue;
+            }
+        });
+
+        var remainingAmount = 0;
+        $("#txtTotalAmount").data("kendoNumericTextBox").value(totalAppliedAmount);
+        $("#AmountApplied").data("kendoNumericTextBox").value(totalAppliedAmount);
+
+
+        remainingAmount = parseFloat(onAccountParsedValue - totalAppliedAmount);
+        $("#AmountRemaining").data("kendoNumericTextBox").value(remainingAmount);
+        var parsedTotalAmount = parseFloat($("#txtTotalAmount").val());
+        $("#lblTotalAmount").text(kendo.toString(parsedTotalAmount, "c"));
+
+    }
+
+    
+</script>
+<br />
+<div class="columns">
+    <div class="one-columns" style="float: right;">
+        <div style="min-height: 25px; margin: 5px;" id="divApplyCash">
+            <div style="display: inline-block; vertical-align: top; float: right;">
+                <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab();">
+                    X</a>
+            </div>
+        </div>
+    </div>
+    <div class="with-padding" id="divACESPaymentsApplyCash">
+        <div class="twelve-columns">
+            <div class="columns">
+                <div class="six-columns">
+                </div>
+                <div class="four-columns">
+                    <div style="text-align: right" class="button-height small-margin-bottom">
+                        <label for="OnAccount" class="label">
+                            On Account
+                        </label>
+                        @*@Html.TextBoxFor(a => a.OnAccount, new { disabled = "disabled", @class = "input" })&nbsp;*@
+                        @(Html.Kendo().NumericTextBoxFor(a => a.OnAccount)
+                .Name("OnAccount")
+
+                        .Format("C")
+                .Min(0)
+                        .HtmlAttributes(new { id = "OnAccount", @disabled = "disabled", @class = "black input", @style = "text-align:right;" })
+                .Spinners(false)
+               .Value(Model.OnAccount != null ? Model.OnAccount : 0)
+                )
+                    </div>
+                    <div class="clear">
+                    </div>
+                    <div style="text-align: right" class="button-height small-margin-bottom">
+                        <label for="AmountApplied" class="label">
+                            Amount Applied
+                        </label>
+                        @*@Html.TextBoxFor(a => a.AmountApplied, new { disabled = "disabled", @class = "input" })*@
+                        @(Html.Kendo().NumericTextBoxFor(a => a.AmountApplied)
+                .Name("AmountApplied")
+
+                        .Format("C")
+                .Min(0)
+                        .HtmlAttributes(new { id = "AmountApplied", @disabled = "disabled", @class = "black glossy input", @style = "text-align:right;" })
+                .Spinners(false)
+                .Value(Model.AmountApplied != null ? Model.AmountApplied : 0)
+                )
+                    </div>
+                    <div class="clear">
+                    </div>
+                    <div style="text-align: right" class="button-height  small-margin-bottom">
+                        <label for="AmountRemaining" class="label">
+                            Amount Remaining
+                        </label>
+                        @*@Html.TextBoxFor(a => a.AmountRemaining, new { disabled = "disabled", @class = "input" })*@
+                        @(Html.Kendo().NumericTextBoxFor(a => a.AmountRemaining)
+                .Name("AmountRemaining")
+
+                        .Format("C")
+                .Min(0)
+                        .HtmlAttributes(new { id = "AmountRemaining", @disabled = "disabled", @class = "black glossy input", @style = "text-align:right;" })
+                .Spinners(false)
+                .Value(Model.AmountRemaining != null ? Model.AmountRemaining : 0)
+                )
+                    </div>
+                    <div class="clear">
+                    </div>
+                    <div style="text-align: right; padding-right: 100px" class="margin-top">
+                        <a href="#" onclick="CashClearAll();">Clear All</a>
+                    </div>
+                </div>
+                <div class="two-columns">
+                    <button id="btnApplyCashCalculate" class="button green-gradient small-margin-top"
+                        type="button">
+                        Apply Cash</button></div>
+            </div>
+            <div>
+                @(Html.Kendo().Grid(Model.ClaimsList)
+                .Name("GrdClaimsList")
+                .Columns(columns =>
+                {
+                    columns.Bound(a => a.Type).Title("Type").Filterable(false);
+                    columns.Bound(a => a.ClaimNumber).Title("Claim #").HtmlAttributes(new { @class = "claimNumber" }).Filterable(false);
+                    columns.Bound(a => a.ReceivedDate).Title("Recv Date").Format("{0:MM/dd/yyyy}").Filterable(false);
+                    columns.Bound(a => a.AmountRequested).Title("Reqd Amt").Format("{0:c}").Filterable(false);
+                    columns.Bound(a => a.Payee).Title("Payee").Filterable(false);
+                    columns.Bound(a => a.Status).Title("Status").Filterable(false);
+                    columns.Bound(a => a.ApprovedAmount).Title("App Amt").Format("{0:c}").HtmlAttributes(new { @class = "approvedAmount" }).Filterable(false);
+                    columns.Bound(a => a.ACESFeeAmount).Title("Fee").Format("{0:c}").HtmlAttributes(new { @class = "acesFeeAmount" }).Filterable(false);
+                    //columns.Bound(a => a.ACESReferenceNumber).Title("ACES Ref #").Filterable(false);
+                    columns.Bound(a => a.ACESSubmitDate).Title("Submit").Format("{0:MM/dd/yyyy}").Filterable(false);
+                    columns.Bound(a => a.ACESOutcome).Title("Outcome").Filterable(false);
+                    //columns.Bound(a => a.ACESAmount).Title("Amount").Format("{0:c}").Filterable(false);
+                    columns.Bound(a => a.Selected).ClientTemplate("<input type='checkbox' class='chkSelected' onchange='updateAmount(this)' />");
+                    columns.Bound(a => a.Applied).Title("Applied").Format("{0:c}").Filterable(false).HtmlAttributes(new { @class = "appliedAmount" });//
+
+                })
+                .Resizable(a => a.Columns(true))
+                .Scrollable()
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                            .Read(read => read.Action("_BindApplyCashClaims", "ClaimsACESPayments")
+                        )
+                    )
+                )
+            </div>
+            <div class="clear">
+            </div>
+            <div class="columns">
+                <div class="ten-columns">
+                    <div style="text-align: right" class="margin-top">
+                        <label class="label">
+                            Totals
+                        </label>
+                        &nbsp;&nbsp; <span class="label" id="lblTotalAmount"></span>&nbsp;
+                        @(Html.Kendo().NumericTextBox()
+                .Name("txtTotalAmount")
+                .Format("C")
+                .Min(0)
+                .HtmlAttributes(new { id = "txtTotalAmount", @disabled = "disabled", @class = "black glossy input", @style = "text-align:right;" })
+                .Spinners(false)
+                .Value(0)
+                )
+                    </div>
+                </div>
+            </div>
+            <div class="clear">
+            </div>
+            <div style="text-align: center">
+                <button id="btnApplyCashCancel" class="button silver-gradient margin-bottom" type="button"
+                    onclick="DeleteTab();">
+                    Cancel</button>&nbsp;&nbsp;
+                <button id="btnApplyCashSubmit" class="button blue-gradient margin-bottom" type="button">
+                    Finish</button>
+            </div>
+        </div>
+        @Html.Hidden("hndClientId", @ViewData["ClientId"])
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+
+    $(function () {
+        WatchMyContainer("divACESPaymentsApplyCash");
+        var onAccount = $("#OnAccount").data("kendoNumericTextBox").value();
+        var parsedValue = parseFloat(onAccount);
+        if (!isNaN(parsedValue)) {
+            $("#OnAccount").data("kendoNumericTextBox").value(parsedValue);
+            $("#AmountRemaining").data("kendoNumericTextBox").value(parsedValue);
+        }
+        var intialamountApplied = 0;
+        var parsedTotalAmount = parseFloat($("#txtTotalAmount").val());
+        $("#lblTotalAmount").text(kendo.toString(parsedTotalAmount, "c"));
+        $("#AmountApplied").val(parseFloat(intialamountApplied).toFixed(2));
+        $("#btnApplyCashCalculate").click(function (e) {
+
+            OnApplyCash();
+        });
+
+        $("#btnApplyCashSubmit").click(function (e) {
+
+            var count = 0;
+            var claimIds = new Array();
+            var grid = $("#GrdClaimsList").data("kendoGrid");
+            $(".chkSelected").each(function () {
+                var chkSelected = $(this);
+                if (chkSelected.is(":checked")) {
+                    var tr = chkSelected.parents("tr");
+                    var claimId = tr.find(".claimNumber");
+                    claimIds.push(claimId.html());
+                    count = count + 1;
+                }
+
+            });
+            var clientId = $("#hndClientId").val();
+            var totalApplied = $("#AmountApplied").val();
+            var paymentBalance = $("#AmountRemaining").val();
+
+            var formattedRemainingAmount = 0;
+            var parsedValue = parseFloat($("#AmountRemaining").val());
+            formattedRemainingAmount = kendo.toString(parsedValue, "c");
+
+            if (count > 0) {
+                CleanMyContainer("divACESPaymentsApplyCash");
+                var message = "This will tag all of the selected claims for payment and reduce the OnAccount balance to " + formattedRemainingAmount + ". Do you want to continue?";
+                $.modal.confirm(message, function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("_ApplyCashClaimFinish", "ClaimsACESPayments")',
+                        traditional: true,
+                        cache: false,
+                        async: true,
+                        data: { claimIdList: claimIds, totalApplied: totalApplied, clientId: clientId, paymentBalance: paymentBalance },
+                        success: function (msg) {
+
+                            if (msg.Status == "BusinessRuleFail") {
+                                openAlertMessage(msg.ErrorMessage);
+                            }
+                            else {
+                                openAlertMessage("Successfully applied cash claims.");
+                                CleanMyContainer('divACESPaymentsApplyCash');
+                                $("#OnAccount").data("kendoNumericTextBox").value($("#AmountRemaining").data("kendoNumericTextBox").value());
+                                $("#AmountRemaining").data("kendoNumericTextBox").value(0);
+                                $("#txtTotalAmount").data("kendoNumericTextBox").value(0);
+                                $("#AmountApplied").data("kendoNumericTextBox").value(0);
+                                var parsedTotalAmount = parseFloat($("#txtTotalAmount").val());
+                                $("#lblTotalAmount").text(kendo.toString(parsedTotalAmount, "c"));
+                                $('#GrdClaimsList').data('kendoGrid').dataSource.read();
+                                $('#grdACESPayments').data('kendoGrid').dataSource.read();
+                            }
+                        }
+                    });
+                }, function () {
+
+                });
+
+            }
+            else {
+                openAlertMessage("You must first select some items.");
+                return false;
+            }
+
+        });
+    });
+
+    function OnApplyCash() {
+
+        var grid = $("#GrdClaimsList").data("kendoGrid");
+        var totalApplied = 0;
+        var onAccount = $("#OnAccount").val();
+        var onAccountParsedValue = parseFloat(onAccount);
+
+        $(".chkSelected").each(function () {
+            
+            var currentObj = $(this);
+            var tr = currentObj.parents("tr");
+            var $acesAmount = tr.find(".approvedAmount");
+            var approvedAmount = parseFloat($acesAmount.html().replace("$", "").replace(",", ""));
+
+            var $acesFee = tr.find(".acesFeeAmount");
+            var acesFeeAmount = parseFloat($acesFee.html().replace("$", "").replace(",", ""));
+
+            var amount = approvedAmount;
+            if (!isNaN(acesFeeAmount)) {
+                amount = amount + acesFeeAmount;
+            }
+            if (!isNaN(amount)) {
+                if ((totalApplied + amount) <= onAccountParsedValue) {
+                    totalApplied = totalApplied + amount;
+                    $(currentObj).attr("checked", true);
+                    var $appliedAmount = tr.find(".appliedAmount");
+                    $appliedAmount.html("$" + amount.toFixed(2));
+                }
+                else {
+                    $(currentObj).attr("checked", false);
+
+                }
+            }
+            else {
+                $(currentObj).attr("checked", false);
+            }
+        });
+        
+        var remainingAmount = 0;
+        $("#txtTotalAmount").data("kendoNumericTextBox").value(parseFloat(totalApplied));
+        $("#AmountApplied").data("kendoNumericTextBox").value(parseFloat(totalApplied));
+        remainingAmount = parseFloat(onAccountParsedValue - totalApplied);
+        $("#AmountRemaining").data("kendoNumericTextBox").value(remainingAmount);
+        var parsedTotalAmount = parseFloat($("#txtTotalAmount").val());
+        $("#lblTotalAmount").text(kendo.toString(parsedTotalAmount, "c"));
+        MarkContainerAsDirty("divACESPaymentsApplyCash");
+    }
+
+    function CashClearAll() {
+        $(".chkSelected").each(function () {
+            var chck = $(this);
+            $(chck).attr("checked", false);
+            var tr = $(this).parents("tr");
+            var $appliedAmount = tr.find(".appliedAmount");
+            $appliedAmount.html("");
+        });
+        var value = 0;
+        $("#txtTotalAmount").data("kendoNumericTextBox").value(value);
+        $("#AmountApplied").data("kendoNumericTextBox").value(value);
+        $("#AmountRemaining").data("kendoNumericTextBox").value($("#OnAccount").data("kendoNumericTextBox").value());
+        var parsedTotalAmount = parseFloat($("#txtTotalAmount").val());
+        $("#lblTotalAmount").text(kendo.toString(parsedTotalAmount, "c"));
+        MarkContainerAsDirty("divACESPaymentsApplyCash");
+    }
+</script>

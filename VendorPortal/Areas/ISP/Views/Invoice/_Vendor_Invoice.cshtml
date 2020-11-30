@@ -1,0 +1,406 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.VendorPortalInvoiceList_Result>
+@{
+    var entityName = Martex.DMS.DAL.Common.EntityNames.VENDOR_INVOICE;
+}
+<script language="javascript" src="@Url.Content("~/Scripts/FileTypeIcons.js")"></script>
+<script type="text/javascript">
+    function VendorPortalInvoiceSearchCriteria() {
+
+        var newArray = [];
+        newArray.push({ name: "DateSectionFromDate", value: $("#DateSectionFromDate").val() });
+        newArray.push({ name: "DateSectionToDate", value: $("#DateSectionToDate").val() });
+        newArray.push({ name: "PONumber", value: $("#PONumber").val() });
+        newArray.push({ name: "DateSectionPresetValue", value: $("#DateSectionPreset").data("kendoComboBox").text() });
+
+        var vendorCriteria = {};
+        for (var i = 0; i < newArray.length; ++i)
+            vendorCriteria[newArray[i].name] = newArray[i].value;
+        return vendorCriteria;
+
+    }
+
+    function DateSectionPresetOnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        DatePresetOnChange(value);
+    }
+    function DatePresetOnChange(value) {
+
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker");
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker");
+        var endDate = new Date();
+        var startDate = new Date();
+        var minDate = Date.parse('1/1/1900');
+        var maxDate = Date.parse('12/31/3000');
+
+        var from, to;
+
+        endPicker.value('');
+        startPicker.value('');
+        endPicker.min(minDate);
+        startPicker.max(maxDate);
+
+        if (value == 1) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 7);
+            startPicker.value(startDate);
+
+            startDate.setDate(startDate.getDate() + 1);
+            endDate.setDate(endDate.getDate() - 1);
+            endPicker.min(startDate);
+            startPicker.max(endDate);
+        }
+        else if (value == 2) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 30);
+            startPicker.value(startDate);
+
+            startDate.setDate(startDate.getDate() + 1);
+            endDate.setDate(endDate.getDate() - 1);
+            endPicker.min(startDate);
+            startPicker.max(endDate);
+        }
+        else if (value == 3) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 90);
+            startPicker.value(startDate);
+
+            startDate.setDate(startDate.getDate() + 1);
+            endDate.setDate(endDate.getDate() - 1);
+            endPicker.min(startDate);
+            startPicker.max(endDate);
+        }
+        else {
+            endPicker.value('');
+            startPicker.value('')
+        }
+    }
+    function StartDateChange() {
+
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker"),
+            startDate = this.value();
+        var startMonth = startDate.getMonth() + 1,
+        startDay = startDate.getDate(),
+        startYear = startDate.getFullYear();
+
+        if (startDate) {
+            startDate = new Date(startMonth + '/' + startDay + '/' + startYear);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function EndDateChange() {
+
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker"),
+            endDate = this.value();
+        var endMonth = endDate.getMonth() + 1,
+            endDay = endDate.getDate(),
+            endYear = endDate.getFullYear();
+
+        if (endDate) {
+            endDate = new Date(endMonth + '/' + endDay + '/' + endYear);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function grdVenodorInvoices_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        var grid = e.sender;
+        var that = this;
+        e.sender.table.find('tr').each(function () {
+            var $PaymentDate = $(this).find('.paymentDate');
+            var paymentDateText = $PaymentDate.text();
+            if ($.trim(paymentDateText).length == 0) {
+                $PaymentDate.html("Open");
+            }
+            var dataRow = that.dataItem($(this));
+            var docName = dataRow.DocumentName;
+            if (docName != null && docName.length > 0) {                
+                var extension = dataRow.DocumentType;
+                if (extension != null) {
+                    if (extension.length > 3) {
+                        extension = extension.substr(0, 3);
+                    }
+
+                    var fileIconSrc = fileIcons["no-image"];
+                    if (fileIcons[extension] != null) {
+                        fileIconSrc = fileIcons[extension];
+                    }
+
+                    var img = $(this).find(".fileTypeImage");
+                    if (img.length > 0) {
+                        img.attr("src", fileIconSrc);
+                        img.addClass("with-tooltip").attr("title", dataRow.DocumentType);
+                    }
+                }
+            }
+            else {
+                $(this).find(".k-grid-View").addClass("hidden");
+            }
+        });
+    }
+    function ManageDocument(e, entityName, that) {
+        if (e != null) {
+            var documentID = that.dataItem($(e.currentTarget).closest("tr")).DocumentID;
+            var documentName = that.dataItem($(e.currentTarget).closest("tr")).DocumentName;
+            if (e.data.commandName == 'View') {
+                var hiddenForm = $("#frmGetDocument");
+                hiddenForm.find("#documentID").val(documentID);
+                hiddenForm.find("#documentName").val(documentName);
+                hiddenForm.submit();
+            }
+        }
+        return false;
+    }
+</script>
+<div class="with-padding">
+    <div class="with-padding">
+        <fieldset class="fieldset">
+            <legend class="legend">Search Criteria</legend>
+            <form id="frmVendorPortalInvoiceSearchCriteria" action="javascript:void(0)" method="post">
+                <div class="with-padding">
+                    <b>PO Number:</b>
+                    @Html.TextBox("PONumber", string.Empty, new { @class = "input" })
+                    <b>Date Range:</b>
+                    @(Html.Kendo().ComboBox()
+                .BindTo(ViewData["HistorySearchCriteriaDatePreset"] as IEnumerable<SelectListItem>)
+                .Name("DateSectionPreset")
+                .SelectedIndex(0)
+                .HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("DateSectionPresetOnChange"))
+                .HtmlAttributes(new { style = "width:150px" })
+
+                    )
+                    <b>From:</b>
+                    @(Html.Kendo().DatePicker()
+                .Name("DateSectionFromDate")
+                .Events(e => e.Change("StartDateChange"))
+                .HtmlAttributes(new { style = "width:150px", type = "text" })
+                    //.Value(DateTime.Today.AddDays(-30))
+                    )
+                    <b>To:</b>
+                    @(Html.Kendo().DatePicker()
+                .Name("DateSectionToDate")
+                .Events(e => e.Change("EndDateChange"))
+                .HtmlAttributes(new { style = "width:150px", type = "text" })
+                    //.Value(DateTime.Today)
+                    )
+                    <button id="btnSearchInvoices" class="button blue-gradient  mid-margin-left margin-bottom"
+                            type="button">
+                        Search
+                    </button>
+                    <button id="btnResetSearchInvoices" class="button gray-gradient  mid-margin-left margin-bottom"
+                            type="button">
+                        Reset
+                    </button>
+                </div>
+            </form>
+            <form id="frmGetDocument" method="post" action="@Url.Action("Get", "Documents", new { area = "Common" })" target="_blank" class="hidden">
+                <input type="hidden" name="documentID" id="documentID" value="" />
+                <input type="hidden" name="documentName" id="documentName" value="" />
+                <input type="hidden" name="recordId" id="recordId" value="" />
+                <input type="hidden" name="isContentFromFile" id="isContentFromFile" value="false" />
+                <input type="submit" value="submit" />
+            </form>
+        </fieldset>
+    </div>
+    <div class="with-padding" id="div_vendorManagementList">
+        <div class="tabs-content">
+            @(Html.Kendo().Grid(Model)
+            .Name("GrdVenodorInvoices")
+            .Columns(column =>
+            {
+                column.Bound(u => u.ID).Hidden().Title("ID");
+                column.Bound(u => u.PurchaseOrderNumber).Title("PO #").Width(100);
+                column.Bound(u => u.IssueDate).Format("{0:MM/dd/yyyy}").Title("PO Date").Width(100);
+                column.Bound(u => u.Service).Title("Service").Width(100);
+                column.Bound(u => u.InvoiceNumber).Title("Invoice #").Width(100);
+                column.Bound(u => u.InvoiceDate).Format("{0:MM/dd/yyyy}").Title("Invoice Date").Width(100);
+                column.Bound(u => u.InvoiceAmount).Title("Amount").Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+                column.Bound(u => u.ToBePaidDate).Format("{0:MM/dd/yyyy}").Title("Payment Date").Width(100).HtmlAttributes(new { @class = "paymentDate" });
+                column.Bound(u => u.PaymentType).Title("Payment Type").Width(100);
+                column.Bound(u => u.SubmitMethod).Title("Submit Method").Width(100);
+                column.Bound(u => u.DocumentID).Hidden();
+                column.Bound(u => u.DocumentName).Hidden();
+                column.Bound(p => p.DocumentType).Title("Document").Width(100).ClientTemplate("<img src='' class='fileTypeImage'>");
+                column.Command(command =>
+                {
+                    command.Custom("View").Click(@<text>function(e) { return ManageDocument(e,'@entityName',this);
+                    }</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View Document" });
+
+                }).Width(100)
+                .Title("Action(s)");
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .Pageable(pager => pager
+                    .Refresh(true)
+                    .PageSizes(new int[] { 10, 20, 50, 100 })
+                            .Messages(m => m.Empty("No invoices found for the search criteria you entered"))
+
+
+            )
+            .Events(e => e.DataBound("grdVenodorInvoices_OnDataBound"))
+            .EnableCustomBinding(true)
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+            .DataSource(datasource => datasource
+                .Ajax()
+                .PageSize(20)
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("_GetVendorInvoiceList", "Invoice", new { area = "ISP" })
+                .Data(@<text>function(e){return VendorPortalInvoiceSearchCriteria()}</text>)
+
+                                                                    )
+                                                                    )
+                                                                    .Resizable(resize => resize.Columns(true))
+            )
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("#frmVendorPortalInvoiceSearchCriteria").validationEngine();
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+    $("#btnResetSearchInvoices").click(function (e) {
+        var dateSectionPrestCombo = $("#DateSectionPreset").data("kendoComboBox");
+        dateSectionPrestCombo.value(0);
+        DatePresetOnChange(0);
+        $("#PONumber").val('');
+        $('#GrdVenodorInvoices').data('kendoGrid').dataSource.read();
+
+        var fromDate = $("#DateSectionFromDate").data("kendoDatePicker");
+        var toDate = $("#DateSectionToDate").data("kendoDatePicker");
+        var maxDate = new Date(2099, 12, 31);
+        var minDate = new Date(1900, 1, 1);
+        fromDate.min(minDate);
+        fromDate.max(maxDate);
+        toDate.min(minDate);
+        toDate.max(maxDate);
+
+    });
+    $("#btnSearchInvoices").click(function (e) {
+        HideValidationMessage($(this));
+        //var errorfoundDateFrom = false;
+        //var errorfoundDateTO = false;
+        //var errorFoundDate = false;
+        //var errorFoundPONum = false;
+        //var isPageValid = true;
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker");
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker");
+
+        var startPickerVal = startPicker.value();
+        var endPickerVal = endPicker.value();
+
+
+        // KB: check to see if the picker values got evaluated to be null.
+        // This might happen when the user tried to enter the dates via keyboard in the text fields.
+        // Try parsing the date strings and set them on the picker.
+        // The picker would not allow if the dates are not valid (due to the current calendar selections).
+
+        if (startPickerVal == null) {
+            var d = $("#DateSectionFromDate").val();
+            if ($.trim(d).length > 0) {
+                var inputDate = Date.parse(d);
+                if (inputDate) {
+                    startPicker.value(inputDate);
+                    startPickerVal = startPicker.value();
+                }
+            }
+        }
+
+
+        if (endPickerVal == null) {
+            var d = $("#DateSectionToDate").val();
+            if ($.trim(d).length > 0) {
+                var inputDate = Date.parse(d);
+                if (inputDate) {
+                    endPicker.value(inputDate);
+                    endPickerVal = endPicker.value();
+                }
+            }
+        }
+
+        var datePreset = $("#DateSectionPreset").data("kendoComboBox").value();
+
+
+        // Case 1 : when All - no validation when both the dates are empty.
+        // Case 2 : when All - Validate when one of the two dates is not empty.
+        // case 3 : In any other case, when the two dates are given, validate the range.
+
+        var validate = false;
+        if (datePreset == 0 && (startPickerVal != null || endPickerVal != null)) {
+            validate = true;
+        }
+
+        if (datePreset == 0 && (startPickerVal == null && endPickerVal == null)) {
+            validate = false;
+        }
+
+        if (datePreset != 0) {
+            validate = true;
+        }
+
+        //if (startPickerVal == null || endPickerVal == null || (startPickerVal != null && endPickerVal != null)) {
+        if (validate && (startPickerVal == null || endPickerVal == null || (startPickerVal != null && endPickerVal != null && endPickerVal < startPickerVal))) {
+            ShowValidationMessage($('input[name="DateSectionToDate"]'), "To Date must be after the From Date.");
+            return false;
+        }
+        //}
+        //        var PONumber = $("#PONumber").val();
+        //        if ($.trim(startPickerVal).length == 0) {
+        //            errorfoundDateFrom = true;
+        //        }
+        //        else {
+        //            if ($.trim(endPickerVal).length == 0) {
+        //                ShowValidationMessage($('input[name="DateSectionToDate"]'), "* Please Select TO date.");
+        //                return false;
+        //            }
+        //        }
+
+        //        if ($.trim(endPickerVal).length == 0) {
+        //            errorfoundDateTO = true;
+        //        }
+        //        else {
+        //            if ($.trim(startPickerVal).length == 0) {
+        //                ShowValidationMessage($('input[name="DateSectionFromDate"]'), "* Please Select FROM date.");
+        //                return false;
+        //            }
+        //        }
+        //        if (errorfoundDateFrom == true || errorfoundDateTO == true) {
+        //            errorFoundDate = true;
+        //        }
+        //        if ($.trim(PONumber).length == 0) {
+        //            errorFoundPONum = true;
+        //        }
+        //        if (errorFoundPONum == true && errorFoundDate == true) {
+        //            isPageValid = false;
+        //        }
+
+        //if (errorFoundDate) {
+        $("#frmVendorPortalInvoiceSearchCriteria").validationEngine('hideAll');
+        $('#GrdVenodorInvoices').data('kendoGrid').dataSource.read();
+        //        }
+        //        else {
+        //            ShowValidationMessage($(this), "You must first enter a PO number or date range");
+        //        }
+
+        return false;
+    });
+</script>

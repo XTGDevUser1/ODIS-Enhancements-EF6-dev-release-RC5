@@ -1,0 +1,23 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Claims/Views/Shared/_ClaimsLayout.cshtml";
+}
+
+<hgroup id="main-title" class="thin">
+<h1>Claims Payment History</h1>
+</hgroup>
+<div class="with-padding">
+    <div id="ClaimPaymentRunsTab" class="standard-tabs same-height">
+        <ul class="tabs ClaimDetails">
+            <li id="tbClaimPaymentRunsList" class="with-tooltip" title="Payment Runs"><a href="@Url.Action("_Claim_Payment_Runs", "ClaimsPaymentHistory", new { area = "Claims" })"  id="ClaimPaymentRunsList">
+                Payment Runs</a> </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var tabObject = null;
+    $(function () {
+        tabObject = $("#ClaimPaymentRunsTab").tabs();
+    });
+</script>

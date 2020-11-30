@@ -1,0 +1,95 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.BLL.Model;
+@model List<Martex.DMS.DAL.SearchMember_Result>
+@{
+    var membershipNo = ViewData["SearchMemberNo"].ToString();
+    var programID = ViewData["SearchProgramID"];
+    var svcReqID = ViewData["ServiceRequestID"].ToString();
+    var membergridName = "GrdMemberList" + ViewData["ServiceRequestID"].ToString();
+    Layout = "";
+    MemberSearchCriteria searchParams = new MemberSearchCriteria();
+    searchParams.MemberNumber=(!string.IsNullOrEmpty(ViewData["SearchMemberNo"].ToString()))? ViewData["SearchMemberNo"].ToString():string.Empty;
+    searchParams.ProgramID = (ViewData["SearchProgramID"] != null) ? Convert.ToInt32(ViewData["SearchProgramID"].ToString()) : 0;
+}
+<style>
+    #@membergridName > .k-grid-content
+    {
+        height: auto !important;
+    }
+</style>
+<script type="text/javascript">
+    function GrdSearchMember1_OnLoad(e) {
+        $(".k-grid-SetLink").addClass("with-tooltip").html("<span class='k-icon k-i-restore'/>");
+
+    }
+    // HandleDblClickOnGrid($("#" + "@membergridName"), ".k-grid-SetLink");
+
+    function GetMemberSearchParams() {
+        var searchCriteria = { MemberNumber: membershipNo,
+            ProgramID: programID
+        };
+        return searchCriteria;
+    }
+
+    function SetMemberDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        SetMemberInfo(dataRow.MemberID, dataRow.MemberNumber, dataRow.Name);
+     }
+    }
+
+    function SetMemberInfo(memberID, memberno, membername) {
+        UpdateMemberInfo(memberID, memberno, membername);
+    }
+   
+</script>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#" + "@membergridName"), ".k-grid-SetLink");
+    });
+</script>
+
+<div class="new-row twelve-columns">
+    <div class="full-width boxed emboss glow silver-gradient">
+             @(Html.Kendo().Grid(Model)
+                     .Name(@membergridName)
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.MemberID).Title("MemberID").Filterable(false).Visible(false);
+        columns.Bound(a => a.MembershipID).Title("Member #").Filterable(false).Visible(false);
+        columns.Bound(a => a.MemberNumber).Title("Member #").Width(80).Filterable(false);
+        columns.Bound(a => a.Name).Title("Member Name").Width(150).Filterable(false);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Width(150);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Visible(false);
+        columns.Command(commands =>
+        {
+            commands
+                .Custom("SetLink")
+                .Text("Set Link")
+                .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "Set Link" })
+                .Click("SetMemberDetails");
+        })
+       .Title("Action(s)").Width(125);
+
+        })
+                    .Events(events =>
+                    {
+                        events.DataBound("GrdSearchMember1_OnLoad");
+                    })
+                    .Resizable(a => a.Columns(true))
+                    .Scrollable()
+                    .Pageable(pager => pager
+                        .Refresh(false)
+                        .PageSizes(new int[] { 10, 20, 50, 100 })
+                    )
+                    .Selectable(select => select.Mode(GridSelectionMode.Single))
+                             .DataSource(dataBinding =>
+                             {
+                                 dataBinding.Ajax()
+                                 .Read(read => read.Action("_searchMember", "History", new { searchCriteria = searchParams }));
+                             })
+                    )
+        </div>
+</div>

@@ -1,0 +1,138 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackModel
+@using Kendo.Mvc.UI;
+@{
+    string customerFeedbackId = Model.CustomerFeedback.ID.ToString();
+    bool isFormEnabled = Model.CustomerFeedback.ID > 0 && !Model.IsRecordLocked;
+    string disabledAttribute = !isFormEnabled ? "disabled" : string.Empty;
+}
+<form id="frmMemberInformation_@customerFeedbackId" action="javascript:void(0);" method="post">
+  @Html.HiddenFor(u => u.CustomerFeedback.ID, new { id = "CustomerFeedbackId_" + customerFeedbackId })
+  @Html.HiddenFor(u => u.CustomerFeedback.MembershipNumber, new { id = "MembershipNumber_" + customerFeedbackId })
+  @Html.HiddenFor(u => u.CustomerFeedback.MemberFirstName, new { id = "FirstName_" + customerFeedbackId })
+  @Html.HiddenFor(u => u.CustomerFeedback.MemberLastName, new { id = "LastName_" + customerFeedbackId })
+  <div class="with-padding">
+    <div class="columns">
+      <div class="twelve-columns">
+        <fieldset class="fieldset">
+          <legend class="legend">Member Information</legend>
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Membership Number
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MembershipNumber, new { @class = "validate[maxSize[100]] input full-width", id = "MembershipNumber_" + @customerFeedbackId, @disabled = "disabled" })
+          </div>
+
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              First Name
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberFirstName, new { @class = "validate[maxSize[100]] input full-width", id = "FirstName_" + @customerFeedbackId, @disabled = "disabled" })
+          </div>
+
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Last Name
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberLastName, new { @class = "validate[maxSize[100]] input full-width", id = "LastName_" + @customerFeedbackId, @disabled = "disabled" })
+          </div>
+
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label for="Phone" class="label">
+              Phone
+            </label>
+            @Html.Editor("MemberPhoneNumber_" + customerFeedbackId, "Phone", new { ShowCallIcon = false, Value = Model.CustomerFeedback.MemberPhoneNumber, ShowPhoneType = false, ReadOnly =  !isFormEnabled})            
+          </div>
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Email
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberEmail, new { @class = "conditionalEnable input full-width validate[custom[email],maxSize[100]]", id = "MemberEmailAddress_" + @customerFeedbackId, maxLength = "100" })
+          </div>
+
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Address Line 1
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberAddressLine1, new { @class = "validate[maxSize[100]] conditionalEnable input full-width", id = "MemberAddressLine1_" + @customerFeedbackId, maxLength = "50", dmsrole = "text" })
+          </div>
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Address Line 2
+            </label>
+
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberAddressLine2, new { @class = "validate[maxSize[100]] conditionalEnable input full-width", id = "MemberAddressLine2_" + @customerFeedbackId, maxLength = "50", dmsrole = "text" })
+
+          </div>
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              Address Line 3
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberAddressLine3, new { @class = "validate[maxSize[100]] conditionalEnable input full-width", id = "MemberAddressLine3_" + @customerFeedbackId, maxLength = "50", dmsrole = "text" })
+
+          </div>
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label class="label">
+              City
+            </label>
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberAddressCity, new { @class = "validate[maxSize[100]] conditionalEnable input full-width", id = "MemberCity_" + @customerFeedbackId, maxLength = "50", dmsrole = "text" })
+          </div>
+
+          <div class="button-height inline-medium-label small-margin-bottom">
+            <label for="StatePostal" class="label">
+              State / Postal
+            </label>
+            @(Html.Kendo().ComboBox()
+                  .Name("MemberAddressCountryCodeID_" + customerFeedbackId)
+                  .DataSource(source =>
+                  {
+                    source.Read(read =>
+                    {
+                      read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                    })
+                    .ServerFiltering(false);
+                  }).Enable(isFormEnabled)
+                  .Events(events =>
+                  {
+                  events.Change(@<text> function(e){ LicenseStateCountryChangeClaimPayee(e,'@customerFeedbackId');}</text>);
+                  })
+                                            .DataTextField("Text")
+                                            .DataValueField("Value")
+                                            .Suggest(true)
+                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                            .HighlightFirst(true)
+                                            .HtmlAttributes(new { style = "width:20%", id = "MemberAddressCountryCodeID_" + customerFeedbackId })
+                                            .SelectedIndex(0)
+                                            .Value(Model.CustomerFeedback.MemberAddressCountryID.HasValue ? Model.CustomerFeedback.MemberAddressCountryID.Value.ToString() : "")
+            )
+            @(Html.Kendo().ComboBox()
+                                  .Name("MemberAddressStateProvinceID_" + customerFeedbackId)
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .SelectedIndex(0)
+                                  .Enable(isFormEnabled)
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+                                  .Events(events =>
+                                  {
+                                    events.Change("ValidateInputForKendoCombo");
+                                    events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                  })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:30%", id = "MemberAddressStateProvinceID_" + customerFeedbackId })
+                              .Value(Model.CustomerFeedback.MemberAddressStateProvinceID.HasValue ? Model.CustomerFeedback.MemberAddressStateProvinceID.Value.ToString() : string.Empty)
+            )
+            @Html.TextBoxFor(u => u.CustomerFeedback.MemberAddressPostalCode, new { @class = "validate[maxSize[50]] conditionalEnable input", id = "MemberAddressPostalCode_" + @customerFeedbackId, maxLength = "10", style = "width:36%" })
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+</form>
+<script type="text/javascript">
+  $(function () {
+    $('#frmMemberInformation_' + '@customerFeedbackId').validationEngine();
+
+    if ('@isFormEnabled.ToString().ToLower()' == "false") {
+      $('#frmMemberInformation_' + '@customerFeedbackId').find('.conditionalEnable').attr("disabled", "disabled");
+    }
+  });
+</script>

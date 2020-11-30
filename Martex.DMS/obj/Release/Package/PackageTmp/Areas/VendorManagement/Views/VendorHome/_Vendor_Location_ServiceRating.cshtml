@@ -1,0 +1,142 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model List<VendorLocationServiceRatings_Result>
+@{
+    string suffixVendorID = ViewData["VendorID"].ToString();
+    string suffixVendorLocationID = ViewData["VendorLocationID"].ToString();
+}
+<script type="text/javascript" language="javascript">
+    function KendoComboBoxForVendorLocationProductChange(e, suffixVendorLocationID) {
+        var combo = e.sender;
+        var newValue = combo.value();
+
+        if (newValue != undefined && newValue != null && newValue.length > 0) {
+            //alert(newValue);
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetVendorLocationProductServiceRating", "VendorHome", new { area = "VendorManagement" })',
+                traditional: true,
+                data: { serviceRatingID: newValue },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#btnSaveVendorLocationIProductServiceRating_" + suffixVendorLocationID).removeAttr("disabled");
+                    $("#VendorLocationProductServiceRating_" + suffixVendorLocationID).data("kendoNumericTextBox").enable(true);
+                    $("#VendorLocationProductServiceRating_" + suffixVendorLocationID).data("kendoNumericTextBox").value(msg.Rating);
+                }
+            });
+        }
+        else {
+            $("#btnSaveVendorLocationIProductServiceRating_" + suffixVendorLocationID).attr("disabled", "disabled");
+            $("#VendorLocationProductServiceRating_" + suffixVendorLocationID).data("kendoNumericTextBox").enable(false);
+            $("#VendorLocationProductServiceRating_" + suffixVendorLocationID).data("kendoNumericTextBox").value(0);
+        }
+    }
+    function UpdateVendorLocationProductServiceRating(vendorID, vendorLocationID) {
+        var serviceRating = $("#VendorLocationProductServiceRating_" + vendorLocationID).data("kendoNumericTextBox").value();
+        var countryCombo = "VendorLocationProductServiceRating_" + vendorLocationID;
+        var numericTextBoxForVendorLocationProductServiceRating = "input[id='VendorLocationProductServiceRating_" + vendorLocationID + "']";
+        var serviceRatingCombo = $("#VendorLocationProducts_" + vendorLocationID).data('kendoComboBox');
+        var serviceRatingID = serviceRatingCombo.value();
+        if (serviceRating == undefined || serviceRating == null || serviceRating == "") {
+            openAlertMessage("Service Rating is required");
+            //ShowValidationMessage($('input[name= "' + countryCombo + '"]'), "* This field is required.");
+            //ShowValidationMessage($(numericTextBoxForVendorLocationProductServiceRating), "* This field is required.");
+            return false;
+        }
+        else {
+            //HideValidationMessage($(numericTextBoxForVendorLocationProductServiceRating));
+        }
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("SaveVendorLocationProductServiceRating", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { serviceRatingID: serviceRatingID, serviceRating: serviceRating, vendorLocationID: vendorLocationID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    $('#VendorLocationDetails_' + vendorLocationID).tabs('load', 4);
+                    //                    var chart = $("#VendorServiceRateChart_" + vendorLocationID).data("kendoChart");
+                    //                    chart.setDataSource(msg.Data);
+                    //                    //chart.dataSource.read();
+                    //                    serviceRatingCombo.value(0);
+                    //                    $("#btnSaveVendorLocationIProductServiceRating_" + vendorLocationID).attr("disabled", "disabled");
+                    //                    $("#VendorLocationProductServiceRating_" + vendorLocationID).data("kendoNumericTextBox").enable(false);
+                    //                    $("#VendorLocationProductServiceRating_" + vendorLocationID).data("kendoNumericTextBox").value(0);
+
+                }
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <fieldset class="fieldset">
+        <legend class="legend">Service Ratings</legend>
+        <div class="with-padding">
+            @(Html.Kendo().ComboBox()
+            .Name("VendorLocationProducts_" + suffixVendorLocationID)
+            .BindTo(ViewData["Products"] as IEnumerable<SelectListItem>)
+            .SelectedIndex(0)
+            .HighlightFirst(true)
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .Events(events => events.Change(@<text> function(e){ KendoComboBoxForVendorLocationProductChange(e,'@suffixVendorLocationID')}</text>))
+            .HtmlAttributes(new { id = "VendorLocationProducts_" + suffixVendorLocationID, @style = "width:70%" })
+            )
+            @(Html.Kendo().NumericTextBox()
+            .Name("VendorLocationProductServiceRating_" + suffixVendorLocationID)
+            .Format("n2")
+            .Min(0)
+            .Max(100)
+            .HtmlAttributes(new { id = "VendorLocationProductServiceRating_" + suffixVendorLocationID, @disabled = "disabled", @class = "input", @style = "text-align:right;width:10%" })
+            .Spinners(false)
+            )
+            <button id="btnSaveVendorLocationIProductServiceRating_@suffixVendorLocationID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" disabled="disabled" onclick="UpdateVendorLocationProductServiceRating('@suffixVendorID','@suffixVendorLocationID');">
+                Save</button>
+        </div>
+    </fieldset>
+    <div class="columns">
+        <div class="twelve-columns">
+            @if (Model != null && Model.Count > 0)
+            {
+                @(Html.Kendo().Chart(Model)
+                .Name("VendorServiceRateChart_" + suffixVendorLocationID)
+                .Title("Service Ratings Chart")
+                .Legend(legend => legend
+                    .Position(ChartLegendPosition.Top)
+                )
+                .Theme("Bootstrap")
+                .Series(series => series.Bar(s => s.Rating).Name("Services Rating")
+                    .Labels(labels => labels
+                        .Position(ChartBarLabelsPosition.InsideEnd)
+                        .Visible(true)
+                    )
+                )
+               .CategoryAxis(ca => ca.Categories(x => x.Name).Name("Services").Labels(true))
+               .ValueAxis(axis => axis.Numeric()
+               .Labels(labels => labels.Format("{0:N2}"))
+               .Max(100)
+               .AxisCrossingValue(0)
+               )
+               .Tooltip(tooltip => tooltip
+                   .Visible(true)
+                   .Template("#= series.name # - #= category #: #= value #").Color("#FFFFFF")
+                )
+                .HtmlAttributes(new { style = "min-height:300px;height:650px; width:100%" })
+                )
+            }
+            else
+            {
+                <div class="with-padding">
+                    <center>
+                        <h2>
+                            No Data to display.</h2>
+                    </center>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,250 @@
+﻿@model Martex.DMS.DAL.Entities.TemporaryCC.TemporaryCCSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    bool hasElement = false;
+}
+@if (Model != null)
+{
+    <!-- ID Section -->
+  if (!string.IsNullOrEmpty(Model.LookUpTypeName))
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="combo" data="LookUpTypeName" relatedtexbox="LookUpTypeValue">
+            X
+          </a>
+          @Html.Raw("- Type : ")
+          @Html.DisplayFor(u => Model.LookUpTypeName)
+        </p>
+  }
+
+  if (!string.IsNullOrEmpty(Model.LookUpTypeValue))
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="LookUpTypeValue"
+             relatedcombo="LookUpTypeName">X</a>
+          @Html.Raw("- Value : ")
+          @Html.DisplayFor(u => Model.LookUpTypeValue)
+        </p>
+  }
+
+  if (!string.IsNullOrEmpty(Model.LookUpTypeIDValue))
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="LookUpTypeIDValue">
+            X
+          </a>
+          @Html.Raw("- ID : ")
+          @Html.DisplayFor(u => Model.LookUpTypeIDValue)
+        </p>
+  }
+
+    <!-- CC Match Status -->
+  foreach (CheckBoxLookUp result in Model.CCMatchStatus)
+  {
+    if (result.Selected)
+    {
+      hasElement = true;
+      string id = "CCMatchStatus_" + i.ToString() + "__Selected";
+            <p>
+              <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+              CC Match Status : @result.Name
+            </p>
+    }
+    i = i + 1;
+  }
+  {
+    i = 0;
+  }
+
+    <!-- PO Pay Status -->
+  foreach (CheckBoxLookUp result in Model.POPayStatus)
+  {
+    if (result.Selected)
+    {
+      hasElement = true;
+      string id = "POPayStatus_" + i.ToString() + "__Selected";
+            <p>
+              <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+              PO Pay Status : @result.Name
+            </p>
+    }
+    i = i + 1;
+  }
+  {
+    i = 0;
+  }
+
+    <!-- Credit Card Issue Date Range -->
+  if (Model.IssueDateFrom.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="IssueDateFrom">X</a>
+          @Html.Raw("- Credit Card Issue Date From : ")
+          @Model.IssueDateFrom.Value.ToShortDateString()
+        </p>
+  }
+  if (Model.IssueDateTo.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="IssueDateTo">X</a>
+          @Html.Raw("- Credit Card Issue Date To : ")
+          @Model.IssueDateTo.Value.ToShortDateString()
+        </p>
+  }
+
+    <!-- Credit Card Charged Date Range -->
+  if (Model.ChargedDateFrom.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="ChargedDateFrom">X</a>
+          @Html.Raw("- Charged Date From : ")
+          @Model.ChargedDateFrom.Value.ToShortDateString()
+        </p>
+  }
+  if (Model.ChargedDateTo.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="ChargedDateTo">X</a>
+          @Html.Raw("- Charged Date To : ")
+          @Model.ChargedDateTo.Value.ToShortDateString()
+        </p>
+  }
+
+    <!-- PO Date Range -->
+  if (Model.PODateFrom.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="PODateFrom">X</a>
+          @Html.Raw("- PO Date From : ")
+          @Model.PODateFrom.Value.ToShortDateString()
+        </p>
+  }
+  if (Model.PODateTo.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="textBox" data="PODateTo">X</a>
+          @Html.Raw("- PO Date To : ")
+          @Model.PODateTo.Value.ToShortDateString()
+        </p>
+  }
+
+    <!-- Amount Range -->
+  if (Model.ChargedAmountTo.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="slider" data="AmountRangeSlider">X</a>
+          @Html.Raw("- Amount Range : ")
+          @Model.ChargedAmountFrom - @Model.ChargedAmountTo
+        </p>
+  }
+
+    <!-- Exception Type -->
+  foreach (CheckBoxLookUp result in Model.ExceptionType)
+  {
+    if (result.Selected)
+    {
+      hasElement = true;
+      string id = "ExceptionType_" + i.ToString() + "__Selected";
+            <p>
+              <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+              Exception Type : @result.Name
+            </p>
+    }
+    i = i + 1;
+  }
+  {
+    i = 0;
+  }
+
+    <!-- Posting Batch -->
+  if (Model.PostingBatchID.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="combo" data="PostingBatchID">X</a>
+          @Html.Raw("- Run : ")
+          @Html.DisplayFor(u => Model.PostingBatchName)
+        </p>
+  }
+
+    <!-- Client -->
+  if (Model.ClientID.HasValue)
+  {
+    hasElement = true;
+        <p>
+          <a href="javascript:void(0)" class="delete" role="combo" data="ClientID">X</a>
+          @Html.Raw("- Client : ")
+          @Html.DisplayFor(u => Model.ClientName)
+        </p>
+  }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+      <hr />
+      <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+  $(function () {
+    $('.delete').live("click", function (e) {
+      if (!e.isDefaultPrevented()) {
+        e.preventDefault();
+
+        var role = $(this).attr('role');
+        var element = $(this).attr('data');
+        var relatedCombo = $(this).attr('relatedCombo');
+        var relatedTexBox = $(this).attr('relatedTexBox');
+
+        if (role == "checkBox") {
+          $('#' + element).prop("checked", false);
+          $('#' + element).parent().removeClass("checked");
+        }
+        else if (role == "textBox") {
+          $('#' + element).val('');
+          if (relatedCombo != undefined) {
+            $('#' + relatedCombo).data('kendoComboBox').value('');
+          }
+        }
+        else if (role == "slider") {
+          $('#' + element).data("kendoRangeSlider").value([0, 10000]);
+          $('#ChargedAmountFrom').val('');
+          $('#ChargedAmountTo').val('');
+        }
+        if (role == "combo") {
+          $('#' + element).data('kendoComboBox').value('');
+
+          if (relatedTexBox != undefined) {
+            $('#' + relatedTexBox).val('');
+          }
+        }
+        GetSelectedCriteria();
+        SynchronizeCheckBoxesForCCMatchStatus();
+
+      }
+
+      return false;
+    });
+
+    $('#btnSearchCriteriaClearAll').unbind("click");
+
+    $('#btnSearchCriteriaClearAll').click(function () {
+      $('#ResetModelCriteria').val('true');
+      GetSearchCriteria();
+      $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+      SynchronizeCheckBoxesForCCMatchStatus();
+      return false;
+    });
+  });
+</script>

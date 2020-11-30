@@ -1,0 +1,240 @@
+﻿@model Martex.DMS.Models.ClientModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Client";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    bool isView = false;
+    if (ViewData["mode"].ToString().Equals("edit") || ViewData["mode"].ToString().Equals("view"))
+    {
+        isEdit = true;
+        if (ViewData["mode"].ToString().Equals("view"))
+        {
+            isView = true;
+        }
+    }
+    bool isNewRecord = false;
+    if (Model.Client == null || Model.Client.ID == 0)
+    {
+        isNewRecord = true;
+    }
+    string clientClass = "seven-columns";
+    if (isNewRecord)
+    {
+        clientClass = "ten-columns";
+    }
+
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/ui.multiselect.css?v=1")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/ui.multiselect.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Content/DMSTabs.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    function drpdwnCommon_OnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    $(function () {
+        $('#form-ClientRegistration').validationEngine();
+    });
+
+
+</script>
+<form method="post" action="" id="form-ClientRegistration">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="@clientClass">
+                <fieldset class="fieldset">
+                    <legend class="legend">Client</legend>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Name" class="label">
+                            Client Name<span class="spanstar">*</span>
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.Name, new { @id = "clientName", @class = "input full-width2", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.Name, new { @id = "clientName", @class = "validate[required,maxSize[50]] input full-width2", maxlength = 50 })
+                        }
+                    </p>
+
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Description" class="label">
+                            Description
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextAreaFor(u => u.Client.Description, new { @class = "validate[maxSize[255]], input full-width2", rows = "4", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(u => u.Client.Description, new { @class = "validate[maxSize[255]], input full-width2", rows = "4", maxlength = 255 })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting System Customer Number
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemCustomerNumber, new { @class = "input full-width2", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemCustomerNumber, new { @class = "input full-width2", maxlength = 7 })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting System Address Code
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemAddressCode, new { @class = "input full-width2", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemAddressCode, new { @class = "input full-width2", maxlength = 4 })
+                        }
+                    </p>
+                    <!-- TFS: 694 - Added AccountingSystemDivisionCode -->
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting System Division Code
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(u => u.Client.AccountingSystemDivisionCode)
+                                          .Format("N0")
+                                          .Min(0)
+                                          .Value(Model.Client.AccountingSystemDivisionCode)
+                                          .Spinners(true)
+                                          .Enable(!isView)
+                                          .HtmlAttributes(new { style = "width:99%;" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Payment Balance
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(u => u.Client.PaymentBalance)
+                                          .Format("c")
+                                          .Min(0)
+                                          .Value(Model.Client.PaymentBalance)
+                                          .Spinners(false)
+                                          .Enable(false)
+                                          .HtmlAttributes(new { style = "width:99%;" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="ClientClientss" class="label">
+                            Organizations<span class="spanstar">*</span> <span class="info-spot">
+                                <span class="icon-info-round">
+                                </span><span class="info-bubble">
+                                    Select all the Organizations<br />
+                                    that can see and work with this<br />
+                                    Client. Selecting an Organization allows users from that Organization to work with
+                                    this Client.
+                                </span>
+                            </span>
+                        </label>
+                        @(Html.Kendo().MultiSelectFor(u => u.ClientOrganizationsValues)
+                                  .Placeholder("Select Organizations...")
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Organizations.ToString()] as IEnumerable<SelectListItem>)
+                                  .Enable(!isView)
+                                  .Value(Model.ClientOrganizationsString)
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Active" class="label">
+                            Is Active?
+                        </label>
+                        @if (isEdit)
+                        {
+                            if (isView)
+                            {
+                                @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                            else
+                            {
+                                @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox" })
+                            }
+                        }
+                        else
+                        {
+                            @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox", @checked = "checked" })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="LastUpdateInformation" class="label">
+                            Last Update
+                        </label>
+                        @Html.DisplayFor(u => u.LastUpdateInformation)
+                    </p>
+                    <div class="field-block button-height medium-margin-bottom">
+                        @if (@ViewData["mode"].ToString() != "view")
+                        {
+                            <button id="btnAddClient" class="button green-gradient glossy float-right mid-margin-left"
+                                    type="submit">
+                                @if (isEdit)
+                                {
+                                    @Html.Raw("Update")
+                                }
+                                else
+                                {
+                                    @Html.Raw("Add")
+                                }
+                            </button>
+                        }
+                        <button id="btnCancelClient" class="button gray-gradient glossy  float-right" type="button">
+                            Cancel
+                        </button>
+                    </div>
+                </fieldset>
+            </div>
+            @if (Model.Client != null && Model.Client.ID > 0)
+            {
+                <div class="five-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Address</legend>
+                        <div class="medium-margin-bottom">
+                            @Html.Editor("ScrollableAddress", "ScrollableAddress", new
+                        {
+                            address = new GenericAddressEntityModel()
+                            {
+                                RecordID = Model.Client.ID,
+                                EntityName = "Client",
+                                Height = 300
+
+                            }
+                        })
+                        </div>
+                    </fieldset>
+                </div>
+            }
+        </div>
+    </div>
+    @Html.Hidden("hdnfldMode", ViewData["mode"])
+    @Html.HiddenFor(a => a.Client.ID)
+    @Html.HiddenFor(a => a.Client.ClientRepID)
+    @Html.HiddenFor(a => a.Client.MainContactFirstName)
+    @Html.HiddenFor(a => a.Client.MainContactLastName)
+    @Html.HiddenFor(a => a.Client.MainContactPhone)
+    @Html.HiddenFor(a => a.Client.MainContactEmail)
+    @Html.HiddenFor(a => a.Client.Website)
+</form>
+<script type="text/javascript">
+    $(function () {
+        CleanMyContainer('form-ClientRegistration');
+        WatchMyContainer('form-ClientRegistration');
+    });
+</script>
+<script src="@Url.Content("~/Scripts/CustomAddressLibrary.js")" type="text/javascript" language="javascript"></script>
+<script src="@Url.Content("~/Scripts/clientRegistration.js")" type="text/javascript"></script>

@@ -1,0 +1,133 @@
+﻿@using Kendo.Mvc.UI;
+@using VendorPortal.Models;
+@using VendorPortal.ActionFilters;
+@model ContactUsModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<form action="javascript:void(0);" method="post" id="frmContactUs">
+<div class="leader relative">
+    &nbsp;</div>
+
+<div class="constrain">
+    <div class="with-padding" id="PlaceHolder_ContactUs">
+        <div class="columns">
+            <div class="twelve-columns">
+                <h2 class=" thin underline large-margin-bottom">
+                    Contact Us
+                </h2>
+                <p class="button-height inline-medium-label small-margin-top">
+                    <label class="label">
+                        Name <span class="star red">*</span>
+                    </label>
+                    @Html.TextBoxFor(v => v.Name, new { @class = "input full-width2 validate[required]" })
+                </p>
+                <p class="button-height inline-medium-label ">
+                    <label class="label">
+                        Company Name
+                    </label>
+                    @Html.TextBoxFor(v => v.CompanyName, new { @class = "input full-width2" })
+                </p>
+                <p class="button-height inline-medium-label ">
+                    <label class="label">
+                        Email<span class="star red">*</span>
+                    </label>
+                    @Html.TextBoxFor(v => v.Email, new { @class = "input full-width2 validate[required,custom[email]]" })
+                </p>
+                <p class="button-height inline-medium-label ">
+                    <label class="label">
+                        Phone
+                    </label>
+                    @Html.Editor("DispatchPhone", "Phone", new { ShowPhoneType = false, ShowCallIcon = false })
+                </p>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Subject
+                    </label>
+                    @(Html.Kendo().ComboBoxFor(u => u.Subject)
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                        .BindTo(ViewData[StaticData.VendorPortalContactUsSubject.ToString()] as IEnumerable<SelectListItem>)
+                        .Placeholder("Please select")
+                        .HtmlAttributes(new { style = "width:85%" })
+                        )
+                </div>
+                <div class="button-height inline-medium-label">
+                    <label class="label">
+                        Comments <span class="star red">*</span>
+                    </label>
+                    @Html.TextAreaFor(v => v.Comments, new { @class = "input full-width2 validate[required]", rows = "5" })
+                     <button id="btnSendContactUs" class="btn btn-large btn-primary "
+                    type="button" onclick="SendContactUsDetails();">
+                    Send Message
+                </button>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+</div>
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmContactUs').validationEngine();
+    });
+
+    function SendContactUsDetails() {
+        if ($('#frmContactUs').validationEngine("validate") == true) {
+
+            $.blockUI({ message: '<div class="ajax-load"/>',
+                css: { background: 'transparent', border: '0px' }
+            });
+            var formData = $('#frmContactUs').serializeArray();
+            formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB('DispatchPhone') })
+            $.ajax({
+                url: '@Url.Action("SendContactUs", "ContactUs", new { area = "" })',
+                type: 'POST',
+                data: formData,
+                success: function (msg) {
+
+                    $.unblockUI();
+                    $('html').css('cursor', 'pointer');
+
+                    if (msg.Status == "Success") {
+                        Success();
+                    }
+                    else {
+                        Failure();
+                    }
+                }
+            })
+        }
+        return false;
+    }
+
+    function Success() {
+        $.ajax({
+            url: '@Url.Action("_Success", "ContactUs", new { area = "" })',
+            type: 'POST',
+            success: function (msg) {
+                $('#PlaceHolder_ContactUs').html(msg);
+            }
+        })
+
+    }
+
+    function Failure() {
+        $.ajax({
+            url: '@Url.Action("_Failure", "ContactUs", new { area = "" })',
+            type: 'POST',
+            success: function (msg) {
+                $('#PlaceHolder_ContactUs').html(msg);
+            }
+        })
+    }
+</script>

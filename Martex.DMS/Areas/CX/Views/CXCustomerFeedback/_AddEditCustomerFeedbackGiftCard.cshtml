@@ -1,0 +1,200 @@
+﻿@model Martex.DMS.DAL.CustomerFeedbackGiftCard
+@using Kendo.Mvc.UI;
+
+@{
+    var customerFeedbackDetailId = ViewData["CustomerFeedbackGiftCardId"].ToString();
+    var customerFeedbackId = ViewData["CustomerFeedbackId"].ToString();
+}
+
+<div id="formAddEditCustomerFeedbackGiftCardContainerForDirtyFlag_@customerFeedbackId">
+  <form method="post" action="" id="formAddEditCustomerFeedbackGiftCard_@customerFeedbackId">
+    <div class="with-padding-with-panels popupcontainer">
+      <fieldset class="fieldset">
+        <legend class="legend">Customer Feedback Gift Card</legend>
+        @Html.HiddenFor(a => a.ID)
+        @Html.HiddenFor(a => a.CustomerFeedbackID)
+        <div class="columns">
+          <div class="twelve-columns">
+            <div class="button-height inline-label small-margin-bottom">
+              <label for="Types" class="label">
+                Number <span class="star"> *</span>
+              </label>
+              @Html.TextBoxFor(a => a.CardNumber, new { @class = "validate[required,maxSize[100]] input full-width", id = "CardNumber_" + @customerFeedbackId, style = "width:100%;", dmsrole = "text" })
+            </div>
+
+            <div class="button-height inline-label small-margin-bottom">
+              <label for="Types" class="label">
+                Amount <span class="star"> *</span>
+              </label>
+              @(Html.Kendo().NumericTextBoxFor(u => u.CardAmount)
+                      .Name("CardAmount_" + customerFeedbackId)
+                      .Format("c")
+                      .Min(0)
+                      .Value(Model.CardAmount)
+                      .Spinners(false)
+                      .HtmlAttributes(new { id = "CardAmount_" + @customerFeedbackId, style = "width:90%;", dmsrole = "numericTextBox" })
+              )
+            </div>
+
+            <div class="button-height inline-label small-margin-bottom">
+              <label for="Types" class="label">
+                Requested By <span class="star"> *</span>
+              </label>
+              @(Html.Kendo().ComboBox()
+                .Name("RequestedBy_" + customerFeedbackId)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.WorkedByUsers.ToString()] as IEnumerable<SelectListItem>)
+                  .SelectedIndex(0)
+                  .HighlightFirst(true)
+                  .Suggest(true)
+                  .Filter(FilterType.StartsWith).MinLength(0)
+                  .Events(events => events.Change("ValidateInputForKendoCombo"))
+                  .HtmlAttributes(new { id = "RequestedBy_" + @customerFeedbackId, style = "width:90%;", dmsrole = "Combo" })
+              )
+            </div>
+
+            <div class="button-height inline-label small-margin-bottom">
+              <label for="Types" class="label">
+                Sent Date <span class="star"> *</span>
+              </label>
+              @(Html.Kendo().DatePickerFor(a => a.CardSentDate)
+                  .HtmlAttributes(new { style = "width:90%", id = "SentDate_" + @customerFeedbackId, dmsrole = "DatePicker", type = "text" })
+              )
+            </div>
+
+            <div style="text-align: right">
+              <button id="btnCancelCustomerFeedbackGiftCard_@customerFeedbackId" class="button gray-gradient glossy" type="button" onclick="CancelCustomerFeedbackGiftCard_('@customerFeedbackId')">
+                Cancel
+              </button>&nbsp;&nbsp;
+              <button id="btnAddCustomerFeedbackGiftCard__@customerFeedbackId" class="button green-gradient glossy" type="button" onclick="SaveCustomerFeedbackGiftCard_('@customerFeedbackId')">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </form>
+</div>
+
+<script type="text/javascript">
+  $(function () {
+
+    $('#formAddEditCustomerFeedbackGiftCard_@customerFeedbackId').validationEngine();
+    $(".k-formatted-value").attr('name', 'CardAmount_@customerFeedbackId'+'_input');
+
+    if(@Model.ID > 0)
+    {
+      $('#RequestedBy_@customerFeedbackId').data('kendoComboBox').value('@Model.RequestedBy');
+    }
+
+    var fnbuttonHandler = function (sender, routedValues) {
+
+      var buttonHandler = $('#' + routedValues[2].value);
+      buttonHandler.show();
+    }
+
+    var routedValues = [];
+    routedValues.push({ name: "FormName", value: "formAddEditCustomerFeedbackGiftCard_@customerFeedbackId" });
+    routedValues.push({ name: "RecordID", value: "@customerFeedbackId" });
+    routedValues.push({ name: "RelatedButtonHandler", value: "formAddEditCustomerFeedbackGiftCard_@customerFeedbackId" });
+
+    WatchMyContainer('formAddEditCustomerFeedbackGiftCard_@customerFeedbackId', null, fnbuttonHandler, routedValues);
+
+  });
+
+
+  function SaveCustomerFeedbackGiftCard_(customerFeedbackId) {
+    if (tabObject == null) {
+      openAlertMessage('Unable to find Container');
+      return false;
+    }
+
+    var isCustomerfeedbackGiftCardIsValid = true;
+    var feedbackGiftCardDirtyContainerName = "formAddEditCustomerFeedbackGiftCardContainerForDirtyFlag_@customerFeedbackId";
+
+    if ($('#formAddEditCustomerFeedbackGiftCard_@customerFeedbackId').validationEngine("validate") == false) {
+      isCustomerfeedbackGiftCardIsValid = false;
+    }
+
+    //Validate Requested By kendo combos
+    var $typeCombo = $("#RequestedBy_" + customerFeedbackId);
+    if ($.trim($typeCombo.data("kendoComboBox").value()).length == 0) {
+      ShowValidationMessage($('input[name="RequestedBy_' + customerFeedbackId + '_input"]'), "*Please select a value. ");
+      isCustomerfeedbackGiftCardIsValid = false;
+    }
+    else {
+      HideValidationMessage($('input[name="RequestedBy_' + customerFeedbackId + '_input"]'));
+    }
+
+    //Validate Amount
+    var $cardAmount = $("#CardAmount_" + customerFeedbackId);
+    if ($.trim($cardAmount.data("kendoNumericTextBox").value()).length == 0) {
+      ShowValidationMessage($('input[name="CardAmount_' + customerFeedbackId + '_input"]'), "*Amount is required. ");
+      isCustomerfeedbackGiftCardIsValid = false;
+    }
+    else {
+      HideValidationMessage($('input[name="CardAmount_' + customerFeedbackId + '_input"]'));
+    }
+
+    //Validate Sent Date
+    var SentDate = $("#SentDate_" + customerFeedbackId).val();
+    if ($.trim(SentDate).length == 0)
+    {
+      ShowValidationMessage($("#SentDate_" + customerFeedbackId), "*Sent Date is required. ");
+      isCustomerfeedbackGiftCardIsValid = false;
+
+    }
+    else {
+      HideValidationMessage($("#SentDate_" + customerFeedbackId));
+    }
+
+
+    if (isCustomerfeedbackGiftCardIsValid) {
+      var postData = $('#formAddEditCustomerFeedbackGiftCard_' + customerFeedbackId).serializeArray();
+      postData.push({ name: "RequestedBy", value: GetComboText("RequestedBy_" + customerFeedbackId) });
+      postData.push({ name: "CardAmount", value: $("#CardAmount_" + customerFeedbackId).val() });
+
+      if(@Model.ID == 0)
+        var url = '/CX/CXCustomerFeedback/AddCustomerFeedbackGiftCard';
+      else
+        var url = '/CX/CXCustomerFeedback/UpdateCustomerFeedbackGiftCard';
+
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: postData,
+        success: function (msg) {
+          if (msg.Status = "Success") {
+            CleanMyContainer("formAddEditCustomerFeedbackGiftCard_" + customerFeedbackId);
+
+            openAlertMessage('Gift card has been added successfully', function () {
+              customerFeedbackGiftCardWindow.data('kendoWindow').close();
+              if ($('#GrdCustomerFeedbackGiftCard_@customerFeedbackId').data('kendoGrid') != undefined) {
+                $('#GrdCustomerFeedbackGiftCard_@customerFeedbackId').data('kendoGrid').dataSource.read();
+              }
+            });
+          }
+        }
+      })
+    }
+
+    return false;
+  }
+
+
+  function CancelCustomerFeedbackGiftCard_(customerFeedbackId) {
+    var customerFeedbackGiftCardContainerName = "formAddEditCustomerFeedbackGiftCard_" + customerFeedbackId;
+    if (IsMyContainerDirty(customerFeedbackGiftCardContainerName)) {
+      var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+      $.modal.confirm(message, function () {
+        CleanMyContainer(customerFeedbackGiftCardContainerName);
+        customerFeedbackGiftCardWindow.data('kendoWindow').close();
+      }, function () {
+        return false;
+      });
+    }
+    else {
+      customerFeedbackGiftCardWindow.data('kendoWindow').close();
+    }
+  }
+</script>

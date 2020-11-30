@@ -1,0 +1,656 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL.Entities;
+@using System.Text;
+@model Martex.DMS.BLL.Model.VendorLocationServiceAreaModel
+@{
+    string suffixVendorLocationID = ViewData["VendorLocationID"].ToString();
+    string suffixVendorID = ViewData["VendorID"].ToString();
+    var businessAddress = Model.BusinessAddress;
+    string strBusinessAddress = string.Empty;
+
+    if (businessAddress != null)
+    {
+        System.Collections.Hashtable addressParts = new System.Collections.Hashtable();
+        if (!string.IsNullOrEmpty(businessAddress.Line1))
+        {
+            addressParts.Add("Line1", businessAddress.Line1);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.Line2))
+        {
+            addressParts.Add("Line2", businessAddress.Line2);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.Line3))
+        {
+            addressParts.Add("Line3", businessAddress.Line3);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.City))
+        {
+            addressParts.Add("City", businessAddress.City);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.StateProvince))
+        {
+            addressParts.Add("StateProvince", businessAddress.StateProvince);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.CountryCode))
+        {
+            addressParts.Add("CountryCode", businessAddress.CountryCode);
+        }
+        if (!string.IsNullOrEmpty(businessAddress.PostalCode))
+        {
+            addressParts.Add("PostalCode", businessAddress.PostalCode);
+        }
+
+        strBusinessAddress = string.Join(" ", addressParts["Line1"], addressParts["Line2"], addressParts["Line3"]);
+        strBusinessAddress = string.Join(", ", strBusinessAddress, addressParts["City"], addressParts["StateProvince"]);
+        strBusinessAddress = string.Join(" ", strBusinessAddress, addressParts["PostalCode"], addressParts["CountryCode"]);
+    }
+}
+<script src="@Url.Content("~/Scripts/GenericMapping.js?v=1")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/BMapProvide.js?v=2")" type="text/javascript" />
+<style type="text/css">
+    .mapAddress {
+        background: url("/Content/images/blue_pushpin.png") no-repeat scroll 0 0 transparent;
+        width: 25px;
+        height: 29px;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .MicrosoftMap .infobox-close {
+        top: 12px !important;
+    }
+
+    .MicrosoftMap .Infobox2 .infobox-title {
+        line-height: 3.1 !important;
+        font-size: 14px !important;
+    }
+</style>
+<form id="frmVLServiceArea_@suffixVendorLocationID" action="javascript:void(0);">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="five-columns">
+                <div>
+                    <p class="button-height inline-large-label ">
+                        <label for="vendorCrossStates" class="label">
+                            Do you cross state lines?
+                        </label>
+                        @Html.RadioButtonFor(v => v.IsAbleToCrossStateLines, true, new { @class = "radio", id = "IsAbleToCrossStateLines" + suffixVendorLocationID })@Html.Raw(" <b>Yes</b>")
+                        @Html.RadioButtonFor(v => v.IsAbleToCrossStateLines, false, new { @class = "radio", id = "IsAbleToCrossStateLines" + suffixVendorLocationID })@Html.Raw(" <b>No</b>")
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-large-label ">
+                        <label for="vendorCrossNationalBorders" class="label">
+                            Do you cross international borders?
+                        </label>
+                        @Html.RadioButtonFor(v => v.IsAbleToCrossNationalBorders, true, new { @class = "radio", id = "IsAbleToCrossNationalBorders" + suffixVendorLocationID })@Html.Raw(" <b>Yes</b>")
+                        @Html.RadioButtonFor(v => v.IsAbleToCrossNationalBorders, false, new { @class = "radio", id = "IsAbleToCrossNationalBorders" + suffixVendorLocationID })@Html.Raw(" <b>No</b>")
+                    </p>
+                </div>
+                <h3 class="thin">
+                    Zip Codes
+                </h3>
+                <div>
+                    Zip codes help eliminate unnecessary phone calls and save us both time.
+                    If you provide us a list of zip codes you cover then we will not call you with events that are outside your coverage area.
+                    Please identify which zip codes you can cover within 45 minutes and those that you cover with an over 45 minute response time.
+                    You can come back and edit this list of zip codes at any time.
+                </div>
+                <div class="button-height">
+                    @Html.CheckBoxFor(a => a.IsUsingZipCodes, new { @class = "checkbox", id = "IsUsingZipCodes_" + suffixVendorLocationID })<b>@Html.Raw(" Click here to use zip codes for this dispatch location")</b><br />
+                    @*<br />
+                        <i>@Html.Raw("Currently we use a radius search to find providers.  In the near future we will begin using zip codes to identify providers. By checking this box you are giving us approval to use your zip code list")</i>*@
+                </div>
+                <div id="zipCodes_@suffixVendorLocationID">
+                    <p class="button-height">
+                        Primary:  zip codes covered in &lt; 45 mins
+                    </p>
+                    @Html.TextArea("PrimaryZipCodesAsCSV", Model.PrimaryZipCodesAsCSV, new { @class = "validate[funcCall[checkZipCodes]] input full-width", id = "PrimaryZipCodes_" + suffixVendorLocationID, rows = 5 })
+                    <i><small class="input-info">@Html.Raw("Please enter zip codes separated by a comma. Example: 76006, 76007, 76008")</small></i>
+                    <p class="button-height">
+                        Secondary:  zip codes covered in over 45 mins
+                    </p>
+                    @Html.TextArea("SecondaryZipCodesAsCSV", Model.SecondaryZipCodesAsCSV, new { @class = "validate[funcCall[checkZipCodes]] input full-width", id = "SecondaryZipCodes_" + suffixVendorLocationID, rows = 5 })
+                    <i><small class="input-info">@Html.Raw("Please enter zip codes separated by a comma. Example: 76006, 76007, 76008")</small></i>
+                </div>
+
+                <br />
+                @if (Model.IsVirtualLocationEnabled == true)
+                {
+                    <div>
+                        <h3 class="thin">
+                            Virtual Locations
+                        </h3>
+                        @Html.Editor("VirtualLocations_" + suffixVendorLocationID, "VirtualLocations", new { VirtualLocations = Model.VirtualLocations, HideDeleteAction = true })
+                    </div>
+                }
+            </div>
+            <div class="seven-columns">
+                <div>
+                    <h4>
+                        <img src="../../../../Content/images/Location_A.png" />Dispatch Location :
+                        @Html.Label("Business Address", strBusinessAddress)
+                    </h4>
+                    @Html.Hidden("BusinessAddress_" + suffixVendorLocationID, strBusinessAddress)
+                </div>
+                @*<div>
+                        <div class="block-label button-height">
+                            <p class="medium-text label">
+                                Address Lookup
+                            </p>
+                            @Html.TextBox("ALocation_" + suffixVendorLocationID, string.Empty, new { @class = "input float-left full-width2", style = "width:85%", tabindex = 1 })
+                            <a id="btnALocate_@suffixVendorLocationID" class="k-button k-button-icontext k-grid-View small-margin-left"
+                                style="min-width: auto; margin-top: -10px;" tabindex="2" href="#"><span class="k-icon k-i-search">
+                                </span></a>
+                            <div class="clear" />
+                        </div>
+                    </div>
+                    <div class="small-margin-top">
+                        <label for="Pinned" class="label">
+                            Pinned</label>
+                        <span id="lblSourcePinned_@suffixVendorLocationID"></span>
+                        <div class="clear">
+                        </div>
+                        <a href="javascript:void(0);" id="aVirtual_@suffixVendorLocationID" class="button white-gradient margin-bottom margin-top ">
+                            Set as Virtual Location</a> <a href="javascript:void(0);" id="aZipCode_@suffixVendorLocationID" class="button white-gradient margin-bottom margin-left margin-top ">
+                                Set as Zip code</a>
+                    </div>*@
+                <div class="clear">
+                </div>
+                <div id="divMap_@suffixVendorLocationID" style="height: 800px; width: 100%; position: relative;">
+                </div>
+                <div id="directionDiv" class="hidden">
+                </div>
+                <div class="clear">
+                </div>
+                <a href="javascript:void(0);" id="aClearPins_@suffixVendorLocationID" class="button orange-gradient margin-top">
+                    Clear Pins
+                </a>
+                @if (Model.IsVirtualLocationEnabled == true)
+                {<span id="chkVirtualLocations_@suffixVendorLocationID">
+                    @Html.CheckBox("chkIncludeVLs_" + suffixVendorLocationID, false, new { @class = "checkbox margin-left" })
+                    @Html.Raw(" Include Virtual Locations")
+                </span>
+                }
+                    <span id="chkZipCodes_@suffixVendorLocationID">
+                        @Html.CheckBox("chkIncludePrimaryZipCodes_" + suffixVendorLocationID, false, new { @class = "checkbox margin-left" })
+                        @Html.Raw(" Include Primary Zip Codes")
+                        @Html.CheckBox("chkIncludeSecondaryZipCodes_" + suffixVendorLocationID, false, new { @class = "checkbox margin-left" })
+                        @Html.Raw(" Include Secondary Zip Codes")
+                    </span>
+                
+            </div>
+            <div class="new-row twelve-columns">
+                <button id="btnSaveVLServiceArea_@suffixVendorLocationID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                        type="button">
+                    Save
+                </button>
+                <button id="btnCancelVLServiceArea_@suffixVendorLocationID" class="button gray-gradient  float-right margin-bottom"
+                        type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+    var mapAddress = null;
+    // Map utility functions.
+    function SetCustomIconAndText(locations, startOrEnd) {
+        if (startOrEnd == "start") {
+            [locations[0]][0].customIconUrl = "../../Content/images/poi_flag_start.png";
+            [locations[0]][0].pinText = "A";
+        }
+        else if (startOrEnd == "end") {
+            [locations[0]][0].customIconUrl = "../../Content/images/poi_flag_end.png";
+            [locations[0]][0].pinText = "B";
+        }
+    }
+
+    function IsNull(val, defaultValue) {
+        if (val == null) {
+            return defaultValue;
+        }
+        return val;
+    }
+    function AddVirtualLocation(uniqueID) {
+        // Grep the grid and add the details from the mapAddress.
+
+        if (mapAddress != null) {
+            console.log("Setting virtual location to " + mapAddress);
+            var currentViewModel = GetCurrentViewModel("VirtualLocations_" + uniqueID);
+            var newLocation = new VirtualAddress();
+
+            newLocation.Description = IsNull(mapAddress.description, "");
+            newLocation.City = IsNull(mapAddress.City, "");
+            newLocation.StateProvince = IsNull(mapAddress.StateProvince, "");
+            newLocation.Country = IsNull(mapAddress.Country, "");
+            newLocation.PostalCode = IsNull(mapAddress.PostalCode, "");
+
+            newLocation.Latitude = IsNull(mapAddress.latitude, "");
+            newLocation.Longitude = IsNull(mapAddress.longitude, "");
+            newLocation.IsEmpty = false;
+
+            currentViewModel.addItem(newLocation);
+        }
+        else {
+            openAlertMessage("Please pin a location");
+        }
+
+    }
+
+    function InfoboxActionsClickHandlerLocation(e, uniqueId, param) {
+
+        if (typeof e.FullAddress == "undefined" || e.FullAddress == null) {
+            e.FullAddress = e.description;
+        }
+        mapAddress = e;
+        //TODO: Need to process the click event on the link in infobox
+        AddVirtualLocation(uniqueId);
+        param.preventDefault();
+    }
+
+    function GetInfoBoxOptions(location, uniqueID) {
+        var infoboxOptions = {
+            visible: false,
+            actions: [
+            /*{ label: 'Set as Virtual Location',
+            eventHandler: InfoboxActionsClickHandlerLocation.bind(this, location, uniqueID)
+            }*/]
+        }
+        return infoboxOptions;
+    }
+
+    function SearchMapForLocation(searchText, element, uniqueID) {
+
+        // Call the map API to plot a graph.
+        genericMapping.searchLocation(searchText, function (locations) {
+            if (locations == null) {
+                if (element != null) {
+                    ShowValidationMessage(element, "We didn’t find results for your search");
+                }
+                mapAddress = null;
+                return false;
+            }
+            if (element != null) {
+                HideValidationMessage(element);
+            }
+            console.log("Searched for [ " + searchText + " ] and found { " + JSON.stringify(locations) + " }");
+            // Plotting Single Pin if the location found.
+            if (locations.length == 1) {
+                // Use Location Image with Green Square and Letter A
+                SetCustomIconAndText(locations, "start");
+            }
+            if (locations.length >= 1) {
+
+                genericMapping.addPins([locations[0]], true, false, GetInfoBoxOptions([locations[0]][0], uniqueID),'green');
+                var lat = [locations[0]][0].latitude;
+                var long = [locations[0]][0].longitude;
+                var mapZoom = 13;
+                if ($('input[name="chkIncludePrimaryZipCodes_@suffixVendorLocationID"]').attr('checked') || $('input[name="chkIncludeSecondaryZipCodes_@suffixVendorLocationID"]').attr('checked')) {
+                    mapZoom = 11;
+                }
+                genericMapping.provider.map.setView({ zoom: mapZoom, center: new Microsoft.Maps.Location(lat, long) });
+
+            }
+
+
+            mapAddress = [locations[0]][0];
+            $('#lblSourcePinned_' + uniqueID).html([locations[0]][0].description);
+
+        });
+    }
+
+    function GetCurrentViewModel(key) {
+        if (document.KOViewModels) {
+            // eg: Key : ZipCodes_640 [ Editor Expression _ uniqueid]
+            var currentViewModel = document.KOViewModels[key];
+            return currentViewModel
+        }
+        return null;
+    }
+    function RefreshMap() {
+        genericMapping.clearMap();
+        if (mapAddress != null) {
+            SearchMapForLocation(mapAddress.description, null, '@suffixVendorLocationID');
+        }
+        ShowZipRegions($('input[name="chkIncludePrimaryZipCodes_@suffixVendorLocationID"]'), $('#PrimaryZipCodes_@suffixVendorLocationID').val());
+        ShowZipRegions($('input[name="chkIncludeSecondaryZipCodes_@suffixVendorLocationID"]'), $('#SecondaryZipCodes_@suffixVendorLocationID').val());
+    }
+    function ShowZipRegions($chkIncludeZipCodes, pinCodes) {
+        if ($chkIncludeZipCodes.attr('checked')) {
+            //var pinCodes = $('#PrimaryZipCodes_@suffixVendorLocationID').val();
+            if (pinCodes != null && pinCodes != undefined) {
+                var pinArray = pinCodes.split(",");
+                for (i = 0; i < pinArray.length; i++) {
+                    try {
+                        var int = parseInt(pinArray[i]);
+                        if (!isNaN(int)) {
+                            Inforica.Maps.DrawBoundary(int, genericMapping.provider.map);
+                        }
+                    } catch (e) {
+
+                    }
+                }
+            }
+        }
+    }
+    $(function () {
+
+        $("#frmVLServiceArea_@suffixVendorLocationID").validationEngine();
+
+        if ('@Model.IsUsingZipCodes.ToString().ToLower()' == "false") {
+            $("#zipCodes_@suffixVendorLocationID").hide();
+            $("#chkZipCodes_@suffixVendorLocationID").hide();
+        }
+        else {
+            $("#zipCodes_@suffixVendorLocationID").show();
+            $("#chkZipCodes_@suffixVendorLocationID").show();
+        }
+        if (typeof (Microsoft) != "undefined") {
+            //KS: Load the new BING Theme
+            //Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', { callback: themesModuleLoaded });
+            Microsoft.Maps.loadModule('Microsoft.Maps.AdvancedShapes');
+        }
+
+        // Intilize Bing Map
+        var mapDiv = document.getElementById("divMap_" + '@suffixVendorLocationID');
+        var directionDiv = document.getElementById("directionDiv");
+        genericMapping.init(BingMaps, mapDiv, directionDiv);
+        // Provide a Default location to Just Plot the MAP
+        genericMapping.searchLocation('US', function (locations) {
+
+        });
+
+        // Attempt to pin the business address.
+        var businessAddress = $("#BusinessAddress_@suffixVendorLocationID").val();
+        if ($.trim(businessAddress).length > 0) {
+            console.log("Plotting Business address : " + businessAddress);
+            SearchMapForLocation(businessAddress, null, '@suffixVendorLocationID');
+        }
+
+        // Event handler for the locate button
+        $("#btnALocate_@suffixVendorLocationID").click(function (e) {
+            e.preventDefault();
+
+            var currentElement = $("#ALocation_@suffixVendorLocationID");
+            var val = $.trim(currentElement.val());
+            if (val.length == 0) {
+                ShowValidationMessage($("#ALocation_@suffixVendorLocationID"), "This field is required");
+                return false;
+            }
+
+            HideValidationMessage($("#ALocation_@suffixVendorLocationID"));
+
+            genericMapping.clearMap();
+            SearchMapForLocation(val, $("#ALocation_@suffixVendorLocationID"), '@suffixVendorLocationID');
+            return false;
+        });
+
+
+        $("#aVirtual_@suffixVendorLocationID").click(function (e) {
+
+            AddVirtualLocation('@suffixVendorLocationID');
+            return false;
+        });
+
+        $("#aZipCode_@suffixVendorLocationID").click(function (e) {
+
+            if (mapAddress != null) {
+                console.log("Setting Zip code to " + mapAddress);
+                var currentViewModel = GetCurrentViewModel($(this).attr("id").replace("aZipCode", "PrimaryZipCodes"));
+                if (currentViewModel != null && mapAddress.PostalCode != null) {
+                    currentViewModel.itemToAdd(mapAddress.PostalCode);
+                    currentViewModel.addItem();
+                }
+            }
+            else {
+                openAlertMessage("Please pin a location");
+            }
+            return false;
+        });
+
+        $("#btnSaveVLServiceArea_@suffixVendorLocationID").click(function (e) {
+
+            if ($("#frmVLServiceArea_@suffixVendorLocationID").validationEngine('validate') == false) {
+                return false;
+            }
+            var $zipCodes = $("#PrimaryZipCodes_@suffixVendorLocationID");
+            if ($("#IsUsingZipCodes_@suffixVendorLocationID").is(":checked")) {
+                if ($.trim($zipCodes.val()).length == 0) {
+                    ShowValidationMessage($zipCodes, "Please enter at least 1 zip code area serviced by this dispatch location.");
+                    $zipCodes.focus();
+                    return false;
+                }
+            }
+
+            HideValidationMessage($zipCodes);
+
+            // Set one comma for Secondary zips if the value is blank. This would force a delete of the existing zips in the backend.
+            if ($.trim($("#SecondaryZipCodes_@suffixVendorLocationID").val()).length == 0) {
+                $("#SecondaryZipCodes_@suffixVendorLocationID").val(",");
+            }
+
+            var postData = $("#frmVLServiceArea_@suffixVendorLocationID").serializeArray();
+
+            // Get Virtual locations data too.
+            var currentViewModel = GetCurrentViewModel($(this).attr("id").replace("btnSaveVLServiceArea", "VirtualLocations"));
+            if (currentViewModel != null) {
+                var items = currentViewModel.items();
+                for (var i = 0, l = items.length; i < l; i++) {
+                    postData.push({ name: 'VirtualLocations[' + i + '].LocationAddress', value: items[i].Description });
+                    postData.push({ name: 'VirtualLocations[' + i + '].LocationCity', value: items[i].City });
+                    postData.push({ name: 'VirtualLocations[' + i + '].LocationStateProvince', value: items[i].StateProvince });
+                    postData.push({ name: 'VirtualLocations[' + i + '].LocationCountryCode', value: items[i].Country });
+                    postData.push({ name: 'VirtualLocations[' + i + '].LocationPostalCode', value: items[i].PostalCode });
+                    postData.push({ name: 'VirtualLocations[' + i + '].Latitude', value: items[i].Latitude });
+                    postData.push({ name: 'VirtualLocations[' + i + '].Longitude', value: items[i].Longitude });
+                }
+            }
+            postData.push({ name: 'VendorLocationID', value: '@suffixVendorLocationID' });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_SaveVendorLocationServiceArea", "VendorLocation", new { area = "ISP" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: postData,
+                success: function (msg) {
+
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmVendorContainerForDirtyFlag_@suffixVendorID');
+                        openAlertMessage("Service area details saved successfully");
+                    }
+                }
+            });
+
+            return false;
+        });
+
+        $("#btnCancelVLServiceArea_@suffixVendorLocationID").click(function (e) {
+            CleanMyContainer('frmVendorContainerForDirtyFlag_@suffixVendorID');
+            return false;
+        });
+
+        $("#aClearPins_@suffixVendorLocationID").click(function (e) {
+            genericMapping.clearMap();
+            $('#lblSourcePinned_@suffixVendorLocationID').html("");
+            mapAddress = null;
+            return false;
+        });
+        $('input[id="IsUsingZipCodes_@suffixVendorLocationID"]').change(function (e) {
+
+            if ($(this).is(':checked')) {
+                $("#zipCodes_@suffixVendorLocationID").show();
+                $("#chkZipCodes_@suffixVendorLocationID").show();
+            }
+            else {
+                $("#zipCodes_@suffixVendorLocationID").hide();
+                $("#chkZipCodes_@suffixVendorLocationID").hide();
+            }
+        });
+
+        $('input[name="chkIncludePrimaryZipCodes_@suffixVendorLocationID"]').change(function (e) {
+            RefreshMap();
+        });
+
+        $('input[name="chkIncludeSecondaryZipCodes_@suffixVendorLocationID"]').change(function (e) {
+            RefreshMap();
+        });
+
+        $('input[name="chkIncludeVLs_@suffixVendorLocationID"]').change(function (e) {
+
+            if ($(this).attr('checked')) {
+                // Foreach item in VLS, put a pin.
+                // Get Virtual locations data too.
+                var currentViewModel = GetCurrentViewModel($(this).attr("name").replace("chkIncludeVLs", "VirtualLocations"));
+
+                var items = currentViewModel.items();
+
+                for (var i = 0, l = items.length; i < l; i++) {
+                    var location = new BingMaps.Location(items[i].Latitude, items[i].Longitude, items[i].Description);
+                    location.pinText = (i + 1).toString();
+                    location.customIconUrl = "../../Content/images/blue_pushpin.png";
+
+                    genericMapping.addPins([location], true, false, GetInfoBoxOptions(location, '@suffixVendorLocationID'));
+                }
+
+            }
+            else {
+                // Clear all pins.
+                genericMapping.clearMap();
+                var businessAddress = $("#BusinessAddress_@suffixVendorLocationID").val();
+                if ($.trim(businessAddress).length > 0) {
+                    console.log("Plotting Business address : " + businessAddress);
+                    SearchMapForLocation(businessAddress, null, '@suffixVendorLocationID');
+                }
+            }
+        });
+    });
+</script>
+
+<script>
+    var Inforica = {} || Inforica;
+
+
+    Inforica.Maps = new function () {
+
+        var safeCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+        var baseUrl = "https://platform.bing.com/geo/spatial/v1/public/geodata?SpatialFilter=";
+        var color = 0;
+        var map = null;
+
+        function DrawBoundary(addressOrZipCodes, mapReference) {
+            if (mapReference != undefined && mapReference != null) {
+                map = mapReference;
+                mapReference.getCredentials(function (credentials) {
+                    var boundaryUrl = baseUrl + "GetBoundary('" + addressOrZipCodes + "',1,'Postcode1',1,1,'en-us','US')&$format=json&key=" + credentials;
+                    CallRestService(boundaryUrl);
+                });
+            }
+        }
+
+        function boundaryCallback(result) {
+            color = color + 50;
+            var entity = result.d.results[0];
+            //var entityMetadata = entity.EntityMetadata;
+            // var entityName = entity.Name.EntityName;
+            var primitives = entity.Primitives;
+
+            var polygoncolor = null;
+            var strokecolor = null;
+            var boundaryVertices = null;
+            var numOfVertices = 0;
+
+            polygoncolor = new Microsoft.Maps.Color(100, 128, color, 128);
+            strokecolor = new Microsoft.Maps.Color(255, 128, color, 128);
+
+            var polygonArray = new Array();
+            for (var i = 0; i < primitives.length; i++) {
+                var ringStr = primitives[i].Shape;
+                var ringArray = ringStr.split(",");
+
+                for (var j = 1; j < ringArray.length; j++) {
+                    var array = ParseEncodedValue(ringArray[j]);
+
+                    if (array.length > numOfVertices) {
+                        numOfVertices = array.length;
+                        boundaryVertices = array;
+                    }
+                    polygonArray.push(array);
+                }
+
+                var polygon = new Microsoft.Maps.Polygon(polygonArray,
+                  { fillColor: polygoncolor, strokeColor: strokecolor });
+                map.entities.push(polygon);
+            }
+        }
+
+        function CallRestService(boundaryUrl) {
+            $.ajax({
+                url: boundaryUrl,
+                dataType: "jsonp",
+                jsonp: "jsonp",
+                success: function (result) {
+                    boundaryCallback(result);
+                },
+                error: function (e) {
+                    alert(e.statusText);
+                }
+            });
+        }
+
+        function ParseEncodedValue(value) {
+            var list = new Array();
+            var index = 0;
+            var xsum = 0;
+            var ysum = 0;
+            var max = 4294967296;
+
+            while (index < value.length) {
+                var n = 0;
+                var k = 0;
+
+                while (1) {
+                    if (index >= value.length) {
+                        return null;
+                    }
+                    var b = safeCharacters.indexOf(value.charAt(index++));
+                    if (b == -1) {
+                        return null;
+                    }
+                    var tmp = ((b & 31) * (Math.pow(2, k)));
+
+                    var ht = tmp / max;
+                    var lt = tmp % max;
+
+                    var hn = n / max;
+                    var ln = n % max;
+
+                    var nl = (lt | ln) >>> 0;
+                    n = (ht | hn) * max + nl;
+                    k += 5;
+                    if (b < 32) break;
+                }
+
+                var diagonal = parseInt((Math.sqrt(8 * n + 5) - 1) / 2);
+                n -= diagonal * (diagonal + 1) / 2;
+                var ny = parseInt(n);
+                var nx = diagonal - ny;
+                nx = (nx >> 1) ^ -(nx & 1);
+                ny = (ny >> 1) ^ -(ny & 1);
+                xsum += nx;
+                ysum += ny;
+                var lat = ysum * 0.00001;
+                var lon = xsum * 0.00001
+                list.push(new Microsoft.Maps.Location(lat, lon));
+            }
+            return list;
+        }
+
+        return { DrawBoundary: DrawBoundary };
+    };
+
+</script>

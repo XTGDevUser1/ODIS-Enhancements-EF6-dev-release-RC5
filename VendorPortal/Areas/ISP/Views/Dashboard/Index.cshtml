@@ -1,0 +1,248 @@
+﻿@using Martex.DMS.BLL.Model.VendorPortal;
+@using VendorPortal.Models;
+@model VendorDashboardModel
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster-Vendor.cshtml";
+    RegisterUserModel UserProfile = ViewData["UserProfile"] as RegisterUserModel;
+    var postLoginPromptId = UserProfile.PostLoginPromptID;
+    var changePassword = UserProfile.ChangePassowrd.GetValueOrDefault();
+    int serviceRating = (int)Model.ServiceRatings.AvgProductRating.GetValueOrDefault();
+}
+<style type="text/css">
+
+     .k-tooltip
+        {
+            background: white !important;
+
+        }
+    .k-i-maximize
+    {
+        display: none;
+    }
+    #AdministrativeRatingGauge
+    {
+        margin: 0 auto 0;
+      margin: 0 auto 0;
+      background: transparent;
+         width: 260px;
+            height: 260px;
+            margin: 0 auto 0;
+            border-color: transparent;
+    }
+
+    #AdministrativeRatingGauge svg
+    {
+        left: 0 !important;
+    }
+     #ServiceRatingGauge
+    {
+        margin: 0 auto 0;
+      background: transparent;
+         width: 260px;
+            height: 260px;
+            margin: 0 auto 0;
+            border-color: transparent;
+    }
+    .customDefault
+    {
+    text-align:left;
+    color:#000000;
+    }
+
+    #ServiceRatingGauge svg
+    {
+        left: 0 !important;
+    }
+
+    .gauge-container {
+            background: transparent url(@Url.Content("~/Content/img/gauge-container.png")) no-repeat 50% 0;
+            width: 304px;
+            height: 304px;
+            text-align: center;
+            margin: auto;
+            padding-top: 13px;
+        }
+
+
+</style>
+<hgroup class="thin" id="main-title">
+    <h1>
+        Dashboard
+    </h1>
+</hgroup>
+<div class="dashboard">
+    <div class="columns">
+        <div class="six-columns six-columns-tablet align-center">
+            <div class="gauge-container intro-Dashboard">
+                @(Html.Kendo().RadialGauge()
+                              .Theme("Black")
+                              .Name("ServiceRatingGauge")
+                              .Pointer(pointer => pointer.Value((double)Model.ServiceRatings.AvgProductRating.GetValueOrDefault()))
+                              .Scale(scale => scale
+                              .MinorUnit(5)
+                              .StartAngle(-60)
+                              .EndAngle(240)
+                              .Min(0)
+                              .Max(100)
+                              .Labels(labels => labels
+                              .Position(GaugeRadialScaleLabelsPosition.Inside)
+                              )
+                              .Ranges(ranges =>
+                               {
+                                   ranges.Add().From(0).To(40).Color("#cc3333");
+                                   ranges.Add().From(40).To(70).Color("#E7C825");
+                                   ranges.Add().From(70).To(100).Color("#99c624");
+                               })
+                             ))
+            </div>
+            <h2 class="thin">
+                Service Rating
+            </h2>
+        </div>
+        <div class="six-columns six-columns-tablet align-center">
+            <div class="gauge-container">
+                @(Html.Kendo().RadialGauge()
+                              .Theme("Black")
+                              .Name("AdministrativeRatingGauge")
+                              .Pointer(pointer => pointer.Value(Model.VendorDetails.AdministrativeRating.GetValueOrDefault()))
+                              .Scale(scale => scale
+                              .MinorUnit(5)
+                              .StartAngle(-60)
+                              .EndAngle(240)
+                              .Min(0)
+                              .Max(100)
+                              .Labels(labels => labels
+                              .Position(GaugeRadialScaleLabelsPosition.Inside)
+                              )
+                              .Ranges(ranges =>
+                               {
+                                   ranges.Add().From(0).To(40).Color("#cccccc");
+                                   ranges.Add().From(40).To(70).Color("#E7C825");
+                                   ranges.Add().From(70).To(100).Color("#99c624");
+                               })
+                             )
+                )
+            </div>
+            <h2 class="thin">
+                Administrative Rating
+            </h2>
+        </div>
+        @*<div class="four-columns twelve-columns-tablet new-row-mobile">
+                @Html.Partial("_ProfileCompletness", Model)
+            </div>*@
+    </div>
+</div>
+<div class="columns">
+
+    <div class="new-row ten-columns offset2 twelve-columns-tablet">
+        @Html.Partial("_ServiceCallActivityGraph", Model)
+    </div>
+    <div class="ten-columns offset2  twelve-columns-tablet">
+        <div class="with-padding mid-margin-top">
+            <div id="WelcomeTabs" class="standard-tabs same-height">
+                <ul class="tabs">
+                    <li id="tabWelcome"><a href="#tabs-tabWelcome">Welcome</a></li>
+                    <li id="tabMessages"><a href="#tabs-tabMessages">Messages</a></li>
+                </ul>
+                <div id="tabs-tabWelcome">
+                    <div style="max-height: 420px; min-height: 420px;" class="scrollable">
+                        @Html.Partial("_Welcome")
+                    </div>
+                </div>
+                <div id="tabs-tabMessages">
+                    <div style="max-height: 420px; min-height: 420px;" class="scrollable">
+                        @Html.Partial("_Messages", Model.MessageList)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#AdministrativeRatingGauge").kendoTooltip({
+            content: "Administrative Rating " + '@Model.VendorDetails.AdministrativeRating.GetValueOrDefault()'
+        });
+        LoadHelpText("_DashboardHelp");
+        $("#ServiceRatingGauge").kendoTooltip({ content: "Service Rating " + '@serviceRating' });
+        $('#WelcomeTabs').tabs();
+        $("#WelcomeTabs").tabs("select", 0);
+    });
+
+
+</script>
+<script type="text/javascript" language="javascript">
+
+    var popupWindowVisible = true;
+
+    $(document).ready(function () {
+        var isie = isIE();
+        if (isie) {
+            popupWindowVisible = false;
+        }
+
+        @* NP 03/14/16: Removed the logic && "@changePassword" != "True" because in Layout removed the Change Password prompt.*@
+        if ('@postLoginPromptId' != null && '@postLoginPromptId' != '' && '@postLoginPromptId' > 0) {
+            var currentLocation = window.location;
+            var postLoginPromptUrl = "";
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetPostLoginUrl", "Account", new { area = "" })',
+                traditional: true,
+                data: { postLoginPromptId: '@postLoginPromptId' },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        var height = 600;
+                        var width = 800;
+
+                        postLoginPromptUrl = msg.Data;
+                        if (postLoginPromptUrl == "/ISP/Dashboard/GetInsurancePrompt") {
+                            height = 250;
+                            width = 800;
+                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: postLoginPromptUrl,
+                            traditional: true,
+                            cache: false,
+                            async: true,
+                            success: function (msg) {
+                                winPostLoginPrompt = $("<div id='winPostLoginPrompt' />").appendTo(document.body);
+                                winPostLoginPrompt.kendoWindow({
+                                    title: "Information Verification",
+                                    actions: ["Maximize"],
+                                    modal: true,
+                                    width: width,
+                                    height: height,
+                                    resizable: false,
+                                    visible: popupWindowVisible,
+                                    deactivate: function () {
+                                        this.destroy();
+                                    },
+                                    close: function (e) {
+                                        return true;
+                                    }
+                                });
+                                winPostLoginPrompt.data("kendoWindow").content(msg).center().open();
+
+                            }
+                        });
+                    }
+                    else {
+                        alert(msg.Data);
+                    }
+                }
+            });
+
+        }
+    });
+    function StartNavigationTour() {
+        introJs().setOption('tooltipClass', 'customDefault').start();
+    }
+
+
+</script>

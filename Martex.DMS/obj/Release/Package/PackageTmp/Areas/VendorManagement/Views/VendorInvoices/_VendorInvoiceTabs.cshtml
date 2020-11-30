@@ -1,0 +1,29 @@
+﻿@model int
+@{
+    var suffixVendorInvoiceID = Model.ToString();
+    var suffixVendorID = ViewData["VendorID"].ToString();
+}
+<div id="VendorInvoiceDetailsTab_@suffixVendorInvoiceID" class="standard-tabs same-height">
+    <ul class="tabs">
+        <li><a href="@Url.Action("_Vendor_Invoices_Information", "VendorInvoices", new { area = "VendorManagement" })" id="#VendorInvoicesInfoTab_@suffixVendorInvoiceID">
+            Invoice</a></li>
+        @if (int.Parse(suffixVendorInvoiceID) > 0)
+        { 
+            <li><a href="@Url.Action("_Vendor_Invoices_Activity", "VendorInvoices", new { area = "VendorManagement" })" id="#VendorInvoicesActivityTab_@suffixVendorInvoiceID">
+                Activity</a></li>
+        }
+        else
+        { 
+            <li class="disabled">Activity</li>
+        }
+    </ul>
+</div> 
+<script type="text/javascript">
+    $(function () {
+        $('#VendorInvoiceDetailsTab_@suffixVendorInvoiceID').tabs({
+            ajaxOptions: { data: { vendorInvoiceID: '@suffixVendorInvoiceID', vendorID: '@suffixVendorID' }
+            },
+            cache: false
+        });
+    });   
+</script>

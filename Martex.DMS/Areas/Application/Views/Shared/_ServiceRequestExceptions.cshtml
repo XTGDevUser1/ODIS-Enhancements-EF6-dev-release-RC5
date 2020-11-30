@@ -1,0 +1,25 @@
+﻿@using Martex.DMS.DAL
+@using Martex.DMS.Common
+@using Martex.DMS.BLL.DataValidators
+@{
+    var listOfExceptions = ViewData[StringConstants.SERVICE_REQUEST_EXCEPTIONS] as List<ServiceRequestException>;
+}
+@if (ViewData[StringConstants.TAB_VALIDATION_STATUS] != null && (TabValidationStatus)ViewData[StringConstants.TAB_VALIDATION_STATUS] == TabValidationStatus.VISITED_WITH_ERRORS)
+{
+    
+    if (listOfExceptions != null && listOfExceptions.Count > 0)
+    {
+        <div class="bs-callout bs-callout-danger">
+                
+                    <h4>Errors Found</h4>
+                                             
+                            @foreach (var item in listOfExceptions)
+                            {
+                                <p>@item.RequestArea : @item.ExceptionMessage</p>
+                            }
+                     
+            </div>
+    }
+            
+            
+}

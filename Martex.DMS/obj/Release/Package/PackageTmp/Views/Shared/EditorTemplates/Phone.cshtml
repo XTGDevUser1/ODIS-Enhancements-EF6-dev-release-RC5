@@ -1,0 +1,96 @@
+﻿@using Kendo.Mvc.UI
+@if (ViewData["ReadOnly"] == null || (ViewData["ReadOnly"] != null && (bool)ViewData["ReadOnly"] == false))
+{
+    <span class="phone-input">
+      @if (ViewData["ShowPhoneType"] == null || (bool)ViewData["ShowPhoneType"] == true)
+      {
+
+          @(Html.Kendo().ComboBox()
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PhoneType.ToString()] as IEnumerable<SelectListItem>)
+            .Name(ViewData.TemplateInfo.HtmlFieldPrefix + "_ddlPhoneType")
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .HighlightFirst(true)
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo").DataBound("DefaultDataBoundToAdjustContainerWidth");
+            })
+            .HtmlAttributes(new { style = "width:67px", @class = "phoneType" })
+            .SelectedIndex(0)
+          )
+      }
+
+      @(Html.Kendo().ComboBox()
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CountryCode.ToString()] as IEnumerable<SelectListItem>)
+        .Name(ViewData.TemplateInfo.HtmlFieldPrefix + "_ddlCountryCode")
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .HighlightFirst(true)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo").DataBound("DefaultDataBoundToAdjustContainerWidth");
+        })
+        .HtmlAttributes(new { style = "width:50px", @class = "countryCode" })
+        .SelectedIndex(0)
+      )
+      <span class="input">
+        @if (ViewData["IsRequired"] == null || ViewData["IsRequired"].Equals("false"))
+        {
+            @Html.TextBox("txtPhoneNumber", null, new { @class = "validate[funcCall[checkPhone]] input-unstyled", size = 12, maxlength = 12, style = "width:80px;" })
+        }
+        else
+        {
+            @Html.TextBox("txtPhoneNumber", null, new { @class = "validate[required,funcCall[checkPhone]] input-unstyled", size = 12, maxlength = 12, style = "width:80px;" })
+        }
+        <span>X</span>
+        @Html.TextBox("txtExtension", null, new { @class = "validate[maxSize[10], minSize[2], custom[onlyNumberSp]] input-unstyled", size = 4, maxlength = 7, style = "width:40px;" })
+      </span>
+      @if (ViewData["ShowCallIcon"] == null || (bool)ViewData["ShowCallIcon"] == true)
+      {
+
+          <label for="pseudo-input-9" class="button compact orange-gradient">
+            <span class="icon-phone small-margin-left" id="@(ViewData.TemplateInfo.HtmlFieldPrefix + "_call")" name ="@ViewData["CallType"]">
+            </span>
+          </label>
+      }
+    </span>
+}
+else
+{
+  string customClassName = ViewData["customClassName"] == null ? string.Empty : ViewData["customClassName"].ToString();
+
+    <span>
+      @if (ViewData["Value"] == null)
+      {
+        ViewData["Value"] = string.Empty;
+      }
+      @Html.Label(ViewData["Value"] as string, new { id = @ViewData.TemplateInfo.HtmlFieldPrefix + "_lblPhoneNumber", datatype = "phone" })
+      @if (ViewData["ShowCallIcon"] == null || (bool)ViewData["ShowCallIcon"] == true)
+      {
+          <span class="icon-phone small-margin-left @customClassName" id="@(ViewData.TemplateInfo.HtmlFieldPrefix + "_call")" data="@ViewData["Value"]" name ="@ViewData["CallType"]">
+          </span>
+      }
+    </span>
+}
+<script language="javascript" type="text/javascript">
+  $(function () {
+    var phoneType = '@ViewData["PhoneTypeValue"]';
+    var phoneNumber = '+@ViewData["Value"]';
+    var prefix = '#@ViewData.TemplateInfo.HtmlFieldPrefix';
+    var isControlReadonly = '@ViewData["ReadOnly"]';
+    try {
+
+      if (phoneNumber.length > 1) {
+        SetPhoneValues(prefix, phoneNumber, (isControlReadonly == 'True'));
+      }
+      if (phoneType.length > 0) {
+        $(prefix + "_ddlPhoneType").data('kendoComboBox').value(phoneType);
+      }
+    }
+    catch (error) {
+    }
+
+  });
+</script>

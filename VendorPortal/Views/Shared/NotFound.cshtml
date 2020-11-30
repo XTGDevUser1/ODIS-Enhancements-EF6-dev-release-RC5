@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Page Not Found";
+    Layout = "~/Views/Shared/ContentMaster-home.cshtml";
+
+}
+<div class="leader relative">
+    &nbsp;</div>
+<div class="container">
+<div class="gap"></div>
+            <div class="center">
+
+                <span class="text-mega">404</span>
+                <div class="gap"></div>
+                <h1>Sorry, the page you requested was not found.</h1>
+                <h3> Could not find the page: @ViewBag.RequestedUrl</h3>
+                 @if (ViewBag.ReferrerUrl != null)
+    {
+        <p>
+            Go back to the <a href="@ViewBag.ReferrerUrl">previous page</a>.</p>
+    }
+
+@* Error page must be longer than 512 bytes for IE and Chrome to show it. 
+   So add padding in case we're short. *@
+    @(new string(' ', 512))
+                <div class="gap gap-small"></div>	
+            </div>
+            <div class="gap"></div>
+        </div>
+

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://moservices.hagerty.com/B2B/SecondaryHPlusService?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:import schemaLocation="https://moservices.hagerty.com/B2B/SecondaryHPlusService?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" />
+  <xs:element name="ServiceIsRunning">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ServiceIsRunningResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ServiceIsRunningResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ServiceInfo">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ServiceInfoResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="ServiceInfoResult" nillable="true" type="q1:ArrayOfstring" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestMembershipInformation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="customerNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="autoPolicyNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerFirstName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerLastName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="stateOrProvinceCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="zipCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="employeeIndicator" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestMembershipInformationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" minOccurs="0" name="RequestMembershipInformationResult" nillable="true" type="q2:ServiceMembershipResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendEventInformation">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="customerNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="planType" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="poDate" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="poNumber" type="xs:int" />
+        <xs:element minOccurs="0" name="customerFirstName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="customerLastName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="poCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="poDescription" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="hpnMembershipKey" type="xs:int" />
+        <xs:element minOccurs="0" name="hpnProvider" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="vehicleYear" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="vehicleMake" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="vehicleModel" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendEventInformationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" minOccurs="0" name="SendEventInformationResult" nillable="true" type="q3:ServiceEventResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetActiveMemberships">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetActiveMembershipsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" minOccurs="0" name="GetActiveMembershipsResult" nillable="true" type="q4:ServiceMembershipPlanResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

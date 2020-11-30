@@ -1,0 +1,661 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/DigitalDispatch/Views/Shared/_DigitalDipatchLayout.cshtml";
+}
+@model Martex.DMS.BLL.Model.DigitalDispatch.DSPModel
+<form id="formDSP">
+    <div class="columns">
+        <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+            <fieldset class="fieldset">
+                <legend class="legend">DSP</legend>
+                <div>
+                    <h4>Message Header</h4>
+                    <p class="inline-label">
+                        <label for="HeaderVersion" class="label">
+                            Header Version
+                        </label>
+                        @Html.TextBoxFor(a => a.HeaderVersion, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="Key" class="label">
+                            Key
+                        </label>
+                        @Html.TextBoxFor(a => a.Key, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ContractorID" class="label">
+                            Contractor ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ContractorID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseID" class="label">
+                            Response ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="TransType" class="label">
+                            Trans Type
+                        </label>
+                        @Html.TextBoxFor(a => a.TransType, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MsgVersion" class="label">
+                            Msg Version
+                        </label>
+                        @Html.TextBoxFor(a => a.MsgVersion, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ConRequired" class="label">
+                            Con Required
+                        </label>
+                        @Html.TextBoxFor(a => a.ConRequired, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseType" class="label">
+                            Response Type
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseType, new { @class = "input full-width2" })
+                    </p>
+
+                    <h4>Account Information</h4>
+
+                    <p class="inline-label">
+                        <label for="MemFirstName" class="label">
+                            First Name
+                        </label>
+                        @Html.TextBoxFor(a => a.MemFirstName, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MemLastName" class="label">
+                            Last Name
+                        </label>
+                        @Html.TextBoxFor(a => a.MemLastName, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="CustFirstName" class="label">
+                            Customer's First Name
+                        </label>
+                        @Html.TextBoxFor(a => a.CustFirstName, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="CustLastName" class="label">
+                            Customer's Last Name
+                        </label>
+                        @Html.TextBoxFor(a => a.CustLastName, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Addr1" class="label">
+                            Addr1
+                        </label>
+                        @Html.TextBoxFor(a => a.Addr1, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Addr2" class="label">
+                            Addr2
+                        </label>
+                        @Html.TextBoxFor(a => a.Addr2, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="City" class="label">
+                            City
+                        </label>
+                        @Html.TextBoxFor(a => a.City, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="State" class="label">
+                            State
+                        </label>
+                        @Html.TextBoxFor(a => a.State, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Zip" class="label">
+                            Zip
+                        </label>
+                        @Html.TextBoxFor(a => a.Zip, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Phone" class="label">
+                            Phone
+                        </label>
+                        @Html.TextBoxFor(a => a.Phone, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="CallBackPhone" class="label">
+                            CallBack Phone
+                        </label>
+                        @Html.TextBoxFor(a => a.CallBackPhone, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="CallFromLoc" class="label">
+                            Call From Location
+                        </label>
+                        @Html.TextBoxFor(a => a.CallFromLoc, new { @class = "input full-width2" })
+                    </p>
+
+
+                    <p class="inline-label">
+                        <label for="DriversLic" class="label">
+                            Driver's License Number
+                        </label>
+                        @Html.TextBoxFor(a => a.DriversLic, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="DLState" class="label">
+                            Driver's License State
+                        </label>
+                        @Html.TextBoxFor(a => a.DLState, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="MemNum" class="label">
+                            Member Number
+                        </label>
+                        @Html.TextBoxFor(a => a.MemNum, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="AvailBenefits" class="label">
+                            Avail Benefits
+                        </label>
+                        @Html.TextBoxFor(a => a.AvailBenefits, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="BenefitLimit" class="label">
+                            Benefit Limit
+                        </label>
+                        @Html.TextBoxFor(a => a.BenefitLimit, new { @class = "input full-width2" })
+                    </p>
+
+                    <h4>Job Information</h4>
+    <p class="inline-label">
+        <label for="RequiredAcknowledgeTime" class="label">
+            Acknowledge Time Seconds
+        </label>
+        @Html.TextBoxFor(a => a.RequiredAcknowledgeTime, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="JobID" class="label">
+            Job ID (SR ID)
+        </label>
+        @Html.TextBoxFor(a => a.JobID, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="TimeStamp" class="label">
+            Time Stamp
+        </label>
+        @Html.TextBoxFor(a => a.TimeStamp, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="MaxETA" class="label">
+            Max ETA
+        </label>
+        @Html.TextBoxFor(a => a.MaxETA, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="PrimaryTask" class="label">
+            Primary Task
+        </label>
+        @Html.TextBoxFor(a => a.PrimaryTask, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Task" class="label">
+            Secondary Task
+        </label>
+        @Html.TextBoxFor(a => a.Task, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Priority" class="label">
+            Priority
+        </label>
+        @Html.TextBoxFor(a => a.Priority, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="JobDesc" class="label">
+            Job Description
+        </label>
+        @Html.TextBoxFor(a => a.JobDesc, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="HazMat" class="label">
+            Hazardous Materials
+        </label>
+        @Html.TextBoxFor(a => a.HazMat, new { @class = "input full-width2" })
+    </p>
+    <h4>Vehicle Info</h4>
+    <p class="inline-label">
+        <label for="Year" class="label">
+            Year
+        </label>
+        @Html.TextBoxFor(a => a.Year, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Color" class="label">
+            Color
+        </label>
+        @Html.TextBoxFor(a => a.Color, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="Make" class="label">
+            Make
+        </label>
+        @Html.TextBoxFor(a => a.Make, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="Model" class="label">
+            Model
+        </label>
+        @Html.TextBoxFor(a => a.Model, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="Lic" class="label">
+            License Number
+        </label>
+        @Html.TextBoxFor(a => a.Lic, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="VehicleInfoState" class="label">
+            License State
+        </label>
+        @Html.TextBoxFor(a => a.VehicleInfoState, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="VIN" class="label">
+            VIN
+        </label>
+        @Html.TextBoxFor(a => a.VIN, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="VehicleType" class="label">
+            Vehicle Type
+        </label>
+        @Html.TextBoxFor(a => a.VehicleType, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="FuelType" class="label">
+            Fuel Type
+        </label>
+        @Html.TextBoxFor(a => a.FuelType, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="Odometer" class="label">
+            Odometer
+        </label>
+        @Html.TextBoxFor(a => a.Odometer, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="EngType" class="label">
+            Engine Type
+        </label>
+        @Html.TextBoxFor(a => a.EngType, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="TrailerWt" class="label">
+            Trailer Weight
+        </label>
+        @Html.TextBoxFor(a => a.TrailerWt, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="TrailerCont" class="label">
+            Trailer Contents
+        </label>
+        @Html.TextBoxFor(a => a.TrailerCont, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="AdditionalInfo" class="label">
+            Additional Info
+        </label>
+        @Html.TextBoxFor(a => a.AdditionalInfo, new { @class = "input full-width2" })
+    </p>
+    <h4>Incident Address</h4>
+    <p class="inline-label">
+        <label for="IncAddressTimeZone" class="label">
+            Time Zone
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressTimeZone, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="IncAddressAddr1" class="label">
+            Address 1
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressAddr1, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="IncAddressAddr2" class="label">
+            Address 2
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressAddr2, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="IncAddressCity" class="label">
+            City
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressCity, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="IncAddressState" class="label">
+            State
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressState, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="IncAddressZip" class="label">
+            Zip
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressZip, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="CrsStr1" class="label">
+            Cross Street 1
+        </label>
+        @Html.TextBoxFor(a => a.CrsStr1, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="CrsStr2" class="label">
+            Cross Street 2
+        </label>
+        @Html.TextBoxFor(a => a.CrsStr2, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="CallBox" class="label">
+            Call Box
+        </label>
+        @Html.TextBoxFor(a => a.CallBox, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Landmark" class="label">
+            Landmark
+        </label>
+        @Html.TextBoxFor(a => a.Landmark, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="MileMarker" class="label">
+            Mile Marker
+        </label>
+        @Html.TextBoxFor(a => a.MileMarker, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="LocCode" class="label">
+            Location Code
+        </label>
+        @Html.TextBoxFor(a => a.LocCode, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DriverLoc" class="label">
+            Driver Location
+        </label>
+        @Html.TextBoxFor(a => a.DriverLoc, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DriverETA" class="label">
+            Driver ETA
+        </label>
+        @Html.TextBoxFor(a => a.DriverETA, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="SafeLoc" class="label">
+            Safe Location
+        </label>
+        @Html.TextBoxFor(a => a.SafeLoc, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Median" class="label">
+            Median
+        </label>
+        @Html.TextBoxFor(a => a.Median, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="RtShoulder" class="label">
+            Right Shoulder
+        </label>
+        @Html.TextBoxFor(a => a.RtShoulder, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DirTravel" class="label">
+            Direction of Travel
+        </label>
+        @Html.TextBoxFor(a => a.DirTravel, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="PersonsInCar" class="label">
+            Person in Car
+        </label>
+        @Html.TextBoxFor(a => a.PersonsInCar, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="OnOffRamp" class="label">
+            On Off Ramp
+        </label>
+        @Html.TextBoxFor(a => a.OnOffRamp, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="ExitNum" class="label">
+            Exit Number
+        </label>
+        @Html.TextBoxFor(a => a.ExitNum, new { @class = "input full-width2" })
+    </p>
+
+
+    <p class="inline-label">
+        <label for="IncAddressLat" class="label">
+            Latitude
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressLat, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="IncAddressLon" class="label">
+            Longitude
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressLon, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="IncAddressGeoDatum" class="label">
+            Geographic Data
+        </label>
+        @Html.TextBoxFor(a => a.IncAddressGeoDatum, new { @class = "input full-width2" })
+    </p>
+    <h4>Destination Address</h4>
+    <p class="inline-label">
+        <label for="DestAddressLocInfo" class="label">
+            Landmark/Location Information
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressLocInfo, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressAddr1" class="label">
+            Address 1
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressAddr1, new { @class = "input full-width2" })
+    </p>
+    <p class="inline-label">
+        <label for="DestAddressAddr2" class="label">
+            Address 2
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressAddr2, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressCity" class="label">
+            City
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressCity, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressState" class="label">
+            State
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressState, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressZip" class="label">
+            Zip
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressZip, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressPhone" class="label">
+            Phone
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressPhone, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressLat" class="label">
+            Latitude
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressLat, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="DestAddressLon" class="label">
+            Longitude
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressLon, new { @class = "input full-width2" })
+    </p>
+
+
+    <p class="inline-label">
+        <label for="DestAddressGeoDatum" class="label">
+            Geographic Data
+        </label>
+        @Html.TextBoxFor(a => a.DestAddressGeoDatum, new { @class = "input full-width2" })
+    </p>
+    <h4>Payment Info</h4>
+    <p class="inline-label">
+        <label for="PONum" class="label">
+            PO Number
+        </label>
+        @Html.TextBoxFor(a => a.PONum, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="QuotePrice" class="label">
+            Quote Price
+        </label>
+        @Html.TextBoxFor(a => a.QuotePrice, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="AmntPaid" class="label">
+            Amount Paid
+        </label>
+        @Html.TextBoxFor(a => a.AmntPaid, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="PayType" class="label">
+            Pay Type
+        </label>
+        @Html.TextBoxFor(a => a.PayType, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="Auth" class="label">
+            Authorization Code
+        </label>
+        @Html.TextBoxFor(a => a.Auth, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="ExpDate" class="label">
+            Expiration Date
+        </label>
+        @Html.TextBoxFor(a => a.ExpDate, new { @class = "input full-width2" })
+    </p>
+
+    <p class="inline-label">
+        <label for="PayRef" class="label">
+            Pay Reference
+        </label>
+        @Html.TextBoxFor(a => a.PayRef, new { @class = "input full-width2" })
+    </p>
+
+
+    <p class="inline-label">
+        <label for="CashCall" class="label">
+            Cash Call
+        </label>
+        @Html.TextBoxFor(a => a.CashCall, new { @class = "input full-width2" })
+    </p>
+
+
+
+                    <div>
+                        <button id="btnSubmitDSP" class="button green-gradient float-right" type="button">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</form>
+<div class="columns" id="divDSPResponse">
+    <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+        <p class="inline-label">
+            <label class="label">
+                Response
+            </label>
+            @Html.TextArea("DSPResponseMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Request
+            </label>
+            @Html.TextArea("DSPRequestMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btnSubmitDSP").click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitDSP", "DSP", new { area = "DigitalDispatch" })',
+            data: $("#formDSP").serializeArray(),
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#DSPResponseMessage").html(msg.Data.Response);
+                $("#DSPRequestMessage").html(msg.Data.Request);
+                $("#divDSPResponse").show();
+            }
+        });
+    });
+    $(function () {
+        $("#divDSPResponse").hide();
+    });
+</script>

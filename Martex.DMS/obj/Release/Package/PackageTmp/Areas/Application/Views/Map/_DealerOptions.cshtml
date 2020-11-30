@@ -1,0 +1,49 @@
+﻿@using Kendo.Mvc.UI
+
+<script language="javascript" type="text/javascript">
+<!--
+    var selectedMake = '@ViewData["SelectedVehicleMake"]';
+    function DealerMake_onChange(e) {
+        
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            selectedMake = combo.value();
+        }
+    }
+//-->
+</script>
+<div id="dealersOptions" class="options">
+    <div class="button-height inline-medium-label small-margin-bottom">
+        <label for="Make" class="label">
+            Select Vehicle Make</label>
+        @(Html.Kendo().ComboBox()
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleMake.ToString()] as IEnumerable<SelectListItem>)
+        .Name("DealerMake")
+        .Suggest(true)
+        .HtmlAttributes(new { style = "width:250px;" })
+        .Filter(FilterType.StartsWith).MinLength(0)                                            
+        .HighlightFirst(true)
+        .Events(events =>
+        {
+            events.Change("DealerMake_onChange");
+        })
+        .HtmlAttributes(new { @class = "selectlabel" })
+        .Value(ViewData["SelectedVehicleMake"].ToString())        
+        )
+        
+        <button id="btnDealerApply" class="button compact" type="button">
+            Apply
+        </button>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#btnDealerApply').click(function () {
+            ProcessDealersApply(selectedMake);
+        });
+    });
+</script>

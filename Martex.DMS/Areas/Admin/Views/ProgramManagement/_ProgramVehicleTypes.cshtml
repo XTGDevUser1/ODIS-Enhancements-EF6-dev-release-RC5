@@ -1,0 +1,202 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    var suffixprogramID = Model.ToString();
+    bool isView = false;
+    string pageMode = ViewData["mode"].ToString();
+    if (pageMode != null && pageMode.ToString().Equals("view"))
+    {
+        isView = true;
+    }
+    var functionHandler = "onclick=ManageVehicleType(null," + suffixprogramID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>Add Program Vehicle Type</a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function ProgramManagementVehicleTypesSearchCriteria() {
+        return { programID: '@suffixprogramID' };
+    }
+    $("#GrdProgramManagementVehicleTypes_" + @suffixprogramID).delegate("tbody>tr", "dblclick", function () {
+        $(this).find('.k-grid-View').click();
+    });
+
+    function grdProgramManagementVehicleTypes_OnDataBound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+         if ('@isView' == 'true' || '@isView' == 'True') {
+            $("#GrdProgramManagementVehicleTypes_@suffixprogramID").find(".k-grid-add").addClass("hidden");
+        }
+
+         var grid = e.sender;
+         e.sender.table.find('tr').each(function () {
+             var $programID = $(this).find('.programID');
+             var $programName = $(this).find('.programName');
+             
+             var editButton = $(this).find('.k-grid-Edit');
+             var deleteButton = $(this).find('.k-grid-Delete');
+             
+             if ($programID.html() != @suffixprogramID) {
+                 $programName.html($programName.html() + " (Parent)");
+                 $(editButton).addClass("hide");
+                 $(deleteButton).addClass("hide");
+             }
+         });
+    }
+    function ManageVehicleType(e, suffixProgramID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+            if (e.data.commandName == 'Edit') {
+                GetManageVehicleType(recordID, 'edit', 'Program Vehicle Type ID: ' + recordID);
+            }
+            else if (e.data.commandName == 'View') {
+                GetManageVehicleType(recordID, 'view', 'Program Vehicle Type ID: ' + recordID);
+            }
+             else if (e.data.commandName == 'Delete') {
+                DeleteVehicleType(recordID);
+                //openAlertMessage("Delete in progress");
+
+            }
+        }
+        else {
+            GetManageVehicleType(null, 'add', 'New Program Vehicle Type');
+        }
+        return false;
+    }
+    function DeleteVehicleType(recordID) {
+        $.modal.confirm('Are you sure you want to delete this Program Vehicle Type?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_DeleteVehicleType", "ProgramManagement", new { area = "Admin" })',
+                traditional: true,
+                cache: false,
+                data: { vehicleTypeId: recordID },
+                async: false,
+                success: function (msg) {
+                    $('#GrdProgramManagementVehicleTypes_@suffixprogramID').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+
+                }
+            });
+        }, function () {
+
+        });
+    }
+    function GetManageVehicleType(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetProgramVehicleType", "ProgramManagement")',
+            traditional: true,
+            data: { programVehicleTypeId: recordID, mode: mode, programId: '@suffixprogramID' },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                programVehicleTypeWindow = $("<div id='programVehicleTypeWindow' />").appendTo(document.body);
+                programVehicleTypeWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-ProgramConfiguration').validationEngine('hideAll'); // to hide the validation message of the popup 
+                        
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-ProgramVehicleType')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-ProgramVehicleType');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                programVehicleTypeWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <div id="divProgramManagementVehicleTypes_@suffixprogramID">
+        @(Html.Kendo().Grid<ProgramManagementVehicleTypesList_Result>()
+        .Name("GrdProgramManagementVehicleTypes_" + suffixprogramID)
+        .Columns(column =>
+        {
+            column.Bound(a => a.ID).Hidden();
+            column.Bound(a => a.ProgramID).Hidden().HtmlAttributes(new { @class = "programID" });
+            column.Bound(a => a.ProgramName).Title("Program Name").Width(200).HtmlAttributes(new { @class = "programName" });
+            column.Bound(a => a.VehicleType).Title("Vehicle Type").Width(100);
+            column.Bound(a => a.MaxAllowed).Title("Max Allowed").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(50);
+            column.Bound(a => a.IsActive).Title("Is Active").ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            if (!isView)
+            {
+                column.Command(command =>
+                {
+                    command.Custom("View").Click(@<text>function(e){ ManageVehicleType(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                    command.Custom("Edit").Click(@<text>function(e){ ManageVehicleType(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    command.Custom("Delete").Click(@<text>function(e){ ManageVehicleType(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+
+                }).Width(150)
+                .Title("Action(s)");
+            }
+            else
+            {
+                column.Command(command =>
+                {
+                    command.Custom("View").Click(@<text>function(e){ ManageVehicleType(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                    
+
+                }).Width(150)
+               .Title("Action(s)");
+            }
+        })
+                        .ToolBar(toolBar => toolBar.Template(@addTemplate))
+                        .Events(e =>
+                        {
+                            e.DataBound("grdProgramManagementVehicleTypes_OnDataBound");
+                        })
+                        .Pageable()
+                        .Sortable()
+                        .Scrollable()
+                        .Filterable(filterable => filterable
+                            .Extra(false)
+                        )
+                        .Pageable(pager => pager
+                            .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+                        )
+                        .Selectable(select => select.Mode(GridSelectionMode.Single))
+                        .DataSource(datasource => datasource
+                            .Ajax()
+                            .Events(events => events.Error("KendoGridErrorHandler"))
+                                    .Read(read => read.Action("_GetProgramManagementVehicleTypesList", "ProgramManagement", new { area = "Admin" }).Data("ProgramManagementVehicleTypesSearchCriteria"))
+                            .PageSize(10)
+                        )
+                        .Resizable(resize => resize.Columns(true))
+                        .EnableCustomBinding(true)
+                        )
+</div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdProgramManagementVehicleTypes_@suffixprogramID >.k-grid-content").css("height", gridContentHeight + "px");
+    });
+    var programVehicleTypeWindow;
+</script>

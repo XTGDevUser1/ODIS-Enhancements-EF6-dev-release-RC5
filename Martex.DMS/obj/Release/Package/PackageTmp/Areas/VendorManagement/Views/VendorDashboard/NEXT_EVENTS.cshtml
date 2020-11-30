@@ -1,0 +1,22 @@
+﻿@using Martex.DMS.DAL
+@model Portlet
+@{
+    string portletID = Model.ID.ToString();
+}
+
+<div class="portlet portlet-sortable" id="@portletID">
+    <div class="block large-margin-bottom">
+        <div class="block-title">
+            <h3>Next events</h3>
+            <span class="ribbon"><span class="ribbon-inner">New</span></span>
+        </div>
+        <ul class="events">
+            <li>
+                <span class="event-date orange">8</span>
+                <a href="javascript:void(0)" class="event-description">
+                    <p>Place Holder</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

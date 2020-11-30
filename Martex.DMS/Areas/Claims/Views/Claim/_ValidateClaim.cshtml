@@ -1,0 +1,617 @@
+﻿@model string
+@using Kendo.Mvc.UI;
+@{
+    var suffixClaimID = Model;
+}
+<script type="text/javascript" language="javascript">
+
+    function ClaimInput() {
+        this.ClaimTypeID = "";
+        this.ClaimTypeText = "";
+        this.PurchaseOrderID = "";
+        this.PurchaseOrderNumber = "";
+        this.MembershipNumber = "";
+        this.MembershipID = "";
+        this.MemberID = "";
+        this.ProgramID = "";
+        this.VendorID = "";
+        this.PayeeType = "";
+        this.VehicleID = "";
+
+        this.Reset = function () {
+            this.ClaimTypeID = "";
+            this.ClaimTypeText = "";
+            this.PurchaseOrderNumber = "";
+            this.MembershipNumber = "";
+            this.MembershipID = "";
+            this.MemberID = "";
+            this.ProgramID = "";
+            this.VendorID = "";
+            this.PayeeType = "";
+            this.PurchaseOrderID = "";
+            this.VehicleID = "";
+        }
+    }
+
+    var claimInput = new ClaimInput();
+
+    function EnableLookupfields($txtField, enable) {
+
+        $txtField.combogrid("option", "disabled", !enable);
+
+        var txtFieldID = $txtField.attr("id");
+        var lookupField = $("." + txtFieldID + ".cg-searchButton");
+        if (enable) {
+            $txtField.removeAttr("disabled");
+            lookupField.show();
+        }
+        else {
+            $txtField.attr("disabled", "disabled");
+            lookupField.hide();
+        }
+
+    }
+
+    function WarrantyPrograms_Change(e) {
+
+        var combo = e.sender;
+
+        var $msLookup = $("#WarrantyMembershipNumber");
+        var $vinLookup = $("#WarrantyVIN");
+
+
+        EnableLookupfields($msLookup, false);
+        EnableLookupfields($vinLookup, false);
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var enableLookups = ($.trim(combo.value()).length > 0);
+        // disable lookup fields.
+        EnableLookupfields($msLookup, enableLookups);
+        EnableLookupfields($vinLookup, enableLookups);
+
+        $("#WarrantyMembershipNumber").combogrid("option", "url", "/Claims/Claim/_ValidateMembershipNumber?programID=" + combo.value() + "&type=ms");
+
+        $("#WarrantyVIN").combogrid("option", "url", "/Claims/Claim/_ValidateMembershipNumber?programID=" + combo.value() + "&type=vin");
+
+    }
+
+    function ShowRelatedLookup() {
+
+        var selectedSearchOption = $('input[name="WarrantySearchBy"]:checked').val();
+
+        var $msVinSection = $("#divSearchByMSVIN");
+        var $msNumber = $("#msField");
+        var $vin = $("#vinField");
+        var $sr = $("#divSearchBySR");
+
+        switch (selectedSearchOption) {
+            case 'membership':
+                $msVinSection.show();
+                $msNumber.show();
+                $vin.hide();
+                $sr.hide();
+                break;
+            case 'vin':
+                $msVinSection.show();
+                $msNumber.hide();
+                $vin.show();
+                $sr.hide();
+                break;
+            case 'sr':
+                $msVinSection.hide();
+                $sr.show();
+                break;
+        }
+    }
+    function cmbClaimTypes_OnChange(e) {
+
+        claimInput.Reset();
+
+        var combo = e.sender;
+        DisableAllTabsinClaim("0");
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+
+        $("#btnContinueClaim_@suffixClaimID").show();
+
+        // Warranty or Motorhome
+        //Ford Key Service
+        if (combo.text() == "Motorhome Reimbursement" || combo.text() == "Ford Key Service") {
+            HideClaimType_Damage('@suffixClaimID');
+            $("#divClaimTypeWarranty_@suffixClaimID").show();
+            $("#divProgramsForWarranty").show();
+            $("#divProgramsForRoadside").hide();
+            $("#cmbWarrantyPrograms").data('kendoComboBox').trigger('change');
+
+            // Show related text field for the selected option.
+
+        }
+        else if (combo.text() == "Roadside Reimbursement") {
+            HideClaimType_Damage('@suffixClaimID');
+            $("#divClaimTypeWarranty_@suffixClaimID").show();
+            $("#divProgramsForWarranty").hide();
+            $("#divProgramsForRoadside").show();
+            $("#cmbRoadsidePrograms").data('kendoComboBox').trigger('change');
+
+        }
+        else if (combo.text() == "Damage Reimbursement") {
+            $("#divClaimTypeWarranty_@suffixClaimID").hide();
+            ShowClaimType_Damage('@suffixClaimID');
+            claimInput.PayeeType = "Member";
+        }
+        else {
+            $("#divClaimTypeWarranty_@suffixClaimID").hide();
+            HideClaimType_Damage('@suffixClaimID');
+            HideClaimType_Roadside_Reimbusrement('@suffixClaimID');
+            $("#btnContinueClaim_@suffixClaimID").hide();
+        }
+
+        claimInput.ClaimTypeID = combo.value();
+        claimInput.ClaimTypeText = combo.text();
+        ShowRelatedLookup();
+    }
+
+    function ShowClaimType_Roadside_Reimbusrement(claimID) {
+        $('#divClaimTypeRoadside_' + claimID).show();
+        $('#ClaimTypeRoadSideMemebership_' + claimID).addClass("validate[required]");
+    }
+    function HideClaimType_Roadside_Reimbusrement(claimID) {
+        $('#divClaimTypeRoadside_' + claimID).hide();
+        $('#ClaimTypeRoadSideMemebership_' + claimID).removeClass("validate[required]");
+    }
+
+
+    function HideClaimType_Damage(claimID) {
+        $("#divClaimTypeDamage_" + claimID).hide();
+        $('#ClaimTypePO_' + claimID).removeClass("validate[required]");
+    }
+    function ShowClaimType_Damage(claimID) {
+        $("#divClaimTypeDamage_" + claimID).show();
+        $('#ClaimTypePO_' + claimID).addClass("validate[required]");
+    }
+
+    function HideButtons() {
+        $('#btnContinueClaim_' + '@suffixClaimID').hide();
+        $('#btnVerifyClaim_' + '@suffixClaimID').hide();
+    }
+
+    function ShowButtons() {
+        $('#btnVerifyClaim_' + '@suffixClaimID').show();
+    }
+
+//    function cmbPayeeTypes_OnChange(e) {
+//        var combo = e.sender;
+//        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+//            e.preventDefault();
+//            $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').hide();
+//            $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').removeClass("validate[required]");
+//            return false;
+//        }
+
+//        if (combo.text() == "Vendor") {
+//            $('#PayeeTypeLabel').html('Vendor#');
+//            $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').show();
+//            $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').addClass("validate[required]");
+//            $(".ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID" + ".cg-searchButton").show();
+//        }
+//        else if (combo.text() == "Member") {
+
+//            $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').hide();
+//            $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').addClass("validate[required]");
+//            $(".ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID" + ".cg-searchButton").hide();
+//        }
+//        else {
+//            $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').hide();
+//            $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').removeClass("validate[required]");
+//        }
+
+//        claimInput.PayeeType = combo.text();
+//    }
+
+</script>
+<form id="frmClaimValidate_@suffixClaimID" action="javascript:void(0)" method="post">
+<div class="columns">
+    <div class="seven-columns">
+        <div>
+            <p class="button-height inline-medium-label small-margin-bottom">
+                <label for="ClaimType" class="label">
+                    Claim Type</label>
+                @(Html.Kendo().ComboBox()
+        .BindTo(ViewData["ClaimTypes"] as IEnumerable<SelectListItem>)
+        .Name("cmbClaimTypes_" + suffixClaimID)
+        .Suggest(true)
+        .HtmlAttributes(new { style = "width:250px;" })
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .HighlightFirst(true)
+        .Events(events =>
+        {
+            events.Change("cmbClaimTypes_OnChange");
+        })
+        .SelectedIndex(0)
+        .HtmlAttributes(new { style = "width:90%;" })
+        )
+            </p>
+        </div>
+        <div id="divClaimTypeDamage_@suffixClaimID" class="hide">
+            <p class="button-height inline-medium-label small-margin-bottom">
+                <label for="PONumber" class="label">
+                    PO #</label>
+                @Html.TextBox("ClaimTypePO_" + suffixClaimID, null, new { @class = "input", style = "width : 75%", @maxlength = "255" })
+                <a id="btnLookupPO" class="k-button k-button-icontext k-grid-View small-margin-left"
+                    style="min-width: auto;" tabindex="2" href="#"><span class="k-icon k-i-search"></span>
+                </a>
+            </p>
+        </div>
+        <div id="divClaimTypeWarranty_@suffixClaimID" class="hide">
+            <!-- Radio buttons -->
+            <div>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="options" class="label">
+                        Search By</label>
+                    @Html.RadioButton("WarrantySearchBy", "membership", true, new { @class = "radio" })
+                    Membership #
+                    @Html.RadioButton("WarrantySearchBy", "vin", false, new { @class = "radio" }) VIN
+                    @Html.RadioButton("WarrantySearchBy", "sr", false, new { @class = "radio" }) SR
+                </p>
+            </div>
+            <div id="divSearchByMSVIN">
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Program</label>
+                    <div id="divProgramsForWarranty" class="hide float-left">
+                        @(Html.Kendo().ComboBox()
+            .BindTo(ViewData["WarrantyPrograms"] as IEnumerable<SelectListItem>)
+            .Name("cmbWarrantyPrograms")
+            .Suggest(true)
+            .HtmlAttributes(new { style = "width:90%;" })
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .HighlightFirst(true)
+            .SelectedIndex(0)
+            .Events(events =>
+            {
+                events.Change(@<text>function(e) { WarrantyPrograms_Change(e); }</text>).Open("DefaultDataBoundToAdjustContainerWidth");
+            })
+
+                    )
+                    </div>
+                    <div id="divProgramsForRoadside" class="hide float-left">
+                        @(Html.Kendo().ComboBox()
+            .BindTo(ViewData["RoadsidePrograms"] as IEnumerable<SelectListItem>)
+            .Name("cmbRoadsidePrograms")
+            .Suggest(true)
+            .HtmlAttributes(new { style = "width:90%;" })
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .HighlightFirst(true)
+            .SelectedIndex(0)
+            .Events(events =>
+            {
+                events.Change(@<text>function(e) { WarrantyPrograms_Change(e); }</text>).Open("DefaultDataBoundToAdjustContainerWidth");
+            })
+
+                    )
+                    </div>
+                    <span id="msField">
+                        @Html.TextBox("WarrantyMembershipNumber", string.Empty, new { @class = "input", placeHolder = "Search by Membership", disabled = true })
+                    </span><span id="vinField">
+                        @Html.TextBox("WarrantyVIN", string.Empty, new { @class = "input", placeHolder = "Search by VIN", disabled = true })
+                    </span>
+                </div>
+            </div>
+            <div id="divSearchBySR" class="searchbyoptionsForSR">
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label class="label">
+                        Service Request</label>
+                    @Html.TextBox("WarrantySR", string.Empty, new { @class = "input", placeHolder = "Search by SR" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Program" class="label">
+                        Payee Type</label>
+                    
+                    @Html.RadioButton("rbPayeeType", "Member", false, new { @class = "radio" })
+                    Member
+                    @Html.RadioButton("rbPayeeType", "Vendor", false, new { @class = "radio" }) Vendor
+                </p>
+            </div>
+            <div id="divClaimTypeWarrantyMemebership_@suffixClaimID" class="hide">
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="MembershipNumber" class="label" id="PayeeTypeLabel">
+                        MS#</label>
+                    @Html.TextBox("ClaimTypeWarrantyPayeeTypeValue_" + suffixClaimID, null, new { @class = "input full-width", style = "float:left", @maxlength = "255" })
+
+                    <span id="divVendorStatus"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="four-columns">
+        <div id="statusIndicator_@suffixClaimID">
+            <p class="message">
+                <span class="statusMessage"></span>
+            </p>
+        </div>
+    </div>
+    <div class="new-row one-columns">
+        <button id="btnContinueClaim_@suffixClaimID" class="button glossy green-gradient float-right hide" type="button">
+            Continue
+        </button>
+    </div>
+</div>
+</form>
+<script type="text/javascript" language="javascript">
+
+    var payeeType = null;
+    var ownerName = null;
+    $(function (e) {
+        $("#frmClaimValidate_@suffixClaimID").validationEngine();
+        HideStatus($("#statusIndicator_@suffixClaimID"));
+
+        $("#ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID").change(function (e) {
+            $("#divVendorStatus").html("");
+            claimInput.VendorID = null;
+        });
+        var autoFill = $("#ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID").combogrid({
+            url: '@Url.Action("Search", "Vendor", new { area = "Application" })',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                        { 'columnName': 'VendorName', 'width': '65', 'label': 'Vendor Name', 'align': 'left' },
+                        { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                        { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+
+                $("#ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID").val(ui.item.VendorNumber);
+                claimInput.VendorID = ui.item.VendorID;
+
+                $("#divVendorStatus").html(ui.item.VendorNumber + "-" + ui.item.VendorName);
+                return false;
+            }
+        });
+
+
+        // Lookup functionality for PO.
+        $("#btnLookupPO").click(function (e) {
+            var inputPONumber = $('#ClaimTypePO_@suffixClaimID').val();
+            $.ajax({
+                url: '/Claims/Claim/_ValidatePONumber',
+                data: { poNumber: inputPONumber },
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+
+                        //TODO: Render the details on the right.
+                        // Populate the claimInput global object.
+                        var statusMessage = msg.Data.Message;
+                        ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+                        var poDetails = msg.Data.Details;
+                        if (poDetails != null) {
+                            claimInput.ClaimText = "Damage";
+                            claimInput.MemberID = poDetails.MemberID;
+                            claimInput.ProgramID = poDetails.ProgramID;
+                            claimInput.PurchaseOrderID = poDetails.PurchaseOrderID;
+                            claimInput.VehicleID = null;
+                            claimInput.VendorID = null;
+                        }
+                    }
+                    else if (msg.Status == "BusinessRuleFail") {
+                        var statusMessage = msg.Data.Message;
+                        ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                    }
+
+                }
+            });
+        });
+
+        $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').hide();
+        $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').removeClass("validate[required]");
+        // Search by options.
+        $('input[name="rbPayeeType"]').change(function (e) {
+            claimInput.PayeeType = $(this).val();
+
+            switch (claimInput.PayeeType) {
+                case 'Member':
+                    $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').hide();
+                    $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').addClass("validate[required]");
+                    $(".ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID" + ".cg-searchButton").hide();
+                    break;
+                case 'Vendor':
+                    $('#PayeeTypeLabel').html('Vendor#');
+                    $("#divClaimTypeWarrantyMemebership_" + '@suffixClaimID').show();
+                    $('#ClaimTypeWarrantyPayeeTypeValue_' + '@suffixClaimID').addClass("validate[required]");
+                    $(".ClaimTypeWarrantyPayeeTypeValue_@suffixClaimID" + ".cg-searchButton").show();
+                    break;
+            }
+        });
+
+
+        $('input[name="WarrantySearchBy"]').change(function (e) {
+
+            ShowRelatedLookup();
+        });
+
+        // Associate a lookup window for WarrantyMembershipNumber
+        var autoFillWarrantyMS = $("#WarrantyMembershipNumber").combogrid({
+            url: '@Url.Action("_ValidateMembershipNumber", "Claim", new { area = "Claims", programID = "0", type = "ms" })',
+            searchButton: true,
+            disabled: true,
+            width: '820px',
+            replaceNull: true,
+            autoChoose: true,
+            colModel: [{ 'columnName': 'MemberNumber', 'width': '20', 'label': 'Member #', 'align': 'left' },
+                        { 'columnName': 'Name', 'width': '15', 'label': 'Name', 'align': 'left' },
+                        { 'columnName': 'Program', 'width': '15', 'label': 'Program', 'align': 'left' },
+                        { 'columnName': 'VIN', 'width': '18', 'label': 'VIN', 'align': 'left' },
+                        { 'columnName': 'Address', 'width': '20', 'label': 'City, State, Zip', 'align': 'left' },
+                        { 'columnName': 'MemberStatus', 'width': '10', 'label': 'Status', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+
+                if (ui.item.MemberID != null && ui.item.MemberID != 0) {
+                    $("#WarrantyMembershipNumber").val(ui.item.MemberNumber);
+
+                    claimInput.MemberID = ui.item.MemberID;
+                    claimInput.ProgramID = ui.item.ProgramID;
+                    claimInput.MembershipNumber = ui.item.MemberNumber;
+                    claimInput.VehicleID = ui.item.VehicleID;
+                    var statusMessage = "Membership: " + ui.item.Program + " - " + ui.item.Name;
+                    ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+                }
+                else {
+                    $("#WarrantyMembershipNumber").val("");
+                    claimInput.MemberID = null;
+                    claimInput.ProgramID = null;
+                    claimInput.MembershipNumber = null;
+                    claimInput.VehicleID = null;
+                    var statusMessage = "Membership # not found. Please try again.";
+                    ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                }
+
+                return false;
+            }
+        });
+
+        var autoFillWarrantyVIN = $("#WarrantyVIN").combogrid({
+            url: '@Url.Action("_ValidateMembershipNumber", "Claim", new { area = "Claims", programID = "0", type = "vin" })',
+            searchButton: true,
+            disabled: true,
+            width: '800px',
+            replaceNull: true,
+            autoChoose: true,
+            colModel: [{ 'columnName': 'MemberNumber', 'width': '20', 'label': 'Member #', 'align': 'left' },
+                        { 'columnName': 'Name', 'width': '15', 'label': 'Name', 'align': 'left' },
+                        { 'columnName': 'Program', 'width': '15', 'label': 'Program', 'align': 'left' },
+                        { 'columnName': 'VIN', 'width': '18', 'label': 'VIN', 'align': 'left' },
+                        { 'columnName': 'Address', 'width': '22', 'label': 'City, State, Zip', 'align': 'left' },
+                        { 'columnName': 'MemberStatus', 'width': '10', 'label': 'Status', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+
+                if (ui.item.MemberID != null && ui.item.MemberID != 0) {
+                    $("#WarrantyVIN").val(ui.item.VIN);
+
+                    claimInput.MemberID = ui.item.MemberID;
+                    claimInput.ProgramID = ui.item.ProgramID;
+                    claimInput.MembershipNumber = ui.item.MemberNumber;
+                    claimInput.VehicleID = ui.item.VehicleID;
+
+                    var statusMessage = "Membership: " + ui.item.Program + " - " + ui.item.Name;
+                    ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+                }
+                else {
+                    $("#WarrantyVIN").val("");
+                    claimInput.MemberID = null;
+                    claimInput.ProgramID = null;
+                    claimInput.MembershipNumber = null;
+                    claimInput.VehicleID = null;
+
+                    var statusMessage = "VIN # not found. Please try again.";
+                    ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                }
+
+                return false;
+            }
+        });
+
+        setTimeout(function () {
+            $(".WarrantyMembershipNumber.cg-searchButton").hide();
+            $(".WarrantyVIN.cg-searchButton").hide();
+        }, 1500);
+
+        $("#WarrantySR, #WarrantyMembershipNumber, #WarrantyVIN").change(function (e) {
+
+            HideStatus($('#statusIndicator_0'));
+        });
+        var autoFillWarrantySR = $("#WarrantySR").combogrid({
+            url: '@Url.Action("_ValidateSR", "Claim", new { area = "Claims" })',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            autoChoose: true,
+            colModel: [{ 'columnName': 'MemberNumber', 'width': '20', 'label': 'Member #', 'align': 'left' },
+                        { 'columnName': 'Member', 'width': '15', 'label': 'Name', 'align': 'left' },
+                        { 'columnName': 'ProgramName', 'width': '15', 'label': 'Program', 'align': 'left' },
+                        ],
+            select: function (event, ui) {
+
+                if (ui.item.MemberID != null && ui.item.MemberID != 0) {
+                    $("#WarrantySR").val(ui.item.RequestNumber);
+
+                    claimInput.MemberID = ui.item.MemberID;
+                    claimInput.ProgramID = ui.item.ProgramID;
+                    claimInput.MembershipNumber = ui.item.MemberNumber;
+                    claimInput.VehicleID = null;
+                    var statusMessage = "Membership: " + ui.item.ProgramName + " - " + ui.item.Member;
+                    ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+                }
+                else {
+                    $("#WarrantySR").val("");
+                    claimInput.MemberID = null;
+                    claimInput.ProgramID = null;
+                    claimInput.MembershipNumber = null;
+                    claimInput.VehicleID = null;
+                    var statusMessage = "SR # not found. Please try again.";
+                    ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                }
+
+                return false;
+            }
+        });
+
+        $("#btnContinueClaim_0").click(function (e) {
+
+            // Validate claim input fields.
+            // If Claim type = Roadside or Motorhome, then payee type is required.
+            // Ford Key Service
+            if (claimInput.ClaimTypeText == "Motorhome Reimbursement" || claimInput.ClaimTypeText == "Roadside Reimbursement" || claimInput.ClaimTypeText == "Ford Key Service") {
+
+                if ($('input[name="rbPayeeType"]:checked').length == 0) {
+                    ShowValidationMessage($("#rbPayeeType"), "Please select a payee type");
+                    return false;
+                }
+                else {
+                    HideValidationMessage($('#rbPayeeType'));
+                }
+            }
+            if (claimInput.MemberID == null || $.trim(claimInput.MemberID).length == 0 || claimInput.MemberID == 0) {
+                openAlertMessage("The information provided is not adequate to process the claim, please review your input and try again");
+                return false;
+            }
+
+
+            if (claimInput.PayeeType == "Vendor" && (claimInput.VendorID == null || $.trim(claimInput.VendorID).length == 0 || claimInput.VendorID == 0)) {
+                ShowValidationMessage($("#ClaimTypeWarrantyPayeeTypeValue_0"), "Please select a vendor");
+                return false;
+            }
+
+            HideValidationMessage($("#ClaimTypeWarrantyPayeeTypeValue_0"));
+
+            $.ajax({
+                type: 'POST',
+                url: '/Claims/Claim/Add',
+                data: claimInput,
+                cache: false,
+                async: true,
+                success: function (msg) {
+
+                    // TODO: Get the ID from the server, Close current tab and reopen the claim in edit mode.
+                    var claimID = msg.Data;
+                    DeleteTab(0);
+                    AddClaimTab(claimID, tabObject);
+                    //addTab("Claim-" + claimID, claimID)
+                    //addGenericTabWithCurrentContainer("Claim-" + claimID, tabObjectReference, msg);
+
+                }
+            });
+
+        });
+
+    });
+</script>

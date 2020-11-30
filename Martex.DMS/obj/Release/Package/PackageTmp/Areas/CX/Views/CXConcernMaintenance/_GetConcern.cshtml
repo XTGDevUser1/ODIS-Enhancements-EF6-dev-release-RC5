@@ -1,0 +1,198 @@
+﻿@model Martex.DMS.DAL.Concern
+@using Kendo.Mvc.UI;
+@{
+    bool isEdit = false;
+    bool isView = false;
+    if (ViewData["mode"].ToString().Equals("edit") || ViewData["mode"].ToString().Equals("view"))
+    {
+        isEdit = true;
+        if (ViewData["mode"].ToString().Equals("view"))
+        {
+            isView = true;
+        }
+    }
+}
+<form method="post" action="" id="frmConcern">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Concern</legend>
+        <div>
+            <p class="inline-label">
+                <label for="UserName" class="label">
+                    Concern Type<span class="spanstar red">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBoxFor(a => a.ConcernTypeID)
+                    .Enable(false)                    
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ConcernTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .Events(events =>
+                    {
+                        events.Change("ValidateInputForKendoCombo");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Value(Model.ConcernTypeID == null ? string.Empty : Model.ConcernTypeID.Value.ToString())
+                    )
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBoxFor(a => a.ConcernTypeID)                    
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ConcernTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .Events(events =>
+                    {
+                        events.Change("ValidateInputForKendoCombo");
+                    })
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Value(Model.ConcernTypeID == null ? string.Empty : Model.ConcernTypeID.Value.ToString())
+                    )
+                }
+            </p>
+            <p class="inline-label">
+                <label for="UserName" class="label">
+                    Name<span class="spanstar red">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => u.Name, new { @class = "input full-width2", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => u.Name, new { @class = "validate[required,maxSize[50],noSpace], input full-width2", maxlength = 50 })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="UserName" class="label">
+                    Description<span class="spanstar red">*</span></label>
+                @if (isView)
+                {
+                    @Html.TextBoxFor(u => u.Description, new { @class = "input full-width2", disabled = "disabled", @readonly = "readonly" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => u.Description, new { @class = "validate[required,maxSize[255]], input full-width2", maxlength = 255 })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="UserName" class="label">
+                    Sequence</label>
+                @if (isView)
+                {
+                    @Html.Kendo().NumericTextBoxFor(v => v.Sequence).Format("N0").Spinners(false).Enable(false)
+                }
+                else
+                {
+                    @Html.Kendo().NumericTextBoxFor(v => v.Sequence).Format("N0").Spinners(false)//.HtmlAttributes(new { @class = "full-width"})
+                }
+            </p>
+            <p class="inline-label">
+                <label for="UserName" class="label">
+                    Is Active
+                </label>
+                @if (isView)
+                {
+                    @Html.CheckBox("IsActive", (Model != null ? Model.IsActive.GetValueOrDefault() : false), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+
+                }
+                else
+                {
+                    @Html.CheckBox("IsActive", (Model != null ? Model.IsActive.GetValueOrDefault() : false), new { @class = "checkbox" })
+
+                }
+            </p>
+            @Html.HiddenFor(u => u.ID)
+            <div>
+                @if (@ViewData["mode"].ToString() != "view")
+                {
+                    <button id="btnAddConcern" class="button green-gradient glossy float-right mid-margin-left"
+                        type="submit">
+                        @if (isEdit)
+                        {
+                            @Html.Raw("Update")
+                        }
+                        else
+                        {
+                            @Html.Raw("Add")
+                        }
+                    </button>
+                }
+                <button id="btnCancelConcern" class="button gray-gradient glossy  float-right" type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("hdnfldMode", ViewData["mode"])
+<script type="text/javascript">
+    $(function () {
+        CleanMyContainer('frmConcern');
+        WatchMyContainer('frmConcern');
+        $("#frmConcern").validationEngine();
+
+
+    });
+    $('#btnCancelConcern').die('click');
+    $('#btnCancelConcern').live('click', function (e) {
+        if (!e.isDefaultPrevented()) {
+            e.preventDefault();
+            $('#frmConcern').validationEngine('hideAll');
+            document.dialogResult = "CANCEL";
+            concernWindow.data('kendoWindow').close();
+        }
+    });
+
+    $('#btnAddConcern').die('click');
+    $('#btnAddConcern').live('click', function (e) {
+        if (!e.isDefaultPrevented()) {
+            e.preventDefault();
+            document.dialogResult = "OK";
+            // Fire the validators on the themed multi-select controls and present validation error messages
+            var isFormValid = true;
+            if ($("#frmConcern").validationEngine('validate') == false) {
+                isFormValid = false;
+            }
+
+            
+            var concernTypeID = $("#ConcernTypeID").data("kendoComboBox").value();
+            var concernType = $("#ConcernTypeID").data("kendoComboBox").text();
+
+
+            if ($.trim(concernTypeID).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="ConcernTypeID_input"]'), "* Concern Type is required.");
+                $('#ConcernTypeID-input').focus();
+            }
+            if (!isFormValid) {
+                return false;
+            }
+
+
+            var postData = $("#frmConcern").serializeArray();
+            var mode = $("#hdnfldMode").val();
+            // This is where you may do your AJAX call, for instance:
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_SaveConcern", "CXConcernMaintenance", new { area = "CX" })',
+                traditional: true,
+                cache: false,
+                async: false, data: postData,
+                success: function (json) {
+                    if (json.Status == "Success") {
+                        if (mode == "add") {
+                            openAlertMessage('Concern successfully added!');
+                        }
+                        else if (mode == "edit") {
+                            openAlertMessage('Concern successfully updated!');
+                        }
+                        $('#frmConcern').validationEngine('hideAll');
+                        concernWindow.data('kendoWindow').close();
+                        $('#grdQAConcern').data('kendoGrid').dataSource.read();
+                    }
+                }
+            });
+        }
+
+        return false;
+    });
+</script>
+</form>

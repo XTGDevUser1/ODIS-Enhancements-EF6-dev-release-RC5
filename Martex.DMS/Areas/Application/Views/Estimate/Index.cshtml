@@ -1,0 +1,394 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.Common
+@using Martex.DMS.Areas.Application.Models
+@using System.Text
+@using Martex.DMS.DAL
+@model Martex.DMS.BLL.Model.EstimateModel
+@using Martex.DMS.ActionFilters;
+@{
+    ViewBag.Title = "Index";
+    string isServiceEstimateAcceptedEventHandler = "HandleIsServiceEstimateAccepted(this);";
+
+    var errors = ViewData[StringConstants.REQUIRED_FIELDS_FOR_ESTIMATE] as List<string>;
+    var errorsCount = errors != null ? errors.Count : 0;
+    string errorMessage = string.Empty;
+    if (errors != null && errorsCount > 0)
+    {
+        StringBuilder sb = new StringBuilder("Missing information and cannot calculate the estimate.  Need <ul>");
+        errors.ForEach(x =>
+        {
+            sb.AppendFormat("<li>{0}</li>", x);
+        });
+        sb.Append("</ul>");
+
+        errorMessage = sb.ToString();
+    }
+    bool isView = Model.PaymentInformation.Mode.Equals("view");
+    bool isEdit = Model.PaymentInformation.Mode.Equals("edit");
+}
+<script type="text/javascript">
+    var errorsDueToRequiredAttributes = '@Html.Raw(errorMessage)';
+    if ($.trim(errorsDueToRequiredAttributes).length > 0) {
+        openAlertMessage(errorsDueToRequiredAttributes);
+    }
+
+    function ServiceEstimateDenyReason_OnChange(e) {
+        var combo = $('#ServiceEstimateDenyReasonID').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            var $otherField = $("#divServiceEstimateDeclinedReasonOther");
+            if (combo.text() == "Other") {
+                $otherField.css("display", "block");
+            }
+            else {
+                $otherField.css("display", "none");
+            }
+        }
+    }
+</script>
+<form method="post" action="" id="frmEstimateInformation">
+
+    <div class="with-padding">
+        <div class="columns">
+            <div class="six-columns">
+                @Html.Hidden("hdnEstimate", Model.ServiceEstimate)
+                @Html.Hidden("hdnEstimatedTimeCost", Model.EstimatedTimeCost)
+                @Html.Hidden("hdnSessionEstimate", DMSCallContext.ServiceEstimateFee)
+                <div>
+                    <p class=" inline-large-label small-margin-bottom ">
+                        <label for="Estimate" class="label">
+                            Estimate
+                        </label>
+                        <span class="green big-text">
+                            @if (string.IsNullOrEmpty(errorMessage))
+                            {
+                                @Html.Raw(Model.ServiceEstimate.GetValueOrDefault().ToString("C"))
+                            }
+                        </span>
+                    </p>
+                </div>
+
+                <div>
+                    <p class=" inline-large-label small-margin-bottom ">
+                        <label for="IsServiceEstimateAccepted" class="label">
+                            Decision <span class="spanstar">*</span>
+                        </label>
+                        @if (string.IsNullOrEmpty(errorMessage))
+                        {
+                            @Html.RadioButtonFor(u => u.IsServiceEstimateAccepted, true, new { @class = "radio serviceEstimateRadio", id = "IsServiceEstimateAccepted", onChange = @isServiceEstimateAcceptedEventHandler })
+                            <b>Accept</b>
+                            @Html.RadioButtonFor(u => u.IsServiceEstimateAccepted, false, new { @class = "radio serviceEstimateRadio", id = "IsServiceEstimateAccepted", onChange = @isServiceEstimateAcceptedEventHandler })
+                            <b>Decline</b>
+                        }
+                        else
+                        {
+                            @Html.RadioButton("ServiceDummy", true, false, new { @class = "radio disabled" })<b>Accept</b>
+                            @Html.RadioButton("ServiceDummy", false, false, new { @class = "radio disabled" })<b>Decline</b>
+                        }
+                    </p>
+                    <hr />
+                </div>
+                <div id="divServiceEstimateDeclined" style="display:none">
+                    <div>
+                        <p class="inline-large-label small-margin-bottom ">
+                            <label for="paytype" class="label">
+                                Decline Reason <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(a => a.ServiceEstimateDenyReasonID)
+                    .BindTo(ViewData[StaticData.ServiceRequestDeclineReason.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HtmlAttributes(new { @class = "comboRequired", style = "width:85%" })
+                    .HighlightFirst(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ServiceEstimateDenyReason_OnChange"))
+                    .Value(Model != null && Model.ServiceEstimateDenyReasonID != null ? Model.ServiceEstimateDenyReasonID.GetValueOrDefault().ToString() : string.Empty)
+                            )
+                        </p>
+                    </div>
+                    <div id="divServiceEstimateDeclinedReasonOther" style="display:none">
+                        <p class="inline-large-label small-margin-bottom ">
+                            <label for="EstimateDeclinedReasonOther" class="label">
+                                <i>Decline Reason Other Comment</i> <span class="spanstar">*</span>
+                            </label>
+                            @Html.TextBoxFor(m => m.EstimateDeclinedReasonOther, new { @class = "validate[required,maxSize[100]] input full-width2" })
+                        </p>
+                    </div>
+                </div>
+                <div id="divServiceEstimateAccepted" style="display:none">
+                    @Html.Partial("PaymentDetails", Model.PaymentInformation)
+                </div>
+                <div>
+                    @if (string.IsNullOrEmpty(errorMessage))
+                    {
+                        <button id="btnProcessEstimate" class="button green-gradient glossy float-left small-margin-right small-margin-bottom"
+                                type="button">
+                            Save
+                        </button>
+                    }
+                </div>
+            </div>
+            <div class="five-columns">
+                @foreach (var item in Model.EstimateInstructions)
+                {
+                    <div>
+                        <h4 class="thin small-margin-bottom blue-bg wrapped icon-chat">@Html.Raw(item.Value)</h4>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</form>
+<script type="text/javascript">
+    function HandleIsServiceEstimateAccepted(sender) {
+        if ($(sender).val() == "True") {
+            $("#divServiceEstimateAccepted").show();
+            $("#divServiceEstimateDeclined").hide();
+        }
+        else {
+            $("#divServiceEstimateAccepted").hide();
+            $("#divServiceEstimateDeclined").show();
+        }
+        $('#frmEstimateInformation').validationEngine('hideAll');
+    }
+
+    fnSaveTab = LeaveEstimateTab;
+    function LeaveEstimateTab() {
+
+        if (IsMyContainerDirty("frmEstimateInformation")) {
+            var answer = confirm('"Changes will not be saved. Do you want to continue and lose the changes?');
+            if (answer) {
+                CleanMyContainer("frmEstimateInformation");
+
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            var validationstatus = ValidateEstimateTab();
+            if (validationstatus) {
+                var estimateTabValidation = "2";
+                var sessionEstimate = $("#hdnSessionEstimate").val();
+                if (validationstatus && sessionEstimate != null && sessionEstimate != "0") {
+                    estimateTabValidation = "1";
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("LeaveTab", "Estimate", new { area = "Application" })',
+                    traditional: true,
+                    data: { validationstatus: validationstatus },
+                    cache: false,
+                    async: false,
+                    success: function (msg) {
+                        StyleTabUsingValidationStatus("estimate", estimateTabValidation);
+                    }
+                });
+            }
+        }
+        $('#frmEstimateInformation').validationEngine('hideAll');
+        var estimateTabValidation = "2";
+        var sessionEstimate = $("#hdnSessionEstimate").val();
+        if (sessionEstimate != null && sessionEstimate != "0") {
+            estimateTabValidation = "1";
+        }
+        StyleTabUsingValidationStatus("estimate", estimateTabValidation);
+        return true;
+    }
+    function ValidateEstimateTab() {
+        var errorFound = false;
+        if ($('#frmEstimateInformation').validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var expiryYear = $('#EstimateCardExpirationYear').data('kendoComboBox').value();
+        var expiryMonth = $('#EstimateCardExpirationMonth').data('kendoComboBox').value();
+
+        var estimatedAccepted = $('input[name="IsServiceEstimateAccepted"]:checked').val();
+        if (!(estimatedAccepted != undefined && estimatedAccepted != null)) {
+            errorFound = true;
+            ShowValidationMessage($('input[name="IsServiceEstimateAccepted"]'), "Please select a value");
+            return false;
+        }
+        if (estimatedAccepted == "True") {
+            var combo = $('#Estimate_PaymentTypeID').data('kendoComboBox');
+            var cmbPaymentTypeID = "Estimate.PaymentTypeID_input";
+            if (combo.value() == "") {
+                ShowValidationMessage($('input[name="' + cmbPaymentTypeID + '"]'), "* Please select a value");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="' + cmbPaymentTypeID + '"]'));
+            }
+
+            combo = $('#EstimateCardExpirationMonth').data('kendoComboBox');
+            var cmbExpirationMonth = "EstimateCardExpirationMonth_input";
+            if (combo.value() == "") {
+                ShowValidationMessage($('input[name="' + cmbExpirationMonth + '"]'), "* Please select a value");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="' + cmbExpirationMonth + '"]'));
+                var iExpiryYear = parseInt(expiryYear, 10);
+                var currentYear = parseInt($('#CurrentYear').val(), 10);
+                var currentMonth = parseInt($('#CurrentMonth').val(), 10);
+
+                if (iExpiryYear == currentYear) {
+                    if (expiryMonth < currentMonth) {
+                        errorFound = true;
+                        ShowValidationMessage($('input[name="' + cmbExpirationMonth + '"]'), "* Expiry Month is not valid");
+                    }
+                    else {
+                        HideValidationMessage($('input[name="' + cmbExpirationMonth + '"]'));
+                    }
+                }
+
+            }
+
+            combo = $('#EstimateCardExpirationYear').data('kendoComboBox');
+            var cmbExpirationYear = "EstimateCardExpirationYear_input";
+            if (combo.value() == "") {
+                ShowValidationMessage($('input[name="' + cmbExpirationYear + '"]'), "* Please select a value");
+                errorFound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="' + cmbExpirationYear + '"]'));
+                if (isNaN(expiryYear)) {
+                    ShowValidationMessage($('input[name="' + cmbExpirationYear + '"]'), "* Expiry Year is not valid");
+                    errorFound = true;
+                }
+                else {
+                    HideValidationMessage($('input[name="' + cmbExpirationYear + '"]'));
+                }
+
+            }
+        } else {
+            var combo = $('#ServiceEstimateDenyReasonID').data('kendoComboBox');
+            if (combo.value() == "") {
+                errorFound = true;
+                ShowValidationMessage($('input[name="ServiceEstimateDenyReasonID_input"]'), "* Please select a value");
+            }
+            else {
+                HideValidationMessage($('input[name="ServiceEstimateDenyReasonID_input"]'));
+            }
+        }
+        if (errorFound) {
+            //setTimeout(function () { ShowStatus("error", "Missing required fields") }, 1000);
+            return false;
+        }
+        return true;
+    }
+
+    $(function () {
+
+        if ("true" == '@isView'.toLowerCase()) {
+            $("#frmEstimateInformation").addClass("disabled", "disabled");
+            $("#frmEstimateInformation").attr("disabled", true);
+            $("#frmEstimateInformation").find('.input').each(function (i) {
+                $(this).addClass("disabled", "disabled");
+                $(this).attr("disabled", true);
+            });
+            $("#frmEstimateInformation").find('input').each(function (i) {
+                $(this).addClass("disabled", "disabled");
+                var cb = $(this).data("kendoComboBox");
+                if (cb) {
+                    // attach handler to cb
+                    cb.enable(false);
+                }
+            });
+        }
+        var tabValidationStatus = '@ViewData[Martex.DMS.Common.StringConstants.TAB_VALIDATION_STATUS]';
+
+        StyleTabUsingValidationStatus("estimate", tabValidationStatus);
+
+        if (tabValidationStatus == '2') {
+            setTimeout(function () { ValidateEstimateTab(); }, 800);
+        }
+        WatchMyContainer('frmEstimateInformation', null, null);
+        $('#frmEstimateInformation').validationEngine();
+        $('#ServiceEstimateDenyReasonID').data('kendoComboBox').trigger('change');
+        var estimatedAccepted = $('input[name="IsServiceEstimateAccepted"]:checked').val();
+        if (estimatedAccepted != undefined && estimatedAccepted != null) {
+            //$("#btnProcessEstimate").hide();
+            if (estimatedAccepted == "True") {
+                $("#divServiceEstimateAccepted").show();
+                $("#divServiceEstimateDeclined").hide();
+            } else {
+                $("#divServiceEstimateAccepted").hide();
+                $("#divServiceEstimateDeclined").show();
+            }
+        }
+
+
+
+        $("#btnProcessEstimate").click(function () {
+            var validation = ValidateEstimateTab();
+            if (!validation) {
+                return false;
+            }
+            $('#frmEstimateInformation').validationEngine('hideAll');
+            var paymentModel = $('#frmEstimateInformation').serializeArray();
+
+            if (estimatedAccepted != undefined && estimatedAccepted != null) {
+
+                paymentModel.push({ name: 'IsServiceEstimateAccepted', value: estimatedAccepted });
+            }
+            //Send these parameters explicitly because while serialization combo box values are missing when it's disabled.
+            paymentModel.push({ name: 'ServiceEstimateDenyReasonID', value: $('#ServiceEstimateDenyReasonID').data('kendoComboBox').value() });
+
+            if ($('#ServiceEstimateDenyReasonID').data('kendoComboBox').text() == "Other") {
+                paymentModel.push({ name: 'EstimateDeclinedReasonOther', value: $('#EstimateDeclinedReasonOther').val() });
+            }
+
+            paymentModel.push({ name: 'PaymentInformation.CardExpirationMonth', value: $('#EstimateCardExpirationMonth').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'PaymentInformation.CardExpirationYear', value: $('#EstimateCardExpirationYear').data('kendoComboBox').value() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingPostalCode', value: $("#Payment_BillingPostalCode").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingLine1', value: $("#Payment_BillingLine1").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingLine2', value: $("#Payment_BillingLine2").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingCity', value: $("#Payment_BillingCity").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.CCAccountNumber', value: $("#Payment_CCAccountNumber").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.CCPartial', value: $("#Payment_CCPartial").val() });            
+            paymentModel.push({ name: 'PaymentInformation.Payment.CCNameOnCard', value: $("#Payment_CCNameOnCard").val() });
+            paymentModel.push({ name: 'PaymentInformation.Payment.PaymentTypeID', value: $('#Estimate_PaymentTypeID').data('kendoComboBox').value() });
+
+            var stateProvinceID = $('#Estimate_BillingStateProvinceID').data('kendoComboBox').value();
+            var countryID = $('#Estimate_BillingCountryID').data('kendoComboBox').value();
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingStateProvinceID', value: stateProvinceID });
+            paymentModel.push({ name: 'PaymentInformation.Payment.BillingCountryID', value: countryID });
+            if (stateProvinceID != null && stateProvinceID != "") {
+                paymentModel.push({ name: 'PaymentInformation.Payment.BillingStateProvince', value: $('#Estimate_BillingStateProvinceID').data('kendoComboBox').text() });
+            }
+            if (countryID != null && countryID != "") {
+                paymentModel.push({ name: 'PaymentInformation.Payment.BillingCountryCode', value: $('#Estimate_BillingCountryID').data('kendoComboBox').text() });
+            }
+
+            paymentModel.push({ name: 'ServiceEstimate', value: $('#hdnEstimate').val() });
+            paymentModel.push({ name: 'EstimatedTimeCost', value: $('#hdnEstimatedTimeCost').val() });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveEstimate", "Estimate", new { area = "Application" })',
+                data: paymentModel,
+                cache: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        openAlertMessage('Estimate saved successfully');
+                        $("#hdnSessionEstimate").val(msg.Data.ServiceEstimateFee);
+                        $('#RequestTabs').tabs('load', 6);
+                    }
+                    else {
+                        openAlertMessage(msg.ErrorMessage);
+                    }
+                    CleanMyContainer("frmEstimateInformation");
+                    ClearDirtyFlag("pagecontainer");
+                }
+            });
+        });
+    });
+
+
+
+</script>

@@ -1,0 +1,491 @@
+﻿@using Martex.DMS.Areas.Application.Models;
+@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.Vehicles_Result>
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<style type="text/css">
+    .input.full-width2
+    {
+        width: 99% !important;
+    }
+</style>
+<script type="text/javascript">
+    var notificationMsg = "The vehicle information already entered on this page will be lost.  Do you want to add a new vehicle?";
+    var vehicleId = null;
+    var tabName = null;
+    var fromCase = null;
+
+    function MembershipVehicleCancelButton(uniqueID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + uniqueID)) {
+            var message = "The vehicle information already entered on this page will be lost.  Do you want to add a new vehicle?"
+            $.modal.confirm(message, function () {
+                
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + uniqueID);
+                $('#MemberManagementMembershipTabs_' + uniqueID).tabs('load', 2);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $('#MemberManagementMembershipTabs_' + uniqueID).tabs('load', 2);
+        }
+    }
+    function OnDataBound(e) {
+
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-search'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+    }
+
+    function ManageVehicles(e, uniqueID, grid) {
+
+        if (e != null) {
+            e.preventDefault();
+            var recordID = $(e.currentTarget).closest("tr").find("td").first().text();
+
+            if (e.data.commandName == 'View') {
+                if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + uniqueID)) {
+                    var message = "The vehicle information already entered on this page will be lost.  Do you want to add a new vehicle?"
+                    $.modal.confirm(message, function () {
+                        ClearMemberContainerIsDirty(uniqueID);
+                        LoadVehiclesTypes(tabName, recordID, fromCase, uniqueID);
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    LoadVehiclesTypes(tabName, recordID, fromCase, uniqueID);
+                }
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteVehicles(recordID, uniqueID);
+            }
+        }
+        return false;
+    }
+
+    function DeleteVehicles(recordID, uniqueID) {
+
+        $.modal.confirm('Are you sure you want to delete this Vehicle?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DeleteVehicle", "Member", new { area = "MemberManagement" })',
+                traditional: true,
+                cache: false,
+                data: { vehicleID: recordID },
+                async: false,
+                success: function (msg) {
+                    openAlertMessage('Vehicle has been deleted successfully');
+                    $('#MemberManagementMembershipTabs_' + uniqueID).tabs('load', 2);
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+
+    $("#GrdVehicles_@suffixMembershipID").delegate("tbody>tr", "dblclick", function () {
+
+        var uniqueID = '@suffixMembershipID';
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + uniqueID)) {
+            var message = "The vehicle information already entered on this page will be lost.  Do you want to add a new vehicle?"
+            $.modal.confirm(message, function () {
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + uniqueID);
+                LoadVehiclesTypes(tabName, vehicleId, fromCase, uniqueID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            LoadVehiclesTypes(tabName, vehicleId, fromCase, uniqueID);
+        }
+    });
+
+    function onRowSelected(e) {
+
+        $.map(this.select(), function (item) {
+            vehicleId = $(item.cells[0]).html();
+            tabName = $(item.cells[1]).html();
+            fromCase = $(item.cells[2]).html();
+        });
+    }
+
+    function checkVIN(field, rules, i, options) {
+        var len = field.val().length;
+        if (len < 17 || len > 17) {
+            return "VIN must be 17 characters";
+        }
+    }
+
+    function RVCheckVIN(field, rules, i, options) {
+
+        var len = field.val().length;
+        if (len < 9) {
+            return "VIN Minimum value is 9";
+        }
+        else if (len > 17) {
+            return "VIN Maximum value is 17";
+        }
+    }
+   
+</script>
+@{
+    
+    var activeProgrameType = ViewBag.ActiveProgrameVehicleType;
+
+    var activeButtons = activeProgrameType.RecordCount;
+
+    string lastUpdatedTab = string.Empty; //TODO: DMSCallContext.LastUpdatedVehicleType;
+    string AutoButtonName = "Auto";
+}
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns" id="VehicleTab_@suffixMembershipID">
+        </div>
+        <!-- Grid row -->
+        <div class="new-row twelve-columns">
+            <div id="tab-4">
+                @if (Model.Count > 0)
+                {
+                    <div class="with-padding boxed glow silver-gradient emboss">
+                        <h3 class="underline">
+                            Vehicle History (Select a previous vehicle)
+                        </h3>
+                        <div class="clear">
+                        </div>
+                        @(Html.Kendo().Grid(Model)
+                    .Name("GrdVehicles_" + suffixMembershipID)
+                    .Columns(columns =>
+                    {
+                        columns.Bound(v => v.ID).Hidden();
+                        columns.Bound(v => v.VehicleTypeName).Title("Type");
+                        columns.Bound(v => v.FromCase).Hidden();
+                        columns.Bound(v => v.Year);
+                        columns.Bound(v => v.Make);
+                        columns.Bound(v => v.Model);
+                        columns.Bound(v => v.Color);
+                        columns.Bound(v => v.LicenseNumber);
+                        columns.Bound(v => v.VIN);
+                        columns.Bound(v => v.Source);
+                        columns.Bound(v => v.ModifyDate).Format("{0:MM/dd/yyyy}");
+                        columns.Command(command =>
+    {
+        command.Custom("View").Click(@<text>function(e){ ManageVehicles(e,'@suffixMembershipID',this); }</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+        command.Custom("Delete").Click(@<text>function(e){ ManageVehicles(e,'@suffixMembershipID',this);
+                        }</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+    }).Width(100)
+    .Title("Action(s)");
+
+                    })
+             .HtmlAttributes(new { style = "min-height:100px" })
+             .DataSource(datasource => datasource
+             .Server()
+             .Model(u => u.Id(p => p.ID))
+
+           )
+        .Events(events => events.Change("onRowSelected").DataBound("OnDataBound"))
+        .Selectable()
+        .Scrollable()
+)
+                    </div>
+                }
+                <div class="new-row six-colums">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Select the vehicle type to enter </legend>
+                        <div class="with-padding">
+                            @if (activeProgrameType.IsAuto)
+                            {
+                                
+                                <button id="btnAuto_@suffixMembershipID" class="button huge green-gradient  vehicle" type="button" value="Auto">
+                                    @AutoButtonName
+                                </button>
+                   
+                            }
+                            else
+                            { 
+                                <button id="btnAutoDisabled" class="button huge green-gradient " type="button" disabled="disabled">
+                                    Auto
+                                </button>
+                            }
+                            @if (activeProgrameType.IsRV)
+                            {
+                                <button id="btnRV_@suffixMembershipID" class="button huge green-gradient  vehicle" type="button" value="RV">
+                                    RV
+                                </button>
+                 
+                            }
+                            else
+                            { 
+                                <button id="btnRVDisabled" class="button huge green-gradient " type="button" disabled="disabled">
+                                    RV
+                                </button>
+                            }
+                            @if (activeProgrameType.Motorcycle)
+                            {
+                                <button id="btnMotorcycle_@suffixMembershipID" class="button huge green-gradient  vehicle" type="button"
+                                    value="Motorcycle">
+                                    Motorcycle
+                                </button>
+                   
+               
+                            }
+                            else
+                            { 
+                                <button id="btnMotorcycleDisabled" class="button huge green-gradient " type="button"
+                                    disabled="disabled" value="Motorcycle">
+                                    Motorcycle
+                                </button>
+                    
+               
+                            }
+                            @if (activeProgrameType.Trailer)
+                            {
+                                <button id="btnTrailer_@suffixMembershipID" class="button huge green-gradient  vehicle" type="button"
+                                    value="Trailer">
+                                    Trailer
+                                </button>
+                   
+                            }
+                            else
+                            {
+                                <button id="btnTrailerDisabled" class="button green-gradient huge " type="button"
+                                    value="Trailer" disabled="disabled">
+                                    Trailer
+                                </button>
+                  
+                            }
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+
+        $('#btnAuto_@suffixMembershipID').live("click", function (e) {
+
+            var uniqueId = $(this).attr("ID").replace("btnAuto_", "");
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                IsAddAllowed("Auto", autoCount, function () { LoadVehiclesTypes("Auto", null, 0, uniqueId); }, uniqueId);
+            }
+
+        });
+        $('#btnRV_@suffixMembershipID').live("click", function (e) {
+            var uniqueId = $(this).attr("ID").replace("btnRV_", "");
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                IsAddAllowed("RV", rvCount, function () { LoadVehiclesTypes("RV", null, 0, uniqueId); }, uniqueId);
+            }
+
+        });
+        $('#btnMotorcycle_@suffixMembershipID').live("click", function (e) {
+            var uniqueId = $(this).attr("ID").replace("btnMotorcycle_", "");
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                IsAddAllowed("Motorcycle", motorcycleCount, function () { LoadVehiclesTypes("Motorcycle", null, 0, uniqueId); }, uniqueId);
+            }
+
+        });
+        $('#btnTrailer_@suffixMembershipID').live("click", function (e) {
+            var uniqueId = $(this).attr("ID").replace("btnTrailer_", "");
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                IsAddAllowed("Trailer", trailerCount, function () { LoadVehiclesTypes("Trailer", null, 0, uniqueId); }, uniqueId);
+            }
+
+        });
+
+    });
+
+    function IsAddAllowed(vehicleType, existingCount, fn, uniqueID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + uniqueID)) {
+            var message = "The vehicle information already entered on this page will be lost.  Do you want to add a new vehicle?"
+            $.modal.confirm(message, function () {
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + uniqueID);
+                fn();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            fn();
+        }
+    }
+    function LoadVehiclesTypes(tabName, id, fromCase, uniqueID) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_VehicleTab", "Member", new { area = "MemberManagement" })',
+            data: { tabName: tabName, id: id, fromCase: fromCase, membershipID: uniqueID },
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                var formArea = $('#VehicleTab_' + uniqueID);
+                formArea.html("");
+                formArea.html(msg);
+                $(document).scrollTop(0);
+                formArea.show("highlight", { color: "#FFBB2B" }, 500, null);
+
+            }
+        });
+    }
+
+    function SaveForm(formId, tabName) {
+
+        var retVal = false;
+        var tokens = formId.split('_');
+        var uniqueID = tokens[tokens.length - 1];
+        var $form = $("#" + formId);
+        if ($form.validationEngine('validate') == false) {
+            return retVal;
+        }
+        else {
+            $form.validationEngine('hide');
+
+        }
+
+        if ((tabName == "RV" || tabName == "Auto")) {
+            // var formdata = $form.serializearray();
+            if ($.trim($form.find("#VIN_" + uniqueID).val()).length == 0 && $.trim($("#CurrentMileage_" + uniqueID).val()).length == 0) {
+                ShowValidationMessage($form.find("#VIN_" + uniqueID), "VIN field is required");
+                ShowValidationMessage($("#CurrentMileage_" + uniqueID), "Mileage field is required");
+                return false;
+            }
+            else if ($.trim($form.find("#VIN_" + uniqueID).val()).length == 0) {
+                ShowValidationMessage($form.find("#VIN_" + uniqueID), "VIN field is required");
+                HideValidationMessage($("#CurrentMileage_" + uniqueID));
+                return false;
+            }
+            else if ($.trim($("#CurrentMileage_" + uniqueID).val()).length == 0) {
+                ShowValidationMessage($("#CurrentMileage_" + uniqueID), "Mileage field is required");
+                HideValidationMessage($form.find("#VIN_" + uniqueID));
+                return false;
+            }
+            else {
+                HideValidationMessage($form.find("#VIN_" + uniqueID));
+                HideValidationMessage($("#CurrentMileage_" + uniqueID));
+            }
+        }
+        /*var validationArray = {};
+        $.ajax({
+        type: 'POST',
+        url: '@Url.Action("_GetValidationRequiredFields", "Vehicle", new { area = "Application" })',
+        data: formdata,
+        traditional: true,
+        cache: false,
+        async: false,
+        success: function (msg) {
+        validationArray = msg.Data;
+        }
+        });
+        var isVehicleLicenseStateRequired = false;
+        var isVehicleLicenseNumberRequired = false;
+        $.each(validationArray, function (i, item) {
+        switch (item.Name) {
+        case "VehicleLicenseStateRequired":
+        {
+        isVehicleLicenseStateRequired = true;
+        break;
+        }
+        case "VehicleLicenseNumberRequired":
+        {
+        isVehicleLicenseNumberRequired = true;
+        break;
+        }
+        }
+        });
+
+        if (isVehicleLicenseStateRequired && isVehicleLicenseNumberRequired &&
+        $.trim($form.find("#LicenseState").data('kendoComboBox').value()).length == 0
+        && $.trim($form.find("#LicenseNumber").val()).length == 0) {
+        ShowValidationMessage($form.find("#LicenseState_input"), "License State field is required");
+        ShowValidationMessage($form.find("#LicenseNumber"), "License Number field is required");
+        return false;
+        }
+        else if (isVehicleLicenseStateRequired && $.trim($form.find("#LicenseState").data('kendoComboBox').value()).length == 0) {
+        ShowValidationMessage($form.find('input[name="LicenseState_input"]'), "License State field is required");
+        HideValidationMessage($form.find("#LicenseNumber"));
+        return false;
+        }
+        else if (isVehicleLicenseNumberRequired && $.trim($form.find("#LicenseNumber").val()).length == 0) {
+        ShowValidationMessage($form.find("#LicenseNumber"), "License Number field is required");
+        HideValidationMessage($form.find('input[name="LicenseState_input"]'));
+        return false;
+        }
+        else {
+        HideValidationMessage($form.find('input[name="LicenseState_input"]'));
+        HideValidationMessage($form.find("#LicenseNumber"));
+        }
+        */
+        var isFirstOwner = $form.find('input:radio[id=rdFirstOwner_' + uniqueID + ']:checked').val();
+
+        if (isFirstOwner === undefined) {
+            isFirstOwner = null;
+        }
+        else {
+            isFirstOwner = isFirstOwner == "1" ? "true" : "false";
+        }
+
+        var isSportUtility = $form.find('input:radio[id=rdSportUtility_' + uniqueID + ']:checked').val();
+
+        if (isSportUtility === undefined) {
+            isSportUtility = null;
+        }
+        else {
+            isSportUtility = isSportUtility == "1" ? "true" : "false";
+        }
+
+        var vehicleIDValue = $form.find("#vehicleID_" + uniqueID).val();
+        var formdata = $form.serializeArray();
+        // Add tab name
+        formdata.push({ name: "tabName", value: tabName });
+        formdata.push({ name: "IsFirstOwner", value: isFirstOwner });
+        formdata.push({ name: "IsSportUtilityRV", value: isSportUtility });
+        formdata.push({ name: "ID", value: vehicleIDValue });
+        formdata.push({ name: "MembershipID", value: uniqueID });
+        var isFormValid = true;
+        if (!isFormValid) {
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVehicle", "Member", new { area = "MemberManagement" })',
+            data: formdata,
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Changes saved successfully");
+                    var formArea = $('#VehicleTab_' + uniqueID);
+                    formArea.html("");
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + uniqueID);
+
+                }
+                retVal = true;
+            }
+        });
+
+        return retVal;
+    }
+
+    var autoCount = '@ViewData["AutoCount"]';
+    var rvCount = '@ViewData["RVCount"]';
+    var motorcycleCount = '@ViewData["MotorcycleCount"]';
+    var trailerCount = '@ViewData["TrailerCount"]';
+    $(function () {
+        var vehicleIDOnLoad = '@ViewData["LoadVehicleIDOnLoad"]';
+        var vehicleTypeToLoad = '@ViewData["LoadVehicleTypeOnLoad"]';
+        if ($.trim(vehicleIDOnLoad).length > 0 && vehicleIDOnLoad != '-1') {
+            console.log("Loading vehicle : " + vehicleIDOnLoad);
+            LoadVehiclesTypes(vehicleTypeToLoad, vehicleIDOnLoad, 0, '@suffixMembershipID');
+        }
+    });
+</script>

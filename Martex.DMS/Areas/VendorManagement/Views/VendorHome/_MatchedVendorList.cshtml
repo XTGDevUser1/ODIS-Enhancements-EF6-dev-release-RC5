@@ -1,0 +1,88 @@
+﻿@model List<Martex.DMS.DAL.GetVendorInfoSearch_Result>
+@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+@{
+    var iconConfig = new VendorListIconConfig();
+    var contractStatusIconStyle = iconConfig.GetIconStyle("Contracted");
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+
+    function onDataBound(e) {
+        
+        $(".starred").addClass("with-tooltip message-status dispatchstar");
+        $(".unstarred").addClass("with-tooltip message-status dispatchstar");
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 5);
+        FormatPhoneNumber(table, 6);
+    }
+
+    function GetVendorFilterParams() {
+
+        return {
+            VendorOfficeNumber: GetPhoneNumberForDB("VendorOfficeNumber")
+        };
+
+
+    }
+</script>
+<div class="with-padding redalert">
+    <div class="columns margin-top">
+        <div class="two-columns">
+            <span class="big-message-icon icon-warning with-text red margin-left"><strong>Match
+                Found</strong></span></div>
+        <div class="ten-columns">
+            <h4>
+                The vendor you are trying to add may already be in the system. We have matched the
+                dispatch or office phone number entered above to an existing vendor. Please look
+                at the list below.@* and take the appropriate action.*@
+            </h4>
+            @*<p>
+                <strong>Option 1: (Prefered option)</strong> If the vendor you are trying to add
+                is in the list below then click the SELECT action button on that vendor. This will
+                close the current screen and show the existing vendor on the Dispatch tab.</p>
+            <p>
+                <strong>Option 2:</strong>If the vendor you are trying to add is NOT in the list
+                below then you can go ahead and add them and use them on this dispatch by clicking
+                on the FORCE ADD button. This will close the current screen and show this new vendor
+                on the Dispatch tab.</p>*@
+        </div>
+        <div class="new-row twelve-columns">
+            <h5>
+                Possible vendor matches</h5>
+            @(Html.Kendo().Grid(Model)
+            .Name("GrdMatchedVendors")
+            .Columns(columns =>
+            {
+                columns.Bound(a => a.VendorNumber).Title("Vendor #");
+                columns.Bound(a => a.VendorName).Title("Vendor Name")
+                    .ClientTemplate("<span style='height: 16px;' ' #= ContractStatus=='Contracted' ? Class = 'class=starred' : Class = 'class=unstarred' # #= ContractStatus=='Contracted' ? Title = 'title=Contracted' : Title = 'title=NotContracted' # >&nbsp;</span>#= VendorName #");
+                columns.Bound(a => a.VendorStatus).Title("Status");
+                columns.Bound(a => a.Address1).Title("Address");
+                columns.Bound(a => a.VendorCity).Title("City");
+                columns.Bound(a => a.DispatchPhoneNumber).Title("Dispatch Number").Width("120px");
+                columns.Bound(a => a.OfficePhoneNumber).Title("Office Number").Width("120px");
+            })
+            .Events(e =>
+            {
+                e.DataBound("onDataBound");
+            })
+            .Sortable()
+            .Pageable(pager => pager
+                .Refresh(true)
+            )
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+            .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_List", "VendorHome").Data("GetVendorFilterParams"))
+            .Model(u => u.Id(p => p.VendorID))
+            .PageSize(10)
+            .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+            )
+            .Resizable(resize => resize.Columns(true))
+            .EnableCustomBinding(true)
+            )
+        </div>
+    </div>
+</div>

@@ -1,0 +1,132 @@
+﻿@model int
+@{
+    int poId = Model;
+}
+<form id="frmGetManagerApproval" action="javascript:void(0);" method="post">
+    <div class="with-padding popupcontainer">
+        <div class="columns">
+            <div class="twelve-columns">
+                <div>
+                    <p class="button-height small-margin-bottom">
+                        PO service total amount is over the service max amount and requires Manager approval
+                    </p>
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContactAction" class="label">
+                        PIN <span class="spanstar">*</span>
+                    </label>
+                    @Html.Password("ManagerApprovalPIN", "", new { @class = "validate[required,custom[integer],minSize[4],maxSize[4]] input", autocomplete = "new-password" })
+                </div>
+
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ManagerApproval" class="label">
+                        Decision <span class="spanstar">*</span>
+                    </label>
+                    @Html.RadioButton("ManagerApprovalRadio", true, false, new { @class = "radio" })
+                    Approve
+                    &nbsp; &nbsp;
+                    @Html.RadioButton("ManagerApprovalRadio", false, false, new { @class = "radio" })
+                    Reject
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ManagerApprovalComments" class="label">
+                        Comments <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextArea("ManagerApprovalComments", new { @class = "validate[required] input full-width", rows = "4" })
+                </div>
+                <div class="clear">
+                </div>
+
+                <button id="btnSaveManagerApproval" class="button green-gradient glossy float-right small-margin-right small-margin-bottom"
+                        type="button">
+                    Save
+                </button>
+                <button id="btnCancelManagerApproval" class="button gray-gradient glossy float-right small-margin-right small-margin-bottom"
+                        type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        WatchMyContainer('frmGetManagerApproval', null, null);
+        $('#frmGetManagerApproval').validationEngine();
+    });
+    $("#btnSaveManagerApproval").click(function () {
+        var errorFound = false;
+        if ($('#frmGetManagerApproval').validationEngine('validate') == false) {
+            errorFound = true;
+        }
+        var managerApprovedThreshold = $('input[name="ManagerApprovalRadio"]:checked').val();
+        if (!(managerApprovedThreshold != undefined && managerApprovedThreshold != null)) {
+            errorFound = true;
+            ShowValidationMessage($('input[name="ManagerApprovalRadio"]'), "Please select a value");
+        }
+        else {
+            HideValidationMessage($('input[name="ManagerApprovalRadio"]'))
+        }
+        if (errorFound) {
+            return false;
+        }
+        else {
+            
+            $('#frmGetManagerApproval').validationEngine('hideAll');
+            var managerApprovalModel = $('#frmGetManagerApproval').serializeArray();
+            managerApprovalModel.push({ name: 'isManagerApprovedThreshold', value: managerApprovedThreshold });
+            managerApprovalModel.push({ name: 'poId', value: '@poId' });
+
+            if ($("#txtServiceTotal_@poId").length > 0 && $("#txtServiceTotal_@poId").val() != null) {
+                managerApprovalModel.push({ name: 'serviceTotal', value: $("#txtServiceTotal_@poId").val() });
+            }
+            else if ($("#txtServiceTotal").length > 0 && $("#txtServiceTotal").val() != null) {
+                managerApprovalModel.push({ name: 'serviceTotal', value: $("#txtServiceTotal").val() });
+            }
+
+            if ($("#txtServiceAmountThreshold_@poId").length > 0 && $("#txtServiceAmountThreshold_@poId").val() != null) {
+                managerApprovalModel.push({ name: 'serviceMax', value: $("#txtServiceAmountThreshold_@poId").val() });
+            }
+            else if ($("#txtServiceAmountThreshold").length > 0 && $("#txtServiceAmountThreshold").val() != null) {
+                managerApprovalModel.push({ name: 'serviceMax', value: $("#txtServiceAmountThreshold").val() });
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SubmitManagerApproval", "PO", new { area = "Application" })',
+                data: managerApprovalModel,
+                cache: false,
+                success: function (msg) {
+                    if (managerApprovedThreshold == "True") {
+                        document.dialogResult = "OK";
+                    }
+                    else {
+                        document.dialogResult = "CANCEL";
+                    }
+                    CleanMyContainer("frmGetManagerApproval");
+                    CleanMyContainer("pagecontainer");
+                    CleanMyContainer("formPO_@poId");
+
+                    if (msg.Status == "Success") {
+                        winGetManagerApproval.data('kendoWindow').close();
+                        return true;
+                    }
+                    else {
+                        openAlertMessage(msg.ErrorMessage);
+                    }
+                }
+            });
+        }
+    });
+
+    $("#btnCancelManagerApproval").click(function () {
+        document.dialogResult = "CANCEL";
+        //Clear messages
+        $(".formError").each(function () {
+            $(this).remove();
+        });
+        winGetManagerApproval.data('kendoWindow').close();
+        return false;
+    });
+
+</script>

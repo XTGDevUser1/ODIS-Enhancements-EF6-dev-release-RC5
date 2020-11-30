@@ -1,0 +1,307 @@
+﻿@using Kendo.Mvc.UI
+<script type="text/javascript">
+    function VendorSource_OnChange(e) {
+        var combo = $("#VendorSource").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var vendorSource = combo.text();
+        if (vendorSource != null && vendorSource != " " && vendorSource == "Email") {
+            $("#divVendorEmail").show();
+        }
+        else {
+            $("#divVendorEmail").hide();
+        }
+    }
+    function Country_OnChange(e) {
+        var combo = $("#VendorCountry").data('kendoComboBox');
+        var comboChild = $("#VendorState").data("kendoComboBox");
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+        
+        var combo = $("#VendorCountry").data('kendoComboBox');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                    SetFocusOnField("VendorState");
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }
+
+    }
+</script>
+<form id="frmAddVendor" action="javascript:void(0);" method="post" class="pagecontainer">
+<div class="columns pagecontainer">
+    <div class="twelve-columns">
+        <fieldset class="fieldset">
+            <legend class="legend">Add a Vendor</legend>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Name" class="label">
+                        Vendor Name <span class="star">*</span></label>
+                    @Html.TextBox("VendorName", null, new { @class = "validate[required] input validate[maxSize[255] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address1" class="label">
+                        Address 1 <span class="star">*</span></label>
+                    @Html.TextBox("VendorAddress1", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address2" class="label">
+                        Address 2</label>
+                    @Html.TextBox("VendorAddress2", null, new { @class = "input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address3" class="label">
+                        Address 3</label>
+                    @Html.TextBox("VendorAddress3", null, new { @class = "input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="City" class="label">
+                        City <span class="star">*</span></label>
+                    @Html.TextBox("VendorCity", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="StateZip" class="label">
+                    State / Postal <span class="star">*</span></label>
+                @(Html.Kendo().ComboBox()
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                .Name("VendorCountry")
+                .Events(events =>
+                {
+                    events.Change("Country_OnChange");
+                })
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Suggest(true)
+                .HtmlAttributes(new { style = "width:25% " })
+                .SelectedIndex(0)
+                )
+                @(Html.Kendo().ComboBox()
+                .Name("VendorState")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                        .HtmlAttributes(new { style = "width:30% " })
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .DataTextField("Text")
+                .DataValueField("Value"))
+                @Html.TextBox("VendorPostalCode", null, new { @class = "validate[required] validate[maxSize[20]], input ", @style = "width:25%" })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorIsDispatchOrServiceLocation" class="label">
+                        Is this a Dispatch or Service Location? <span class="star">*</span></label>
+                    @Html.RadioButton("VendorIsDispatchOrServiceLocation", true, true, new { entityName = "Vendor", @class = "radio" })
+                    <b>Yes</b>
+                    @Html.RadioButton("VendorIsDispatchOrServiceLocation", false, new { entityName = "Vendor", @class = "radio" })
+                    <b>No</b>
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorOfficeNumber" class="label">
+                        Office Phone <span class="star">*</span></label>
+                    @Html.Editor("VendorOfficeNumber", "Phone", new { entityName = "Vendor", ShowPhoneType = false, IsRequired = true, CallType = "Vendor" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorSource" class="label">
+                        Contact Method <span class="star">*</span></label>
+                    @(Html.Kendo().ComboBox()
+                    .Name("VendorSource")
+                    .Events(events =>
+                    {
+                        events.Change("VendorSource_OnChange");
+                    })
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactSources.ToString()] as IEnumerable<SelectListItem>)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .SelectedIndex(0)
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    )
+                </p>
+            </div>
+            <div id="divVendorEmail" style="display: none;">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorEmail" class="label">
+                        Email <span class="star">*</span></label>
+                    @Html.TextBox("VendorEmail", null, new { @class = "validate[required,custom[email]], input full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorDateApplication" class="label">
+                        Date Application Received</label>
+                    @(Html.Kendo().DatePicker()
+                    .Name("VendorDateApplication")
+                    .HtmlAttributes(new { type = "text" })
+                    )
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <button id="btnSubmitVendor" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button">
+                    Save</button>
+                <button id="btnCancelVendor" class="button gray-gradient  float-right margin-bottom"
+                    type="button">
+                    Cancel</button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding popupcontainer" id="divMatchedVendors">
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+        $('#VendorName').focus();
+        var comboVendorSource = $("#VendorSource").data('kendoComboBox');
+        var vendorSource = comboVendorSource.text();
+        if (vendorSource != null && vendorSource != " " && vendorSource == "Email") {
+            $("#divVendorEmail").show();
+        }
+        else {
+            $("#divVendorEmail").hide();
+        }
+
+        var comboChild = $("#VendorState").data("kendoComboBox");
+        var combo = $("#VendorCountry").data('kendoComboBox');
+        var comboChildInputField = $('input[name="VendorState_input"]');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }
+
+
+    });
+
+    $(function () {
+
+        WatchMyContainer('frmAddVendor');
+
+        $("#frmAddVendor").validationEngine();
+
+        $("#btnSubmitVendor").click(function () {
+            var errorfound = false;
+            if ($("#frmAddVendor").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var state = $('#VendorState').data('kendoComboBox').value();
+            if ($.trim(state).length == 0) {
+                ShowValidationMessage($('input[name="VendorState_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="VendorState_input"]'));
+            }
+            var vendorSource = $('#VendorSource').data('kendoComboBox').value();
+            if ($.trim(vendorSource).length == 0) {
+                ShowValidationMessage($('input[name="VendorSource_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="VendorSource_input"]'));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            var formData = $("#frmAddVendor").serializeArray();
+            //formData.push({ name: "VendorDispatchNumber", value: GetPhoneNumberForDB("VendorDispatchNumber") });
+            //formData.push({ name: "VendorFaxNumber", value: GetPhoneNumberForDB("VendorFaxNumber") });
+            formData.push({ name: "VendorOfficeNumber", value: GetPhoneNumberForDB("VendorOfficeNumber") });
+            formData.push({ name: "VendorSourceValue", value: $("#VendorSource").data('kendoComboBox').text() });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AddVendor", "VendorHome", new { area = "VendorManagement" })',
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmAddVendor');
+                        $("#div_addVendor").hide();
+                        $("#div_vendorManagementList").show();
+                        $('#GrdVenodors').data('kendoGrid').dataSource.read();
+                        LoadVendorInformation('View', msg.Data.VendorID, msg.Data.vendorNumber, msg.Data.VendorName);
+                    }
+                    else {
+                        $('#divMatchedVendors').html(msg);
+                    }
+                }
+            }); // end of ajax
+
+        });
+
+        $("#btnCancelVendor").click(function (e) {
+            if (IsMyContainerDirty('frmAddVendor')) {
+                e.preventDefault();
+                var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+                $.modal.confirm(message, function () {
+                    HideValidationMessage($('input[name="VendorSource_input"]'));
+                    HideValidationMessage($('input[name="VendorState_input"]'));
+                    $('#frmAddVendor').validationEngine('hideAll');
+                    $("#div_addVendor").hide();
+                    $("#div_vendorManagementList").show();
+                    CleanMyContainer("frmAddVendor");
+                }, function () {
+                    return false;
+                });
+            }
+            else {
+                HideValidationMessage($('input[name="VendorSource_input"]'));
+                HideValidationMessage($('input[name="VendorState_input"]'));
+                $('#frmAddVendor').validationEngine('hideAll');
+                $("#div_addVendor").hide();
+                $("#div_vendorManagementList").show();
+            }
+        });
+    });
+//-->
+</script>

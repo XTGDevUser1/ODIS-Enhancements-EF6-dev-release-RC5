@@ -1,0 +1,307 @@
+﻿@using Kendo.Mvc.UI
+<script type="text/javascript">
+    function CustomerFeedbackSource_OnChange(e) {
+        var combo = $("#CustomerFeedbackSource").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var CustomerFeedbackSource = combo.text();
+        if (CustomerFeedbackSource != null && CustomerFeedbackSource != " " && CustomerFeedbackSource == "Email") {
+            $("#divCustomerFeedbackEmail").show();
+        }
+        else {
+            $("#divCustomerFeedbackEmail").hide();
+        }
+    }
+    function Country_OnChange(e) {
+        var combo = $("#CustomerFeedbackCountry").data('kendoComboBox');
+        var comboChild = $("#CustomerFeedbackState").data("kendoComboBox");
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+
+        var combo = $("#CustomerFeedbackCountry").data('kendoComboBox');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                    SetFocusOnField("CustomerFeedbackState");
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }
+
+    }
+</script>
+<form id="frmAddCustomerFeedback" action="javascript:void(0);" method="post" class="pagecontainer">
+    <div class="columns pagecontainer">
+        <div class="twelve-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Add a CustomerFeedback</legend>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Name" class="label">
+                            CustomerFeedback Name <span class="star">*</span>
+                        </label>
+                        @Html.TextBox("CustomerFeedbackName", null, new { @class = "validate[required] input validate[maxSize[255] full-width2" })
+                    </p>
+                </div>
+                @* <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="Address1" class="label">
+                                Address 1 <span class="star">*</span></label>
+                            @Html.TextBox("CustomerFeedbackAddress1", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="Address2" class="label">
+                                Address 2</label>
+                            @Html.TextBox("CustomerFeedbackAddress2", null, new { @class = "input validate[maxSize[100] full-width2" })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="Address3" class="label">
+                                Address 3</label>
+                            @Html.TextBox("CustomerFeedbackAddress3", null, new { @class = "input validate[maxSize[100] full-width2" })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="City" class="label">
+                                City <span class="star">*</span></label>
+                            @Html.TextBox("CustomerFeedbackCity", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                        </p>
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="StateZip" class="label">
+                            State / Postal <span class="star">*</span></label>
+                        @(Html.Kendo().ComboBox()
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                        .Name("CustomerFeedbackCountry")
+                        .Events(events =>
+                        {
+                            events.Change("Country_OnChange");
+                        })
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .Suggest(true)
+                        .HtmlAttributes(new { style = "width:25% " })
+                        .SelectedIndex(0)
+                        )
+                        @(Html.Kendo().ComboBox()
+                        .Name("CustomerFeedbackState")
+                        .Suggest(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                                .HtmlAttributes(new { style = "width:30% " })
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .DataTextField("Text")
+                        .DataValueField("Value"))
+                        @Html.TextBox("CustomerFeedbackPostalCode", null, new { @class = "validate[required] validate[maxSize[20]], input ", @style = "width:25%" })
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CustomerFeedbackIsDispatchOrServiceLocation" class="label">
+                                Is this a Dispatch or Service Location? <span class="star">*</span></label>
+                            @Html.RadioButton("CustomerFeedbackIsDispatchOrServiceLocation", true, true, new { entityName = "CustomerFeedback", @class = "radio" })
+                            <b>Yes</b>
+                            @Html.RadioButton("CustomerFeedbackIsDispatchOrServiceLocation", false, new { entityName = "CustomerFeedback", @class = "radio" })
+                            <b>No</b>
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CustomerFeedbackOfficeNumber" class="label">
+                                Office Phone <span class="star">*</span></label>
+                            @Html.Editor("CustomerFeedbackOfficeNumber", "Phone", new { entityName = "CustomerFeedback", ShowPhoneType = false, IsRequired = true })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CustomerFeedbackSource" class="label">
+                                Contact Method <span class="star">*</span></label>
+                            @(Html.Kendo().ComboBox()
+                            .Name("CustomerFeedbackSource")
+                            .Events(events =>
+                            {
+                                events.Change("CustomerFeedbackSource_OnChange");
+                            })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactSources.ToString()] as IEnumerable<SelectListItem>)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .DataTextField("Text")
+                            .DataValueField("Value")
+                            )
+                        </p>
+                    </div>
+                    <div id="divCustomerFeedbackEmail" style="display: none;">
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CustomerFeedbackEmail" class="label">
+                                Email <span class="star">*</span></label>
+                            @Html.TextBox("CustomerFeedbackEmail", null, new { @class = "validate[required,custom[email]], input full-width2" })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="CustomerFeedbackDateApplication" class="label">
+                                Date Application Received</label>
+                            @(Html.Kendo().DatePicker()
+                            .Name("CustomerFeedbackDateApplication")
+                            )
+                        </p>
+                    </div>
+                    <div class="clear">
+                    </div>
+                    <div>
+                        <button id="btnSubmitCustomerFeedback" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                            type="button">
+                            Save</button>
+                        <button id="btnCancelCustomerFeedback" class="button gray-gradient  float-right margin-bottom"
+                            type="button">
+                            Cancel</button>
+                    </div>*@
+            </fieldset>
+        </div>
+    </div>
+    <div class="clear">
+    </div>
+    <div class="with-padding popupcontainer" id="divMatchedCustomerFeedbacks">
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+        //$('#CustomerFeedbackName').focus();
+        //var comboCustomerFeedbackSource = $("#CustomerFeedbackSource").data('kendoComboBox');
+        //var CustomerFeedbackSource = comboCustomerFeedbackSource.text();
+        //if (CustomerFeedbackSource != null && CustomerFeedbackSource != " " && CustomerFeedbackSource == "Email") {
+        //    $("#divCustomerFeedbackEmail").show();
+        //}
+        //else {
+        //    $("#divCustomerFeedbackEmail").hide();
+        //}
+
+        @*var comboChild = $("#CustomerFeedbackState").data("kendoComboBox");
+        var combo = $("#CustomerFeedbackCountry").data('kendoComboBox');
+        var comboChildInputField = $('input[name="CustomerFeedbackState_input"]');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }*@
+
+
+    });
+
+    $(function () {
+
+        WatchMyContainer('frmAddCustomerFeedback');
+
+        $("#frmAddCustomerFeedback").validationEngine();
+
+        $("#btnSubmitCustomerFeedback").click(function () {
+            var errorfound = false;
+            if ($("#frmAddCustomerFeedback").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var state = $('#CustomerFeedbackState').data('kendoComboBox').value();
+            if ($.trim(state).length == 0) {
+                ShowValidationMessage($('input[name="CustomerFeedbackState_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="CustomerFeedbackState_input"]'));
+            }
+            var CustomerFeedbackSource = $('#CustomerFeedbackSource').data('kendoComboBox').value();
+            if ($.trim(CustomerFeedbackSource).length == 0) {
+                ShowValidationMessage($('input[name="CustomerFeedbackSource_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="CustomerFeedbackSource_input"]'));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            var formData = $("#frmAddCustomerFeedback").serializeArray();
+            //formData.push({ name: "CustomerFeedbackDispatchNumber", value: GetPhoneNumberForDB("CustomerFeedbackDispatchNumber") });
+            //formData.push({ name: "CustomerFeedbackFaxNumber", value: GetPhoneNumberForDB("CustomerFeedbackFaxNumber") });
+            formData.push({ name: "CustomerFeedbackOfficeNumber", value: GetPhoneNumberForDB("CustomerFeedbackOfficeNumber") });
+            formData.push({ name: "CustomerFeedbackSourceValue", value: $("#CustomerFeedbackSource").data('kendoComboBox').text() });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AddCustomerFeedback", "CustomerFeedbackHome", new { area = "CustomerFeedbackManagement" })',
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmAddCustomerFeedback');
+                        $("#div_addCustomerFeedback").hide();
+                        $("#div_CustomerFeedbackManagementList").show();
+                        $('#GrdQACustomerFeedback').data('kendoGrid').dataSource.read();
+                        LoadCustomerFeedbackInformation('View', msg.Data.CustomerFeedbackID, msg.Data.CustomerFeedbackNumber, msg.Data.CustomerFeedbackName);
+                    }
+                    else {
+                        $('#divMatchedCustomerFeedbacks').html(msg);
+                    }
+                }
+            }); // end of ajax
+
+        });
+
+        $("#btnCancelCustomerFeedback").click(function (e) {
+            if (IsMyContainerDirty('frmAddCustomerFeedback')) {
+                e.preventDefault();
+                var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+                $.modal.confirm(message, function () {
+                    HideValidationMessage($('input[name="CustomerFeedbackSource_input"]'));
+                    HideValidationMessage($('input[name="CustomerFeedbackState_input"]'));
+                    $('#frmAddCustomerFeedback').validationEngine('hideAll');
+                    $("#div_addCustomerFeedback").hide();
+                    $("#div_CustomerFeedbackManagementList").show();
+                    CleanMyContainer("frmAddCustomerFeedback");
+                }, function () {
+                    return false;
+                });
+            }
+            else {
+                HideValidationMessage($('input[name="CustomerFeedbackSource_input"]'));
+                HideValidationMessage($('input[name="CustomerFeedbackState_input"]'));
+                $('#frmAddCustomerFeedback').validationEngine('hideAll');
+                $("#div_addCustomerFeedback").hide();
+                $("#div_CustomerFeedbackManagementList").show();
+            }
+        });
+    });
+//-->
+</script>

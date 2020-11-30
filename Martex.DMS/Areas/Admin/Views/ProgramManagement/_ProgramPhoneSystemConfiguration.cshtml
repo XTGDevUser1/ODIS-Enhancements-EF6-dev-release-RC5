@@ -1,0 +1,145 @@
+﻿@using Martex.DMS.DAL;
+@using Kendo.Mvc.UI
+@model PhoneSystemConfiguration
+@{
+    string programID = ViewData["ProgramID"].ToString();
+    bool isView = false;
+    string pageMode = ViewData["mode"].ToString();
+    if (pageMode != null && pageMode.ToString().Equals("view"))
+    {
+        isView = true;
+    }
+}
+<form id="frmProgramDetailsPhoneSystemConfigurationSection_@programID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Program_PhoneSystemConfiguration_Section_Buttons_@programID">
+<div class="with-padding">
+    <div class="columns">
+        <div class=" new-row  one-columns">
+        </div>
+        <div class="ten-columns">
+            <div class="with-padding">
+             <div class="button-height inline-medium-label">
+                    <label for="IVRScriptID" class="label">
+                        IVR Script <span class="spanstar">*</span></label>
+                    @if (isView)
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("IVRScriptID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.IvrScript.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.IVRScriptID != null ? Model.IVRScriptID.ToString() : ""))
+                    .Enable(false)
+                    .HtmlAttributes(new { id = "IVRScriptID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                    else
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("IVRScriptID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.IvrScript.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.IVRScriptID != null ? Model.IVRScriptID.ToString() : ""))
+                    .HtmlAttributes(new { id = "IVRScriptID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                </div>
+                <br />
+                <div class="button-height inline-medium-label">
+                    <label for="Skillset" class="label">
+                        Skillset <span class="spanstar">*</span></label>
+                    @if (isView)
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("SkillsetID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.SkillSet.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.SkillsetID != null ? Model.SkillsetID.ToString() : ""))
+                    .Enable(false)
+                    .HtmlAttributes(new { id = "SkillsetID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                    else
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("SkillsetID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.SkillSet.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.SkillsetID != null ? Model.SkillsetID.ToString() : ""))
+                    .HtmlAttributes(new { id = "SkillsetID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                </div>
+                <br />               
+                <div class="button-height inline-medium-label">
+                    <label for="InBoundPhonecompany" class="label">
+                        Phone Company <span class="spanstar">*</span></label>
+                    @if (isView)
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("InboundPhoneCompanyID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.InBoundPhoneCompany.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.InboundPhoneCompanyID != null ? Model.InboundPhoneCompanyID.ToString() : ""))
+                    .Enable(false)
+                    .HtmlAttributes(new { id = "InboundPhoneCompanyID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                    else
+                    {
+                        @(Html.Kendo().ComboBox()
+                    .Name("InboundPhoneCompanyID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.InBoundPhoneCompany.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.InboundPhoneCompanyID != null ? Model.InboundPhoneCompanyID.ToString() : ""))
+                    .HtmlAttributes(new { id = "InboundPhoneCompanyID_" + programID, style = "width:100%;" })
+                    )
+                    }
+                </div>
+                <br />
+                <p class="button-height inline-medium-label">
+                    <label for="InboundNumber" class="label">
+                        Inbound Number <span class="spanstar">*</span></label>
+                    @Html.TextBoxFor(u => Model.InboundNumber, new { @class = "validate[required,maxSize[50]], input full-width", id = "TxtInboundNumber_" + programID })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label for="PilotNumber" class="label">
+                        Pilot Number <span class="spanstar">*</span></label>
+                    @Html.TextBoxFor(u => Model.PilotNumber, new { @class = "validate[required,maxSize[50]], input full-width", id = "TxtPilotNumber_" + programID })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label for="Active" class="label">
+                        Is Shown on Screen</label>
+                    @Html.CheckBox("IsShownOnScreen", Model != null && Model.IsShownOnScreen != null ? Model.IsShownOnScreen.Value : false, new { @class = "checkbox", id = "ChkIsShownOnScreen_" + programID })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label for="Active" class="label">
+                        Is Active</label>
+                    @Html.CheckBox("IsActive", Model != null && Model.IsActive != null ? Model.IsActive.Value : false, new { @class = "checkbox", id = "ChkIsActive_" + programID })
+                </p>
+                <div class=" new-row twelve-columns hide" id="PlaceHolder_Program_PhoneSystemConfiguration_Section_Buttons_@programID">
+                    <button id="btnSaveProgramProgram_PhoneSystemConfigurationSection_@programID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveProgramPhoneSystemConfigurationTabInformation(this,'@programID');">
+                        Save</button>
+                    <button id="btnCancelProgramProgram_PhoneSystemConfigurationSection_@programID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelProgramPhoneSystemConfigurationTabInformation('@programID');">
+                        Cancel</button>
+                </div>
+                @Html.HiddenFor(u => u.ID)
+                @Html.Hidden("hdnfldMode", ViewData["mode"])
+            </div>
+        </div>
+        <div class="one-columns">
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmProgramDetailsPhoneSystemConfigurationSection_@programID').validationEngine();
+        if ('@isView' == 'True') {
+            $('#frmProgramDetailsPhoneSystemConfigurationSection_@programID').addClass("disabled", "disabled");
+        }
+    });
+</script>

@@ -1,0 +1,111 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+@using Kendo.Mvc.UI
+
+<script language="javascript" type="text/javascript">
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+        }, 500);
+    }
+    function UploadApplication(e) {
+        
+        var postData = $("#frmVendorApplication").serializeArray();
+
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = postData.length; i < l; i++) {
+
+            if (nvp[postData[i].name] == null && postData[i].name != "Services") {
+                nvp[postData[i].name] = postData[i].value;
+            }
+            else if (postData[i].name == "Services") {
+                // Services is the name given to all the checkboxes rendered as products. We need to consider all the values for those checkboxes.
+                
+                nvp["Services[" + serviceIndex + "]"] = postData[i].value;
+                serviceIndex++;
+            }
+        }
+        
+        e.data = nvp;
+    }
+
+    function UploadSuccess(e) {
+        HideLoadingIndicator();
+        //openAlertMessage("Application has been submitted", function () { window.location = '@Url.Action("LogOn","Account", new {area = string.Empty})'; });
+        window.location = '@Url.Action("SaveConfirmation","Apply", new {area = ""})';
+    }
+
+    function UploadError(e) {
+        HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details", function () { window.location = '@Url.Action("Login","Account", new {area = string.Empty})'; });
+    }
+
+    function UploadComplete(e) {
+        HideLoadingIndicator();
+        //openAlertMessage("Application has been submitted", function () { /*window.location = '@Url.Action("LogOn","Account", new {area = string.Empty})';*/ });
+    }
+
+</script>
+
+<script id="fileTemplate" type="text/x-kendo-template">
+                <span class='k-progress'></span>
+                <div class='file-wrapper'>
+//                    <span class='file-icon #=addExtensionClass(files[0].extension)#'></span>
+                    <h4 class='file-heading file-name-heading'>Name: #=name#</h4>
+                    <h4 class='file-heading file-size-heading'>Size: #=size# bytes</h4>
+                    <button type='button' class='k-upload-action'></button>
+                </div>
+</script>
+<h2 class="thin  margin-bottom">Insurance</h2>
+<div class="message-flat">
+    <strong>Pinnacle Motor Club requires the following insurance coverage:</strong>
+    <br />
+    <ul>
+    <li>Commercial General Liability : $300,000 / occurrence min</li>
+    <li>Commercial Auto Liability : $300,000 / occurrence min (Required for Roadside Assistance w/Towing)</li>
+    <li>Garage Keepers / On Hook / Cargo : $100,000 / occurrence min (Required for Roadside Assistance w/Towing)</li>
+    <li>Workers Compensation for employees</li>
+    <li>Statutory Limits</li>
+    </ul>
+</div>
+
+<p class="button-height inline-large-label ">
+    <label for="inc" class="label">
+        Insurance Carrier Name<span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.InsuranceCarrierName, new { @class = "input full-width2 validate[required, maxSize[255]]" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="incp" class="label">
+        Phone Number<span class="star red">*</span>
+    </label>
+    @Html.Editor("InsurancePhoneNumber", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false})
+</p>
+<h3 class="underline">Certificate of Insurance</h3>
+<p>We must have a copy of your current certificate of insurance to maintain on file.</p>
+<p>Pinnacle Motor Club must be listed as an Additional Insured on the certificate.</p>
+<p>Include your Service Provider/Vendor ID # on the insurance certificate.</p>
+<p>If you have an electronic copy of your insurance certificate, please upload the file below:</p>
+<p class="button-height inline-large-label ">
+    <label for="incc" class="label">  
+    Upload Certificate of Insurance      
+    </label>
+    @*@Html.TextBoxFor(v => v.CertificateOfInsurance, new { @class = "input", type = "file" })*@
+    @(Html.Kendo().Upload()
+                    .Name("CertificateOfInsurance")                            
+            .Async(a => a
+                .Save("Save", "Apply", new  { area = ""})                
+                .AutoUpload(false) 
+                .RemoveUrl("/Remove")
+                                               
+            )
+                    .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+            .Multiple(false)
+            .ShowFileList(true)
+            
+        )
+</p>
+<p class="margin-top">If you do not have an electronic copy, please fax or mail a copy.</p>
+<p>Fax : 800-331-1145</p>
+<p>Mail : Service Provider Department.	P.O. Box 1179, Grapevine, TX 76099-1179</p>

@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="CNETService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/CNET.BusinessService" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="ICNETService_RenewMembership_InputMessage">
+    <wsdl:part name="parameters" element="tns:RenewMembership" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_RenewMembership_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RenewMembershipResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_CreateMembership_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateMembership" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_CreateMembership_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateMembershipResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCProcessWebApplication_InputMessage">
+    <wsdl:part name="parameters" element="tns:NMCProcessWebApplication" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCProcessWebApplication_OutputMessage">
+    <wsdl:part name="parameters" element="tns:NMCProcessWebApplicationResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_UpdateMembership_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMembership" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_UpdateMembership_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMembershipResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_RequestMembership_InputMessage">
+    <wsdl:part name="parameters" element="tns:RequestMembership" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_RequestMembership_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RequestMembershipResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessContactLog_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessContactLog" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessContactLog_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessContactLogResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessAddress_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessAddress" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessAddress_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessAddressResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessDependents_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessDependents" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessDependents_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessDependentsResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessVehicle_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessVehicle" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessVehicle_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessVehicleResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessEmail_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessEmail" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessEmail_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessEmailResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ChangeSocialClubNumber_InputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeSocialClubNumber" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ChangeSocialClubNumber_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ChangeSocialClubNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessPhoneNumbers_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessPhoneNumbers" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessPhoneNumbers_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessPhoneNumbersResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_GetMemberNumbers_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMemberNumbers" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_GetMemberNumbers_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMemberNumbersResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_GetMemberNumber_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMemberNumber" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_GetMemberNumber_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMemberNumberResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessInsertWebUserAccount_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessInsertWebUserAccount" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessInsertWebUserAccount_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessInsertWebUserAccountResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessUpdateWebUserAccount_InputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessUpdateWebUserAccount" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_ProcessUpdateWebUserAccount_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ProcessUpdateWebUserAccountResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCBankInfoValidtion_InputMessage">
+    <wsdl:part name="parameters" element="tns:NMCBankInfoValidtion" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCBankInfoValidtion_OutputMessage">
+    <wsdl:part name="parameters" element="tns:NMCBankInfoValidtionResponse" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCCompanySaleRepsList_InputMessage">
+    <wsdl:part name="parameters" element="tns:NMCCompanySaleRepsList" />
+  </wsdl:message>
+  <wsdl:message name="ICNETService_NMCCompanySaleRepsList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:NMCCompanySaleRepsListResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ICNETService">
+    <wsdl:operation name="RenewMembership">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/RenewMembership" message="tns:ICNETService_RenewMembership_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/RenewMembershipResponse" message="tns:ICNETService_RenewMembership_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateMembership">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/CreateMembership" message="tns:ICNETService_CreateMembership_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/CreateMembershipResponse" message="tns:ICNETService_CreateMembership_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="NMCProcessWebApplication">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/NMCProcessWebApplication" message="tns:ICNETService_NMCProcessWebApplication_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/NMCProcessWebApplicationResponse" message="tns:ICNETService_NMCProcessWebApplication_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMembership">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/UpdateMembership" message="tns:ICNETService_UpdateMembership_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/UpdateMembershipResponse" message="tns:ICNETService_UpdateMembership_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RequestMembership">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/RequestMembership" message="tns:ICNETService_RequestMembership_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/RequestMembershipResponse" message="tns:ICNETService_RequestMembership_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessContactLog">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessContactLog" message="tns:ICNETService_ProcessContactLog_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessContactLogResponse" message="tns:ICNETService_ProcessContactLog_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessAddress">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessAddress" message="tns:ICNETService_ProcessAddress_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessAddressResponse" message="tns:ICNETService_ProcessAddress_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessDependents">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessDependents" message="tns:ICNETService_ProcessDependents_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessDependentsResponse" message="tns:ICNETService_ProcessDependents_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessVehicle">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessVehicle" message="tns:ICNETService_ProcessVehicle_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessVehicleResponse" message="tns:ICNETService_ProcessVehicle_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessEmail">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessEmail" message="tns:ICNETService_ProcessEmail_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessEmailResponse" message="tns:ICNETService_ProcessEmail_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSocialClubNumber">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ChangeSocialClubNumber" message="tns:ICNETService_ChangeSocialClubNumber_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ChangeSocialClubNumberResponse" message="tns:ICNETService_ChangeSocialClubNumber_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessPhoneNumbers">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessPhoneNumbers" message="tns:ICNETService_ProcessPhoneNumbers_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessPhoneNumbersResponse" message="tns:ICNETService_ProcessPhoneNumbers_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberNumbers">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/GetMemberNumbers" message="tns:ICNETService_GetMemberNumbers_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/GetMemberNumbersResponse" message="tns:ICNETService_GetMemberNumbers_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberNumber">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/GetMemberNumber" message="tns:ICNETService_GetMemberNumber_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/GetMemberNumberResponse" message="tns:ICNETService_GetMemberNumber_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessInsertWebUserAccount">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessInsertWebUserAccount" message="tns:ICNETService_ProcessInsertWebUserAccount_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessInsertWebUserAccountResponse" message="tns:ICNETService_ProcessInsertWebUserAccount_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ProcessUpdateWebUserAccount">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/ProcessUpdateWebUserAccount" message="tns:ICNETService_ProcessUpdateWebUserAccount_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/ProcessUpdateWebUserAccountResponse" message="tns:ICNETService_ProcessUpdateWebUserAccount_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="NMCBankInfoValidtion">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/NMCBankInfoValidtion" message="tns:ICNETService_NMCBankInfoValidtion_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/NMCBankInfoValidtionResponse" message="tns:ICNETService_NMCBankInfoValidtion_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="NMCCompanySaleRepsList">
+      <wsdl:input wsaw:Action="http://tempuri.org/ICNETService/NMCCompanySaleRepsList" message="tns:ICNETService_NMCCompanySaleRepsList_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/ICNETService/NMCCompanySaleRepsListResponse" message="tns:ICNETService_NMCCompanySaleRepsList_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_ICNETService" type="tns:ICNETService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RenewMembership">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/RenewMembership" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateMembership">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/CreateMembership" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NMCProcessWebApplication">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/NMCProcessWebApplication" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMembership">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/UpdateMembership" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RequestMembership">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/RequestMembership" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessContactLog">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessContactLog" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessAddress">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessAddress" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessDependents">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessDependents" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessVehicle">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessVehicle" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessEmail">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessEmail" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ChangeSocialClubNumber">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ChangeSocialClubNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessPhoneNumbers">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessPhoneNumbers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberNumbers">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/GetMemberNumbers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMemberNumber">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/GetMemberNumber" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessInsertWebUserAccount">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessInsertWebUserAccount" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProcessUpdateWebUserAccount">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/ProcessUpdateWebUserAccount" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NMCBankInfoValidtion">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/NMCBankInfoValidtion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="NMCCompanySaleRepsList">
+      <soap:operation soapAction="http://tempuri.org/ICNETService/NMCCompanySaleRepsList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="CNETService">
+    <wsdl:port name="BasicHttpBinding_ICNETService" binding="tns:BasicHttpBinding_ICNETService">
+      <soap:address location="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

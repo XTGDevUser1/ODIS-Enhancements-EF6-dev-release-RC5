@@ -1,0 +1,199 @@
+﻿@model ProgramDataItem
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Program Service Category";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    if (ViewData["mode"].ToString().Equals("edit"))
+    {
+        isEdit = true;
+    }
+    
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/styles/form.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<form method="post" action="" id="frmProgramDataItems">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Program Data Item</legend>
+        <div>
+            <div class="inline-label mid-margin-bottom">
+                <label for="DataTypeID" class="label">
+                    Data Type</label>
+                @(Html.Kendo().ComboBoxFor(a => a.DataTypeID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.DataType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.DataTypeID != null ? Model.DataTypeID.ToString() : ""))
+                )
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="ControlTypeID" class="label">
+                    Control Type
+                </label>
+                @(Html.Kendo().ComboBoxFor(a => a.ControlTypeID)
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .Suggest(true)
+                .SelectedIndex(0)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ControlType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.ControlTypeID != null ? Model.ControlTypeID.ToString() : ""))
+                )
+            </div>
+            <br />
+            <p class="inline-label">
+                <label for="ScreenName" class="label">
+                    Screen Name</label>
+                @Html.TextBoxFor(u => u.ScreenName, new { @class = "input full-width validate[required]" })
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="Name" class="label">
+                    Name</label>
+                @Html.TextBoxFor(u => u.Name, new { @class = "input full-width validate[required]" })
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="Label" class="label">
+                    Label</label>
+                @Html.TextBoxFor(u => u.Label, new { @class = "input full-width validate[required]" })
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="Sequence" class="label">
+                    Sequence</label>
+                @Html.TextBoxFor(u => u.Sequence, new { @class = "input full-width validate[required, custom[integer],min[1]]" })
+            </p>
+            <br />
+            <p class="inline-label">
+                <label for="MaxLength" class="label">
+                    Max Length</label>
+                @Html.TextBoxFor(u => u.MaxLength, new { @class = "input full-width validate[required, custom[integer],min[1]]" })
+            </p>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="IsActive" class="label">
+                    Is Active</label>
+                @Html.CheckBoxFor(a => a.IsActive, new { @class = "full-width checkbox" })
+            </div>
+            <br />
+            <div class="inline-label mid-margin-bottom">
+                <label for="IsRequired" class="label">
+                    Is Required</label>
+                @Html.CheckBoxFor(a => a.IsRequired, new { @class = "full-width checkbox" })
+            </div>
+            <br />
+            <div class="field-block button-height">
+                <button id="btnAddDataItem" class="button green-gradient glossy float-right mid-margin-left"
+                    type="submit">
+                    @if (isEdit)
+                    {
+                        @Html.Raw("Update")
+                    }
+                    else
+                    {
+                        @Html.Raw("Add")
+                    }
+                </button>
+                <button id="btnCancelDataItem" class="button gray-gradient glossy  float-right" type="button">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</div>
+@Html.Hidden("pageMode", ViewData["mode"])
+@Html.HiddenFor(x => x.ProgramID)
+@Html.HiddenFor(x => x.ID)
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        CleanMyContainer('frmProgramDataItems');
+        WatchMyContainer('frmProgramDataItems');
+        $('#frmProgramDataItems').validationEngine();
+
+        //        var combo = $('#ProductCategoryID').data('kendoComboBox');
+        //        if (combo.text() == 1) {
+        //            combo.text("Select");
+        //            combo.value(null);
+        //        }
+
+
+        $('#btnCancelDataItem').die('click');
+        $('#btnCancelDataItem').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#frmProgramDataItems').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                programDataItemsWindow.data('kendoWindow').close();
+            }
+        });
+
+        $('#btnAddDataItem').die('click');
+        $('#btnAddDataItem').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var errorfound = false;
+                if ($("#frmProgramDataItems").validationEngine("validate") == false) {
+                    errorfound = true;
+                }
+                var dataType = $('#DataTypeID').data('kendoComboBox').value();
+                if ($.trim(dataType).length == 0) {
+                    ShowValidationMessage($('input[name="DataTypeID_input"]'), "* This field is required.");
+                    errorfound = true;
+                }
+                else {
+                    HideValidationMessage($('input[name="DataTypeID_input"]'));
+                }
+                var controlType = $('#ControlTypeID').data('kendoComboBox').value();
+                if ($.trim(controlType).length == 0) {
+                    ShowValidationMessage($('input[name="ControlTypeID_input"]'), "* This field is required.");
+                    errorfound = true;
+                }
+                else {
+                    HideValidationMessage($('input[name="ControlTypeID_input"]'));
+                }
+                if (errorfound == true) {
+                    return false;
+                }
+
+                document.dialogResult = "OK";
+                var postData = $(this).parents('form').serializeArray();
+                var mode = $("#pageMode").val();
+                var programId = $("#ProgramID").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SaveDataItemInformation", "ProgramManagement", new { area = "Admin" })',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            CleanMyContainer('frmProgramDataItems');
+                            if (mode == "add") {
+                                openAlertMessage('Program DataItem successfully added!');
+                            }
+                            else if (mode == "edit") {
+                                openAlertMessage('Program DataItem successfully updated!');
+                            }
+                            $('#frmProgramDataItems').validationEngine('hideAll');
+                            programDataItemsWindow.data('kendoWindow').close();
+                            $('#GrdProgramManagementProgramDataItems_' + programId).data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+
+            }
+            return false;
+        });
+    });
+</script>

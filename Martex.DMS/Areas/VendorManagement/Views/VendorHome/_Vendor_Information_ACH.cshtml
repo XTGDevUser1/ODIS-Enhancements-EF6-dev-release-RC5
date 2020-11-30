@@ -1,0 +1,266 @@
+﻿@using Kendo.Mvc.UI;
+@model Martex.DMS.BLL.Model.VendorACHModel
+@{
+    var suffixVendorID = Model.VendorID.ToString();
+    var isEmail = string.Empty;
+    if (string.IsNullOrEmpty(Model.VendorACHDetails.ReceiptEmail))
+    {
+        isEmail = "hide";
+    }
+}
+<form id="frmVendorACHDetails_@suffixVendorID" method="post" action="javascript:void(0);" relatedButtons = "PlaceHolder_Vendor_ACHSection_Buttons_@suffixVendorID">
+@Html.HiddenFor(u => u.VendorID, new { id = "ACH_VendorID_" + @suffixVendorID })
+@Html.HiddenFor(u => u.VendorACHDetails.ID, new { id = "VendorACH_Details_ID_" + @suffixVendorID })
+@Html.HiddenFor(u => u.IsVendorACHValidationRequired, new { id = "IsVendorACHValidationRequired_" + @suffixVendorID })
+<div class="with-padding">
+    <div class="columns">
+        <div class="seven-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Account Information</legend>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="NameOnAccount" class="label">
+                        Name on Account <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.NameOnAccount, new { @class = "input full-width validate[required]", id = "NameOnAccount_" + @suffixVendorID, maxLength = "50" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="BankABANumber" class="label">
+                        Bank ABA Number <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankABANumber, new { @class = "input full-width validate[required,minSize[9],custom[integer],funcCall[ValidateABA]]", id = "BankABANumber_" + @suffixVendorID, maxLength = "9" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="BankAccountNumber" class="label">
+                        Bank Account Number <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.AccountNumber, new { @class = "input full-width validate[required,minSize[4],custom[onlyLetterNumber]]", id = "AccountNumber_" + @suffixVendorID, maxLength = "17" })
+                </p>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="AccountType" class="label">
+                        Account Type <span class="spanstar">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                     .Name("AccountType_" + suffixVendorID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ACHAccountType.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                     .Value(Model.VendorACHDetails.AccountType)
+                     .HtmlAttributes(new { id = "AccountType_" + @suffixVendorID, style = "width:90%;" })
+                    )
+                </div>
+            </fieldset>
+        </div>
+        <div class="five-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">ACH Control</legend>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="ACHStatus" class="label">
+                        ACH Status <span class="spanstar">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                     .Name("ACHStatusID_" + suffixVendorID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ACHStatus.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .Value(Model.VendorACHDetails.ACHStatusID == null ? string.Empty : Model.VendorACHDetails.ACHStatusID.Value.ToString())
+                     .Events(events => events.Change("ValidateInputForKendoComboWithHide"))
+                     .HtmlAttributes(new { id = "ACHStatusID_" + @suffixVendorID, style = "width:90%;" })
+                    )
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="ReceiptMethod" class="label">
+                        Receipt Method <span class="spanstar">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                     .Name("ReceiptContactMethodID_" + suffixVendorID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.RecieptMethodForACH.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .Value(Model.VendorACHDetails.ReceiptContactMethodID == null ? string.Empty : Model.VendorACHDetails.ReceiptContactMethodID.Value.ToString())
+                     .Events(events => events.Change(
+                         @<text>function(e){ ComboHandleEmailForVendorACH(e,'@suffixVendorID') }</text>))
+                     .HtmlAttributes(new { id = "ReceiptContactMethodID_" + @suffixVendorID, style = "width:90%;" })
+                    )
+                </div>
+                <p class="button-height inline-medium-label small-margin-bottom @isEmail" id="PlaceHolder_For_Vendor_ACH_EMAIL_@suffixVendorID">
+                    <label for="EmailForReceipt" class="label">
+                        Email for receipt <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.ReceiptEmail, new { @class = "input full-width validate[custom[email]]", id = "ReceiptEmail_" + @suffixVendorID, maxLength = "255" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="VoidedCheckOnFile" class="label">
+                        Voided Check on File
+                    </label>
+                    @Html.CheckBox("VendorACHDetails.IsVoidedCheckOnFile", Model.VendorACHDetails.IsVoidedCheckOnFile.HasValue ? Model.VendorACHDetails.IsVoidedCheckOnFile.Value : false, new { @class = "checkbox full-width", id = "IsVoidedCheckOnFile_" + suffixVendorID })
+                </p>
+            </fieldset>
+        </div>
+        <div class="new-row seven-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Bank Information</legend>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="BankName" class="label">
+                        Bank Name
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankName, new { @class = "input full-width", id = "BankName_" + @suffixVendorID, maxLength = "50" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="AddressLine1" class="label">
+                        Address 1
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankAddressLine1, new { @class = "input full-width", id = "BankAddressLine1_" + @suffixVendorID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="AddressLine2" class="label">
+                        Address 2
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankAddressLine2, new { @class = "input full-width", id = "BankAddressLine2_" + @suffixVendorID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="AddressLine3" class="label">
+                        Address 3
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankAddressLine3, new { @class = "input full-width", id = "BankAddressLine3_" + @suffixVendorID, maxLength = "100" })
+                </p>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="City" class="label">
+                        City
+                    </label>
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankAddressCity, new { @class = "input full-width", id = "BankAddressCity_" + @suffixVendorID, maxLength = "100" })
+                </p>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="StatePostal" class="label">
+                        State / Postal
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                                  .Name("BankAddressCountryID_" + suffixVendorID)
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                      })
+                                      .ServerFiltering(false);
+                                  })
+                                 .Events(events =>
+                                 {
+                                     events.Change(@<text> function(e){ LicenseStateCountryChangeGroupACH(e,'@suffixVendorID');}</text>);
+                                 })
+                                                            .DataTextField("Text")
+                                                            .DataValueField("Value")
+                                                            .Suggest(true)
+                                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                                            .HighlightFirst(true)
+                                                            .HtmlAttributes(new { style = "width:20%", id = "BankAddressCountryID_" + suffixVendorID })
+                                                            .SelectedIndex(0)
+                                                                                     .Value(Model.VendorACHDetails.BankAddressCountryID.HasValue ? Model.VendorACHDetails.BankAddressCountryID.Value.ToString() : "")
+                                            )
+                    @(Html.Kendo().ComboBox()
+                              .Name("BankAddressStateProvinceID_" + suffixVendorID)
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                              {
+                                  events.Change("ValidateInputForKendoCombo");
+                                  events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                              })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:30%", id = "BankAddressStateProvinceID_" + suffixVendorID })
+                                              .Value(Model.VendorACHDetails.BankAddressStateProvinceID.HasValue ? Model.VendorACHDetails.BankAddressStateProvinceID.Value.ToString() : string.Empty)
+                   )
+                    @Html.TextBoxFor(u => u.VendorACHDetails.BankAddressPostalCode, new { @class = "input", id = "BankAddressPostalCode_" + @suffixVendorID, maxLength = "20", style = "width:36%" })
+                </div>
+                <div class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Phone" class="label">
+                        Phone
+                    </label>
+                    @Html.Editor("ACHBankPhoneNumber_" + suffixVendorID, "Phone", new { ShowPhoneType = false, ShowCallIcon = false, Value = Model.VendorACHDetails.BankPhoneNumber })
+                </div>
+            </fieldset>
+        </div>
+        <div class="five-columns">
+                <div class="with-padding">
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="DateLastUsed" class="label">
+                            Source</label>
+                        <small>@Model.SourceSystemName</small>
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Last Updated</label>
+                        <small>@Html.DisplayFor(u => u.VendorACHDetails.ModifyBy)</small> <small>@Html.DisplayFor(u => u.VendorACHDetails.ModifyDate)</small>
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Create Date</label>
+                        <small>@Html.DisplayFor(u => u.VendorACHDetails.CreateBy)</small> <small>@Html.DisplayFor(u => u.VendorACHDetails.CreateDate)</small>
+                    </p>
+                </div>
+        </div>
+        <div class="new-row twelve-columns hide" id="PlaceHolder_Vendor_ACHSection_Buttons_@suffixVendorID">
+            <button id="btnSaveVendorACHSection_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorACHTabInformation('@suffixVendorID');">
+                Save</button>
+            <button id="btnCancelVendorInfoSection_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorACHTabInformation('@suffixVendorID');">
+                Cancel</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorACHDetails_@suffixVendorID').validationEngine();
+    });
+
+    function ValidateABA(field, rules, i, options) {
+        var input = field.val();
+        if (!ValidateABANumber(input)) {
+            return "* Not a valid ABA Number";
+        }
+    }
+
+    function ValidateABANumber(input) {
+        var i, n, t;
+
+        // First, remove any non-numeric characters.
+        t = "";
+        for (i = 0; i < input.length; i++) {
+            c = parseInt(input.charAt(i), 10);
+            if (c >= 0 && c <= 9)
+                t = t + c;
+        }
+
+        // Check the length, it should be nine digits.
+
+        if (t.length != 9)
+            return false;
+
+        // Now run through each digit and calculate the total.
+        n = 0;
+        for (i = 0; i < t.length; i += 3) {
+            n += parseInt(t.charAt(i), 10) * 3
+              + parseInt(t.charAt(i + 1), 10) * 7
+              + parseInt(t.charAt(i + 2), 10);
+        }
+
+        // If the resulting sum is an even multiple of ten (but not zero),
+        // the aba routing number is good.
+
+        if (n != 0 && n % 10 == 0)
+            return true;
+        else
+            return false;
+
+    }
+</script>

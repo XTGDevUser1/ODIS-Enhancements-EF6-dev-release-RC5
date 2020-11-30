@@ -1,0 +1,186 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackSurveySearchCirteria
+@using Kendo.Mvc.UI
+@{
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "CustomerFeedbackSurvey";
+    string JSMethodNameToCollectData = "GetCustomerFeedbackSurveySearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForCustomerFeedbackSurvey";
+    string applyCallBackFuntion = "LoadCustomerFeedbackSurveySearchPredefinedViews";
+}
+<style type="text/css">
+    input.full-width {
+        width: 90% !important;
+    }
+</style>
+<li>
+    <form id="frmCXCustomerFeedbackSurveySearchCriteria" method="post" action="javascript:void(0);">
+        @Html.Hidden("CXCustomerFeedbackSurveySearchViewID", string.Empty)
+        @Html.HiddenFor(u => u.GridSortOrder)
+        @Html.HiddenFor(u => u.GridSortColumnName)
+        @Html.HiddenFor(u => u.PanelItemsSelected)
+        @Html.HiddenFor(u => u.PanelViewsSelected)
+        @Html.HiddenFor(u => u.PanelIDSelected)
+        @Html.HiddenFor(u => u.PanelNameSelected)
+        @Html.HiddenFor(u => u.PanelNumberSelected)
+        @Html.HiddenFor(u => u.PanelContactDateSelected)
+        @Html.HiddenFor(u => u.ResetModelCriteria)
+        @(Html.Kendo().PanelBar()
+        .Name("panelbarSearchCriteria")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+        .Items(panelbar =>
+        {
+        panelbar.Add().Text("Search").Content(
+            @<div class="with-padding">
+                <p class="button-height">
+                    <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="GetSelectedCriteria();">
+                        Search
+                    </a>
+                </p>
+            </div>
+        ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+        panelbar.Add().Text("Views").Content(
+            @<div class="with-padding small-margin-right">
+                @Html.Editor("FilterView", "FilterView", new
+           {
+               filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+           })
+            </div>
+        ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+        panelbar.Add().Text("Items Selected").Content(
+            @<div class="with-padding" id="CXCustomerFeedbackSurveySearchCriteria">
+                @Html.Partial("_SelectedCriteria", Model)
+            </div>
+        ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+
+        panelbar.Add().Text("Number").Content(
+            @<div class="with-padding">
+                <div class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Type
+                    </label>
+                    @(Html.Kendo().ComboBoxFor(u => Model.NumberType)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackIDFilterTypes.ToString()] as IEnumerable<SelectListItem>
+                    )
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(string.IsNullOrEmpty(Model.NumberType) ? string.Empty : Model.NumberType)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                </div>
+                <p class="inline-label">
+                    <label for="ID" class="label">
+                        Number
+                    </label>
+                    @Html.TextBoxFor(u => Model.NumberValue, new { @class = "input full-width", id = "NumberValue" })
+                </p>
+            </div>
+        ).Expanded(Model.PanelNumberSelected.HasValue ? Model.PanelNumberSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelNumberSelected" });
+
+        panelbar.Add().Text("Name").Content(
+            @<div class="with-padding">
+                <div class="inline-label small-margin-bottom">
+                    <label for="NameSectionTypeValue" class="label">
+                        Name Type
+                    </label>
+                    @(Html.Kendo().ComboBoxFor(u => Model.NameType)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackSearchCriteriaValueMemberType.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(string.IsNullOrEmpty(Model.NameType) ? string.Empty : Model.NameType)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    )
+                </div>
+                <p class="inline-label">
+                    <label for="ID" class="label">
+                        Name
+                    </label>
+                    @Html.TextBoxFor(u => Model.NameValue, new { @class = "input full-width", id = "NameValue" })
+                </p>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        value that
+                    </label>
+
+                    @(Html.Kendo().ComboBoxFor(u => Model.NameTypeOperator)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackSearchCriteriaNamesurveyFilterType.ToString()] as IEnumerable<SelectListItem>
+                            )
+                            .SelectedIndex(0)
+                            .HighlightFirst(true)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .Value(Model.NameTypeOperator == null ? string.Empty : Model.NameTypeOperator.ToString())
+                            .HtmlAttributes(new { style = "width:90%;" })
+                            .Suggest(true)
+                    )
+                </div>
+            </div>
+        ).Expanded(Model.PanelNameSelected.HasValue ? Model.PanelNameSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelNameSelected" });
+
+panelbar.Add().Text("Contact Date").Expanded(Model.PanelContactDateSelected).LinkHtmlAttributes(new { id = "Panel_PanelContactDateSelected" })
+.Content(@<div class="with-padding">
+                <div class="button-height inline-label">
+                    <label class="label">
+                        From
+                    </label>
+                    @(Html.Kendo().DatePickerFor(u => u.ContactFromDate)
+                    .HtmlAttributes(new { style = "width:90%" })
+                    )
+                </div>
+                <div class="button-height inline-label">
+                    <label class="label">
+                        To
+                    </label>
+                    @(Html.Kendo().DatePickerFor(u => u.ContactToDate)
+                            .HtmlAttributes(new { style = "width:90%" })
+                    )
+                </div>
+            </div>
+        ).ContentHtmlAttributes(new { id = "PanelReceivedDate" });
+
+        panelbar.Add().Text("Search").Content(
+            @<div class="with-padding">
+                <p class="button-height">
+                    <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="GetSelectedCriteria();">
+                        Search
+                    </a>
+                </p>
+            </div>
+        ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+        })
+        )
+    </form>
+</li>
+
+
+<script type="text/javascript">
+
+    function LoadCustomerFeedbackSurveySearchPredefinedViews(recordID) {
+        $('#CXCustomerFeedbackSurveySearchViewID').val(recordID);
+        GetSearchCriteria();
+        var gridReference = $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource;
+        var sortOrder = $('#GridSortOrder').val();
+        var sortColumn = $('#GridSortColumnName').val();
+        if (sortOrder != undefined && sortColumn != undefined) {
+            gridReference.sort({ field: sortColumn, dir: sortOrder });
+        }
+        gridReference.read();
+        setTimeout(function () {
+            $('#CXCustomerFeedbackSurveySearchViewID').val('');
+        }, 1000);
+    }
+
+
+</script>

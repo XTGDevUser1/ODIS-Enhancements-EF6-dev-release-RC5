@@ -1,0 +1,169 @@
+﻿@model Martex.DMS.BLL.Model.Clients.BillingEventDetailDisposition
+@using Kendo.Mvc.UI;
+@{
+    Layout = null;
+    int billingInvoiceLineID = Model.billingInvoiceLineID;
+}
+<form id="frmBillingEventDetailDispositionUpdate" action="javascript:void(0)">
+<div id="divBillingEventDetailDispositions">
+    @Html.HiddenFor(a => a.billingInvoiceLineID)
+    <table class="table simple-table" id="tableBillingEventDetailDisposition">
+        <thead>
+            <tr>
+                <td>
+                    Disposition
+                </td>
+                <td>
+                    Count
+                </td>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                Refresh
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.refreshCount)
+                @Html.HiddenFor(a => a.selectedRefreshEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Locked
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.lockedCount)
+                @Html.HiddenFor(a => a.selectedLockedEvents)
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="clear">
+</div>
+<table class="table" id="tableBillingEventDetailDispositionList">
+    <tr>
+        <th>
+            From Disposition
+        </th>
+        <th>
+            To Disposition
+        </th>
+    </tr>
+    <tr>
+        <td>
+            @(Html.Kendo().ComboBox()
+                        .Name("BillingInvoiceFromDetailDisposition")
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingInvoiceDetailDisposition.ToString()] as IEnumerable<SelectListItem>)
+                .SelectedIndex(0)
+                    //.HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .HtmlAttributes(new { style = "width:80%;" })
+                )
+        </td>
+        <td>
+            @(Html.Kendo().ComboBox()
+                        .Name("BillingInvoiceToDetailDisposition")
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingInvoiceDetailDisposition.ToString()] as IEnumerable<SelectListItem>)
+                .SelectedIndex(0)
+                    //.HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .HtmlAttributes(new { style = "width:80%;" })
+            )
+        </td>
+    </tr>
+</table>
+<div class="align-center">
+    <button id="btnUpdateSelectedEventDetailsDisposition" type="button" class="button green-gradient glossy small-margin-top">
+        Update
+    </button>
+    <button id="btnCancelSelectedEventDetailsDisposition" type="button" class="button gray-gradient glossy small-margin-top">
+        Cancel
+    </button>
+</div>
+</form>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+
+        WatchMyContainer('frmBillingEventDetailDispositionUpdate', null, null);
+    });
+    $(function () {
+        $("#frmBillingEventDetailDispositionUpdate").validationEngine();
+        $("#btnUpdateSelectedEventDetailsDisposition").click(function () {
+            var errorfound = false;
+            if ($("#frmBillingEventDetailDispositionUpdate").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var billingInvoiceFromDetailDisposition = $('#BillingInvoiceFromDetailDisposition').data('kendoComboBox').value();
+            if ($.trim(billingInvoiceFromDetailDisposition).length == 0) {
+                ShowValidationMessage($('input[name="BillingInvoiceFromDetailDisposition_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="BillingInvoiceFromDetailDisposition_input"]'));
+            }
+            var billingInvoiceToDetailDisposition = $('#BillingInvoiceToDetailDisposition').data('kendoComboBox').value();
+            if ($.trim(billingInvoiceToDetailDisposition).length == 0) {
+                ShowValidationMessage($('input[name="BillingInvoiceToDetailDisposition_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="BillingInvoiceToDetailDisposition_input"]'));
+            }
+
+            if ($.trim(billingInvoiceToDetailDisposition).length > 0 && billingInvoiceFromDetailDisposition == billingInvoiceToDetailDisposition) {
+                ShowValidationMessage($('input[name="BillingInvoiceToDetailDisposition_input"]'), "* From Disposition and To Disposition must be different..");
+                errorfound = true;
+            }
+            else if ($.trim(billingInvoiceToDetailDisposition).length > 0 && billingInvoiceFromDetailDisposition != billingInvoiceToDetailDisposition) {
+                HideValidationMessage($('input[name="BillingInvoiceToDetailDisposition_input"]'));
+            }
+
+            if (errorfound == true) {
+                return false;
+            }
+            var fromDisposition = billingInvoiceFromDetailDisposition;
+            var fromDispositionText = $('#BillingInvoiceFromDetailDisposition').data('kendoComboBox').text();
+            var toDisposition = billingInvoiceToDetailDisposition;
+            var toDispositionText = $('#BillingInvoiceToDetailDisposition').data('kendoComboBox').text();
+            var elementsToBeUpadted = "";
+            if (fromDispositionText == "Refresh") {
+                elementsToBeUpadted = $("#selectedRefreshEvents").val();
+            }
+            else if (fromDispositionText == "Locked") {
+                elementsToBeUpadted = $("#selectedLockedEvents").val();
+            }
+            $.ajax({
+                url: '@Url.Action("_UpdateSelectedBillingEventDetailDisposition", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                type: 'POST',
+                data: { ToDisposition: toDisposition, ElementsToBeUpadted: elementsToBeUpadted, FromDispositionText: fromDispositionText, ToDispositionText: toDispositionText },
+                cache: false,
+                async: true,
+                global: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        openAlertMessage(msg.Data, function (e) {
+                            CleanMyContainer('frmBillingEventDetailDispositionUpdate');
+                            selectedEventDetailsDispositionWindow.data('kendoWindow').close();
+                            $("#GrdClientBillableEvents_@billingInvoiceLineID").data('kendoGrid').dataSource.read();
+                        });
+                    }
+                    else if (msg.Status == "Failure") {
+                        openAlertMessage(msg.Data);
+                    }
+                    else {
+                        openAlertMessage(msg.Data);
+                    }
+                }
+            })
+        });
+
+        $("#btnCancelSelectedEventDetailsDisposition").click(function () {
+            selectedEventDetailsDispositionWindow.data('kendoWindow').close();
+        });
+    });
+//-->
+</script>

@@ -1,0 +1,285 @@
+﻿@using Kendo.Mvc.UI
+<script type="text/javascript">
+
+    function Country_OnChange(e) {
+        var combo = $("#VendorCountry").data('kendoComboBox');
+        var comboChild = $("#VendorState").data("kendoComboBox");
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+        else {
+            
+            var combo = $("#VendorCountry").data('kendoComboBox');
+            if (combo.value() != '' && combo.value() != null) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                    data: { countryId: combo.value() },
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        comboChild.setDataSource(msg);
+                        comboChild.select(0);
+                        SetFocusOnField("VendorState");
+                    }
+
+                });
+            }
+            else {
+                ResetCombo(comboChild);
+            }
+        }
+
+    }
+</script>
+<form id="frmAddVendor" action="javascript:void(0);" method="post">
+<div class="columns popupcontainer">
+    <div class="twelve-columns">
+        <fieldset class="fieldset">
+            <legend class="legend">Add a Vendor</legend>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Name" class="label">
+                        Vendor Name <span class="star">*</span></label>
+                    @Html.TextBox("VendorName", null, new { @class = "validate[required] input validate[maxSize[255] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address1" class="label">
+                        Address 1 <span class="star">*</span></label>
+                    @Html.TextBox("VendorAddress1", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Address2" class="label">
+                        Address 2</label>
+                    @Html.TextBox("VendorAddress2", null, new { @class = "input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="City" class="label">
+                        City <span class="star">*</span></label>
+                    @Html.TextBox("VendorCity", null, new { @class = "validate[required] input validate[maxSize[100] full-width2" })
+                </p>
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Country" class="label">
+                    Country</label>
+                @(Html.Kendo().ComboBox()
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+        .Name("VendorCountry")
+        .Events(events =>
+        {
+            events.Change("Country_OnChange");
+        })
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Suggest(true)
+        .HtmlAttributes(new { style = "width:250px " })
+        .SelectedIndex(0)
+        )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="StateZip" class="label">
+                    State / Postal Code <span class="star">*</span></label>
+                @(Html.Kendo().ComboBox()
+                .Name("VendorState")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .HtmlAttributes(new { style = "width:250px " })
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .DataTextField("Text")
+                .DataValueField("Value"))
+                @Html.TextBox("VendorPostalCode", null, new { @class = "validate[required] validate[maxSize[20]], input margin-left" })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorDispatchNumber" class="label">
+                        Dispatch Number<span class="spanstar">*</span></label>
+                    @Html.Editor("VendorDispatchNumber", "Phone", new { entityName = "Vendor", ShowPhoneType = false, IsRequired = true, CallType = "Vendor" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorFaxNumber" class="label">
+                        Fax Number</label>
+                    @Html.Editor("VendorFaxNumber", "Phone", new { entityName = "Vendor", ShowPhoneType = false, CallType = "Vendor" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorOfficeNumber" class="label">
+                        Office Number</label>
+                    @Html.Editor("VendorOfficeNumber", "Phone", new { entityName = "Vendor", ShowPhoneType = false, CallType = "Vendor" })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorEmail" class="label">
+                        Email</label>
+                    @Html.TextBox("VendorEmail", null, new { @class = "validate[custom[email]], input half-width" })
+                </p>
+            </div>
+            <div class="clear">
+            </div>
+            <div>
+                <button id="btnSubmitVendor" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button">
+                    Add</button>
+                <button id="btnCancelVendor" class="button gray-gradient  float-right margin-bottom"
+                    type="button">
+                    Cancel</button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding popupcontainer" id="divMatchedVendors">
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+
+        WatchMyContainer('frmAddVendor', null, null);
+
+        $('#VendorName').focus();
+        var comboChild = $("#VendorState").data("kendoComboBox");
+        var combo = $("#VendorCountry").data('kendoComboBox');
+        var comboChildInputField = $('input[name="VendorState_input"]');
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                }
+
+            });
+        }
+        else {
+            comboChild.select(0);
+        }
+    });
+
+    $(function () {
+
+        // Dirty flag implementation
+//        isdirty = false;
+//        $("input,textarea,select").change(function (e) {
+
+//            isdirty = true;
+//        });
+
+        $("#frmAddVendor").validationEngine();
+        $("#btnForceSubmitVendor").die('click');
+        $("#btnForceSubmitVendor").live('click', function () {
+            var errorfound = false;
+            if ($("#frmAddVendor").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var state = $('#VendorState').data('kendoComboBox').value();
+            if ($.trim(state).length == 0) {
+                ShowValidationMessage($('input[name="VendorState_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="VendorState_input"]'));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            document.dialogResult = "OK";
+            var formData = $("#frmAddVendor").serializeArray();
+            var dispatchPhoneNumber = GetPhoneNumberForDB("VendorDispatchNumber");
+            formData.push({ name: "VendorDispatchNumber", value: dispatchPhoneNumber });
+            formData.push({ name: "VendorFaxNumber", value: GetPhoneNumberForDB("VendorFaxNumber") });
+            formData.push({ name: "VendorOfficeNumber", value: GetPhoneNumberForDB("VendorOfficeNumber") });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AddVendorForcebly", "Dispatch", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                ajax: true,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("frmAddVendor");
+                        // Set the phonenumber and phoneType to the dispatch phone number of the vendor.
+                        phoneNumber = dispatchPhoneNumber;
+                        phoneType = "Dispatch";
+                        winAddVendor.data('kendoWindow').close();
+                    }
+                }
+            }); // end of ajax
+
+        });
+        $("#btnSubmitVendor").click(function () {
+            var errorfound = false;
+            if ($("#frmAddVendor").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var state = $('#VendorState').data('kendoComboBox').value();
+            if ($.trim(state).length == 0) {
+                ShowValidationMessage($('input[name="VendorState_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="VendorState_input"]'));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            var formData = $("#frmAddVendor").serializeArray();
+            var dispatchPhoneNumber = GetPhoneNumberForDB("VendorDispatchNumber");
+            formData.push({ name: "VendorDispatchNumber", value: dispatchPhoneNumber });
+            formData.push({ name: "VendorFaxNumber", value: GetPhoneNumberForDB("VendorFaxNumber") });
+            formData.push({ name: "VendorOfficeNumber", value: GetPhoneNumberForDB("VendorOfficeNumber") });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AddVendor", "Dispatch", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                data: formData,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        document.dialogResult = "OK";
+                        CleanMyContainer("frmAddVendor");
+                        // Set the phonenumber and phoneType to the dispatch phone number of the vendor.
+                        phoneNumber = dispatchPhoneNumber;
+                        phoneType = "Dispatch";
+                        winAddVendor.data('kendoWindow').close();
+                    }
+                    else {
+                        $('#divMatchedVendors').html(msg);
+                        $("#btnSubmitVendor").attr("disabled", "disabled");
+                    }
+                }
+            }); // end of ajax
+
+        });
+
+        $("#btnCancelVendor").click(function () {
+            document.dialogResult = "CANCEL";
+            winAddVendor.data('kendoWindow').close();
+        });
+    });
+//-->
+</script>

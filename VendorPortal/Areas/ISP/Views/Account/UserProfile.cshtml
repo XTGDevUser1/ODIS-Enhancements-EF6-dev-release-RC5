@@ -1,0 +1,257 @@
+﻿@model VendorPortal.Models.UserProfileModel
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "MyAccount";
+    Layout = "~/Views/Shared/_ContentMaster-vendor.cshtml";
+}
+<style type="text/css">
+    .k-tooltip
+    {
+        background: white !important;
+        width: 300px;
+        height: 70px;
+    }
+</style>
+<hgroup id="main-title" class="thin">
+			<h1>My Profile</h1>			
+		</hgroup>
+<div class="columns">
+    <div class="twelve-columns">
+        <div class="with-padding">
+            <fieldset class="fieldset">
+                <legend class="legend">User Information</legend>
+                <div class="columns">
+                    <div class="twelve-columns">
+                        @using (Html.BeginForm("UserInformation.UpdateUserInformation", "Account", new { area = "ISP" }, FormMethod.Post, new { id = "frmUserProfileUserInformation" }))
+                        {         
+                            <p class="button-height inline-large-label ">
+                                <label for="UserName" class="label">
+                                    User Name
+                                </label>
+                                @Html.DisplayFor(c => c.UserInformation.UserName)
+                                @Html.HiddenFor(c => c.UserInformation.UserName)
+                            </p>
+                           
+                            <p class="button-height inline-large-label ">
+                                <label for="FirstName" class="label">
+                                    First Name <span class="star red">*</span>
+                                </label>
+                                @Html.TextBoxFor(c => c.UserInformation.FirstName, new { @class = "input validate[required, maxSize[50]]", @style = "width:30%" })
+                            </p>
+                            <p class="button-height inline-large-label ">
+                                <label for="LastName" class="label">
+                                    Last Name <span class="star red">*</span>
+                                </label>
+                                @Html.TextBoxFor(c => c.UserInformation.LastName, new { @class = "input validate[required, maxSize[50]]", @style = "width:30%" })
+                            </p>
+                    
+                            <p class="button-height inline-large-label ">
+                                <label for="Email" class="label">
+                                    Email <span class="star red">*</span>
+                                </label>
+                                @Html.TextBoxFor(c => c.UserInformation.Email, new { @class = "input validate[required, custom[email], maxSize[50]]", @style = "width:30%" })
+                            </p>
+                            <p class="button-height inline-large-label ">
+                                <label for="ReceiveNotification" class="label">
+                                    Communications Preference
+                                </label>
+                                @Html.CheckBox("UserInformation.ReceiveNotification", Model.UserInformation.ReceiveNotification ?? false, new { @class = "checkbox" })
+                                <label class="gray">
+                                    Send me occasional emails about product updates and new product offerings</label>
+                            </p>
+                            <p class="button-height inline-large-label">
+                                <label class="label">
+                                </label>
+                                <button id="btnSubmitUserInformation" class="button glossy green-gradient" type="submit"
+                                    disabled="disabled">
+                                    Update Profile
+                                </button>
+                            </p> 
+                        }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="new-row twelve-columns">
+        <div class="with-padding">
+            <fieldset class="fieldset">
+                <legend class="legend">Change Password</legend>
+                <div class="columns">
+                    <div class="twelve-columns">
+                        @using (Html.BeginForm("ChangePassword", "Account", new { area = "ISP" }, FormMethod.Post, new { id = "frmUserProfileChangePassword" }))
+                        {                    
+                            @Html.HiddenFor(c => c.ChangePasswordModel.UserName)
+                            @Html.HiddenFor(c => c.ChangePasswordModel.Email)
+                            <p class="button-height inline-large-label ">
+                                <label for="OldPassword" class="label">
+                                    Old Password <span class="star red">*</span>
+                                </label>
+                                @Html.PasswordFor(c => c.ChangePasswordModel.OldPassword, new { @class = "input validate[required, maxSize[50]]", @style = "width:30%" })
+                            </p>
+                            <div class="button-height inline-large-label">
+                                <label for="NewPassword" class="label">
+                                    New Password <span class="star red">*</span>
+                                </label>
+                                @Html.PasswordFor(c => c.ChangePasswordModel.NewPassword, new { @class = "input validate[required, maxSize[50]]", @style = "width:30%" })
+                                <span id="StrengthPlaceHolder"></span>
+                            </div>
+                            <p class="button-height inline-large-label">
+                                <label for="ConfirmPassword" class="label">
+                                    &nbsp;
+                                </label>
+                                @Html.Partial("_Help", "Password must be at least 7 characters.  You may use any combination of letters and numbers.  Password is case sensitive.")
+                            </p>
+                            
+                          
+                    
+                            <p class="button-height inline-large-label">
+                                <label for="ConfirmPassword" class="label">
+                                    Confirm Password <span class="star red">*</span>
+                                </label>
+                                @Html.PasswordFor(c => c.ChangePasswordModel.ConfirmPassword, new { @class = "input validate[required, equals[ChangePasswordModel_NewPassword] maxSize[50]]", @style = "width:30%" })
+                            </p>
+                            
+                            <div class="button-height inline-large-label">
+                                <label for="ConfirmPassword" class="label">
+                                    &nbsp;
+                                </label>
+                                <a href="javascript:void(0)" onclick="ShowPasswordTip();">Password Tips</a>
+                            </div>
+                            <p class="button-height inline-large-label">
+                                <label class="label">
+                                </label>
+                                <button id="btnSubmitUserProfile" class="button glossy green-gradient" type="submit"
+                                    disabled="disabled">
+                                    Update Password
+                                </button>
+                            </p> 
+                        }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    var passwordTipsWindow = null;
+    $(function () {
+        $("#frmUserProfileChangePassword").validationEngine();
+
+        LoadHelpText("_UserProfileHelp");
+        var fnbuttonHandlerChangePassword = function (sender) {
+            $("#btnSubmitUserProfile").removeAttr("disabled");
+        }
+        WatchMyContainer('frmUserProfileChangePassword', null, fnbuttonHandlerChangePassword);
+
+        var fnbuttonHandlerProfileInformation = function (sender) {
+            $("#btnSubmitUserInformation").removeAttr("disabled");
+        }
+        WatchMyContainer('frmUserProfileUserInformation', null, fnbuttonHandlerProfileInformation);
+
+        $('#ChangePasswordModel_NewPassword').passStrengthify({
+            element: $('#StrengthPlaceHolder'),
+            minimum: 4,
+            labels: {
+                tooShort: ''
+            }
+        });
+    });
+
+    $("#btnSubmitUserProfile").click(function (e) {
+        e.preventDefault();
+        var $form = $("#frmUserProfileChangePassword");
+        var formData = $form.serializeArray();
+        if ($form.validationEngine('validate') == false) {
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdatePassword", "Account", new { area = "" })',
+            traditional: true,
+            data: formData,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                CleanMyContainer('frmUserProfileChangePassword');
+                $form.clearMessages();
+                if (msg.Status == "Success") {
+                    $("#OldPassword").val('');
+                    $("#NewPassword").val('');
+                    $("#ConfirmPassword").val('');
+                    $("#btnSubmitUserProfile").attr("disabled", "disabled");
+                    openAlertMessage("Password Updated Successfully", function () {
+                        CleanMyContainer('frmUserProfileUserInformation');
+                        window.location.reload(true);
+                    });
+                }
+                else if (msg.Status == "Failure") {
+                    openAlertMessage(msg.Data);
+                }
+            }
+        } // end of ajax options
+                    );
+
+        return false;
+    });
+
+    $("#btnSubmitUserInformation").click(function (e) {
+        e.preventDefault();
+        var $form = $("#frmUserProfileUserInformation");
+        var formData = $form.serializeArray();
+
+        formData.push({ name: "UserInformation.ReceiveNotification", value: $("#" + "UserInformation.ReceiveNotification").val() });
+
+        if ($form.validationEngine('validate') == false) {
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateUserInformation", "Account", new { area = "ISP" })',
+            traditional: true,
+            data: formData,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $form.clearMessages();
+                if (msg.Status == "Success") {
+                    openAlertMessage("Updated Successfully", function () {
+                        CleanMyContainer('frmUserProfileUserInformation');
+                        window.location.reload(true);
+                    });
+                }
+                else if (msg.Status == "Failure") {
+                    openAlertMessage(msg.Data);
+                }
+            }
+        } // end of ajax options
+                    );
+
+        return false;
+    });
+
+    function ShowPasswordTip() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_PasswordTips", "Account", new { area = "ISP" })',
+            success: function (msg) {
+                passwordTipsWindow = $("<div id='PasswordTipWindow' />").appendTo(document.body);
+                passwordTipsWindow.kendoWindow({
+                    title: "Password Requirements and Tips",
+                    modal: true,
+                    width: 600,
+                    height: 400,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                passwordTipsWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>

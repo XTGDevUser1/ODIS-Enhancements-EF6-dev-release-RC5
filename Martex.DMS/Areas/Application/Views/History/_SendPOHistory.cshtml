@@ -1,0 +1,15 @@
+﻿@model List<Martex.DMS.DAL.SendPOHistory_Result>
+<div class="scrollable">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="sendPOHistory" style="width: 100%; float: left; display: inline-table;
+        margin-bottom: 10px; margin-top: 5px;" id="@("sendPOHistory" + i.ToString())">
+            <div class="sendhistoryDetails" style="width: 100%; float: left;">
+                <ul style="list-style-type: none; margin-left: 5px;">
+                <li>@Model[i].ContactMethod  @Model[i].SentTo @Model[i].ContactAction @Model[i].DateSent @Model[i].Username</li>
+                    
+                </ul>
+            </div>
+        </div>
+    }
+ </div>

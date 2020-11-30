@@ -1,0 +1,59 @@
+﻿
+<div class="new-row twelve-columns">
+    <p class="inline-label" style="float: right;">
+        @if (((bool?)ViewBag.IsEditRequired).GetValueOrDefault())
+        { 
+            <button id="btnQueueOpenForEdit" class="button green-gradient  small-margin-right noPrint"
+                type="button">
+                Open For Edit
+            </button>
+        }
+        @if ((bool)ViewData["FromLockedRequest"])
+        {
+           <button id="btnQueueAddComment" class="button green-gradient  small-margin-right noPrint"
+                type="button">
+                Add Comment
+            </button>
+        }
+        <button id="btnQueuePrint" class="button blue-gradient  small-margin-right noPrint"
+            type="button">
+            Print
+        </button>
+        <button id="btnQueueClose" class="button silver-gradient  small-margin-right noPrint"
+            type="button">
+            Close
+        </button>
+    </p>
+</div>
+
+<script language="javascript" type="text/javascript">
+    $(function () {
+
+        if ($("#btnQueueAddComment").length > 0) {
+
+            $("#btnQueuePrint").hide();
+            $("#btnQueueClose").hide();
+
+            $("#btnQueueAddComment").click(function (e) {
+
+                if (OpenFinishTabForLockedSR) {
+                    OpenFinishTabForLockedSR($("#hdnRequestNumber").val(), $("#hdnAssignedToID").val());
+                    if ($("#tbStart").length > 0) {
+                        $("#tbStart").addClass("disabled");
+                        $("#RequestTabs").tabs("disable", 0);
+                        $("#tbFinishTab").removeClass("disabled");
+                        $("#RequestTabs").tabs("enable", 11);
+                        $("#RequestTabs").tabs("select", 11);
+                    }
+                    if (queueDetailWindow != null) {
+                        queueDetailWindow.data('kendoWindow').close();
+                    }
+                }
+
+                e.stopPropagation();
+                return false;
+            });
+        }
+    });
+
+</script>

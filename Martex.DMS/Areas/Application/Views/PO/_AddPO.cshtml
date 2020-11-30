@@ -1,0 +1,1869 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.PurchaseOrder
+@using Martex.DMS.Areas.Application.Models
+@using model = Martex.DMS.Areas.Application.Models;
+@using models = Martex.DMS.Areas.Application.Models;
+@{
+    bool canReissueCC = model.DMSSecurityProvider.GetAccessType(model.DMSSecurityProviderFriendlyName.PO_BUTTON_REISSUECC) == models.AccessType.ReadWrite;
+    string pageMode = ViewBag.Mode;
+    bool IsViewMode = pageMode.Equals("view", StringComparison.OrdinalIgnoreCase) ? true : false;
+    string visibleChangeService = "hidden";
+    if (Model.PurchaseOrderStatu != null && Model.PurchaseOrderStatu.Name == "Pending")
+    {
+        visibleChangeService = "visible";
+    }
+
+    bool isPOCostPlusPercentageApplies = Model != null && Model.CostPlusPercentage != null ? true : false;    
+
+}
+<script type="text/javascript">
+    function ContactMethodShowOrHide(contactMethod) {
+        switch (contactMethod) {
+            case "Email":
+                {
+                    $("#pFax").hide();
+                    $("#POPhoneNumber_txtPhoneNumber").val("");
+                    $("#pEmail").show();
+                    var vEmail = $("#VendorEmail").val();
+                    $("#POEmail").val(vEmail);
+                    break;
+                }
+            case "Fax":
+                {
+                    $("#pFax").show();
+                    $("#POEmail").val("");
+                    $("#pEmail").hide();
+                    var vFax = $("#vendorFax").val();
+                    if (vFax != undefined || vFax != null) {
+                        SetPhoneValues("#POPhoneNumber", "+" + vFax, false);
+                    }
+                    break;
+                }
+            case "Verbally":
+                {
+                    $("#pFax").hide();
+                    $("#pEmail").hide();
+                    break;
+                }
+        }
+        SendPO_OnChange();
+    }
+
+    function onComboBoxChange_ContactMethodID(e) {
+        var combo = $('#ContactMethodID').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var contactMethod = $('#ContactMethodID').data('kendoComboBox').text();
+        ContactMethodShowOrHide(contactMethod);
+    }
+
+    function onComboBoxChange_PayStatusCodeID(e) {
+        var combo = $('#PayStatusCodeID').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+    }
+
+    function POVehicleCategory_OnChange(e) {
+        var combo = $(this).data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+    function ETAHours_OnChange(e) {
+        var combo = $('#ETAMinutes').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        SendPO_OnChange();
+    }
+    function SendPO_OnChange(e) {
+
+        if (!isPOPageLoad) {
+            if ('@IsViewMode' != 'True') {
+                var result = ValidateSendPO();
+                if (result) {
+                    $("#btnViewPODocument").removeClass("hidden");
+                }
+                else {
+                    if (!$("#btnViewPODocument").hasClass("hidden")) {
+                        $("#btnViewPODocument").addClass("hidden");
+                    }
+                }
+            }
+            else {
+                if (!$("#btnViewPODocument").hasClass("hidden")) {
+                    $("#btnViewPODocument").addClass("hidden");
+                }
+            }
+        }
+        else {
+            isPOPageLoad = false;
+        }
+    }
+
+    function MemberPaymentType_OnChange(e) {
+        var combo = $('#MemberPaymentType').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+    function CurrencyTypeID_OnChange(e) {
+        var combo = $('#CurrencyTypeID').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+
+
+    function ShowValidationMessage(element, message) {
+        element.validationEngine('showPrompt', message, '', 'topRight', true);
+    }
+    function HideValidationMessage(element) {
+        element.validationEngine('hidePrompt');
+    }
+
+    function ValidatePayment() {
+        /* TFS : 1350	PO Tab - add validation for member pay -
+        If Mbr Pays ISP on the screen = NO and Payment Tab is disabled and Member service amount > 0
+        Then display a message: "Member cannot pay COachNet because payments are not allowed on this program"
+        */
+        var isMemberPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+        var $memberSA = $("#MemberServiceAmount").val();
+        var memberServiceAmount = parseFloat($memberSA);
+
+        if ('@DMSCallContext.AllowPaymentProcessing.ToString().ToLower()' == 'false' && isMemberPaysISP == 0 && memberServiceAmount > 0) {
+            openAlertMessage('Member cannot pay CoachNet because payments are not allowed on this program. Mbr Pays ISP must be set to Yes.');
+            return false;
+        }
+        return true;
+
+    }
+    function ValidateSendPO() {
+
+        if (isDetailEditInProgress) {
+            openAlertMessage("You must first save or cancel the PO detail row that you are working on");
+            return false;
+        }
+        var orginalPOValue = $("#OriginalPurchaseOrderID").val();
+        var isAdvised = $("#Advised").is(':checked');
+        if (!isAdvised && orginalPOValue == '') {
+            ShowValidationMessage($("#Advised"), "This field is required");
+            return false;
+        }
+        else {
+            HideValidationMessage($("#Advised"));
+            var contactMethod = $('#ContactMethodID').data('kendoComboBox').text();
+            if ($.trim(contactMethod).length == 0) {
+                ShowValidationMessage($('input[name="ContactMethodID_input"]'), "This field is required");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input[name="ContactMethodID_input"]'));
+                if (contactMethod == 'Email') {
+                    var emailText = $("#POEmail").val();
+                    if ($.trim(emailText).length == 0) {
+                        ShowValidationMessage($("#POEmail"), "This field is required");
+                        return false;
+                    }
+                    if (!checkEmail(emailText)) {
+                        ShowValidationMessage($("#POEmail"), "Invalid Email");
+                        return false;
+                    }
+
+                }
+                else if (contactMethod == 'Fax') {
+                    var phoneVal = GetPhoneNumberForDB("POPhoneNumber");
+                    if (phoneVal.length == 0) {
+                        ShowValidationMessage($("#POPhoneNumber_txtPhoneNumber"), "Phone number is required. Check the format.");
+                        return false;
+                    }
+                }
+            }
+
+        }
+
+        var $talkedTo = $("#TalkedTo").val();
+        if ($.trim($talkedTo).length == 0) {
+            ShowValidationMessage($("#TalkedTo"), "This field is required");
+            return false;
+        }
+        else {
+            HideValidationMessage($("#TalkedTo"));
+        }
+
+        var etaMinutesValue = $("#ETAMinutes").data('kendoComboBox').value();
+        var etaHoursValue = $("#ETAHours").val();
+
+        if ($.trim(etaMinutesValue).length == 0 && $.trim(etaHoursValue).length == 0 && orginalPOValue == '') {
+            ShowValidationMessage($("#ETAHours"), "ETA Hours or ETA Minutes are field is required");
+            return false;
+        }
+
+        if (!ValidatePayment()) {
+            return false;
+        }
+
+
+        return true;
+    }
+
+    function ValidateSavePO() {
+        if (isDetailEditInProgress) {
+            openAlertMessage("You must first save or cancel the PO detail row that you are working on");
+            return false;
+        }
+
+        var isPayByCC = $('input:radio[id=rdPayByCC]:checked').val();
+        var $companyCC = $("#CompanyCreditCardNumber").val();
+        var $memberSA = $("#MemberServiceAmount").val();
+        var $ChargeMbrCC = $("#MemberAmountDueToCoachNet").val();
+        var $memberPaymentType = $("#MemberPaymentType").data("kendoComboBox").value();
+        var $dispatchFee = $("#DispatchFee").val();
+        var $memberDispatchFee = $("#memberDispatchFee").val();
+
+        if ($.trim($memberSA).length > 0 && $memberSA > 0) {
+
+            var isMemberPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+            var orginalPOValue = $("#OriginalPurchaseOrderID").val();
+            if (isMemberPaysISP === undefined && orginalPOValue == '') {
+                ShowValidationMessage($("#rdMemberPaysISP"), "This field is required");
+                return false;
+            }
+            else {
+                HideValidationMessage($("#rdMemberPaysISP"));
+            }
+        }
+        // TFS 1291
+        //if ($.trim($ChargeMbrCC).length > 0 && $ChargeMbrCC > 0) {
+        //    if ($.trim($memberPaymentType).length == 0) {
+        //        ShowValidationMessage($('input[name="MemberPaymentType_input"]'), "This field is required ");
+        //        return false;
+        //    }
+        //    else {
+        //        HideValidationMessage($('input[name="MemberPaymentType_input"]'));
+        //    }
+
+        //}
+
+        if (!ValidatePayment()) {
+            return false;
+        }
+        return true;
+    }
+
+</script>
+<form name="AddPo" id="Add_PO" action="#" class="pagecontainer">
+    @Html.Hidden("pageMode", (string)ViewBag.Mode)
+    @Html.Hidden("canReSend", (ViewBag.CanReSend == null) ? "false" : ((bool)ViewBag.CanReSend).ToString())
+    @Html.Hidden("canReIssueCC", (ViewBag.CanReIssueCC == null) ? "false" : ((bool)ViewBag.CanReIssueCC).ToString())
+    @Html.Hidden("IsDispatchFeeChecked", (ViewBag.IsDispatchFeeChecked == null) ? "false" : ((bool)ViewBag.IsDispatchFeeChecked).ToString())
+    @Html.Hidden("memberDispatchFee", (string)ViewBag.MemberDispatchFee)
+    @Html.Hidden("client", (int)ViewBag.Client)
+    @Html.Hidden("member", (int)ViewBag.Member)
+    @Html.HiddenFor(po => po.ID)
+    @Html.Hidden("POID", Model.ID)
+    @Html.HiddenFor(po => po.VendorLocationID)
+    @Html.HiddenFor(po => po.ServiceRequestID)
+    @Html.HiddenFor(po => po.DispatchFeeBillToID)
+    @Html.HiddenFor(po => po.OriginalPurchaseOrderID)
+    @Html.HiddenFor(po => po.IsGOA)
+    @Html.HiddenFor(po => po.VehicleCategoryID)
+    @Html.Hidden("hdnvisibleChangeService", @visibleChangeService)
+    @Html.Hidden("IsPoPaymentEditAllowed", (ViewBag.isPoPaymentEditAllowed == null) ? "false" : ((bool)ViewBag.isPoPaymentEditAllowed).ToString())
+    @Html.Hidden("InternalDispatchFee", (string)ViewBag.InternalDispatchFee)
+    @Html.Hidden("ClientDispatchFee", (string)ViewBag.ClientDispatchFee)
+    @Html.Hidden("CreditCardProcessingFee", (string)ViewBag.CreditCardProcessingFee)
+    <!-- New fields from sp -->
+    @Html.Hidden("DispatchFeeAgentMinutes", (string)ViewBag.DispatchFeeAgentMinutes)
+    @Html.Hidden("DispatchFeeTechMinutes", (string)ViewBag.DispatchFeeTechMinutes)
+    @Html.Hidden("DispatchFeeTimeCost", (string)ViewBag.DispatchFeeTimeCost)
+    @Html.Hidden("IsPOCostPlusPercentageApplies", isPOCostPlusPercentageApplies.ToString())
+    @Html.HiddenFor(po => po.CostPlusPercentage)
+    @Html.Hidden("IsServiceEstimateAllowed", DMSCallContext.AllowEstimateProcessing.ToString())
+    @Html.HiddenFor(a => a.CostPlusServiceAmount)
+    <div class="columns">
+        <!-- PO data -->
+        <div class="eight-columns">
+            <div class="columns">
+                <!-- PO Information -->
+                <div class="four-columns small-margin-bottom">
+                    <h3 class="underline">
+                        PO Information
+                    </h3>
+                    <div class="with-small-padding white-bg boxed left-border potopsections" id="SendPOEffect">
+                        <div>
+                            <p class=" inline-label small-margin-bottom">
+                                <label for="PO#" class="label ">
+                                    PO#
+                                </label>
+                                <span class="red big-text">@Html.DisplayFor(p => p.PurchaseOrderNumber)</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="Status" class="label ">
+                                    Status
+                                </label>
+                                @if (Model.PurchaseOrderStatu != null)
+                                {
+                                    <span class="tag">
+                                        @Html.HiddenFor(p => p.PurchaseOrderStatu.Name)
+                                        @Html.DisplayFor(p => p.PurchaseOrderStatu.Name)
+                                    </span>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                @if (Model.PurchaseOrderCancellationReason != null)
+                                {
+                                    <label for="Reason" class="label">
+                                        Cancel Reason
+                                    </label>
+
+                                    @Html.DisplayFor(p => p.PurchaseOrderCancellationReason.Name)
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="Amount" class="label">
+                                    Amount
+                                </label>
+                                @Html.Raw(Model.PurchaseOrderAmount.GetValueOrDefault().ToString("C"))
+                                @if (Model.CurrencyType != null)
+                                {
+                                    <text>@Model.CurrencyType.Abbreviation</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="Date" class="label">
+                                    Issued
+                                </label>
+                                @if (Model.IssueDate != null)
+                                {
+                                    <text>@Model.IssueDate.Value.ToString("MM/dd/yyyy hh:mm:ss tt")</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="Exported" class="label">
+                                    Exported
+                                </label>
+                                @if (Model.DataTransferDate != null)
+                                {
+                                    <text>@Model.DataTransferDate.Value.ToString("MM/dd/yyyy hh:mm:ss tt")</text>
+
+                                }
+                            </p>
+                        </div>
+                        <!-- Vendor Invoice related fields -->
+                        @{
+                            var vendorInvoices = Model.VendorInvoices;
+                            Martex.DMS.DAL.VendorInvoice invoice = null;
+                            if (vendorInvoices != null && vendorInvoices.Count > 0)
+                            {
+                                invoice = vendorInvoices.FirstOrDefault();
+                            }
+                        }
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="Invdate" class="label">
+                                    Inv Date
+                                </label>
+                                @if (invoice != null && invoice.InvoiceDate != null)
+                                {
+                                    <text>@invoice.InvoiceDate.Value.ToString("MM/dd/yyyy")</text>
+
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="paytype" class="label">
+                                    Pay #
+                                </label>
+                                @if (invoice != null && invoice.PaymentType != null && "ACH".Equals(invoice.PaymentType.Name, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    <text>ACH</text>
+                                }
+                                else if (invoice != null && invoice.PaymentType != null)
+                                {
+                                    <text>@invoice.PaymentNumber</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="payamt" class="label">
+                                    Pay Amt
+                                </label>
+                                @if (invoice != null && invoice.PaymentAmount != null)
+                                {
+                                    <text>@invoice.PaymentAmount.Value.ToString("C")</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="paydate" class="label">
+                                    Pay Date
+                                </label>
+                                @if (invoice != null && invoice.PaymentDate != null)
+                                {
+                                    <text>@invoice.PaymentDate.Value.ToString("MM/dd/yyyy")</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class=" inline-label small-margin-bottom ">
+                                <label for="clearedDate" class="label">
+                                    Cleared
+                                </label>
+                                @if (invoice != null && invoice.CheckClearedDate != null)
+                                {
+                                    <text>@invoice.CheckClearedDate.Value.ToString("MM/dd/yyyy")</text>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- PO data -->
+                <div class="four-columns small-margin-bottom">
+                    <h3 class="underline">
+                        PO Data
+                    </h3>
+                    <div class="with-small-padding white-bg boxed left-border potopsections">
+                        <div class="columns">
+                            <div class="clear">
+                            </div>
+                            <div class="three-columns no-margin-bottom">
+                                &nbsp;
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="podataelements">Miles</span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="podataelements">Free</span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="podataelements">Minutes</span></span>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="three-columns no-margin-bottom">
+                                <span class="podataelements">Enroute</span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.EnrouteMiles.HasValue ? Model.EnrouteMiles.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.EnrouteFreeMiles.HasValue ? Model.EnrouteFreeMiles.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.EnrouteTimeMinutes.HasValue ? Model.EnrouteTimeMinutes.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="three-columns no-margin-bottom">
+                                <span class="podataelements">Tow</span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.ServiceMiles.HasValue ? Model.ServiceMiles.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.ServiceFreeMiles.HasValue ? Model.ServiceFreeMiles.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.ServiceTimeMinutes.HasValue ? Model.ServiceTimeMinutes.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            <div class="three-columns no-margin-bottom">
+                                <span class="podataelements">Return</span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.ReturnMiles.HasValue ? Model.ReturnMiles.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">0 </span>
+                            </div>
+                            <div class="two-columns no-margin-bottom">
+                                <span class="black">
+                                    @(Model.ReturnTimeMinutes.HasValue ? Model.ReturnTimeMinutes.Value.ToString("N0") : "0")
+                                </span>
+                            </div>
+                            <div class="clear">
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.ServiceLocationAddress))
+                            {
+                                <div class="ten-columns no-margin-bottom">
+                                    <p class="small-margin-bottom"><b>Location</b></p>
+                                    <p class="small-margin-bottom">@Model.ServiceLocationAddress</p>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.DestinationAddress))
+                            {
+                                <div class="clear">
+                                </div>
+                                <div class="ten-columns no-margin-bottom">
+                                    <p class="small-margin-bottom"><b>Destination</b></p>
+                                    <p class="small-margin-bottom">@Model.DestinationAddress</p>
+                                </div>
+                                <div class="clear">
+                                </div>
+                            }
+                            @if (!IsViewMode)
+                            {
+                                <div class="no-margin-bottom">
+                                    <span class="podataelements">
+                                        <a id="btnChangeService" class="button compact">
+                                            Change Service
+                                        </a>
+                                    </span>
+                                </div>
+                            }
+                            <div class="clear">
+                            </div>
+                            <div class="ten-columns">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vendor Info -->
+                <div class="four-columns">
+                    <h3 class="underline">
+                        Vendor Information
+                    </h3>
+                    <div class="with-small-padding  white-bg boxed left-border potopsections">
+                        @Html.Partial("_VendorInfo", ViewBag.VendorInfo as Martex.DMS.DAL.VendorInformation_Result)
+                    </div>
+                </div>
+                <!-- Previous PO list -->
+                @Html.Partial("_PODetails", Model)
+            </div>
+        </div>
+        <!-- Payment data  -->
+        <div class="four-columns mid-margin-left">
+            <div class="small-margin-bottom small-margin-left">
+                <!-- PO Payment -->
+                <fieldset class="fieldset">
+                    <legend class="legend">PO Payment </legend>
+                    <div class="with-small-padding">
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom">
+                                <label for="PurchaseOrderAmount" class="label">
+                                    PO Amount
+                                </label>
+                                @Html.TextBoxFor(p => p.PurchaseOrderAmount, new { @class = "input disabled", @readonly = "readonly", style = "text-align:right" })
+                                @Html.HiddenFor(p => p.PurchaseOrderAmount)
+                                @(Html.Kendo().ComboBox()
+                                .Name("CurrencyTypeID")
+                                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                                .Events(events => events.Change("CurrencyTypeID_OnChange"))
+                                .Suggest(true)
+                                .HtmlAttributes(new { @class = "selectlabel", @style = "width:75px;text-align:left" })
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CurrencyType.ToString()] as IEnumerable<SelectListItem>)
+                                .Value(Model.CurrencyTypeID != null ? Model.CurrencyTypeID.ToString() : string.Empty)
+                                )
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="PayByCC" class="label">
+                                    Pay By CC
+                                </label>
+                                @if (Model.IsPayByCompanyCreditCard.HasValue)
+                                {
+                                    @Html.RadioButton("rdPayByCC", "1", Model.IsPayByCompanyCreditCard.Value, new { @class = "radio small-margin-right" })
+                                    <text> Yes &nbsp;</text>
+                                    @Html.RadioButton("rdPayByCC", "0", !Model.IsPayByCompanyCreditCard.Value, new { @class = "radio small-margin-right" })
+                                    <text> No</text>
+                                }
+                                else
+                                {
+                                    @Html.RadioButton("rdPayByCC", "1", false, new { @class = "radio small-margin-right" })
+                                    <text> Yes &nbsp;</text>
+                                    @Html.RadioButton("rdPayByCC", "0", false, new { @class = "radio small-margin-right" })
+                                    <text> No</text>
+                                }
+                            </p>
+                        </div>
+                        <div id="divCompanyCC">
+                            <p class="button-height inline-label">
+                                <label for="CompanyCC" class="label">
+                                    Company CC
+                                </label>
+                                @if (string.IsNullOrEmpty(Model.CompanyCreditCardNumber))
+                                {
+                                    @Html.TextBoxFor(po => po.CompanyCreditCardNumber, new { @class = "input validate[maxSize[50]]" })
+                                }
+                                else
+                                {
+                                    @Html.TextBoxFor(po => po.CompanyCreditCardNumber, new { @class = "input disabled", @readonly = "readonly" })
+                                }
+                                @if (ViewBag.CanReIssueCC != null && ((bool)ViewBag.CanReIssueCC) == true && canReissueCC == true)
+                                {
+                                    <button type="button" id="btnReIssueCC" class="button green-gradient   small-margin-right">
+                                        Re-Issue CC
+                                    </button>
+                                }
+                            </p>
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="PayStatusCodeID" class="label">
+                                Pay Status Code
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                            .Name("PayStatusCodeID")
+                            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("onComboBoxChange_PayStatusCodeID"))
+                            .Suggest(true)
+                            .HtmlAttributes(new { @class = "selectlabel", @style = "width:150px" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PurchaseOrderPayStatusCode.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.PayStatusCodeID != null ? Model.PayStatusCodeID.ToString() : string.Empty)
+                            .Enable(false)
+                            )
+                        </div>
+                    </div>
+                </fieldset>
+                <!-- Member Pay -->
+                <fieldset class="fieldset">
+                    <legend class="legend">Member Pay </legend>
+                    <div class="with-small-padding">
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="ServiceCovered" class="label">
+                                    Service Covered
+                                </label>
+                                @if (((bool?)ViewBag.IsPrimaryServiceCovered).HasValue)
+                                {
+                                    @Html.RadioButton("rdServiceCovered", "1", ((bool)ViewBag.IsPrimaryServiceCovered), new { @class = "radio small-margin-right ServiceCovered" })
+                                    <text>Yes &nbsp;</text>
+                                    @Html.RadioButton("rdServiceCovered", "0", !((bool)ViewBag.IsPrimaryServiceCovered), new { @class = "radio small-margin-right ServiceNotCovered" })
+                                    <text>No &nbsp;</text>
+                                }
+                                else
+                                {
+                                    @Html.RadioButton("rdServiceCovered", "1", false, new { @class = "radio small-margin-right ServiceCovered" })
+                                    <text>Yes &nbsp;</text>
+                                    @Html.RadioButton("rdServiceCovered", "0", false, new { @class = "radio small-margin-right ServiceNotCovered" })
+                                    <text>No &nbsp;</text>
+                                }
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.PO_BUTTON_PO_SERVICECOVERED_EDIT) == models.AccessType.ReadWrite && !IsViewMode)
+                                {
+                                    <span class="icon-pencil icon-size2 with-tooltip small-margin-left" title="Edit"
+                                          onclick="ServiceCoveredEdit();" id="PO_ServiceCoveredEdit"></span>
+                                }
+                            </p>
+                        </div>
+                        <div id="divServiceCoveredOverridenInstructions" class="hide">
+                            <p class="inline-label">
+                                <label for="Comments" class="label full-width">
+                                    Comment <span class="spanstar">*</span>
+                                </label>
+                                @Html.TextBox("ServiceCoveredOverridenInstructions", "", new { @class = "input full-width validate[maxSize[255]]" })
+                            </p>
+                        </div>
+                        <div id="divServiceCoveredEdit" class="button-height inline-label small-margin-bottom small-margin-top hide">
+                            <button class="button small glossy green-gradient margin-bottom" id="btnPOServiceCoveredEdit"
+                                    onclick="SaveServiceCoveredEdit()" type="button">
+                                Save
+                            </button>
+                            <button class="button small glossy gray-gradient margin-bottom" type="button" id="btnPOCancelServiceCoveredEdit"
+                                    onclick="HideServiceCoveredEdit()">
+                                Cancel
+                            </button>
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="MbrPayType" class="label">
+                                Mbr Pay Type
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                            .Name("MemberPaymentType")
+                            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("MemberPaymentType_OnChange"))
+                            .Suggest(true)
+                            .HtmlAttributes(new { @class = "selectlabel" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MemberPayType.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.MemberPaymentTypeID != null ? Model.MemberPaymentTypeID.ToString() : string.Empty)
+                            )
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="ISP" class="label">
+                                    Mbr Pays ISP
+                                </label>
+                                @if (Model.IsMemberAmountCollectedByVendor.HasValue)
+                                {
+                                    @Html.RadioButton("rdMemberPaysISP", "1", Model.IsMemberAmountCollectedByVendor.GetValueOrDefault(), new { @class = "radio small-margin-right Areyousafe"})
+                                    <text> Yes &nbsp;</text>
+                                    @Html.RadioButton("rdMemberPaysISP", "0", !Model.IsMemberAmountCollectedByVendor.GetValueOrDefault(), new { @class = "radio small-margin-right Areyousafe" })
+                                    <text> No</text>
+                                }
+                                else
+                                {
+                                    @Html.RadioButton("rdMemberPaysISP", "1", false, new { @class = "radio small-margin-right Areyousafe" })
+                                    <text> Yes &nbsp;</text>
+                                    @Html.RadioButton("rdMemberPaysISP", "0", false, new { @class = "radio small-margin-right Areyousafe" })
+                                    <text> No</text>
+                                }
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="Pays" class="label">
+                                    Member Pays
+                                </label>
+                                @Html.TextBoxFor(p => p.MemberServiceAmount, new { @class = "input disabled", @readonly = "readonly", style = "text-align:right" })
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="DispatchFee" class="label">
+                                    Dispatch Fee
+                                </label>
+                                @Html.CheckBox("IsDispatchFee", new { @class = "checkbox pocheckbox disabled", @readonly = "readonly" })
+                                @if (Model.DispatchFee.HasValue && "True".Equals((ViewBag.IsDispatchFeeChecked == null) ? "true" : ((bool)ViewBag.IsDispatchFeeChecked).ToString(), StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    @Html.TextBox("DispatchFee", Model.DispatchFee.Value.ToString("N2"), new { @class = "input validate[maxSize[10]]", style = "text-align:right" })
+                                }
+                                else
+                                {
+                                    @Html.TextBox("DispatchFee", "0.00", new { @class = "input validate[maxSize[10]]", style = "text-align:right" })
+                                }
+                                @Html.HiddenFor(p => p.DealerIDNumber)
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="ChargeCC" class="label">
+                                    Charge Mbr CC
+                                </label>
+                                @Html.TextBoxFor(p => p.MemberAmountDueToCoachNet, new { @class = "input disabled", @readonly = "readonly", style = "text-align:right" })
+                            </p>
+                        </div>
+                        @Html.Hidden("hdnServiceEstimate", DMSCallContext.ServiceEstimateFee.GetValueOrDefault().ToString("0.00"), new { id = "hdnServiceEstimate" })
+                        @Html.Hidden("IsOverageApproved", Model.IsOverageApproved.GetValueOrDefault().ToString().ToLower())
+                        @if (DMSCallContext.ServiceEstimateFee.GetValueOrDefault() != 0)
+                        {
+                            <div>
+                                <p class="button-height inline-label">
+                                    <label for="ChargeCC" class="label">
+                                        Estimate
+                                    </label>
+                                    @Html.TextBox("ServiceEstimateDisplay", DMSCallContext.ServiceEstimateFee.GetValueOrDefault().ToString("C"), new { @class = "input disabled", @readonly = "readonly", style = "text-align:right" })
+                                </p>
+                            </div>
+                            if (Model.PurchaseOrderStatu != null && Model.PurchaseOrderStatu.Name == "Pending")
+                            {
+                                <div id="divGetApprovalMsg" style="display:none">
+                                    <p class="inline-label">
+                                        <label class="label">
+                                            &nbsp;
+                                        </label>
+                                        <span class="red">Charge Mbr CC is over the estimate - call for approval</span>
+                                    </p>
+                                </div>
+                            }
+                        }
+                    </div>
+                </fieldset>
+                <!-- Send PO -->
+                <fieldset class="fieldset">
+                    <legend class="legend">Send PO </legend>
+                    <div class="with-small-padding" id="ResendPOId">
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="SendType" class="label">
+                                Send Type <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                            .Name("ContactMethodID")
+                            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("onComboBoxChange_ContactMethodID"))
+                            .Suggest(true)
+                            .HtmlAttributes(new { @class = "selectlabel", @style = "width:100px" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.SendType.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ContactMethodID.ToString())
+                            .SelectedIndex(0)
+                            )
+                            @if (Model.PurchaseOrderStatu != null && Model.PurchaseOrderStatu.Name != "Pending")
+                            {
+                                <button id="btnReSendPO" class="button compact blue-gradient small-margin-right small-margin-bottom"
+                                        type="button">
+                                    Re-Send PO
+                                </button>
+                            }
+                            else
+                            {
+                                <button id="btnReSendPODisable" class="button compact small-margin-right small-margin-bottom disabled"
+                                        type="button" disabled="disabled">
+                                    Re-Send PO
+                                </button>
+                            }
+                        </div>
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom" id="pFax">
+                                <label for="POPhoneNumber" class="label">
+                                    Fax <span class="spanstar">*</span>
+                                </label>
+                                @Html.Editor("POPhoneNumber", "Phone", new { Value = Model.FaxPhoneNumber, entityName = "Member", ShowPhoneType = false, ShowCallIcon = false, IsRequired = true, onchange = "SendPO_OnChange()" })
+                            </p>
+                            <p class="button-height inline-label small-margin-bottom" id="pEmail">
+                                <label for="POEmail" class="label">
+                                    Email <span class="spanstar">*</span>
+                                </label>
+                                @Html.TextBox("POEmail", Model.Email, new { @class = "validate[required,maxSize[255], email] input small-margin-bottom", onchange = "SendPO_OnChange()" })
+                            </p>
+                        </div>
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom">
+                                <label for="TalkedTo" class="label">
+                                    Talked To <span class="spanstar">*</span>
+                                </label>
+                                @Html.TextBox("TalkedTo", (string)ViewBag.TalkedTo, new { @class = "input validate[maxSize[50]]", onchange = "SendPO_OnChange()" })
+                            </p>
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="ETA" class="label">
+                                ETA (hrs:min) <span class="spanstar">*</span>
+                            </label>
+                            @{
+                                int? hours = null;
+                                int? minites = null;
+                                if (Model.ETAMinutes.HasValue)
+                                {
+                                    hours = Model.ETAMinutes / 60;
+                                    minites = Model.ETAMinutes % 60;
+                                }
+                            }
+                            @Html.TextBox("ETAHours", hours, new { @class = "validate[custom[integer], maxSize[10]]  input", style = "width:30px", onchange = "SendPO_OnChange()" })
+                            &nbsp;:
+                            @(Html.Kendo().ComboBox()
+                            .Name("ETAMinutes")
+                            .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("ETAHours_OnChange"))
+                            .Suggest(true)
+                            .HtmlAttributes(new { @class = "selectlabel", style = "width:70px" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ETA.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(minites.HasValue ? minites.Value.ToString() : "")
+                            )
+                        </div>
+                        <div>
+                            <p class="button-height inline-label">
+                                <label for="Advised" class="label">
+                                    Advised <span class="spanstar">*</span>
+                                </label>
+                                @Html.CheckBox("Advised", Model.IsVendorAdvised.GetValueOrDefault(), new { @class = "checkbox small-margin-right", onchange = "SendPO_OnChange()" })
+                                @Html.Partial("_Help", "Based on the negotiated rates, I am issuing the PO at $____.  The member is covered up to $____.  We survey our members for customer satisfaction, please call us back immediately for AUTHORIZATION to change the ETA or COST.  Do you have our callback number? (1-800-285-4977).")
+                            </p>
+                        </div>
+                        <div>
+                            <p class="inline-label">
+                                <label for="Comments" class="label full-width">
+                                    Additional Instructions for the ISP
+                                </label>
+                                @Html.TextArea("AdditionalInstructions", new { @class = "input full-width validate[maxSize[255]]", rows = "5", cols = "30", style = "height:70px", onchange = "SendPO_OnChange" })
+                            </p>
+                            <div class="clear" />
+                            <a id="btnViewPODocument" class="float-left hidden">Preview PO </a><a id="btnViewSendHistory"
+                                                                                                  class="float-right">View Send History</a>
+                            <div id="divSendHistory" class="five-rows scrollable dotted-border with-padding margin-top">
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="align-center">
+
+                    @if (Model.PurchaseOrderStatu != null && Model.PurchaseOrderStatu.Name == "Pending")
+                    {
+                        <button id="btnGetApproval" class="button blue-gradient small-margin-right small-margin-bottom"
+                                type="button">
+                            Get Approval
+                        </button>
+                        <button id="btnSendPO" class="button blue-gradient small-margin-right small-margin-bottom"
+                                type="button">
+                            Issue & Send PO
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="btnSendPODisable" class="button blue-gradient small-margin-right small-margin-bottom disabled"
+                                type="button" disabled="disabled">
+                            Issue & Send PO
+                        </button>
+                    }
+                    <button type="button" id="btnSavePO" class="button green-gradient   small-margin-right">
+                        Save PO
+                    </button>
+                    <button type="button" id="btnRejectClear" class="button red-gradient">
+                        Reject and Clear
+                    </button>
+                    @Html.Hidden("action", "SavePO")
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+    var sendPoID = 0;
+    var sendpoStatus = "";
+    var POChangeServiceWindow;
+    var isPOPageLoad = true;
+    function setChecked(field) {
+        field.attr('checked', true);
+        field.parent().addClass("checked");
+        field.trigger("change");
+    }
+
+    function unChecked(field) {
+        field.attr('checked', false);
+        field.parent().removeClass("checked");
+        field.trigger("change");
+    }
+
+    function setMember() {
+        var disFeeBillToField = $("#DispatchFeeBillToID");
+        var memberValue = parseFloat($("#member").val());
+        if (!isNaN(memberValue)) {
+            disFeeBillToField.val(parseFloat(memberValue));
+        }
+    }
+
+    function setClient() {
+        var disFeeBillToField = $("#DispatchFeeBillToID");
+        var clientValue = parseFloat($("#client").val());
+        if (!isNaN(clientValue)) {
+            disFeeBillToField.val(clientValue);
+        }
+    }
+
+    function showApprovalButton(show) {
+        if ($("#btnGetApproval").length > 0) {
+            if (show) {
+                $("#btnGetApproval").show();
+                $("#btnSendPO").hide();
+                if ($("#divGetApprovalMsg").length > 0) {
+                    $("#divGetApprovalMsg").show();
+                }
+            }
+            else {
+                $("#btnGetApproval").hide();
+                if ($("#divGetApprovalMsg").length > 0) {
+                    $("#divGetApprovalMsg").hide();
+                }
+                $("#btnSendPO").show();
+            }
+        }
+    }
+
+    $("#MemberAmountDueToCoachNet").change(function () {
+
+        // Hide / show Get Approval buttons.
+        var serviceEstimate = parseFloat($("#hdnServiceEstimate").val(), 10);
+        var chargeMemberCC = parseFloat($("#MemberAmountDueToCoachNet").val(), 10);
+        var hdnIsOverageApproved = $("#IsOverageApproved").val();
+        var strApproved = hdnIsOverageApproved.toLowerCase();
+        if (serviceEstimate > 0 && chargeMemberCC > serviceEstimate && (strApproved.length == 0 || strApproved != "true")) {
+            showApprovalButton(true);
+        }
+        else {
+            showApprovalButton(false);
+        }
+    });
+
+    function DispachFreeCalculation() {
+        if ($("#IsDispatchFee").is(':checked')) {
+            var dispatchFee = $("#DispatchFee").val();
+            var memberPay = $("#MemberServiceAmount");
+            var chargeMbrCC = $("#MemberAmountDueToCoachNet");
+            var poAmount = $("#PurchaseOrderAmount");
+            var txtCoachNetPay = $("#txtCoachNet");
+            var isMemberPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+            var dispatchFeeValue = 0.00;
+            var memberPayValue = 0.00;
+            var poAmountTotal = 0.00;
+            var chargeMbrCCValue = 0.00;
+            var coachNetValue = 0.00;
+
+            dispatchFeeValue = parseFloat(dispatchFee);
+            coachNetValue = parseFloat(txtCoachNetPay.val());
+
+            if (!isNaN(dispatchFeeValue)) {
+                $("#DispatchFee").val(dispatchFeeValue.toFixed(2));
+            }
+            if (isMemberPaysISP == "0") {
+
+                memberPayValue = parseFloat(memberPay.val());
+
+                if (!isNaN(dispatchFeeValue)) {
+                    if (!isNaN(memberPayValue)) {
+                        chargeMbrCCValue = memberPayValue + dispatchFeeValue;
+                    }
+                }
+                else {
+                    if (!isNaN(memberPayValue)) {
+                        chargeMbrCCValue = memberPayValue;
+                    }
+                }
+                chargeMbrCC.val(chargeMbrCCValue.toFixed(2));
+                if (!isNaN(memberPayValue) && !isNaN(coachNetValue)) {
+                    poAmountTotal = memberPayValue + coachNetValue;
+                }
+            }
+            else {
+                chargeMbrCC.val(chargeMbrCCValue.toFixed(2));
+                if (!isNaN(memberPayValue)) {
+                    poAmountTotal = coachNetValue;
+                }
+            }
+            poAmount.val(poAmountTotal.toFixed(2));
+
+        }
+    }
+
+    function ServiceCoveredEdit() {
+        $('#divServiceCoveredEdit').show();
+        $('#divServiceCoveredOverridenInstructions').show();
+        $("#ServiceCoveredOverridenInstructions").val('');
+        $('input[name="rdServiceCovered"]').removeAttr('readonly');
+        $('input[name="rdServiceCovered"]').removeAttr('disabled');
+        $('input[name="rdServiceCovered"]').removeClass('disabled');
+        $('input[name="rdServiceCovered"]').parent().removeClass("disabled").removeClass("disabled");
+        $('input[name="rdServiceCovered"]').parent().removeAttr("disabled");
+
+    }
+
+
+    function HideServiceCoveredEdit() {
+        var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+        if (isServiceCovered.toLowerCase() == originalIsServiceCovered.toLowerCase() && ($.trim($("#ServiceCoveredOverridenInstructions").val()).length == 0)) {
+            $('#divServiceCoveredEdit').hide();
+            $('#divServiceCoveredOverridenInstructions').hide();
+            $('input[name="rdServiceCovered"]').attr('disabled', 'disabled');
+            $('input[name="rdServiceCovered"]').attr('readonly', 'readonly');
+            $('input[name="rdServiceCovered"]').addClass('disabled');
+            $('input[name="rdServiceCovered"]').parent().addClass("disabled");
+        }
+        else {
+            $.modal.confirm('The changes will be cleared. Do you want to continue?', function () {
+                $('#divServiceCoveredEdit').hide();
+                $('#divServiceCoveredOverridenInstructions').hide();
+                $('input[name="rdServiceCovered"]').attr('disabled', 'disabled');
+                $('input[name="rdServiceCovered"]').attr('readonly', 'readonly');
+                $('input[name="rdServiceCovered"]').addClass('disabled');
+                $('input[name="rdServiceCovered"]').parent().addClass("disabled");
+
+                $('input:radio[id="rdServiceCovered"]').each(function (e) {
+
+                    var $this = $(this);
+                    if (originalIsServiceCovered == $this.val()) {
+                        SetRadio($this, true);
+                    }
+                    else {
+                        SetRadio($this, false);
+                    }
+
+                });
+                HideValidationMessage($('input[name="ServiceCoveredOverridenInstructions"]'));
+            }, function () {
+
+            });
+        }
+    }
+
+    function SaveServiceCoveredEdit() {
+        var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+        /*var poId = $("#POID").val();
+        if (isServiceCovered === undefined) {
+        isServiceCovered = null;
+        }
+        else {
+        isServiceCovered = isServiceCovered == "1" ? "true" : "false";
+        }
+        $.ajax({
+        url: 'Url.Action("SaveServiceCovered", "PO", new { area = "Application" })',
+        type: 'POST',
+        data: { poId: poId, serviceCovered: isServiceCovered },
+        success: function (msg) {
+            $('#divServiceCoveredEdit').hide();
+            $('input[name="rdServiceCovered"]').attr('disabled', 'disabled');
+            $('input[name="rdServiceCovered"]').attr('readonly', 'readonly');
+            $('input[name="rdServiceCovered"]').addClass('disabled');
+            $('input[name="rdServiceCovered"]').parent().addClass("disabled");
+
+        }
+    });*/
+
+        if (isServiceCovered.toLowerCase() != originalIsServiceCovered.toLowerCase()) {
+            if ($.trim($("#ServiceCoveredOverridenInstructions").val()).length > 0) {
+                $("#action").val("servicecoveredoverride");
+                $("#btnSavePO").click();
+            }
+            else {
+                ShowValidationMessage($('input[name="ServiceCoveredOverridenInstructions"]'), "* This field is required");
+            }
+        }
+        else {
+            openAlertMessage("Please change the service covered before you hit save or hit cancel to discard your changes.");
+        }
+
+        return false;
+    }
+
+    var originalIsServiceCovered = '@Model.IsServiceCovered';
+    if (originalIsServiceCovered.toLowerCase() == "false") {
+        originalIsServiceCovered = "0";
+    }
+    else if (originalIsServiceCovered.toLowerCase() == "true") {
+        originalIsServiceCovered = "1";
+    }
+    $(function () {
+        CleanMyContainer('Add_PO');
+        WatchMyContainer('Add_PO', null);
+        
+        var isCostPlusPercentageApplicable = $("#IsPOCostPlusPercentageApplies").val().toLowerCase();
+        if (isCostPlusPercentageApplicable == "true") {
+            $("#rdMemberPaysISP").attr("disabled", "disabled");
+        }
+    });
+    function HasAttribue(jquerySelector, attribute) {
+        var attr = jquerySelector.attr(attribute);
+        return (typeof attr !== 'undefined' && attr !== false);
+    }
+    var winGetApproval;
+    var winGetManagerApproval;
+    var managerApprovedThreshold = false;
+    $(function () {
+        if (!HasAttribue($('input[name="rdServiceCovered"]'), "disabled")) {
+            $('input[name="rdServiceCovered"]').attr('disabled', 'disabled');
+            $('input[name="rdServiceCovered"]').attr('readonly', 'readonly');
+            $('input[name="rdServiceCovered"]').addClass('disabled');
+        }
+
+        $("#MemberAmountDueToCoachNet").trigger("change");
+
+        $("#ContactMethodID").data("kendoComboBox").list.width(150);
+        var currentMode = $("#pageMode").val();
+        var canReSend = $("#canReSend").val();
+        $("#Add_PO").validationEngine();
+        $("#divSendHistory").hide();
+        $("#divCompanyCC").hide();
+
+        if ($("#IsDispatchFeeChecked").val().toLowerCase() == "true") {
+            setChecked($("#IsDispatchFee"));
+        }
+
+        if (currentMode == "view") {
+            $("#Add_PO").find("input,textarea,select,button").each(function () {
+                if (!$(this).parent().hasClass("disabled")) {
+                    $(this).parent().addClass("disabled");
+                    $(this).attr("disabled", "disabled");
+                }
+
+            });
+            setTimeout(function () {
+                $("#CurrencyTypeID").data("kendoComboBox").enable(false);
+                $("#MemberPaymentType").data("kendoComboBox").enable(false);
+                $("#ETAMinutes").data("kendoComboBox").enable(false);
+                $("#ContactMethodID").data("kendoComboBox").enable(false);
+                $("#PayStatusCodeID").data("kendoComboBox").enable(false);
+
+            }, 1000);
+            if (canReSend == "true") {
+                $("#ResendPOId").find("input,textarea,select,button").each(function () {
+                    $(this).parent().removeClass("disabled");
+                    $(this).removeAttr("disabled");
+                });
+                $("#Add_PO").removeClass("disabled");
+                $("#Add_PO").removeAttr("disabled");
+                $("input[type='hidden']").removeAttr("disabled");
+                setTimeout(function () {
+                    $("#ETAMinutes").data("kendoComboBox").enable();
+                    $("#ContactMethodID").data("kendoComboBox").enable();
+                }, 2000);
+            }
+
+            var canresIssueCC = $("#canReIssueCC").val();
+            if (canresIssueCC != null) {
+                if (canresIssueCC.toLowerCase() == "true") {
+                    $("#Add_PO").removeClass("disabled");
+                    $("#Add_PO").removeAttr("disabled");
+                    $("#btnReIssueCC").removeClass("disabled");
+                    $("#btnReIssueCC").removeAttr("disabled");
+                    $("#btnReIssueCC").parent().removeClass("disabled");
+                    $("input[type='hidden']").removeAttr("disabled");
+                }
+            }
+
+        }
+        var isPoPaymentEditAllowed = $("#IsPoPaymentEditAllowed").val();
+        if ("true" == isPoPaymentEditAllowed.toLowerCase()) {
+
+            $("#rdPayByCC").removeClass("disabled");
+            $("#rdPayByCC").removeAttr("disabled");
+            $("#rdPayByCC").parent().removeClass("disabled");
+
+
+
+            $("#btnSavePO").removeClass("disabled");
+            $("#btnSavePO").removeAttr("disabled");
+            $("#btnSavePO").parent().removeClass("disabled");
+
+
+            $("#CompanyCreditCardNumber").removeClass("disabled");
+            $("#CompanyCreditCardNumber").removeAttr("disabled");
+            $("#CompanyCreditCardNumber").removeAttr("readonly");
+            $("#CompanyCreditCardNumber").parent().removeClass("disabled");
+
+            $("#Add_PO").removeClass("disabled");
+            $("#Add_PO").removeAttr("disabled");
+            $("input[type='hidden']").removeAttr("disabled");
+
+            setTimeout(function () {
+                $("#PayStatusCodeID").data("kendoComboBox").enable();
+
+                var $payStatusCodeInput = $('input[name="PayStatusCodeID_input"]');
+
+                $payStatusCodeInput.parent('span').removeClass("disabled");
+                $payStatusCodeInput.parent('span').parent().removeClass("disabled");
+
+
+            }, 2000);
+        }
+        var isPayValue = $('input:radio[id=rdPayByCC]:checked').val();
+        if (isPayValue == "1") {
+            $("#divCompanyCC").show();
+        }
+        $("#btnViewSendHistory").toggle(function () {
+            $("#divSendHistory").show();
+
+            var idValue = $("#POID").val();
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("_SendPOHistory", "PO")',
+                traditional: true,
+                data: { poId: idValue },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    $("#divSendHistory").html("");
+                    $("#divSendHistory").html(msg);
+                }
+            });
+            $(this).text("Hide Send History");
+        },
+        function () {
+            $("#divSendHistory").hide();
+            $(this).text("View Send History");
+        });
+        var $dispatchFeeField = $("#DispatchFee");
+        if ($('input:radio[id=rdServiceCovered]:checked').val() == "0") {
+            var $isDispatch = $("#IsDispatchFee");
+            //setMember();
+            $("#limitStatus").html("Service Not Covered");
+        }
+        else {
+            $("#limitStatus").html("");
+            //setClient();
+        }
+        $('input[name="rdServiceCovered"]').change(function () {
+            var isServiceCovered = $(this).val();
+            var $isDispatch = $("#IsDispatchFee");
+            if (isServiceCovered == "0") {
+                //setMember();
+                $("#limitStatus").html("Service Not Covered");
+            }
+            else {
+                //setClient();
+                $("#limitStatus").html("");
+            }
+            taxCalculation();
+        });
+        $('input[name="rdMemberPaysISP"]').change(function () {
+            taxCalculation();
+        });
+        $('input[name="rdPayByCC"]').change(function () {
+            if ($(this).val() == "1") {
+                $("#divCompanyCC").show();
+            }
+            else {
+                $("#divCompanyCC").hide();
+            }
+        });
+        $('input[name="IsDispatchFee"]').change(function () {
+            taxCalculation();
+            var disFeeBillToField = $("#DispatchFeeBillToID");
+            if ($("#IsDispatchFee").is(':checked')) {
+                //setMember();
+                $("#DispatchFee").val(parseFloat($("#memberDispatchFee").val()).toFixed(2));
+                DispachFreeCalculation();
+                $("#DispatchFee").removeAttr("disabled");
+            }
+            else {
+                //setClient();
+                $("#DispatchFee").val("0.00");
+                $("#DispatchFee").attr("disabled", "disabled");
+            }
+        });
+
+
+
+        $("#DispatchFee").change(function () {
+            DispachFreeCalculation();
+            $("#MemberAmountDueToCoachNet").trigger("change");
+
+        });
+
+        setTimeout(function () {
+            if ($('#ContactMethodID').data('kendoComboBox') != null) {
+                var contactMethod = $('#ContactMethodID').data('kendoComboBox').text();
+                ContactMethodShowOrHide(contactMethod);
+            }
+        }, 1500);
+
+        $('#CompanyCreditCardNumber').change(function () {
+            $('#CompanyCreditCardNumber').val($.trim($('#CompanyCreditCardNumber').val()));
+        });
+
+        $("#btnGetApproval").click(function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+
+                //Call Save and open the approval window if only there are no errors.
+                var result = ValidateSavePO();
+                if (result) {
+                    winGetApproval = $("<div id='winGetApproval' />").appendTo(document.body);
+                    winGetApproval.kendoWindow({
+
+                        title: "Get Approval",
+                        content: '@Url.Action("_GetApproval", "PO", new { area = "Application" })',
+                        modal: true,
+                        width: 1000, // CR: 1262
+                        height: GetPopupWindowHeight(),
+                        deactivate: function () {
+                            this.destroy();
+                        },
+
+                        close: function (e) {
+                            //Clear messages
+                            $(".formError").each(function () {
+                                $(this).remove();
+                            });
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+                                if (IsMyContainerDirty('frmGetApproval')) {
+                                    var prompt = PromptForDirtyFlag();
+                                    if (!prompt) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                    CleanMyContainer('frmGetApproval');
+                                }
+                            }
+                            isdirty = false;
+                            if (document.dialogResult == "OK") {
+                                CleanMyContainer('frmGetApproval');
+                            }
+
+                            return true;
+                        }
+                    });
+                    winGetApproval.data('kendoWindow').center().open();
+                }
+            }
+        });
+
+        $("#btnSendPO,#btnReSendPO").click(function (e) {
+
+            if (!e.isDefaultPrevented()) {
+                e.stopImmediatePropagation();
+                e.preventDefault();
+
+                var result = ValidateSendPO();
+                if (result) {
+                    //TFS 1217: Add logic to Issue & Send to make sure there is a payment - Statrs here
+                    var isServiceEstimateAllowed = $("#IsServiceEstimateAllowed").val();
+                    if ("true" == isServiceEstimateAllowed.toLowerCase()) {
+                        $.ajax({
+                            type: 'GET',
+                            url: '@Url.Action("CheckSRHasPaid", "Payment", new { area = "Application" })',
+                            traditional: true,
+                            data: { serviceRequestID: $("#ServiceRequestID").val() },
+                            cache: false,
+                            async: false,
+                            success: function (msg) {
+                                result = msg.Data.HasSRPaid;
+                                if (!result) {
+                                    openAlertMessage("You must charge the member's credit card before issuing the PO");
+                                }
+                            }
+                        });
+                    }
+                    if (result) {                        
+                        var id = $(this).attr("id");
+                        if (id == 'btnSendPO') {
+                            var serviceTotalValue = parseFloat($("#txtServiceTotal").val());
+                            var taxAmount = parseFloat($("#txtTax").val());
+                            var txtServiceAmountThreshold = parseFloat($("#txtServiceAmountThreshold").val());
+
+                            if (isNaN(serviceTotalValue)) {
+                                serviceTotalValue = 0;
+                            }
+                            if (isNaN(taxAmount)) {
+                                taxAmount = 0;
+                            }
+                            if (isNaN(txtServiceAmountThreshold)) {
+                                txtServiceAmountThreshold = 0;
+                            }
+                            if (txtServiceAmountThreshold > 0 && ((serviceTotalValue - taxAmount) > txtServiceAmountThreshold)) {
+                                if (!managerApprovedThreshold) {
+                                    result = false;
+                                    GetManagerApproval();
+                                }
+                            }
+                        }
+                        if (result) {
+                            var id = $(this).attr("id");
+                            if (id == 'btnReSendPO') {
+                                $("#action").val("ReSendPO");
+                            }
+                            else {
+                                $("#action").val("SendPO");
+                            }
+                            $("#btnSavePO").click();
+                        }
+                    }
+                }
+            }
+        });
+
+    });
+
+    function GetManagerApproval() {
+        var result = ValidateSavePO();
+        if (result) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetManagerApproval", "PO", new { area = "Application" })',
+                traditional: true,
+                data: { poId: $("#POID").val() },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    winGetManagerApproval = $("<div id='winGetManagerApproval' />").appendTo(document.body);
+                    winGetManagerApproval.kendoWindow({
+
+                        title: "Manager Approval",
+                        modal: true,
+                        width: 600,
+                        height: 400,
+                        deactivate: function () {
+                            this.destroy();
+                        },
+
+                        close: function (e) {
+                            //Clear messages
+                            $(".formError").each(function () {
+                                $(this).remove();
+                            });
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+                                if (IsMyContainerDirty('frmGetManagerApproval')) {
+                                    var prompt = PromptForDirtyFlag();
+                                    if (!prompt) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                    CleanMyContainer('frmGetManagerApproval');
+                                }
+                            }
+                            isdirty = false;
+                            if (document.dialogResult == "OK") {
+                                CleanMyContainer('frmGetManagerApproval');
+                                managerApprovedThreshold = true;
+                                $("#btnSendPO").click();
+                            }
+
+                            return false;
+                        }
+                    });
+                    winGetManagerApproval.data('kendoWindow').content(msg).center().open();
+                }
+            });
+        }
+    }
+
+    $("#btnViewPODocument").click(function () {
+        var result = ValidateSendPO();
+        if (result) {
+            var pageMode = $("#pageMode").val();
+            var $form = $("#Add_PO");
+            var isVendorAdvised = $("#Advised").is(':checked');
+            var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+            var taxAmount = $("#txtTax").val();
+            if (isServiceCovered === undefined) {
+                isServiceCovered = null;
+            }
+            else {
+                isServiceCovered = isServiceCovered == "1" ? "true" : "false";
+            }
+            var isMbrPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+
+            if (isMbrPaysISP === undefined) {
+                isMbrPaysISP = null;
+            }
+            else {
+                isMbrPaysISP = isMbrPaysISP == "1" ? "true" : "false";
+            }
+
+            var isPayByCompanyCC = $('input:radio[id=rdPayByCC]:checked').val();
+
+            if (isPayByCompanyCC === undefined) {
+                isPayByCompanyCC = null;
+            }
+            else {
+                isPayByCompanyCC = isPayByCompanyCC == "1" ? "true" : "false";
+            }
+            var serviceTotalValue = $("#txtServiceTotal").val();
+
+            var fullPhoneNumber = GetPhoneNumberForDB("POPhoneNumber");
+
+            var mpType = $("#MemberPaymentType").data('kendoComboBox').value();
+
+            var sendButton = $("#action").val();
+            var talkedTo = $("#TalkedTo").val();
+            var emailText = $("#POEmail").val();
+            var DbcoachNetPay = $("#txtCoachNet").val();
+            var DbCoverageLimit = $("#ServiceCoverageLimit").val();
+            var formdata = $form.serializeArray();
+
+            formdata.push({ name: "mode", value: pageMode });
+            formdata.push({ name: "IsVendorAdvised", value: isVendorAdvised });
+            formdata.push({ name: "IsServiceCovered", value: isServiceCovered });
+            formdata.push({ name: "TaxAmount", value: taxAmount });
+            formdata.push({ name: "IsMemberAmountCollectedByVendor", value: isMbrPaysISP });
+            formdata.push({ name: "IsPayByCompanyCreditCard", value: isPayByCompanyCC });
+            formdata.push({ name: "TotalServiceAmount", value: serviceTotalValue });
+            formdata.push({ name: "FaxPhoneNumber", value: fullPhoneNumber });
+            formdata.push({ name: "action", value: sendButton });
+            formdata.push({ name: "TalkedTo", value: talkedTo });
+            formdata.push({ name: "MemberPaymentTypeID", value: mpType });
+            formdata.push({ name: "Email", value: emailText });
+            formdata.push({ name: "CoachNetServiceAmount", value: DbcoachNetPay });
+            formdata.push({ name: "CoverageLimit", value: DbCoverageLimit });
+            var poid = null;
+            var refresh = false;
+            var sendPOMessage = false;
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("_ViewPODocument", "PO")',
+                traditional: true,
+                data: formdata,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    ViewPODocumentWindow = $("<div id='ViewPODocumentWindow' />").appendTo(document.body);
+                    ViewPODocumentWindow.kendoWindow({
+                        title: "PurchaseOrder",
+                        modal: true,
+                        width: 900,
+                        height: 750,
+                        deactivate: function () { this.destroy(); }
+                    });
+                    ViewPODocumentWindow.data('kendoWindow').content(msg).center().open();
+
+                }
+            });
+        }
+    });
+
+    $("#btnSavePO").click(function () {
+        var result = ValidateSavePO();
+        var etaHoursValueInSave = $("#ETAHours").val();
+        if (result && $.trim(etaHoursValueInSave).length != 0 && parseInt(etaHoursValueInSave) > 12) {
+            var messageNotification = "ETA is set to " + etaHoursValueInSave + " hours, if that is correct click Confirm and continue, if that is not correct then click Cancel to go and fix ETA hours.";
+            var returnValue = true;
+            $.modal.confirm(messageNotification, function () {
+                SavaPO();
+            }, function () {
+            });
+        }
+        else if (result) {
+            SavaPO();
+        }
+        else {
+            $("#action").val("");
+        }
+    });
+
+    $("#btnReIssueCC").click(function (e) {
+        var messageNotification = "This will remove the existing temporary credit card number and allow you to enter a new temporary credit card number.Please make sure that the first number was NOT used and has been cancelled before proceeding.";
+        var poId = $("#POID").val();
+        var pageMode = $("#pageMode").val();
+        $.modal.confirm(messageNotification, function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_ReIssueCC", "PO")',
+                traditional: true,
+                data: { poId: poId },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("_AddPO", "PO")',
+                            traditional: true,
+                            data: { poId: poId, mode: "Edit" },
+                            cache: false,
+                            async: false,
+                            success: function (msg) {
+                                $("#topSection").html("");
+                                $("#topSection").html(msg);
+                            }
+                        });
+                    }
+                }
+            });
+        }, function () {
+        });
+    });
+
+    function SavaPO() {
+
+        var pageMode = $("#pageMode").val();
+        var isPoPaymentEditAllowed = $("#IsPoPaymentEditAllowed").val();
+        var $form = $("#Add_PO");
+        var isVendorAdvised = $("#Advised").is(':checked');
+        var isServiceCovered = $('input:radio[id=rdServiceCovered]:checked').val();
+        var taxAmount = $("#txtTax").val();
+        if (isServiceCovered === undefined) {
+            isServiceCovered = null;
+        }
+        else {
+            isServiceCovered = isServiceCovered == "1" ? "true" : "false";
+        }
+        
+        var isMbrPaysISP = $('input:radio[id=rdMemberPaysISP]:checked').val();
+
+        if (isMbrPaysISP === undefined) {
+            isMbrPaysISP = null;
+        }
+        else {
+            isMbrPaysISP = isMbrPaysISP == "1" ? "true" : "false";
+        }
+
+        var isPayByCompanyCC = $('input:radio[id=rdPayByCC]:checked').val();
+
+        if (isPayByCompanyCC === undefined) {
+            isPayByCompanyCC = null;
+        }
+        else {
+            isPayByCompanyCC = isPayByCompanyCC == "1" ? "true" : "false";
+        }
+        var serviceTotalValue = $("#txtServiceTotal").val();
+
+        var fullPhoneNumber = GetPhoneNumberForDB("POPhoneNumber");
+
+        var mpType = $("#MemberPaymentType").data('kendoComboBox').value();
+
+        var sendButton = $("#action").val();
+        var talkedTo = $("#TalkedTo").val();
+        var emailText = $("#POEmail").val();
+        var DbcoachNetPay = $("#txtCoachNet").val();
+        var DbCoverageLimit = $("#ServiceCoverageLimit").val();
+        var DbCoverageLimitEnable = $("#IsServiceCoverageLimitEnable").val();
+        var formdata = $form.serializeArray();
+
+        formdata.push({ name: "mode", value: pageMode });
+        formdata.push({ name: "IsVendorAdvised", value: isVendorAdvised });
+        formdata.push({ name: "IsServiceCovered", value: isServiceCovered });
+        formdata.push({ name: "TaxAmount", value: taxAmount });
+        formdata.push({ name: "IsMemberAmountCollectedByVendor", value: isMbrPaysISP });
+        formdata.push({ name: "IsPayByCompanyCreditCard", value: isPayByCompanyCC });
+        formdata.push({ name: "TotalServiceAmount", value: serviceTotalValue });
+        formdata.push({ name: "FaxPhoneNumber", value: fullPhoneNumber });
+        formdata.push({ name: "action", value: sendButton });
+        formdata.push({ name: "TalkedTo", value: talkedTo });
+        formdata.push({ name: "MemberPaymentTypeID", value: mpType });
+        formdata.push({ name: "Email", value: emailText });
+        formdata.push({ name: "CoachNetServiceAmount", value: DbcoachNetPay });
+        formdata.push({ name: "CoverageLimit", value: DbCoverageLimit });
+        formdata.push({ name: "ServiceCoveredOverridenInstructions", value: $("#ServiceCoveredOverridenInstructions").val() });
+        formdata.push({ name: "IsCoverageLimitEnabled", value: DbCoverageLimitEnable });
+        formdata.push({ name: "IsPoPaymentEditAllowed", value: isPoPaymentEditAllowed });
+        formdata.push({ name: "MemberServiceAmount", value: $("#MemberServiceAmount").val() });
+        formdata.push({ name: "CostPlusServiceAmount", value: $("#CostPlusServiceAmount").val() });
+        var poid = null;
+        var refresh = false;
+        var sendPOMessage = false;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddOrUpdate", "PO")',
+            traditional: true,
+            data: formdata,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    refresh = true;
+                    poid = msg.Data.id;
+                    sendPOMessage = msg.Data.isSendPOSuccess;
+                    CleanMyContainer('Add_PO');
+                    $()
+                    if (refresh) {
+                        var mode = pageMode;
+                        //"Edit";
+                        if (isPoPaymentEditAllowed.toLowerCase() == "true") {
+                            mode = "edit";
+                        }
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("_AddPO", "PO")',
+                            traditional: true,
+                            data: { poId: poid, mode: mode },
+                            cache: false,
+                            async: true,
+                            success: function (msg) {
+                                $("#topSection").html("");
+                                $("#topSection").html(msg);
+                            }
+                        });
+                        $("#POList").data('kendoGrid').dataSource.read();
+                        $("#PODetails").data('kendoGrid').dataSource.read();
+                        $("#action").val("");
+                        if ((sendButton == "SendPO" || sendButton == "ReSendPO") && sendPOMessage) {
+                            if ($("#btnSendPO").length > 0) {
+                                $("html").scroll(0);
+                                $("#SendPOEffect").show("highlight", { color: "#FFBB2B" }, 1500, null);
+                                openAlertMessage("PO has been issued and sent to vendor");
+                            }
+                            else {
+                                openAlertMessage("PO sent");
+                            }
+
+                        }
+                    }
+                }
+                else if (msg.Status == "BusinessRuleFail") {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+            }
+        });
+    }
+    $("#btnChangeService").click(function () {
+        var poId = $("#POID").val();
+        var hdnVisibleChangeService = $("#hdnvisibleChangeService").val();
+        if (hdnVisibleChangeService == "hidden") {
+            openAlertMessage("Only available when status is \"pending\".  Use the Copy PO feature instead");
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("_ChangeService", "PO", new { area = "Application" })',
+                traditional: true,
+                data: { poId: poId, isFromHistory: false },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    POChangeServiceWindow = $("<div id='POChangeServiceWindow' />").appendTo(document.body);
+                    POChangeServiceWindow.kendoWindow({
+                        title: "Change Service",
+                        modal: true,
+                        width: 400,
+                        height: 275,
+                        deactivate: function () { this.destroy(); },
+                        close: function (e) {
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+                                if (IsMyContainerDirty('frmChangeServicepo')) {
+                                    if (confirm("Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?")) {
+                                        HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                                        HideValidationMessage($('input[name="copyServiceType_input"]'));
+                                        CleanMyContainer("frmChangeServicepo");
+                                    }
+                                    else {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+
+                                }
+                                else {
+                                    HideValidationMessage($('input[name="copyVehicleWieght_input"]'));
+                                    HideValidationMessage($('input[name="copyServiceType_input"]'));
+                                    CleanMyContainer("frmChangeServicepo");
+                                }
+
+                            }
+                        }
+                    });
+                    POChangeServiceWindow.data('kendoWindow').content(msg).center().open();
+                }
+            });
+        }
+    });
+    $("#btnRejectClear").click(function () {
+
+        var resultValue = true;
+        if (IsMyContainerDirty('Add_PO')) {
+            if (!confirm("The purchase order information entered on the screen will be lost and you will be sent to the Dispatch Tab to enter a reject reason.  Do you want to continue?")) {
+                resultValue = false;
+            }
+
+        }
+        var poStatus = $("#PurchaseOrderStatu_Name").val();
+        if (poStatus != "Pending") {
+            resultValue = false;
+            openAlertMessage("Reject & Clear is only allowed on PO's in pending status");
+        }
+        if (resultValue) {
+            var $form = $("#Add_PO");
+            var formdata = $form.serializeArray();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("RejectAndClear", "PO")',
+                traditional: true,
+                data: formdata,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("Add_PO");
+                        $("#hypDispatch").click();
+                        $("#topSection").html("");
+                    }
+                }
+            });
+        }
+    });
+</script>

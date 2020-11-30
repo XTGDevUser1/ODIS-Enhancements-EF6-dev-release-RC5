@@ -1,0 +1,220 @@
+﻿@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+<script type="text/javascript">
+    function GrdClientOpenInvoiceList_DataBound(e) {
+
+    }
+</script>
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            @(Html.Kendo().Grid<ClientOpenPeriodList_Result>()
+                            .Name("GrdClientOpenInvoiceList")
+                            .Columns(column =>
+                            {
+                                column.Bound(u => u.BillingScheduleID).Title("ID");
+                                column.Bound(u => u.ScheduleName).Title("Schedule Name");
+                                column.Bound(u => u.ScheduleDate).Title("Schedule Date").Format("{0:MM/dd/yyyy}");
+                                column.Bound(u => u.ScheduleRangeBegin).Title("Begin").Format("{0:MM/dd/yyyy}");
+                                column.Bound(u => u.ScheduleRangeEnd).Title("End").Format("{0:MM/dd/yyyy}");
+                                column.Bound(u => u.Status).Title("Status");
+                                column.Bound(u => u.InvoicesToBeCreatedCount).Title("Invoice Count");
+                            })
+        .Events(e =>
+        {
+            e.DataBound("GrdClientOpenInvoiceList_DataBound");
+        })
+        .Sortable()
+        .Scrollable()
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+        .Ajax()
+        .PageSize(1000)
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_OpenPeriodList", "ClientInvoiceProcessing", new { area = "ClientManagement" }))
+        )
+        .Resizable(resize => resize.Columns(true))
+        )
+        </div>
+        <div class="new-row twelve-columns">
+            <button class="button gray-gradient  float-left mid-margin-left margin-bottom" onclick="CloseDialogOpenPeriod();"
+                type="button">
+                Cancel</button>
+            <button class="button green-gradient  float-left mid-margin-left margin-bottom" onclick="ProcessOpenSelectedPeriods();"
+                type="button" id="btnProcessOpenSelectedPeriods">
+                Open Selected Period(s)</button>
+        </div>
+        <div class="align-center openPeriodStatusBar new-row twelve-columns">
+            <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                    class="statusMessage"></span>
+            </p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var toBeProcessRecordCount = 0;
+    var processRecordCount = 0;
+    var returnListResult = [];
+
+    var $statusContainer = null;
+    var IsOpenPeriodIsInProcessing = false;
+    $(function () {
+        $statusContainer = $(".openPeriodStatusBar");
+        HideStatus($statusContainer);
+    });
+
+    var successOkayCallBack = function () {
+        if ($('#GrdClientOpenInvoiceList').data('kendoGrid') != undefined) {
+            $('#GrdClientOpenInvoiceList').data('kendoGrid').dataSource.read();
+        }
+    }
+
+    var successCloseCallBack = function () {
+        CloseDialogOpenPeriod();
+        $('#grdInvoices').data('kendoGrid').dataSource.read();
+    }
+
+    function CloseDialogOpenPeriod() {
+        document.dialogResult = "CANCEL";
+        invoiceShowCloseContainer.data('kendoWindow').close();
+    }
+
+    function ProcessOpenSelectedPeriods() {
+        if (IsOpenPeriodIsInProcessing == false) {
+            IsOpenPeriodIsInProcessing = true;
+            HideStatus($statusContainer);
+            var selectedBillingSchedules = [];
+            // Get all selected items and verify them.
+            var grid = $("#GrdClientOpenInvoiceList").data("kendoGrid");
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                IsOpenPeriodIsInProcessing = false;
+                openAlertMessage("Please select row");
+
+            }
+            else {
+                // Verify Business Logic : 
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    var scheduleID = record.BillingScheduleID;
+                    var status = record.Status;
+                    if (status != "PENDING") {
+                        IsOpenPeriodIsInProcessing = false;
+                        openAlertMessage("Period must be in Pending status");
+                        return;
+                    }
+                    selectedBillingSchedules.push({ name: "scheduleID[" + i + "]", value: scheduleID });
+                }
+
+                ShowStatus("inprogress", 'Processing', $statusContainer);
+                toBeProcessRecordCount = 0;
+                processRecordCount = 0;
+                $.ajax({
+                    url: '@Url.Action("_GetClientOpenPeriodToBeProcessRecords", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                    data: selectedBillingSchedules,
+                    cache: false,
+                    async: false,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            if (msg.Data.length > 0) {
+                                toBeProcessRecordCount = msg.Data.length;
+                                console.log("Total Record to be Processed : " + toBeProcessRecordCount);
+                                for (var j = 0; j < msg.Data.length; j++) {
+                                    returnListResult.push({ name: "[" + j.toString() + "].BillingDefinitionInvoiceID", value: msg.Data[j].BillingDefinitionInvoiceID });
+                                    returnListResult.push({ name: "[" + j.toString() + "].BillingSchedueID", value: msg.Data[j].BillingSchedueID });
+                                    var billingDefinitionInvoiceID = msg.Data[j].BillingDefinitionInvoiceID;
+                                    var billingScheduleID = msg.Data[j].BillingSchedueID;
+                                    var billingScheduleTypeID = msg.Data[j].ScheduleTypeID;
+                                    var billingScheduleDateTypeID = msg.Data[j].ScheduleDateTypeID;
+                                    var billingScheduleRangeTypeID = msg.Data[j].ScheduleRangeTypeID;
+                                    var description = msg.Data[j].BillingDefinitionInvoiceDescription;
+                                    StartProcess(billingDefinitionInvoiceID, billingScheduleID, billingScheduleTypeID, billingScheduleDateTypeID, billingScheduleRangeTypeID, description);
+                                }
+                            }
+                            else {
+                                IsOpenPeriodIsInProcessing = false;
+                                HideStatus($statusContainer);
+                                openAlertMessage("Unable to retrieve records for Processing, Please contact system administrator for more information");
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        else {
+            openAlertMessage("Please wait we are still processing your previous request");
+        }
+    }
+
+    function StartProcess(billingDefinitionInvoiceID, billingScheduleID, billingScheduleTypeID, billingScheduleDateTypeID, billingScheduleRangeTypeID, description) {
+        console.log("Processed Started for Billing Definition Invoice ID : " + billingDefinitionInvoiceID + " Billing Schedule ID " + billingScheduleID + " Schedule Type ID " + billingScheduleTypeID + " Schedule Date Type ID " + billingScheduleDateTypeID + " Range Type ID " + billingScheduleRangeTypeID);
+        ShowStatus("inprogress", 'Processing ' + description, $statusContainer);
+        $.ajax({
+            url: '@Url.Action("_ProcessOpenPeriodList", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            type: 'POST',
+            data: { billingDefinitionInvoiceID: billingDefinitionInvoiceID,
+                billingScheduleID: billingScheduleID,
+                billingScheduleTypeID: billingScheduleTypeID,
+                billingScheduleDateTypeID: billingScheduleDateTypeID,
+                billingScheduleRangeTypeID: billingScheduleRangeTypeID,
+                description: description
+            },
+            cache: false,
+            async: true,
+            global: false,
+            success: function (msg) {
+                processRecordCount = processRecordCount + 1;
+                console.log("Processed Record Count is : " + processRecordCount + " Message : " + msg.ErrorMessage + " Billing Defintion Invoice ID : " + billingDefinitionInvoiceID);
+                if (msg.Status == "Success") {
+                    ShowStatus("inprogress", msg.ErrorMessage, $statusContainer);
+                }
+                else {
+                    ShowStatus("error", msg.ErrorMessage, $statusContainer);
+                }
+                if (toBeProcessRecordCount == processRecordCount) {
+                    $.ajax({
+                        url: '@Url.Action("_CreateEventLogLinkOpenPeriodProcess", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                        type: 'POST',
+                        data: returnListResult,
+                        cache: false,
+                        async: true,
+                        global: false,
+                        success: function (msg) {
+                            console.log("Processed All the Records Success");
+                            returnListResult = [];
+                            IsOpenPeriodIsInProcessing = false;
+                            HideStatus($statusContainer);
+                            $.modal.confirmOKCancel("Period successfully opened and invoices generated", successOkayCallBack, successCloseCallBack, { confirmText: "Hello" });
+                        },
+                        error: function (msg) {
+                            console.log("Processed All the Records Event Log Failed");
+                            returnListResult = [];
+                            IsOpenPeriodIsInProcessing = false;
+                            HideStatus($statusContainer);
+                            $.modal.confirmOKCancel("Period successfully opened and invoices generated", successOkayCallBack, successCloseCallBack, { confirmText: "Hello" });
+                        }
+                    });
+
+                }
+            },
+            error: function (msg) {
+                processRecordCount = processRecordCount + 1;
+                console.log("Processed Record Count is : " + processRecordCount + " Message : " + msg.responseText + " Billing Defintion Invoice ID : " + billingDefinitionInvoiceID);
+                var errorMessage = msg.responseText;
+                if (msg.responseText) {
+                    var result = JSON.parse(msg.responseText);
+                    errorMessage = result.ErrorMessage;
+                }
+                ShowStatus("error", errorMessage, $statusContainer);
+            }
+        });
+    }
+</script>

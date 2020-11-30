@@ -1,0 +1,272 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+@using Martex.DMS.BLL.Model;
+@model Martex.DMS.DAL.Entities.CallLogDataModel
+<script language="javascript" type="text/javascript">
+
+<!--
+    function CLDropdown_onChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+    }
+//-->
+</script>
+<form id="frmCallLog" action="javascript:void(0);" method="post">
+    <div class="with-padding popupcontainer">
+        <div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="CompanyName" class="label">
+                        Company
+                    </label>
+                    @Html.TextBox("txtBusinessCalled", Model.BusinessName, new { value = Model.BusinessName, @class = "input full-width validate[maxSize[255]]", @readonly = true })
+                </p>
+            </div>
+
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Phone" class="label">
+                        Phone
+                    </label>
+                    @Html.Editor("PhoneNumberCallLogWindow", "Phone", new { Value = Model.PhoneNumber, ReadOnly = true, ShowCallIcon = false })
+                </p>
+            </div>
+
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="LogTalkedTo" class="label">
+                        Talked To <span class="spanstar">*</span>
+                    </label>
+                    @Html.TextBox("CallLogTalkedTo", "", new { @class = "input full-width validate[required,maxSize[50]]" })
+                </p>
+            </div>
+
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="ContactAction" class="label">
+                    Reason <span class="spanstar">*</span>
+                </label>
+                @(Html.Kendo().ComboBox()
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactReasons.ToString()] as IEnumerable<SelectListItem>)
+                                .Name("ContactReasonID")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("CLDropdown_onChange");
+                                })
+                                .HtmlAttributes(new { @class = "selectlabel" })
+                                .SelectedIndex(0)
+                )
+            </div>
+
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="ContactAction" class="label">
+                    Action <span class="spanstar">*</span>
+                </label>
+                @(Html.Kendo().ComboBox()
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactActions.ToString()] as IEnumerable<SelectListItem>)
+                                .Name("ContactActionID")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("CLDropdown_onChange");
+                                })
+                                .HtmlAttributes(new { @class = "selectlabel" })
+                                .SelectedIndex(0)
+                )
+            </div>
+
+            <div class="clear">
+            </div>
+            <div id="programDataFieldsCallLog">
+            </div>
+            <div class="clear">
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label for="Comments" class="label">
+                    Comments
+                </label>
+                @Html.TextArea("CallLogComments", new { @class = "full-width", rows = "5", cols = "30", style = "width : 100%" })
+            </div>
+
+            <div class="clear">
+            </div>
+            <div class="twelve-columns margin-bottom">
+                <button id="btnLogCall" class="button green-gradient  float-right mid-margin-left large-margin-bottom"
+                        type="button">
+                    Save
+                </button>
+                <button id="btnCancelLogCall" class="button gray-gradient  float-right large-margin-bottom"
+                        type="button">
+                    Cancel
+                </button>
+            </div>
+            <div class="clear">
+            </div>
+        </div>
+
+        <div class="alert alert-success" id="CallLog_PlaceHolder_Member_Products_Using_Category" style="display:none;">
+
+        </div>
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(function () {
+
+        $('#frmCallLog').validationEngine();
+
+        WatchMyContainer('frmCallLog', null, null);
+
+        GetDynamicProgramScreen();
+
+        //$('#txtBusinessCalled').val(businessCalled);
+        //SetPhoneValues('#PhoneNumberCallLogWindow', "+" + phoneNumberCalled, true);
+        var combo = $('#ContactReasonID').data('kendoComboBox');
+        //KB: Set the width of the dropdown container to be 250px
+        combo.list.width(250);
+
+        var selectItem = function (dataItem) {
+            //dataItem argument is a ComboBox data item.
+            return dataItem.Text == "Verify service";
+        }
+        combo.select(selectItem);
+        $("#btnLogCall").click(function () {
+
+            if ($('#frmCallLog').validationEngine('validate') == false) {
+                return false;
+            }
+            // If Contact Action is not selected then alert the user.
+            var contactReason = $('input[name="ContactReasonID_input"]');
+            if ($.trim($('#ContactReasonID').data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage(contactReason, "Please select contact reason");
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                HideValidationMessage(contactReason);
+            }
+
+            // If Contact Source is not selected then alert the user.
+            var contactAction = $('input[name="ContactActionID_input"]');
+            if ($.trim($('#ContactActionID').data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage(contactAction, "Please select contact action");
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                HideValidationMessage(contactAction);
+            }
+
+
+            if (!AreDynamicElementsValid()) {
+                console.log("Cancel save because of getDynamicFieldsValues")
+                return false;
+            }
+            document.dialogResult = "OK";
+
+
+            var dynamicDataElementsArray = [];
+            if (typeof (GetDynamicElementsPostData) != "undefined" && GetDynamicElementsPostData != '') {
+                var dynamicFields = GetDynamicElementsPostData();
+                for (var i = 0, l = dynamicFields.length; i < l; i++) {
+                    dynamicDataElementsArray.push({ "Key": dynamicFields[i].name, "Value": dynamicFields[i].value });
+                }
+            }
+
+
+
+            var postData =
+            {
+                    dynamicDataElements: dynamicDataElementsArray,
+                    PhoneNumberCalled: '@Model.PhoneNumber',
+                    PhoneType: '@Model.PhoneType',
+                    Company: '@Model.BusinessName',
+                    VendorLocationID: '@Model.VendorLocationID',
+                    CallLogComments: $('#CallLogComments').val(),
+                    CallLogTalkedTo: $('#CallLogTalkedTo').val(),
+                    ContactReasonID: $('#ContactReasonID').data("kendoComboBox").value(),
+                    ContactActionID: $('#ContactActionID').data("kendoComboBox").value()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveServiceTechCallLog", "Service", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(postData),
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("frmCallLog");
+                        GetServiceTechCallHistory();
+                        winServiceTechCallLog.data('kendoWindow').close();
+                    }
+                }
+            }); // end of ajax.
+
+        });
+
+        $("#btnCancelLogCall").click(function () {
+            document.dialogResult = "CANCEL";
+            //Clear messages
+            $(".formError").each(function () {
+                $(this).remove();
+            });
+            winServiceTechCallLog.data('kendoWindow').close();
+        });
+
+
+    });
+    function GetDynamicProgramScreen() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Index", "ProgramDataItems", new { area = "Common" })',
+            traditional: true,
+            data: { screenName: 'RepairContactLog'},
+            cache: false,
+            async: false,
+            /*global: false,*/
+            success: function (msg) {
+                $('#programDataFieldsCallLog').html(msg);
+            }
+        }); // end of ajax
+
+    }
+//-->
+
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $.ajax({
+            url: '@Url.Action("_MemberProductsListUsingCategory", "Member", new { area = "Application" })',
+            success: function (msg) {
+                
+                if (msg != null && msg.Data != null && msg.Data.length > 0) {
+                    $.ajax({
+                        url: '@Url.Action("_MemberProductsUsingCategory", "Member", new { area = "Application" })',
+                        success: function (msg) {
+                            $('#CallLog_PlaceHolder_Member_Products_Using_Category').show();
+                            $('#CallLog_PlaceHolder_Member_Products_Using_Category').html(msg);
+
+                        }
+                    });
+                }
+                else {
+                    $('#CallLog_PlaceHolder_Member_Products_Using_Category').hide();
+                }
+            }
+        });
+
+        return false;
+    });
+</script>

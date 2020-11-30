@@ -1,0 +1,70 @@
+﻿.spanstar
+    {
+        color: Black !important;
+        margin-left:4px !important;
+    }
+
+
+
+.FieldTypes
+{
+    /*font-family:Calibri, Verdana, sans-serif;*/
+}
+
+.TextBoxFeedbackCSS
+{
+    width: 40%;
+    
+}
+
+.FeedbacktableCSS
+{
+    table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 15px;
+    margin: 15px 15px 15px 15px;
+}
+
+.AddressCountryDivCSS
+{
+    float: left; 
+    margin-left: -5px; 
+    margin-right:40px;
+}
+
+.AddressProvinceDivCSS
+{
+    float: left; 
+    margin-left: -5px; 
+    margin-right:5px;   
+}
+
+.AddressLabelCSS
+{
+    float: left; 
+    margin-right: 54px;
+}
+
+.MediumBorder
+{
+    border-bottom: 4px solid !important;
+}
+
+.mediumLarge-margin-top		{ margin-top: 50px !important; }
+.red { color: red;}
+
+
+/* Print Only */
+@media print {
+.noPrint {display:none !important;}
+}
+
+.textarea-min-height {		
+    min-height: 600px !important;
+	}
+
+  .toBeEllipsized {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }

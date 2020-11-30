@@ -1,0 +1,320 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@using Martex.DMS.DAL.Entities;
+@model Martex.DMS.DAL.Entities.CustomerFeedbackSurveySearchCirteria
+@using Martex.DMS.Areas.Application.Models;
+
+<script type="text/javascript">
+
+    function CXCustomerFeedbackSurveySearchCriteria() {
+        if ($("#frmCXCustomerFeedbackSurveySearchCriteria").length > 0) {
+            var newArray = [];
+            newArray.push({ name: "NumberType", value: $("#frmCXCustomerFeedbackSurveySearchCriteria").find("#NumberType").val() });
+            newArray.push({ name: "NumberValue", value: $("#frmCXCustomerFeedbackSurveySearchCriteria").find("#NumberValue").val() });
+            newArray.push({ name: "NameTypeOperator", value: $('#frmCXCustomerFeedbackSurveySearchCriteria').find("#NameTypeOperator").val() });
+            newArray.push({ name: "NameType", value: $('#frmCXCustomerFeedbackSurveySearchCriteria').find("#NameType").val() });
+            newArray.push({ name: "NameValue", value: $('#frmCXCustomerFeedbackSurveySearchCriteria').find("#NameValue").val() });
+
+            newArray.push({ name: "ContactFromDate", value: $('#ContactFromDate').val() });
+            newArray.push({ name: "ContactToDate", value: $('#ContactToDate').val() });
+
+
+            newArray.push({ name: "DispatchFromDate", value: $('#DispatchFromDate').val() });
+            newArray.push({ name: "DispatchToDate", value: $('#DispatchToDate').val() });
+
+            $("input:checkbox").each(function (index) {
+                if ($(this).attr('ID') != undefined && $(this).attr('Name') != undefined) {
+                    newArray.push({ name: "FeedbackStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "FeedbackStatus[" + index + "].ID", value: $(this).attr('value') });
+                    newArray.push({ name: "FeedbackStatus[" + index + "].Name", value: $(this).attr('Name') });
+                }
+            });
+
+
+            var CustomerFeedbackCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                CustomerFeedbackCriteria[newArray[i].name] = newArray[i].value;
+            return CustomerFeedbackCriteria;
+        }
+
+    }
+
+</script>
+<div class="columns">
+    <div class="twelve-columns">
+        <div class="with-padding">
+            <div class="float-left mid-margin-top margin-left">
+                <span id="divPriority">
+                    <label class="label">
+                        Start Date
+                    </label>
+                    @Html.Kendo().DatePickerFor(u => u.DispatchFromDate).Format("MM/dd/yyyy").Events(e => e.Change("RefreshGrid"))
+                </span>
+                <span id="divClient">
+                    <label class="label">
+                        End Date
+                    </label>
+                    @Html.Kendo().DatePickerFor(u => u.DispatchToDate).Format("MM/dd/yyyy").Events(e => e.Change("RefreshGrid"))
+                </span>
+
+            </div>
+            <div class="float-right mid-margin-top margin-right">
+                <p class="button-height">
+                    <span class="button-group">
+                        @*<label for="displayOpen" class="button compact green-active">
+                                <span class="count blue-bg" id="OpenStatusCounter">
+                                    0
+                                </span>
+                                <input type="radio" name="rbstatusSurvey" id="displayOpen" value="open" onchange="RefreshGrid()" />
+                                Open
+                            </label>*@
+
+                        @foreach (CheckBoxLookUp temp in Model.FeedbackStatus)
+                        {
+                            <label for="display-@temp.ID" class="button compact green-active">
+                                <span class="count blue-bg" id="StatusCounter_@temp.Name.Replace(" ", string.Empty)">
+                                    0
+                                </span>
+                                <input type="checkbox" name="@temp.Name" class="rbStatus" id="display-@temp.ID" value="@temp.ID" onchange="RefreshGrid('@temp.Name')" />
+                                @temp.Name
+                            </label>
+                        }
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="new-row twelve-columns">
+        <div class="small-margin-top" id="div_QACustomerFeedback">
+            <div class="tabs-content">
+                @(Html.Kendo().Grid<CustomerFeedbackSurveyList_Result>()
+                .Name("GrdCXCustomerFeedbackSurvey")
+                .Columns(column =>
+                {
+                    column.Bound(a => a.ID).Hidden();
+                    column.Bound(u => u.OrgID).Title("Company").Width(100);
+                    column.Bound(u => u.ServiceRequestID).Title("SR #").Width(100);
+                    column.Bound(u => u.PurchaseOrderNumber).Title("PO #").Width(100);
+                    column.Bound(u => u.FirstName).Title("First Name").Width(100);
+                    column.Bound(u => u.LastName).Title("Last Name").Width(100);
+                    column.Bound(u => u.AdditionalComments).Title("Description of Concern").HtmlAttributes(new { @class = "toBeEllipsized" }).Width(150);
+                    column.Bound(a => a.CustomerFeedbackID).Hidden().HtmlAttributes(new { @class = "customerfeedbackidcolumn" }); ;
+                    column.Bound(a => a.IsIgnore).Hidden().HtmlAttributes(new { @class = "isignorecolumn" }); ;
+                    column.Command(command =>
+                    {
+                        command.Custom("Compliment").Click("ManageCustomerSurvey").HtmlAttributes(new { style = "min-width:auto;", title = "Compliment" });
+                        command.Custom("ComplaintNonDamage").Click("ManageCustomerSurvey").HtmlAttributes(new { style = "min-width:auto;", title = "Complaint" });
+                        command.Custom("Ignored").Click("ManageCustomerSurveyPrompt").HtmlAttributes(new { style = "min-width:auto;", title = "Ignored" });
+                    })
+                    .Width(150)
+                    .Title("Action(s)");
+                })
+                .Events(e =>
+                {
+                    e.DataBound("ManageCustomerFeedbackSurvey_Databound");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                            .PageSizes(new int[] { 20, 50, 100, 200 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("CXSearch", "CXSurvey").Data("CXCustomerFeedbackSurveySearchCriteria"))
+                    .PageSize(20)
+               )
+                .Resizable(resize => resize.Columns(true))
+
+                )
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        $("#StatusCounter_Open").parent().addClass("active");
+        $('input[name="Open"]').attr("checked", true);
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        340
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+
+    function AdjustTooltipForLongText() {
+      $(".toBeEllipsized").data("tooltip-options", {
+        onShow: function (target) {
+          var tip = $("#tooltips").find(".message");
+          if (tip.width() > 200) {
+            tip.css("white-space", "normal");
+            tip.css("min-width", "200px");
+          }
+        },
+        onRemove: function (target) {
+          var tip = $("#tooltips").find(".message");
+          tip.css("white-space", "nowrap");
+          tip.css("min-width", "auto");
+        }
+      });
+    }
+
+    function ManageCustomerFeedbackSurvey_Databound(e) {        
+       
+        $(".toBeEllipsized").each(function () {
+          $(this).addClass("with-tooltip").attr("title", $(this).text());
+        });
+        AdjustTooltipForLongText();
+
+        $(".k-grid-Compliment").addClass("with-tooltip").html("<span class='icon-size2 icon-like'/>");
+        $(".k-grid-ComplaintNonDamage").addClass("with-tooltip").html("<span class='icon-size2 icon-unlike'/>");
+        $(".k-grid-Ignored").addClass("with-tooltip").html("<span class='icon-size2 icon-cross'/>");
+
+
+        // For Showing count on top level items items
+
+        var rowCount = e.sender.dataSource.total();
+
+        if (rowCount == 0) {
+            try {
+                $("#StatusCounter_Closed").html("0");
+                $("#StatusCounter_Open").html("0");
+
+            } catch (e) {
+
+            }
+        }
+
+
+        if (rowCount > 0) {
+            try {
+                var item = e.sender.dataSource.data()[0];
+                $("#StatusCounter_Closed").html(item.ClosedCount);
+                $("#StatusCounter_Open").html(item.OpenCount);
+            } catch (e) {
+
+            }
+        }
+
+        // For closed tab items Hiding Action items and Showing label
+        var grid = $("#GrdCXCustomerFeedbackSurvey").data("kendoGrid");
+        var gridData = grid.dataSource.view();
+        $.each(gridData, function (i, row) {
+            var currentRow = grid.table.find("tr[data-uid='" + row.uid + "']");
+            var likeButton = $(currentRow).find(".k-grid-Compliment");
+            var unlikeButton = $(currentRow).find(".k-grid-ComplaintNonDamage");
+            var ignoreButton = $(currentRow).find(".k-grid-Ignored");
+
+            if (row.IsIgnore == 1) {
+
+                likeButton.hide();
+                unlikeButton.hide();
+                ignoreButton.hide();
+                ignoreButton.after('<span class="tag grey-bg">Ignored</span>');
+            }
+            else if (row.CustomerFeedbackID != null) {
+                likeButton.hide();
+                unlikeButton.hide();
+                ignoreButton.hide();
+                ignoreButton.after('<span class="tag blue-bg">Created Customer Feedback</span>');
+            }
+            else {
+
+                likeButton.show();
+                unlikeButton.show();
+                ignoreButton.show();
+            }
+
+        });
+    }
+
+    function ManageCustomerSurvey(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var userAction = e.data.commandName;
+            $.ajax({
+                url: '@Url.Action("UpdateSurvey", "CXSurvey")',
+                type: 'POST',
+                data: { surveyId: recordID, userAction: userAction },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource.read();
+                }
+            })
+        }
+    }
+
+
+    function ManageCustomerSurveyPrompt(e) {
+
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var userAction = e.data.commandName;
+            $.modal.confirm('Remove this Survey from the list?', function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("UpdateSurvey", "CXSurvey", new { area = "CX" })',
+                    traditional: true,
+                    cache: false,
+                    data: { surveyId: recordID, userAction: userAction },
+                    async: true,
+                    success: function (msg) {
+                        $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource.read();
+                        // openAlertMessage('Customer feedback details has been deleted successfully');
+                    }
+                });
+            }, function () {
+
+            });
+
+        }
+    }
+
+
+
+
+
+    //$('input[name="rbstatusSurvey"]').change(function () {
+
+    //    var value = $(this).attr('value');
+
+    //    RefreshGrid(value);
+    //});
+    function RefreshGrid(item) {
+        //alert(item);
+        var IsRbStatusSelected = $('input[name="Open"]').is(" :checked");
+        if(item=='Closed')
+        {
+            if(IsRbStatusSelected)
+            {
+                $("#StatusCounter_Open").parent().addClass("active");
+            }
+            else{
+                $("#StatusCounter_Open").parent().removeClass("active");
+
+            }
+
+        }
+
+        $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').refresh();
+        $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource.read();
+
+    }
+
+</script>

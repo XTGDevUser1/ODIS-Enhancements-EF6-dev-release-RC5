@@ -1,0 +1,337 @@
+﻿@using Kendo.Mvc.UI
+@using VendorPortal.ActionFilters
+@model VendorPortal.BLL.Models.VendorApplicationModel
+@{
+    ViewBag.Title = "Vendor Application";
+    Layout = "~/Views/Shared/_ContentMaster-public.cshtml";
+    var dummyList = new List<SelectListItem>();
+}
+
+<style type="text/css">
+    .k-upload-selected
+    /*.k-upload-action */ {
+        display: none;
+    }
+</style>
+<div class="leader relative">&nbsp;</div>
+
+<div class="constrain with-padding">
+    @using (Html.BeginForm("Save", "Apply", FormMethod.Post, new { id = "frmVendorApplication", enctype = "multipart/form-data" }))
+    {
+        <h1 class="thin underline">Application</h1>
+        <div class="alert alert-info">
+            <div class="button-height inline-medium-label">
+                <label for="HeardFrom" class="label">
+                    How did you hear about us?
+                </label>
+                @(Html.Kendo().ComboBox()
+                        .Name("HeardFrom")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                        .BindTo(ViewData[StaticData.ReferralSource.ToString()] as IEnumerable<SelectListItem>)
+                        .Placeholder("Please select")
+
+                )
+            </div>
+        </div>
+
+        @Html.Partial("_BusinessInformation", Model)
+        @Html.Partial("_Services", Model)
+        @Html.Partial("_SoftwareInformation", Model)
+        @Html.Partial("_TaxPayerInformation", Model)
+
+        @Html.Partial("_Insurance", Model)
+
+        @Html.Partial("_AgreementSignature", Model)
+
+        <div class="columns">
+            <div class="new twelve-columns">
+                <button id="btnSubmitApplication" class="btn btn-large btn-primary" type="submit">
+                    Submit Application
+                </button>
+                <br /><br /><br /><br />
+            </div>
+        </div>
+    }
+</div>
+<script language="javascript" type="text/javascript">
+
+    function PreparePhoneNumberAndType(editorPrefix) {
+        var phoneNumberForDB = GetPhoneNumberForDB(editorPrefix);
+        $("#" + editorPrefix + "_PhoneNumber").val(phoneNumberForDB);
+
+        var phoneTypeSelector = $("#" + editorPrefix + "_ddlPhoneType");
+        if (phoneTypeSelector.length > 0 && phoneTypeSelector.data) {
+            var phoneType = phoneTypeSelector.data("kendoComboBox").value();
+            $("#" + editorPrefix + "_PhoneTypeID").val(phoneType);
+        }
+    }
+
+
+    function KendoComboBoxHandleVendorInfoDispatchSoftwareOther(e) {
+
+        var combo = e.sender;
+        var $relatedPlaceHolder = $("#PlaceHolder_DispatchSoftwareProductOther");
+        var $changedDispatchSoftwareOtherTextBox = $("#DispatchSoftwareProductOther");
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $relatedPlaceHolder.removeClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.focus();
+        }
+        else {
+            $relatedPlaceHolder.addClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.val('');
+        }
+    }
+
+
+    function KendoComboBoxHandleVendorInfoDriverSoftwareOther(e) {
+
+        var combo = e.sender;
+        var $relatedPlaceHolder = $("#PlaceHolder_DriverSoftwareProductOther");
+        var $changedDispatchSoftwareOtherTextBox = $("#DriverSoftwareProductOther");
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $relatedPlaceHolder.removeClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.focus();
+        }
+        else {
+            $relatedPlaceHolder.addClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.val('');
+        }
+    }
+
+
+    function KendoComboBoxHandleVendorInfoDispatchGPSNetworkOther(e) {
+
+        var combo = e.sender;
+        var $relatedPlaceHolder = $("#PlaceHolder_DispatchGPSNetworkOther");
+        var $changedDispatchSoftwareOtherTextBox = $("#DispatchGPSNetworkOther");
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $relatedPlaceHolder.removeClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.focus();
+        }
+        else {
+            $relatedPlaceHolder.addClass('hidden');
+            $changedDispatchSoftwareOtherTextBox.val('');
+        }
+    }
+
+
+    function IsFormValid() {
+        $("#frmVendorApplication").validationEngine('hideAll');
+        var isValid = true;
+
+        // Text fields
+        if ($("#frmVendorApplication").validationEngine('validate') == false) {
+            isValid = false;
+        }
+
+        if (!$("input[name='DigitalDispatch']:checked").val()) {
+            isValid = false;
+            ShowValidationMessage($("input[name=DigitalDispatch]"), "* This field is required");
+        }
+        else {
+            HideValidationMessage($("input[name=DigitalDispatch]"));
+        }
+
+        var signedDatepicker = "SignedDate";
+        var signedDate = $("#" + signedDatepicker).data('kendoDatePicker').value();
+        if ($.trim(signedDate).length == 0) {
+            ShowValidationMessage($('input[name= "' + signedDatepicker + '"]'), "* This field is required.");
+            isValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + signedDatepicker + '"]'));
+        }
+
+
+        $("#frmVendorApplication").find('span.required input:text').each(function () {
+            if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                var val = $(this).val();
+                if ($.trim(val).length == 0) {
+                    ShowValidationMessage($(this), "Please select a value.");
+                    if (isValid) {
+                        $(this).focus();
+                    }
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($(this));
+                }
+            }
+        });
+
+
+
+        // Checkboxes and radios.
+        //Open 24x7
+        var businessHoursSpecified = false;
+        $(".bh").each(function () {
+            if ($.trim($(this).val()).length > 0) {
+                businessHoursSpecified = true;
+            }
+        });
+
+        if ($("#Open24X7").is(':checked') == false && !businessHoursSpecified) {
+
+            isValid = false;
+            ShowValidationMessage($("#Open24X7"), "* Check this field or specify business hours, otherwise");
+        }
+        else {
+            HideValidationMessage($("#Open24X7"));
+        }
+
+
+
+        if ($("#chkAgreeTC").is(":checked") == false) {
+            isValid = false;
+            ShowValidationMessage($("#chkAgreeTC"), "* This field is required");
+        }
+        else {
+            HideValidationMessage($("#chkAgreeTC"));
+        }
+
+        // Validate EIN and SSN.
+        // The following check is not required as it is accomplished using jquery validation engine (group validation).
+        var $ein = $("#EmployerIdentificationNumber");
+        var $ssn = $("#SSN");
+        var $w9Signature = $("#ElectronicSignature");
+        var $h3TaxClassification = $("#h3TaxClassification");
+        var businessAddressCountry = $("#PhysicalAddress_CountryID").data("kendoComboBox").text();
+
+        if (businessAddressCountry != "Canada") {
+            // TFS : 2101
+            // Tax IDs
+            if ($.trim($ein.mask()).length == 0 && $.trim($ssn.mask()).length == 0) {
+                isValid = false;
+                ShowValidationMessage($ein, "* Please provide EIN or SSN");
+            }
+            else {
+                HideValidationMessage($ein);
+            }
+
+            // Tax Classification
+            var taxClassificationChecked = false;
+            $('input[name="TaxClassification"]:checked').each(function () {
+                taxClassificationChecked = true;
+            });
+
+            if (!taxClassificationChecked) {
+                isValid = false;
+                ShowValidationMessage($h3TaxClassification, "* Please select a value", 'topLeft');
+            }
+            else {
+                HideValidationMessage($h3TaxClassification);
+            }
+
+            // W9 signature
+
+            if ($.trim($w9Signature.val()).length == 0) {
+                ShowValidationMessage($w9Signature, "* This field is required");
+                isValid = false;
+            }
+            else {
+                HideValidationMessage($w9Signature);
+            }
+        }
+        else {
+            HideValidationMessage($ein);
+            HideValidationMessage($w9Signature);
+            HideValidationMessage($h3TaxClassification);
+        }
+
+        if (!termsRead) {
+            ShowValidationMessage($("#lnkTerms"), "Please take a minute to read the Terms and Conditions before submitting the application");
+            isValid = false;
+        }
+        else {
+            HideValidationMessage($("lnkTerms"));
+        }
+
+        return isValid;
+    }
+
+    var termsRead = false;
+
+    $(function () {
+
+        $("#frmVendorApplication").validationEngine();
+
+        $("#lnkTerms").click(function () {
+            termsRead = true;
+        });
+        $('input[name="TaxClassification"]').change(function () {
+
+            var val = $(this).val();
+            if (val == "Other") {
+                $(".otherDescription").removeClass("hidden");
+            }
+            else {
+                $(".otherDescription").addClass("hidden");
+            }
+        });
+
+        $("#btnSubmitApplication").click(function (e) {
+
+            ClearDirtyFlag("pagecontainer");
+
+            var isValid = IsFormValid();
+
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+
+            PreparePhoneNumberAndType("OfficePhone");
+            PreparePhoneNumberAndType("DispatchPhone");
+            PreparePhoneNumberAndType("FaxPhone");
+            PreparePhoneNumberAndType("BusinessCellPhone");
+            PreparePhoneNumberAndType("InsurancePhoneNumber");
+
+            // Put the unmasked value.
+            $("#SSN").val($("#SSN").mask());
+            $("#EmployerIdentificationNumber").val($("#EmployerIdentificationNumber").mask());
+
+            if ($(".k-upload-selected").length > 0) {
+                console.log("File uploaded so going via Kendo Upload");
+                ShowLoadingIndicator();
+                $(".k-upload-selected").click();
+            }
+            else {
+                console.log("No file uploaded so posting via normal AJAX");
+                var postData = $("#frmVendorApplication").serializeArray();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Save", "Apply")',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    async: true,
+                    global: true,
+                    success: function (msg) {
+                        //openAlertMessage("Application has been submitted", function () { window.location = '@Url.Action("LogOn","Account", new {area = string.Empty})'; });
+                        window.location = '@Url.Action("SaveConfirmation","Apply")';
+                    }
+                });
+            }
+
+
+            return false;
+
+        });
+    });
+</script>
+
+

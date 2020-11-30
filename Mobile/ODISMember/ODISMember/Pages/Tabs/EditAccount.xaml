@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<CustomContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+x:Class="ODISMember.Pages.Tabs.EditAccount"
+Style="{StaticResource BaseContentPage}">
+  <StackLayout Spacing="0">
+    <StackLayout x:Name="stackActionBar">
+      <StackLayout x:Name="stackCustomActionBar"/>
+    </StackLayout>
+    <ScrollView>
+      <StackLayout Spacing="10" BackgroundColor="{x:Static Resource:ColorResources.EditAccountPageBackgroundColor}">
+        <StackLayout  Padding="5">
+          <controls:ExtendedLabel Text="- PLAN DETAILS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+        <Grid ColumnSpacing="20" BackgroundColor="White" Padding="10,5,10,5">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <widget:LabelValueVertical x:Name="widgetMembershipPlan" LabelText="PLAN" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+          <widget:LabelValueVertical x:Name="widgetMemberShipNumber" LabelText="MEMBERSHIP NUMBER" Grid.Row="1" Grid.Column="0" />
+          <widget:LabelValueVertical x:Name="widgetExpires" LabelText="EXPIRES" Grid.Row="1" Grid.Column="1" />
+        </Grid>
+        <StackLayout  Padding="5">
+          <controls:ExtendedLabel Text="- BILLING DETAILS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+        <StackLayout Padding="0,20,0,0" BackgroundColor="White">
+          <widget:LabelEntryVertical EntryHint="AddressLine1" IsLabelVisible="false" x:Name="widgetAddressLine1" IsLeftAlign="True"/>
+          <widget:LabelEntryVertical EntryHint="AddressLine2" IsLabelVisible="false" x:Name="widgetAddressLine2" IsLeftAlign="True"/>
+          <widget:LabelEntryVertical EntryHint="City" IsLabelVisible="false" x:Name="widgetCity" IsLeftAlign="True"/>
+
+          <Grid BackgroundColor="White">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <widget:LabelEntryDropdownVertical EntryHint="Country" IsLabelVisible="false" x:Name="widgetCountry" Grid.Row="0" Grid.Column="0" IsLeftAlign="True"/>
+            <widget:LabelEntryDropdownVertical EntryHint="State" IsLabelVisible="false" x:Name="widgetState" Grid.Row="0" Grid.Column="1" IsLeftAlign="True"/>
+            <widget:LabelEntryVertical EntryHint="Postal Code" x:Name="widgetPostalCode" KeyboardEntry="Numeric" IsLabelVisible="false" Grid.Row="0" Grid.Column="2" IsLeftAlign="True"/>
+          </Grid>
+
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </StackLayout>
+</CustomContentPage>
+

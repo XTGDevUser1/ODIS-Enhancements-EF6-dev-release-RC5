@@ -1,0 +1,5 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    var serviceRequestId = ViewData["ServiceRequestID"].ToString(); 
+}
+@Html.Action("GetServiceRequestDetails", "History", new { area = "Application", serviceRequestID = Convert.ToInt32(serviceRequestId), isShowAction = false })

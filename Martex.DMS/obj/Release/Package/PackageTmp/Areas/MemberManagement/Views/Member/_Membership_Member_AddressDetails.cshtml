@@ -1,0 +1,92 @@
+﻿@{
+    var suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+@using Kendo.Mvc.UI
+<script type="text/javascript">
+   
+</script>
+<div class="inline-label" style="margin-bottom: 10px;">
+    <label for="AddressType" class="label">
+        Address Type<span class="spanstar"> *</span></label>
+    @(Html.Kendo().ComboBox().Name("AMAddressType_" + suffixMembershipID)
+    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.AddressTypes.ToString()] as IEnumerable<SelectListItem>)
+    .HtmlAttributes(new { style = "width:85%;" })
+    .Events(events =>
+    {
+        events.Change("ValidateInputForKendoCombo");
+    })
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .SelectedIndex(0)
+    )
+</div>
+
+<p class="inline-label">
+    <label for="Address1" class="label">
+        Address 1 <span class="spanstar">*</span></label>
+    @Html.TextBox("AMAddressLine1_" + suffixMembershipID, "", new { @class = "validate[required,maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="Address2" class="label">
+        Address 2</label>
+    @Html.TextBox("AMAddressLine2_" + suffixMembershipID, "", new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="Address3" class="label">
+        Address 3</label>
+    @Html.TextBox("AMAddressLine3_" + suffixMembershipID, "", new { @class = "validate[maxSize[100]], input full-width2" })
+</p>
+<p class="inline-label">
+    <label for="City" class="label">
+        City <span class="spanstar">*</span></label>
+    @Html.TextBox("AMCity_" + suffixMembershipID, "", new { @class = "validate[required, maxSize[100]], input full-width2" })
+</p>
+<div class="inline-label" style="margin-bottom: 10px;">
+    <label for="Country" class="label">
+        Country<span class="spanstar"> *</span></label>
+    @(Html.Kendo().ComboBox().Name("AMCountry_" + suffixMembershipID)
+    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+    .HtmlAttributes(new { style = "width:85%;" })
+    .Events(events =>
+    {
+        events.Change(@<text>function(e){onComboBoxChange_Country(this,'@suffixMembershipID');}</text>);
+    })
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .DataTextField("Text")
+    .DataValueField("Value")
+    .SelectedIndex(0)
+    )
+</div>
+<div class="inline-label" style="margin-bottom: 10px;">
+    <label for="StateZip" class="label">
+        State<span class="spanstar"> *</span></label>
+    @(Html.Kendo().ComboBox()
+    .Name("AMState_" + suffixMembershipID)
+    .Placeholder("Select state")
+    .Events(events =>
+    {
+        events.Change("ValidateInputForKendoCombo");
+    })
+    .Suggest(true)
+    .Filter(FilterType.StartsWith).MinLength(0)
+    .HtmlAttributes(new { style = "width:85%;" })
+            //.Value(Model.State.ToString())
+    .DataTextField("Text")
+    .DataValueField("Value"))
+</div>
+<p class="inline-label">
+    <label for="Zip" class="label">
+        Zip</label>
+    @Html.TextBox("AMPostalCode_" + suffixMembershipID, "", new { @class = "validate[maxSize[10]], input" })
+</p>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#AMCountry_" + suffixMembershipID).data('kendoComboBox').trigger('change');
+        }, 500);
+    });
+
+</script>

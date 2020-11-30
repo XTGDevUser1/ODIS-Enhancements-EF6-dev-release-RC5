@@ -1,0 +1,13 @@
+﻿@using Martex.DMS.DAL
+@model List<Comment>
+
+<ul>
+
+@foreach (var item in Model)
+{
+    <li><strong>@item.Description</strong><br />
+        @item.CreateBy &nbsp;|&nbsp;
+        @item.CreateDate<br />
+    </li>
+}
+</ul>

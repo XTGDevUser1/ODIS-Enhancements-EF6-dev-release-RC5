@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.Pages.Tabs.MemberDetails">
+  <StackLayout Padding="30,30,0,0">
+    <!--<controls:ExtendedLabel x:Name="lblMemeberNumber" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>-->
+    <controls:ExtendedLabel x:Name="lblPlanName" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblExpiration" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <StackLayout Padding="0,20,0,0">
+    <controls:ExtendedLabel x:Name="lblFullName" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblAddress1" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblAddress2" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblCityStateProvince" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblDOB" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblCellPhone" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+    <controls:ExtendedLabel x:Name="lblEmail" Style="{StaticResource BaseLabelStyle}" TextColor="#8B8B8B" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+  </StackLayout>
+  </StackLayout>
+</ContentPage>

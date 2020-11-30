@@ -1,0 +1,347 @@
+﻿@model Martex.DMS.Models.ClientModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Client";
+    bool isEdit = false;
+    bool isView = false;
+    if (ViewData["mode"] != null && (ViewData["mode"].ToString().Equals("edit") || ViewData["mode"].ToString().Equals("view")))
+    {
+        isEdit = true;
+        if (ViewData["mode"].ToString().Equals("view"))
+        {
+            isView = true;
+        }
+    }
+    bool isNewRecord = false;
+    if (Model.Client == null || Model.Client.ID == 0)
+    {
+        isNewRecord = true;
+    }
+    string clientClass = "seven-columns";
+    if (isNewRecord)
+    {
+        clientClass = "ten-columns";
+    }
+    var suffixClientID = Model.Client.ID;
+}
+<script type="text/javascript">
+    function drpdwnCommon_OnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+    }
+    $(function () {
+        $('#form-ClientRegistration').validationEngine();
+    });
+
+
+</script>
+
+<form id="frmClientDetailsInformationSection_@suffixClientID" action="javascript:void(0)" method="post" relatedbuttons="PlaceHolder_Client_InfoSection_Buttons_@suffixClientID">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="@clientClass">
+                <fieldset class="fieldset">
+                    <legend class="legend">Client</legend>
+                    @*NP 04/14: Uncomment the below section if Client wants to Add/Update/Remove Avatar *@
+                    @*<div class="form-group">
+                        <div class="inline-medium-label medium-margin-bottom">
+                            <div>
+                                @if (Model != null && Model.Client.Avatar != null && Model.Client.Avatar != null)
+                                {
+                                    <div class="fileinput-new thumbnail" style="width: 200px; height: 200px;">
+                                        <img src="@Model.Client.Avatar" />
+                                    </div>
+                                    <p><a href="javascript:void(0)" id="btnRemoveAvatar_@suffixClientID" onclick="RemoveClientAvatar('@suffixClientID');">Remove Avatar</a></p>
+                                    <p><a href="javascript:void(0)" id="btnChangeAvatar_@suffixClientID" onclick="ChangeClientAvatar('@suffixClientID');">Change Avatar</a></p>
+                                }
+                                else
+                                {
+                                    <div class="fileinput-new thumbnail">
+                                        <img src="@Url.Content("~/Content/images/noImage.gif")" alt="">
+                                    </div>
+                                    <p><a href="javascript:void(0)" id="btnAddAvatar_@suffixClientID" onclick="ChangeClientAvatar('@suffixClientID');">Add Avatar</a></p>
+
+                                }
+                            </div>
+                        </div>
+                    </div>*@
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Client Type<span class="spanstar red">*</span>
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                     .Name("ClientClientType_" + @suffixClientID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClientType.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoCombo"))
+                              .Value(Model.Client.ClientTypeID == null ? string.Empty : Model.Client.ClientTypeID.Value.ToString())
+                                           .HtmlAttributes(new { id = "ClientClientType_" + suffixClientID, @style = "width:99%" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Name" class="label">
+                            Client Name<span class="spanstar red">*</span>
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.Name, new { @id = "clientName_" + suffixClientID, @class = "input full-width2", @readonly = "readonly" })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.Name, new { @id = "clientName_" + suffixClientID, @class = "validate[required,maxSize[50]] input full-width2", maxlength = 50 })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Description" class="label">
+                            Description
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextAreaFor(u => u.Client.Description, new { @class = "validate[maxSize[255]], input full-width2", rows = "4", @readonly = "readonly", @id = "clientDescription_" + suffixClientID })
+                        }
+                        else
+                        {
+                            @Html.TextAreaFor(u => u.Client.Description, new { @class = "validate[maxSize[255]], input full-width2", rows = "4", maxlength = 255, @id = "clientDescription_" + suffixClientID })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting Customer Number
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemCustomerNumber, new { @class = "input full-width2", @readonly = "readonly", @id = "clientAccountingSystemCustomerNumber_" + suffixClientID })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemCustomerNumber, new { @class = "input full-width2", maxlength = 7, @id = "clientAccountingSystemCustomerNumber_" + suffixClientID })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting Address Code
+                        </label>
+                        @if (isView)
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemAddressCode, new { @class = "input full-width2", @readonly = "readonly", @id = "clientAccountingSystemAddressCode_" + suffixClientID })
+                        }
+                        else
+                        {
+                            @Html.TextBoxFor(u => u.Client.AccountingSystemAddressCode, new { @class = "input full-width2", maxlength = 4, @id = "clientAccountingSystemAddressCode_" + @suffixClientID })
+                        }
+                    </p>
+                    <!-- TFS: 694 - Added AccountingSystemDivisionCode -->
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Accounting Division Code
+                        </label>
+                        @(Html.Kendo().NumericTextBox()
+                                        .Name("ClientAccountingSystemDivisionCode_" + @suffixClientID)
+                                          .Format("N0")
+                                          .Min(0)
+                                          .Value(Model.Client.AccountingSystemDivisionCode.HasValue ? Convert.ToDouble(Model.Client.AccountingSystemDivisionCode) : 0)
+                                          .Spinners(true)
+                                          .Enable(!isView)
+                                          .HtmlAttributes(new { style = "width:99%;" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Payment Balance
+                        </label>
+                        @(Html.Kendo().NumericTextBox()
+                        .Name("ClientPaymentBalance_" + @suffixClientID)
+                        .Format("c")
+                        .Min(0)
+                        .Value(Model.Client.PaymentBalance.HasValue ? Convert.ToDouble(Model.Client.PaymentBalance) : 0)
+                        .Spinners(false)
+                        .Enable(false)
+                        .HtmlAttributes(new { style = "width:99%;" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="ClientClientss" class="label">
+                            Organizations<span class="spanstar">*</span> <span class="info-spot">
+                                <span class="icon-info-round">
+                                </span><span class="info-bubble">
+                                    Select all the Organizations<br />
+                                    that can see and work with this<br />
+                                    Client. Selecting an Organization allows users from that Organization to work with
+                                    this Client.
+                                </span>
+                            </span>
+                        </label>
+                        @(Html.Kendo().MultiSelectFor(a => a.ClientOrganizationsValues)
+                                        .Name("ClientOrganizationsValues_" + @suffixClientID)
+                                  .Placeholder("Select Organizations...")
+                                  .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Organizations.ToString()] as IEnumerable<SelectListItem>)
+                                  .Enable(!isView)
+                                  .Value(Model.ClientOrganizationsString)
+                        )
+                    </p>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Main Contact</legend>
+                        <p class="inline-medium-label medium-margin-bottom">
+                            <label class="label">
+                                First Name
+                            </label>
+                            @if (isView)
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactFirstName, new { @class = "input full-width2", @readonly = "readonly", @id = "clientMainContactFirstName_" + suffixClientID })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactFirstName, new { @class = "input full-width2", maxlength = 100, @id = "clientMainContactFirstName_" + @suffixClientID })
+                            }
+                        </p>
+                        <p class="inline-medium-label medium-margin-bottom">
+                            <label class="label">
+                                Last Name
+                            </label>
+                            @if (isView)
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactLastName, new { @class = "input full-width2", @readonly = "readonly", @id = "clientMainContactLastName_" + @suffixClientID })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactLastName, new { @class = "input full-width2", maxlength = 100, @id = "clientMainContactLastName_" + @suffixClientID })
+                            }
+                        </p>
+                        <p class="inline-medium-label medium-margin-bottom">
+                            <label class="label">
+                                Phone
+                            </label>
+                            @Html.Editor("MainContactPhone_" + @suffixClientID, "Phone", new { Value = Model.Client.MainContactPhone, ShowPhoneType = false, PhoneTypeValue = Model.Client.MainContactPhone, CallType = "Vendor" })
+
+                        </p>
+                        <p class="inline-medium-label medium-margin-bottom">
+                            <label class="label">
+                                Email
+                            </label>
+                            @if (isView)
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactEmail, new { @class = "input full-width2", @readonly = "readonly", @id = "clientMainContactEmail_" + @suffixClientID })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.Client.MainContactEmail, new { @class = "input full-width2", maxlength = 100, @id = "clientMainContactEmail_" + @suffixClientID })
+                            }
+                        </p>
+                        <p class="inline-medium-label medium-margin-bottom">
+                            <label class="label">
+                                Website
+                            </label>
+                            @if (isView)
+                            {
+                                @Html.TextBoxFor(u => u.Client.Website, new { @class = "input full-width2", @readonly = "readonly", @id = "clientWebsite_" + @suffixClientID })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.Client.Website, new { @class = "input full-width2", maxlength = 100, @id = "clientWebsite_" + @suffixClientID })
+                            }
+                        </p>
+                    </fieldset>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label class="label">
+                            Account Manager
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                     .Name("ClientClientRep_" + @suffixClientID)
+                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClientRep.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                        .Value(Model.Client.ClientRepID == null ? string.Empty : Model.Client.ClientRepID.Value.ToString())
+                                        .HtmlAttributes(new { id = "ClientClientRep_" + suffixClientID, @style = "width:99%" })
+                        )
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="Active" class="label">
+                            Is Active?
+                        </label>
+                        @if (isEdit)
+                        {
+                            if (isView)
+                            {
+                                @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox", disabled = "disabled", @readonly = "readonly", @id = "clientIsActive_" + @suffixClientID })
+                            }
+                            else
+                            {
+                                @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox", @id = "clientIsActive_" + @suffixClientID })
+                            }
+                        }
+                        else
+                        {
+                            @Html.CheckBoxFor(a => a.isActive, new { @class = "checkbox", @checked = "checked", @id = "clientIsActive_" + @suffixClientID })
+                        }
+                    </p>
+                    <p class="inline-medium-label medium-margin-bottom">
+                        <label for="LastUpdateInformation" class="label">
+                            Last Update
+                        </label>
+                        @Html.DisplayFor(u => u.LastUpdateInformation)
+                    </p>
+
+                </fieldset>
+            </div>
+            @if (Model.Client != null && Model.Client.ID > 0)
+            {
+                <div class="five-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Address</legend>
+                        <div class="medium-margin-bottom">
+                            @Html.Editor("ScrollableAddress", "ScrollableAddress", new
+                        {
+                            address = new GenericAddressEntityModel()
+                            {
+                                RecordID = Model.Client.ID,
+                                EntityName = "Client",
+                                Height = 300
+
+                            }
+                        })
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Phone Numbers</legend>
+                        @Html.Editor("ScrollablePhone", "ScrollablePhone", new
+                                {
+                                    phone = new GenericPhoneModel()
+                                    {
+                                        RecordID = Model.Client.ID,
+                                        EntityName = "Client",
+                                        Height = 90
+
+                                    }
+                                })
+                    </fieldset>
+                </div>
+            }
+
+
+            <div class="twelve-columns" id="PlaceHolder_Client_InfoSection_Buttons_@suffixClientID">
+                <button id="btnSaveClientInfoSection_@suffixClientID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                        type="button" onclick="SaveClientInfoTabInformation(this,'@suffixClientID');">
+                    Save
+                </button>
+                <button id="btnCancelClientInfoSection_@suffixClientID" class="button gray-gradient  float-right margin-bottom"
+                        type="button" onclick="CancelClientInfoTabInformation('@suffixClientID');">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @Html.Hidden("hdnfldMode", ViewData["mode"])
+    @Html.HiddenFor(a => a.Client.ID)
+</form>

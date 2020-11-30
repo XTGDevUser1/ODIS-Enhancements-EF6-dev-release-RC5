@@ -1,0 +1,223 @@
+﻿@model Martex.DMS.BLL.Model.Clients.BillingEventDetailStatus
+@using Kendo.Mvc.UI;
+@{
+    Layout = null;
+    int billingInvoiceLineID = Model.billingInvoiceLineID;
+}
+<form id="frmBillingEventDetailStatusUpdate" action="javascript:void(0)">
+<div id="divBillingEventDetailStatuses">
+    @Html.HiddenFor(a => a.billingInvoiceLineID)
+    <table class="table simple-table" id="tableBillingEventDetailStatus">
+        <thead>
+            <tr>
+                <td>
+                    Status
+                </td>
+                <td>
+                    Count
+                </td>
+            </tr>
+        </thead>
+        <tr>
+            <td>
+                Pending
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.pendingCount)
+                @Html.HiddenFor(a => a.selectedPendingEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Ready
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.readyCount)
+                @Html.HiddenFor(a => a.selectedReadyEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Posted
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.postedCount)
+                @Html.HiddenFor(a => a.selectedPostedEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Onhold
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.onholdCount)
+                @Html.HiddenFor(a => a.selectedOnholdEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Exception
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.exceptionCount)
+                @Html.HiddenFor(a => a.selectedExceptionEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Deleted
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.deletedCount)
+                @Html.HiddenFor(a => a.selectedDeletedEvents)
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Excluded
+            </td>
+            <td>
+                @Html.DisplayFor(a => a.excludedCount)
+                @Html.HiddenFor(a => a.selectedExcludedEvents)
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="clear">
+</div>
+<table class="table" id="tableBillingEventDetailStatusList">
+    <tr>
+        <th>
+            From Status
+        </th>
+        <th>
+            To Status
+        </th>
+    </tr>
+    <tr>
+        <td>
+            @(Html.Kendo().ComboBox()
+                .Name("BillingInvoiceFromDetailStatus")
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingInvoiceDetailStatusPendingReady.ToString()] as IEnumerable<SelectListItem>)
+                .SelectedIndex(0)
+                    //.HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .HtmlAttributes(new { style = "width:80%;" })
+                )
+        </td>
+        <td>
+            @(Html.Kendo().ComboBox()
+                .Name("BillingInvoiceToDetailStatus")
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingInvoiceDetailStatusPendingReady.ToString()] as IEnumerable<SelectListItem>)
+                .SelectedIndex(0)
+                    //.HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .HtmlAttributes(new { style = "width:80%;" })
+            )
+        </td>
+    </tr>
+</table>
+<div class="align-center">
+    <button id="btnUpdateSelectedEventDetailsStatus" type="button" class="button green-gradient glossy small-margin-top">
+        Update
+    </button>
+    <button id="btnCancelSelectedEventDetailsStatus" type="button" class="button gray-gradient glossy small-margin-top">
+        Cancel
+    </button>
+</div>
+</form>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+    $(document).ready(function () {
+
+        WatchMyContainer('frmBillingEventDetailStatusUpdate', null, null);
+    });
+    $(function () {
+        $("#frmBillingEventDetailStatusUpdate").validationEngine();
+        $("#btnUpdateSelectedEventDetailsStatus").click(function () {
+            var errorfound = false;
+            if ($("#frmBillingEventDetailStatusUpdate").validationEngine("validate") == false) {
+                errorfound = true;
+            }
+            var billingInvoiceFromDetailStatus = $('#BillingInvoiceFromDetailStatus').data('kendoComboBox').value();
+            if ($.trim(billingInvoiceFromDetailStatus).length == 0) {
+                ShowValidationMessage($('input[name="BillingInvoiceFromDetailStatus_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="BillingInvoiceFromDetailStatus_input"]'));
+            }
+            var billingInvoiceToDetailStatus = $('#BillingInvoiceToDetailStatus').data('kendoComboBox').value();
+            if ($.trim(billingInvoiceToDetailStatus).length == 0) {
+                ShowValidationMessage($('input[name="BillingInvoiceToDetailStatus_input"]'), "* This field is required.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="BillingInvoiceToDetailStatus_input"]'));
+            }
+            if ($.trim(billingInvoiceToDetailStatus).length > 0 && billingInvoiceFromDetailStatus == billingInvoiceToDetailStatus) {
+                ShowValidationMessage($('input[name="BillingInvoiceToDetailStatus_input"]'), "* From Status and To Status must be different.");
+                errorfound = true;
+            }
+            else if ($.trim(billingInvoiceToDetailStatus).length > 0 && billingInvoiceFromDetailStatus != billingInvoiceToDetailStatus) {
+                HideValidationMessage($('input[name="BillingInvoiceToDetailStatus_input"]'));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+            var fromStatus = billingInvoiceFromDetailStatus;
+            var fromStatusText = $('#BillingInvoiceFromDetailStatus').data('kendoComboBox').text();
+            var toStatus = billingInvoiceToDetailStatus;
+            var toStatusText = $('#BillingInvoiceToDetailStatus').data('kendoComboBox').text();
+            var elementsToBeUpadted = "";
+            if (fromStatusText == "Pending") {
+                elementsToBeUpadted = $("#selectedPendingEvents").val();
+            }
+            else if (fromStatusText == "Ready") {
+                elementsToBeUpadted = $("#selectedReadyEvents").val();
+            }
+            else if (fromStatusText == "On Hold") {
+                elementsToBeUpadted = $("#selectedOnholdEvents").val();
+            }
+            else if (fromStatusText == "Exception") {
+                elementsToBeUpadted = $("#selectedExceptionEvents").val();
+            }
+            else if (fromStatusText == "Deleted") {
+                elementsToBeUpadted = $("#selectedDeletedEvents").val();
+            }
+            else if (fromStatusText == "Excluded") {
+                elementsToBeUpadted = $("#selectedExcludedEvents").val();
+            }
+            $.ajax({
+                url: '@Url.Action("_UpdateSelectedBillingEventDetailStatus", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                type: 'POST',
+                data: { ToStatus: toStatus, ElementsToBeUpadted: elementsToBeUpadted, FromStatusText: fromStatusText, ToStatusText: toStatusText },
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        openAlertMessage(msg.Data, function (e) {
+                            CleanMyContainer('frmBillingEventDetailStatusUpdate');
+                            selectedEventDetailsStatusWindow.data('kendoWindow').close();
+                            $("#GrdClientBillableEvents_@billingInvoiceLineID").data('kendoGrid').dataSource.read();
+                        });
+                    }
+                    else if (msg.Status == "Failure") {
+                        openAlertMessage(msg.Data);
+                    }
+                    else {
+                        openAlertMessage(msg.Data);
+                    }
+                }
+            })
+        });
+
+        $("#btnCancelSelectedEventDetailsStatus").click(function () {
+            selectedEventDetailsStatusWindow.data('kendoWindow').close();
+        });
+    });
+//-->
+</script>

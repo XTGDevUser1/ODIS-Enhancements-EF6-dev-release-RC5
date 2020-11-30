@@ -1,0 +1,79 @@
+﻿@model int
+@{
+    var suffixVendorInvoiceID = Model.ToString();
+    var suffixVendorID = ViewData["VendorID"].ToString();
+    var purchaseOrderNumber = ViewData["PurchaseOrderNumber"].ToString();
+    var vendorName = ViewData["VendorName"].ToString();
+}
+<div class="with-padding">
+    <form id="frmPoNumberVerfiy_@suffixVendorInvoiceID" action="javascript:void(0)" method="post">
+    <div style="min-height: 25px; margin: 5px; display:none" id="divPoNumberVerfiy_@suffixVendorInvoiceID">
+        <div style="display: inline-block;">
+            <div class="message" id="statusIndicator_@suffixVendorInvoiceID" style="display:none">
+                <span class="block-arrow"><span></span></span><span class="statusMessage" style="text-align: center">
+                </span>
+            </div>
+            <label for="PONumber" class="label">
+                <b>PO Number <span class="star">*</span></b></label>
+            @Html.TextBox("PONumber_" + suffixVendorInvoiceID, string.Empty, new { @class = "validate[required] input" })
+            <button id="btnVerifyPO_@suffixVendorInvoiceID" class="button glossy blue-gradient" type="button" onclick="verifyPONumber(this,@suffixVendorInvoiceID)">
+                Verify PO
+            </button>
+            <button id="btnContinuePO_@suffixVendorInvoiceID" class="button glossy green-gradient hide" type="button" onclick="continueToInvoiceTab(this,@suffixVendorInvoiceID)">
+                Continue
+            </button>
+            <button id="btnResetPO_@suffixVendorInvoiceID" class="button glossy gray-gradient hide" type="button" onclick="resetInvoiceTab(this,@suffixVendorInvoiceID)">
+                Reset
+            </button>
+        </div>
+        <div style="display: inline-block; vertical-align: top; float: right;">
+            <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('@suffixVendorInvoiceID');">
+                X</a>
+        </div>
+    </div>
+    <div id="divPoDetails_@suffixVendorInvoiceID" style="min-height: 25px; margin: 5px; display:none">
+        <div style="display: inline-block;">
+            <h3>
+                PO # : @purchaseOrderNumber - @vendorName
+            </h3>
+        </div>
+        <div style="display: inline-block; vertical-align: top; float: right;">
+            <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('frmVendorInvoiceContainerForDirtyFlag_@suffixVendorInvoiceID');">
+                X</a>
+        </div>
+    </div>
+    </form>
+</div>
+<div class="with-padding">
+    <div id="frmVendorInvoiceContainerForDirtyFlag_@suffixVendorInvoiceID" data="false">
+        <div id="VendorInvoiceContainer_@suffixVendorInvoiceID">
+            @Html.Partial("_VendorInvoiceTabs", Model)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ('@suffixVendorInvoiceID' > 0) {
+            $("#divPoNumberVerfiy_@suffixVendorInvoiceID").hide();
+            $("#divPoDetails_@suffixVendorInvoiceID").show();
+        }
+        else {
+            $("#divPoNumberVerfiy_@suffixVendorInvoiceID").show();
+            $("#divPoDetails_@suffixVendorInvoiceID").hide();
+            $("#frmVendorInvoiceContainerForDirtyFlag_@suffixVendorInvoiceID").addClass('disabled', 'disabled');
+        }
+//        $("#frmPoNumberVerfiy_@suffixVendorInvoiceID").validationEngine();
+    });
+
+    var fnbuttonHandler = function (sender) {
+        var cloestForm = $(sender).closest('form');
+        if (cloestForm != undefined) {
+            var formName = cloestForm.attr("id");
+            var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+            if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                $(buttonPlaceHolder).show();
+            }
+        }
+    }
+    WatchMyContainer("frmVendorInvoiceContainerForDirtyFlag_@suffixVendorInvoiceID", null, fnbuttonHandler);
+</script>

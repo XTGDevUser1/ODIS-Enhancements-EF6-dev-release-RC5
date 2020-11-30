@@ -1,0 +1,476 @@
+﻿.t-widget {font-family: Arial, Helvetica, sans-serif!important;
+	font-size: 11px!important;
+	line-height: 22px;
+
+	color: #666666;
+	/*margin-top:-3px;*/
+	}
+	
+	/*input[type="text"], input[type="password"] {
+
+	font-size: 11px!important;
+}*/
+
+.t-state-disabled .t-arrow-down {
+background-position: -28px -174px!important;
+}
+
+.t-arrow-down {
+background-position: -28px -174px!important;
+}
+
+/*.t-widget p {margin-bottom:14px;}*/
+
+.t-picker-wrap .t-select, .t-dropdown-wrap .t-select
+{
+    height: 20px;
+    line-height: 20px;
+}
+
+
+.t-combobox .t-select
+{
+    border-width: 0 0 0 1px;
+    border-style: solid;
+    border-color: #ccc;
+    -webkit-background-clip: padding-box;
+    border-style: solid;
+    width: 25px;
+    color: #666666;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf);
+}
+
+.t-dropdown-wrap
+{
+}
+.t-combobox.t-header
+{
+    background: transparent;
+    border: none;
+}
+.t-combobox > .t-state-default
+{
+    border-color: #cccccc; /* Your border color*/
+}
+.t-combobox > .t-dropdown-wrap
+{
+    height: 22px;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf); /* Your background color*/
+    -webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+		border-radius: 3px;
+
+}
+.t-combobox > .t-dropdown-wrap > .t-select
+{
+}
+.t-combobox > .t-dropdown-wrap > .t-input
+{
+    background: transparent;
+}
+
+.t-arrow-down
+{
+    background-position: -12px -175px;
+}
+
+/*.t-dropdown-wrap {
+padding-right: 16px;
+border-width: 1px;
+border-style: solid;
+-webkit-background-clip: padding-box;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.t-combobox .t-input {
+height: 20px;
+line-height: 20px;
+padding: 1px 3px;
+border: 0;
+margin: 0;
+.t-state-active, .t-header .t-state-active
+{
+
+}
+
+.t-toolbar, .t-grouping-header, .t-grid-pager, .t-widget .t-status
+{
+    border-color: transparent !important;
+    background-color: transparent !important;
+}
+
+
+.t-state-hover, .t-state-hover:hover
+{
+    background-color: #E9E9E9;
+    border-color: #fff;
+}
+
+.t-combobox
+{
+    
+}
+.t-input
+{
+}
+
+.t-combobox .t-input
+{
+    height: 26px!important;
+    line-height: 16px;
+    border: 0;
+    margin: 0;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #666666;
+    background: #d6dadf url(../Content/img/old-browsers/colors/bg_button.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#efeff4), to(#d6dadf));
+    background: -webkit-linear-gradient(top, #efeff4, #d6dadf);
+    background: -moz-linear-gradient(top, #efeff4, #d6dadf);
+    background: -ms-linear-gradient(top, #efeff4, #d6dadf);
+    background: -o-linear-gradient(top, #efeff4, #d6dadf);
+    background: linear-gradient(top, #efeff4, #d6dadf);
+    border-color: #cccccc;
+}
+
+.t-picker-wrap .t-select, .t-dropdown-wrap .t-select
+{
+    height: 26px!important;
+    line-height: 20px;
+}
+
+
+.t-combobox .t-select
+{
+    border-width: 0 0 0 1px;
+    border-style: solid;
+    border-color: #ccc;
+    -webkit-background-clip: padding-box;
+    border-style: solid;
+    width: 25px;
+    color: #666666;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf);
+}
+
+.t-dropdown-wrap
+{
+}
+.t-combobox.t-header
+{
+    background: transparent;
+    border: none;
+}
+.t-combobox > .t-state-default
+{
+    border-color: #cccccc; /* Your border color
+}
+.t-combobox > .t-dropdown-wrap
+{
+    height: 26px;
+    background: #d7dbdf url(../Content/img/old-browsers/colors/bg_a_button_hover.png) repeat-x;
+    background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#d7dbdf));
+    background: -webkit-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -moz-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -ms-linear-gradient(top, #fefefe, #d7dbdf);
+    background: -o-linear-gradient(top, #fefefe, #d7dbdf);
+    background: linear-gradient(top, #fefefe, #d7dbdf); /* Your background color
+    border-radius: 4px;
+}
+.t-combobox > .t-dropdown-wrap > .t-select
+{
+}
+.t-combobox > .t-dropdown-wrap > .t-input
+{
+    background: transparent;
+}
+
+.t-arrow-down
+{
+    background-position: -12px -171px!important;
+}
+.t-grid td
+{
+    white-space: nowrap;
+}
+
+.t-grid-header
+{
+    background: none;
+}
+
+.t-grid-top, .t-grid-bottom
+{
+    background: #00438d url(../Content/img/old-browsers/colors/bg_button-icon.png) repeat-x;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
+    background: -webkit-gradient(linear, left top, left bottom, from(#006aac), to(#00438d));
+    background: -webkit-linear-gradient(top, #006aac, #00438d);
+    background: -moz-linear-gradient(top, #006aac, #00438d);
+    background: -ms-linear-gradient(top, #006aac, #00438d);
+    background: -o-linear-gradient(top, #006aac, #00438d);
+    background: linear-gradient(top, #006aac, #00438d);
+    border-color: #004795;
+}
+
+.t-state-disabled
+{
+    color: White;
+}
+
+.t-dropdown
+{
+}*/
+
+.t-window-titlebar
+{
+}
+
+#GrdOrganizations input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+
+
+#GrdUsers input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+
+#GrdProgramMaintenance input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+#GrdDataGroups input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+
+#GrdPhoneSystemConfiguration input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+
+#GrdClients input[type="text"]
+{
+    border: 1px solid #ccc;
+    padding: 2px;
+    font-size: 11px;
+    color: #444;
+    width: 96% !important;
+}
+
+.input.help
+{
+    width: 93% !important;
+}
+.t-viewServiceRequest, .t-view
+{
+     background-position: -63px -176px;
+}
+.t-editUserDetails
+{
+    background-position: 0 -336px;
+}
+.t-editOrganizationDetails
+{
+    background-position: 0 -336px;
+}
+.t-deleteUserDetails
+{
+    background-position: -16px -336px;
+}
+.t-deleteOrganizationDetails
+{
+    background-position: -16px -336px;
+}
+.t-viewUserDetails, .t-view
+{
+    background-position: -63px -176px;
+}
+.t-viewOrganizationDetails
+{
+    background-position: -63px -176px;
+}
+
+.t-viewPhoneSystemConfigurationDetails
+{
+    background-position: -63px -176px;
+}
+.t-editPhoneSystemConfigurationDetails
+{
+    background-position: 0 -336px;
+}
+.t-deletePhoneSystemConfigurationDetails
+{
+    background-position: -16px -336px;
+}
+
+.t-viewDataGroupDetails
+{
+    background-position: -63px -176px;
+}
+.t-editDataGroupDetails
+{
+    background-position: 0 -336px;
+}
+.t-deleteDataGroupDetails
+{
+    background-position: -16px -336px;
+}
+
+.t-viewProgramMaintenance
+{
+    background-position: -63px -176px;
+}
+.t-editProgramMaintenance
+{
+    background-position: 0 -336px;
+}
+.t-deleteProgramMaintenance
+{
+    background-position: -16px -336px;
+}
+
+.t-viewClientDetails
+{
+    background-position: -63px -176px;
+}
+.t-editClientDetails
+{
+    background-position: 0 -336px;
+}
+.t-deleteClientDetails
+{
+    background-position: -16px -336px;
+}
+
+.t-viewMemberSearchDetails
+{
+    background-position: -63px -176px;
+}
+
+.t-viewPOSearchDetails
+{
+    background-position: -63px -176px;
+}
+.t-viewCloseLoopDetails
+{
+    background-position: -63px -176px;
+}
+
+.t-viewMemberSearchDetails
+{
+    background-position: -63px -176px;
+}
+.t-viewPaymentDetails
+{
+    background-position: -63px -176px;
+}
+.t-copyPaymentDetails
+{
+    background-position: -63px -176px;
+}
+/*.t-header, .t-grid-header
+{
+    border-color: #ccc;
+    border-radius: 4px;
+    background: #ADADAD url('/Content/Default/sprite.png') repeat-x 0 -852px;
+}*/
+
+.dotted-border
+{
+    border : 1px dotted #CCCCCC;
+}
+
+.five-rows {height:120px;}
+
+.ten-rows
+{
+    height:200px;
+}
+
+.twenty-rows
+{
+    height:400px;
+}
+
+.t-viewPO
+{
+     background-position: -63px -176px;
+}
+
+.t-editPO
+{
+     background-position: 0 -336px;
+}
+
+.t-CancelPO
+{
+     background-position: -16px -336px;
+}
+
+.t-GOAPO
+{
+     background-position: -64px -334px;
+}
+
+
+/* KB: Custom kendo styles */
+td > .k-button
+{
+    padding : 1px 1px 0px 3px;
+}

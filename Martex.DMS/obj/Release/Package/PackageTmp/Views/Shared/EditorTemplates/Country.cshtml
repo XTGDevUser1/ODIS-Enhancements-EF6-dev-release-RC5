@@ -1,0 +1,12 @@
+﻿@using Telerik.Web.Mvc.UI;
+@(Html.Telerik().ComboBox()
+.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+.AutoFill(true)
+.HighlightFirstMatch(true)
+.Filterable(filtering =>
+{
+    filtering.FilterMode(AutoCompleteFilterMode.StartsWith);
+    filtering.MinimumChars(0);
+})
+.BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+)

@@ -1,0 +1,35 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<form name="frm_Motorcycle_@suffixMembershipID" id="frm_Motorcycle_@suffixMembershipID" relatedButtons="PlaceHolder_Membership_Vehicle_Trailer_MotorCycle_Buttons_@suffixMembershipID" action="javascript:void(0);">
+@Html.Partial("_MotorcycleBasicInformation", Model)
+<div class="clear"></div>
+<div class="full-width hide" id="PlaceHolder_Membership_Vehicle_Trailer_MotorCycle_Buttons_@suffixMembershipID">
+    <button id="btnSaveMembershipMotorCycleVehicleInformation_@suffixMembershipID" class="button green-gradient float-right mid-margin-left margin-bottom" type="button">
+        Save</button>
+    <button id="btnCancelMembershipMotorCycleVehicleInformation_@suffixMembershipID" class="button gray-gradient float-right margin-bottom" type="button" onclick="MembershipVehicleCancelButton('@suffixMembershipID');">
+        Cancel</button>
+</div>
+</form>
+<script type="text/javascript">
+
+    function SaveMotorcycle(uniqueID) {
+
+        return SaveForm('frm_Motorcycle_' + uniqueID, "Motorcycle");
+    }
+
+    
+    $(function () {
+        $("#frm_Motorcycle_@suffixMembershipID").validationEngine();
+
+        $("#btnSaveMembershipMotorCycleVehicleInformation_@suffixMembershipID").click(function (e) {
+            e.preventDefault();
+
+            var uniqueID = '@suffixMembershipID';
+            SaveMotorcycle(uniqueID);
+
+            return false;
+        });
+    });
+</script>

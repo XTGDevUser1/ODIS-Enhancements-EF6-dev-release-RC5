@@ -1,0 +1,1440 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/MemberManagement/Views/Shared/_MemberManagementLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+<h1>Member Maintenance</h1>
+</hgroup>
+<div class="with-padding">
+    <div id="MemberManagementListTab" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li id="tbMemberList"><a id="hypMemberSearchCriteria" href="#tabs-1">List</a> </li>
+        </ul>
+        <div id="tabs-1">
+            <div class="with-padding" id="PlaceHolderMemberSearchList">
+                @Html.Partial("_SearchList")
+            </div>
+            <div class="with-padding" id="PlaceHolderMemberAdd">
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var tabObject_MemberManagement = null;
+    $(function () {
+        tabObject_MemberManagement = $("#MemberManagementListTab").tabs({
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+        LoadSearchCriteria();
+    });
+
+    function BindMembershipMember(membershipID, val) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("BindMembershipMember", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: { membershipID: membershipID },
+            success: function (msg) {
+                var vlCombo = $("#MemberInformationID" + membershipID).data('kendoComboBox');
+                vlCombo.setDataSource(msg);
+                if (val != null) {
+                    vlCombo.value(val);
+                    vlCombo.trigger('change');
+                }
+
+
+            }
+        });
+    }
+
+    function GetSearchCriteria() {
+        var postData = $('#frmMemberSearchCriteria').serializeArray();
+        var firstNameOperator = "";
+        var lastNameOperator = "";
+        var stateProvince = "";
+        var country = "";
+        var clientName = "";
+        var programName = "";
+
+        if ($('#FirstNameNameOperator').data('kendoComboBox') != undefined) {
+            firstNameOperator = $('#FirstNameNameOperator').data('kendoComboBox').text();
+        }
+        if ($('#LastNameOperator').data('kendoComboBox') != undefined) {
+            lastNameOperator = $('#LastNameOperator').data('kendoComboBox').text();
+        }
+
+        if ($('#StateProvinceID').data('kendoComboBox') != undefined) {
+            stateProvince = $('#StateProvinceID').data('kendoComboBox').text();
+        }
+
+        if ($('#CountryID').data('kendoComboBox') != undefined) {
+            country = $('#CountryID').data('kendoComboBox').text();
+        }
+        if ($('#Member_Search_ClientID').data('kendoComboBox') != undefined) {
+            clientName = $('#Member_Search_ClientID').data('kendoComboBox').text();
+        }
+
+        if ($('#Member_Search_ProgramID').data('kendoComboBox') != undefined) {
+            programName = $('#Member_Search_ProgramID').data('kendoComboBox').text();
+        }
+        postData.push({ name: "FirstNameOperatorValue", value: firstNameOperator });
+        postData.push({ name: "LastNameOperatorValue", value: lastNameOperator });
+        postData.push({ name: "StateProvince", value: stateProvince });
+        postData.push({ name: "Country", value: country });
+        postData.push({ name: "SearchProgramName", value: programName });
+        postData.push({ name: "SearchClientName", value: clientName });
+
+        // Get the grid object
+        var grid = $("#GrdSearchMemberList").data("kendoGrid");
+        // Get the datasource bound to the grid
+        var ds = grid.dataSource;
+        // Get current sorting
+        var sort = ds.sort();
+        // Display sorting fields and direction
+        if (sort && sort.length > 0) {
+            var propCounter = 0;
+            for (var i = 0, l = postData.length; i < l; i++) {
+                if (postData[i].name == "GridSortColumnName") {
+                    postData[i].value = sort[0].field;
+                    propCounter++;
+                }
+                if (postData[i].name == "GridSortOrder") {
+                    postData[i].value = sort[0].dir;
+                    propCounter++;
+                }
+                if (propCounter == 2) {
+                    break;
+                }
+
+            }
+        }
+        if ($('#MemberSearchViewID') != undefined) {
+            var value = parseInt($('#MemberSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function LoadSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "Member", new { area = "MemberManagement" })',
+            type: 'POST',
+            data: GetSearchCriteria(),
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#memberSelectedSearchCriteria').html(msg);
+                $('#GrdSearchMemberList').data('kendoGrid').dataSource.read();
+                tabObject_MemberManagement.tabs('select', 0);
+            }
+        })
+    }
+
+    function LoadSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "Member", new { area = "MemberManagement" })',
+            type: 'POST',
+            data: GetSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulMemberSearchCriteriaRight').html(msg);
+                tabObject_MemberManagement.tabs('select', 0);
+            }
+        })
+    }
+
+    function fnPanelCollapseMember(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandMember(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+
+    function openAddMembershipActivityCommentWindow(sender, suffixMembershipID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                $("#divAddMembershipActivityContact_" + suffixMembershipID).hide();
+                $("#divAddMembershipActivityComment_" + suffixMembershipID).show();
+                ClearValidationMessages();
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMemberShipID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddMembershipActivityContact_" + suffixMembershipID).hide();
+            $("#divAddMembershipActivityComment_" + suffixMembershipID).show();
+            ClearValidationMessages();
+        }
+    }
+
+    function closeAddMembershipActivityCommentWindow(sender, suffixMembershipID) {
+        $("#formAddMembershipActivityComment_" + suffixMembershipID).validationEngine('hideAll')
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                $("#CommentType_" + suffixMembershipID).data('kendoComboBox').select(0);
+                $("#Comments_" + suffixMembershipID).val(' ');
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                $("#divAddMembershipActivityComment_" + suffixMembershipID).hide();
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddMembershipActivityComment_" + suffixMembershipID).hide();
+        }
+    }
+
+    function saveAddMembershipActivityComments(sender, suffixMembershipID) {
+        var errorFound = false;
+        if ($("#formAddMembershipActivityComment_" + suffixMembershipID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var combo = $("#CommentType_" + suffixMembershipID).data('kendoComboBox');
+
+        var ComboInput = "CommentType_" + suffixMembershipID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+
+        var Comments = $("#Comments_" + suffixMembershipID).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveMembershipActivityComments", "Member", new { area = "MemberManagement" })',
+            data: { CommentType: combo.value(), Comments: Comments, membershipID: suffixMembershipID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Comment Added Successfully");
+
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+
+                    $("#CommentType_" + suffixMembershipID).data('kendoComboBox').select(0);
+                    $("#Comments_" + suffixMembershipID).val(' ');
+
+                    $("#divAddMembershipActivityComment_" + suffixMembershipID).hide();
+                    $("#GrdMembershipActivity_" + suffixMembershipID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+
+        });
+        return false;
+    }
+
+    function openAddMembershipActivityContactWindow(sender, suffixMembershipID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Membership_Activity_AddContact", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            data: { membershipID: suffixMembershipID },
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+                    var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+                    $.modal.confirm(message, function () {
+                        CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                        
+                        $("#divAddMembershipActivityContact_" + suffixMembershipID).html(msg);
+                        $("#divAddMembershipActivityContact_" + suffixMembershipID).show();
+                        $("#divAddMembershipActivityComment_" + suffixMembershipID).hide();
+                        ClearValidationMessages();
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    $("#divAddMembershipActivityContact_" + suffixMembershipID).html(msg);
+                    $("#divAddMembershipActivityContact_" + suffixMembershipID).show();
+                    $("#divAddMembershipActivityComment_" + suffixMembershipID).hide();
+                    ClearValidationMessages();
+                }
+
+            }
+        });
+
+    }
+
+    function HandleMembershipContactCategoryChange(e, suffixMembershipID) {
+        var combo = e.sender;
+        
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var contactCategoryID = combo.value();
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixMembershipID).data("kendoMultiSelect");
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixMembershipID).data("kendoMultiSelect");
+        contactReasonMultiSelect.value('');
+        contactActionMultiSelect.value('');
+        if (contactCategoryID != null && contactCategoryID != undefined && contactCategoryID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContactActionsAndReasonsForCategory", "Member", new { area = "MemberManagement" })',
+                data: { contactCategoryID: contactCategoryID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        
+                        contactReasonMultiSelect.setDataSource(msg.Data.contactReason);
+                        contactActionMultiSelect.setDataSource(msg.Data.contactAction);
+                       
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "ContactCategory_" + suffixMembershipID + "_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            contactReasonMultiSelect.setDataSource([]);
+            contactActionMultiSelect.setDataSource([]);
+        }
+    }
+
+    function HandleMembershipContactMethodChange(e, suffixMembershipID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        ClearValidationMessages();
+        var ContactMethodValue = combo.text();
+        if (ContactMethodValue == "Phone" || ContactMethodValue == "Text" || ContactMethodValue == "Fax" || ContactMethodValue == "IVR" || ContactMethodValue == "Verbally") {
+            $("#divMembershipActivityAddContactMethodPhone_" + suffixMembershipID).show();
+            $("#divMembershipActivityAddContactMethodEmail_" + suffixMembershipID).hide();
+        }
+        else if (ContactMethodValue == "Email" || ContactMethodValue == "Mail") {
+            $("#divMembershipActivityAddContactMethodEmail_" + suffixMembershipID).show();
+            $("#divMembershipActivityAddContactMethodPhone_" + suffixMembershipID).hide();
+        }
+        else {
+            $("#divMembershipActivityAddContactMethodEmail_" + suffixMembershipID).hide();
+            $("#divMembershipActivityAddContactMethodPhone_" + suffixMembershipID).hide();
+        }
+
+    }
+
+    function closeAddMembershipActivityContactWindow(sender, suffixMembershipID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                $("#divAddMembershipActivityContact_" + suffixMembershipID).hide();
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddMembershipActivityContact_" + suffixMembershipID).hide();
+            ClearValidationMessages();
+        }
+    }
+
+    function saveAddMembershipActivityContact(sender, suffixMembershipID) {
+
+        var errorFound = false;
+        if ($("#formAddMembershipActivityContact_" + suffixMembershipID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var contactCategoryCombo = $("#ContactCategory_" + suffixMembershipID).data('kendoComboBox');
+        var contactCategoryComboInput = "ContactCategory_" + suffixMembershipID + "_input";
+        if ($.trim(contactCategoryCombo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + contactCategoryComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + contactCategoryComboInput + ']'));
+        }
+
+        var combo = $("#ContactMethod_" + suffixMembershipID).data('kendoComboBox');
+
+        var ComboInput = "ContactMethod_" + suffixMembershipID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixMembershipID).data("kendoMultiSelect");
+        var contactReasonMultiSelectInput = "#ContactReasonID_" + suffixMembershipID + "_taglist";
+
+        if (contactReasonMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+            ShowValidationMessage($(contactReasonMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+        }
+
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixMembershipID).data("kendoMultiSelect");
+        var contactActionMultiSelectInput = "#ContactActionID_" + suffixMembershipID + "_taglist";
+
+        if (contactActionMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactActionMultiSelectInput));
+            ShowValidationMessage($(contactActionMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactActionMultiSelectInput));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+        var formData = $("#formAddMembershipActivityContact_" + suffixMembershipID).serializeArray();
+        //Email = null
+        formData.push({ name: "ContactMethod", value: combo.value() });
+        formData.push({ name: "ContactMethodValue", value: combo.text() });
+
+        formData.push({ name: "ContactCategory", value: contactCategoryCombo.value() });
+        formData.push({ name: "ContactCategoryValue", value: contactCategoryCombo.text() });
+
+        formData.push({ name: "Email", value: $("#Email_Activity_" + suffixMembershipID).val() });
+        formData.push({ name: "TalkedTo", value: $("#TalkedTo_Activity_" + suffixMembershipID).val() });
+        formData.push({ name: "Notes", value: $("#Notes_Activity_" + suffixMembershipID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("PhoneNumber_Activity_" + suffixMembershipID) });
+
+        var phoneNumberTypeID = $("#PhoneNumber_Activity_" + suffixMembershipID + "_ddlPhoneType").val();
+        formData.push({ name: "PhoneNumberType", value: phoneNumberTypeID });
+
+        formData.push({ name: "MembershipID", value: suffixMembershipID });
+        //openAlertMessage("Save Contact In Progress");
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveMembershipActivityContact", "Member", new { area = "MemberManagement" })',
+            data: formData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+
+                    openAlertMessage("Contact Added Successfully");
+
+                    $("#divAddMembershipActivityContact_" + suffixMembershipID).hide();
+                    $("#GrdMembershipActivity_" + suffixMembershipID).data('kendoGrid').dataSource.read();
+                }
+            }
+        });
+        return false;
+    }
+
+    function openAddMemberActivityCommentWindow(sender, suffixMemberID, suffixMemberShipID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMemberShipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                $("#divAddMemberActivityContact_" + suffixMemberID).hide();
+                $("#divAddMemberActivityComment_" + suffixMemberID).show();
+                ClearValidationMessages();
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMemberShipID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddMemberActivityContact_" + suffixMemberID).hide();
+            $("#divAddMemberActivityComment_" + suffixMemberID).show();
+            ClearValidationMessages();
+        }
+    }
+
+    function closeAddMemberActivityCommentWindow(sender, suffixMemberID, suffixMembershipID) {
+        $("#formAddMemberActivityComment_" + suffixMemberID).validationEngine('hideAll')
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                $("#CommentType_" + suffixMemberID).data('kendoComboBox').select(0);
+                $("#Comments_" + suffixMemberID).val(' ');
+                
+                $("#divAddMemberActivityComment_" + suffixMemberID).hide();
+                ClearValidationMessages();
+
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddMemberActivityComment_" + suffixMemberID).hide();
+        }
+    }
+
+    function saveAddMemberActivityComments(sender, suffixMemberID, suffixMembershipID) {
+        ClearDirtyFlag("pagecontainer");
+        var errorFound = false;
+        if ($("#formAddMemberActivityComment_" + suffixMemberID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var combo = $("#CommentType_" + suffixMemberID).data('kendoComboBox');
+
+        var ComboInput = "CommentType_" + suffixMemberID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+
+        var Comments = $("#Comments_" + suffixMemberID).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveMemberActivityComments", "Member", new { area = "MemberManagement" })',
+            data: { CommentType: combo.value(), Comments: Comments, memberID: suffixMemberID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Comment Added Successfully");
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                    $("#CommentType_" + suffixMemberID).data('kendoComboBox').select(0);
+                    $("#Comments_" + suffixMemberID).val(' ');
+
+                    $("#divAddMemberActivityComment_" + suffixMemberID).hide();
+                    $("#GrdMemberActivity_" + suffixMemberID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+
+        });
+        return false;
+    }
+
+    function openAddMemberActivityContactWindow(sender, suffixMemberID, suffixMembershipID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Member_Activity_AddContact", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            data: { memberID: suffixMemberID, membershipID: suffixMembershipID },
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+                    var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+                    $.modal.confirm(message, function () {
+                        
+                        CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+
+                        $("#divAddMemberActivityContact_" + suffixMemberID).html(msg);
+                        $("#divAddMemberActivityContact_" + suffixMemberID).show();
+                        $("#divAddMemberActivityComment_" + suffixMemberID).hide();
+                        ClearValidationMessages();
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    $("#divAddMemberActivityContact_" + suffixMemberID).html(msg);
+                    $("#divAddMemberActivityContact_" + suffixMemberID).show();
+                    $("#divAddMemberActivityComment_" + suffixMemberID).hide();
+                    ClearValidationMessages();
+                }
+
+            }
+        });
+
+    }
+
+    function HandleMemberContactCategoryChange(e, suffixMemberID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var contactCategoryID = combo.value();
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixMemberID).data("kendoMultiSelect");
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixMemberID).data("kendoMultiSelect");
+        contactReasonMultiSelect.value('');
+        contactActionMultiSelect.value('');
+        if (contactCategoryID != null && contactCategoryID != undefined && contactCategoryID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContactActionsAndReasonsForCategory", "Member", new { area = "MemberManagement" })',
+                data: { contactCategoryID: contactCategoryID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        contactReasonMultiSelect.setDataSource(msg.Data.contactReason);
+                        contactActionMultiSelect.setDataSource(msg.Data.contactAction);
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "ContactCategory_" + suffixMemberID + "_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            contactReasonMultiSelect.setDataSource([]);
+            contactActionMultiSelect.setDataSource([]);
+        }
+    }
+
+    function HandleMemberContactMethodChange(e, suffixMemberID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        ClearValidationMessages();
+        var ContactMethodValue = combo.text();
+        if (ContactMethodValue == "Phone" || ContactMethodValue == "Text" || ContactMethodValue == "Fax" || ContactMethodValue == "IVR" || ContactMethodValue == "Verbally") {
+            $("#divMemberActivityAddContactMethodPhone_" + suffixMemberID).show();
+            $("#divMemberActivityAddContactMethodEmail_" + suffixMemberID).hide();
+        }
+        else if (ContactMethodValue == "Email" || ContactMethodValue == "Mail") {
+            $("#divMemberActivityAddContactMethodEmail_" + suffixMemberID).show();
+            $("#divMemberActivityAddContactMethodPhone_" + suffixMemberID).hide();
+        }
+        else {
+            $("#divMemberActivityAddContactMethodEmail_" + suffixMemberID).hide();
+            $("#divMemberActivityAddContactMethodPhone_" + suffixMemberID).hide();
+        }
+
+    }
+
+    function closeAddMemberActivityContactWindow(sender, suffixMemberID, suffixMembershipID) {
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                $("#divAddMemberActivityContact_" + suffixMemberID).hide();
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddMemberActivityContact_" + suffixMemberID).hide();
+            ClearValidationMessages();
+        }
+    }
+
+    function saveAddMemberActivityContact(sender, suffixMemberID, suffixMembershipID) {
+
+        var errorFound = false;
+        if ($("#formAddMemberActivityContact_" + suffixMemberID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+        var contactCategoryCombo = $("#ContactCategory_" + suffixMemberID).data('kendoComboBox');
+        var contactCategoryComboInput = "ContactCategory_" + suffixMemberID + "_input";
+        if ($.trim(contactCategoryCombo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + contactCategoryComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + contactCategoryComboInput + ']'));
+        }
+
+        var combo = $("#ContactMethod_" + suffixMemberID).data('kendoComboBox');
+
+        var ComboInput = "ContactMethod_" + suffixMemberID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixMemberID).data("kendoMultiSelect");
+        var contactReasonMultiSelectInput = "#ContactReasonID_" + suffixMemberID + "_taglist";
+
+        if (contactReasonMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+            ShowValidationMessage($(contactReasonMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+        }
+
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixMemberID).data("kendoMultiSelect");
+        var contactActionMultiSelectInput = "#ContactActionID_" + suffixMemberID + "_taglist";
+
+        if (contactActionMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactActionMultiSelectInput));
+            ShowValidationMessage($(contactActionMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactActionMultiSelectInput));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+        var formData = $("#formAddMemberActivityContact_" + suffixMemberID).serializeArray();
+        //Email = null
+        formData.push({ name: "ContactMethod", value: combo.value() });
+        //contactCategoryCombo
+        formData.push({ name: "ContactMethodValue", value: combo.text() });
+
+        formData.push({ name: "ContactCategory", value: contactCategoryCombo.value() });
+        formData.push({ name: "ContactCategoryValue", value: contactCategoryCombo.text() });
+
+        formData.push({ name: "Email", value: $("#Email_Activity_" + suffixMemberID).val() });
+        formData.push({ name: "TalkedTo", value: $("#TalkedTo_Activity_" + suffixMemberID).val() });
+        formData.push({ name: "Notes", value: $("#Notes_" + suffixMemberID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("PhoneNumber_Activity_" + suffixMemberID) });
+
+        var phoneNumberTypeID = $("#PhoneNumber_Activity_" + suffixMemberID + "_ddlPhoneType").val();
+        formData.push({ name: "PhoneNumberType", value: phoneNumberTypeID });
+
+        formData.push({ name: "MemberID", value: suffixMemberID });
+        formData.push({ name: "MembershipID", value: suffixMembershipID });
+
+        //openAlertMessage("Save Contact In Progress");
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveMemberActivityContact", "Member", new { area = "MemberManagement" })',
+            data: formData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+
+                    openAlertMessage("Contact Added Successfully");
+                    $("#divAddMemberActivityContact_" + suffixMemberID).hide();
+                    $("#GrdMemberActivity_" + suffixMemberID).data('kendoGrid').dataSource.read();
+                }
+
+            }
+
+        });
+        return false;
+    }
+
+    // Tab Related methods
+    function DeleteMemberTab(membershipID) {
+        // Sanghi In newer versions of jQueryUI (1.9 +) use active instead of selected to get the active index of tab.
+        var activeIndex = tabObject_MemberManagement.tabs('option', 'selected');
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + membershipID)) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + membershipID);
+                tabObject_MemberManagement.tabs('remove', activeIndex);
+                tabObject_MemberManagement.tabs('refresh');
+                tabObject_MemberManagement.tabs('select', 0);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            tabObject_MemberManagement.tabs('remove', activeIndex);
+            tabObject_MemberManagement.tabs('refresh');
+            tabObject_MemberManagement.tabs('select', 0);
+        }
+    }
+
+    function addMemberTab(tabTitle, membershipID, memberName) {
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + memberName + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject_MemberManagement).tabs("length") + 1;
+
+        var numOfTabs = tabCounter - 1;
+
+        var lastTabId = $($("#MemberManagementListTab").find(".ui-tabs-panel")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_MemberContainer", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            data: { membershipID: membershipID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject_MemberManagement.find(".ui-tabs-nav").first().append(li);
+                tabObject_MemberManagement.append("<div id='" + id + "' class='ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject_MemberManagement.tabs("refresh");
+                tabObject_MemberManagement.tabs('option', 'active', false);
+                tabObject_MemberManagement.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+    function LoadMemberInformation(membershipID, membershipNumber, memberName) {
+
+        var nameToCheck = 'Member-' + membershipID;
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#MemberManagementListTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addMemberTab(nameToCheck, membershipID, memberName);
+        }
+        else {
+            tabObject_MemberManagement.tabs('select', index);
+        }
+    }
+
+    function HandleMembershipTabDropDown(e, membershipID) {
+        var oldSelectionElement = $('#MemberInformationIDPreviousValue_' + membershipID);
+        var oldSelectionElementValue = oldSelectionElement.val();
+        var oldSelectionElementText = GetTextFromComboBoxByItsValue(oldSelectionElementValue, e);
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + membershipID)) {
+            var message = "Changes for <b>" + oldSelectionElementText + "</b> have not been saved; if you continue you will lose your changes.Click Confirm to continue and lose your changes or click Cancel to stay on this"
+            $.modal.confirm(message, function () {
+                var comboValue = combo.value();
+                oldSelectionElement.val(comboValue);
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + membershipID);
+                SwitchBetweenMemberORMemberShip(membershipID, comboValue);
+
+            }, function () {
+                combo.value(oldSelectionElementValue);
+            });
+        }
+        else {
+            var comboValue = combo.value();
+            oldSelectionElement.val(comboValue);
+            SwitchBetweenMemberORMemberShip(membershipID, comboValue);
+        }
+    }
+
+    function SwitchBetweenMemberORMemberShip(membershipID, memberID) {
+        if (memberID != "0") {
+            $.ajax({
+                url: '@Url.Action("_MemberTabs", "Member", new { area = "MemberManagement" })',
+                data: { memberID: memberID, membershipID: membershipID },
+                success: function (msg) {
+                    $('#MemberContainer_' + membershipID).html(msg);
+                }
+            });
+        }
+        if (memberID == "0") {
+            $.ajax({
+                url: '@Url.Action("_MembershipTabs", "Member", new { area = "MemberManagement" })',
+                data: { membershipID: membershipID },
+                success: function (msg) {
+                    $('#MemberContainer_' + membershipID).html(msg);
+                }
+            });
+        }
+    }
+
+    function GetTextFromComboBoxByItsValue(value, e) {
+        var comboReference = e.sender;
+        var comboText = "";
+        var datasource = comboReference.dataSource._data;
+        for (i = 0; i < datasource.length; i++) {
+            if (datasource[i].Value == value) {
+                comboText = "<strong>" + datasource[i].Text + "</strong>";
+            }
+        }
+
+        return comboText;
+    }
+
+    function Combo_HandleProgramForClient_Membership_Info(e, membershipID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var comboProgram = $("#ProgramID_" + membershipID).data("kendoComboBox");
+        $.ajax({
+            url: '@Url.Action("GetPrograms", "Member", new { area = "MemberManagement" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboProgram.setDataSource(msg);
+                comboProgram.select(0);
+                SetFocusOnField("ProgramID_" + membershipID);
+            }
+
+        })
+    }
+
+    function ManageMembershipSRH(e, suffixMembershipID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).RequestNumber;
+
+            if (e.data.commandName == 'View') {
+                ViewMembershipSR(recordID, suffixMembershipID);
+            }
+        }
+        return false;
+    }
+
+    function ViewMembershipSR(recordID, suffixMembershipID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Get", "Queue", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            data: { queueId: recordID, isEditRequired: true },
+            async: true,
+            success: function (msg) {
+                queueDetailWindow = $("<div id='queueDetailWindow' />").appendTo(document.body);
+                queueDetailWindow.kendoWindow({
+                    title: "Service Request Details",
+                    modal: true,
+                    width: 1000,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("ResetSR", "Queue", new { area = "Application" })',
+                            traditional: true,
+                            data: { serviceRequestId: recordID },
+                            cache: false,
+                            async: true,
+                            success: function (msg) { }
+                        });
+                        if (typeof isInSRPopup != "undefined") {
+                            isInSRPopup = false;
+                        }
+                        isdirty = false;
+                        $(this).remove();
+                        return true;
+                    }
+                });
+                queueDetailWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    function ManageMembershipMembers(e, suffixMembershipID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+            if (e.data.commandName == 'Edit') {
+                EditMembershipMember(recordID, suffixMembershipID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteMembershipMember(recordID, suffixMembershipID);
+            }
+        }
+        else {
+            AddMembershipMember(recordID, suffixMembershipID);
+        }
+        return false;
+    }
+
+    function EditMembershipMember(recordID, suffixMembershipID) {
+        $("#MemberInformationID" + suffixMembershipID).data('kendoComboBox').value(recordID);
+        $("#MemberInformationID" + suffixMembershipID).data('kendoComboBox').trigger('change');
+    }
+
+    function DeleteMember(recordID, suffixMembershipID) {
+        var message = "Are you sure you want to delete this Member?"
+        $.modal.confirm(message, function () {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("DeleteMembershipMember", "Member", new { area = "MemberManagement" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { membershipID: suffixMembershipID, memberID: recordID },
+                success: function (msg) {
+                    openAlertMessage("Member Deleted Successfully");
+                    $("#GrdMembershipMembers_" + suffixMembershipID).data('kendoGrid').dataSource.read();
+                    BindMembershipMember(suffixMembershipID);
+                }
+            });
+        }, function () {
+            return false;
+        });
+    }
+    function DeleteMemberAndMembership(recordID, suffixMembershipID) {
+        var message = "Are you sure you want to delete this Member? This is the last member on the membership so the membership will be deleted."
+        $.modal.confirm(message, function () {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("DeleteMemberAndMemberShip", "Member", new { area = "MemberManagement" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { membershipID: suffixMembershipID, memberID: recordID },
+                success: function (msg) {
+                    openAlertMessage("Member Deleted Successfully");
+                    DeleteMemberTab(suffixMembershipID);
+                    $('#GrdSearchMemberList').data('kendoGrid').dataSource.read();
+
+                }
+            });
+        }, function () {
+            return false;
+        });
+    }
+
+    function DeleteMembershipMember(recordID, suffixMembershipID) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("IsLastMember", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { membershipID: suffixMembershipID },
+            success: function (msg) {
+                if (msg.Data.IsLastMember.toString().toLowerCase() == "true") {
+                    DeleteMemberAndMembership(recordID, suffixMembershipID)
+                }
+                else {
+                    DeleteMember(recordID, suffixMembershipID);
+                }
+            }
+        });
+    }
+
+    function AddMembershipMember(recordID, suffixMembershipID) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("AddmembershipMember", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { memberID: suffixMembershipID },
+            success: function (msg) {
+                $("#divAddMember_" + suffixMembershipID + "").html(msg);
+                $("#divAddMember_" + suffixMembershipID + "").show();
+                $("#divMembershipMemberTab_" + suffixMembershipID + "").hide();
+            }
+        });
+    }
+
+    function onComboBoxChange_Country(e, suffixMembershipID) {
+        var combo = $('#AMCountry_' + suffixMembershipID).data("kendoComboBox");
+        var stateCombo = $('#AMState_' + suffixMembershipID).data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(stateCombo);
+        }
+        
+        var Country_value = combo.value();
+
+        if (Country_value != null && Country_value != '') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                traditional: true,
+                data: { countryId: Country_value },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    stateCombo.setDataSource(msg);
+                    stateCombo.value('');
+                    SetFocusOnField("State_" + suffixMembershipID);
+                }
+            });
+
+        }
+        else {
+            var items = [{ text: "Select", value: ""}];
+            stateCombo.setDataSource(items);
+            stateCombo.value('');
+        }  // end of ajax
+    }
+
+    function CancelAddMembershipMember(sender, suffixMembershipID) {
+        var formElement = "#frmAddMembershipMember_" + suffixMembershipID;
+        var effectiveDP = "AMEffectiveDate_" + suffixMembershipID;
+        var expirationDP = "AMExpirationDate_" + suffixMembershipID;
+
+        var programCombo = 'AMProgramID_' + suffixMembershipID;
+        var addressCombo = 'AMAddressType_' + suffixMembershipID;
+        var countryCombo = "AMCountry_" + suffixMembershipID;
+        var stateCombo = "AMState_" + suffixMembershipID;
+
+        if (IsMyContainerDirty('frmMemberContainerForDirtyFlag_' + suffixMembershipID)) {
+            var message = "There are changes on the page that have not been saved, if you continue you will lose those changes. Click OK to continue and lose the changes; click Cancel to return to the page."
+            $.modal.confirm(message, function () {
+                $(formElement).validationEngine('hideAll');
+                ClearValidationMessages();
+                $("#divAddMember_" + suffixMembershipID).html('');
+                $("#divAddMember_" + suffixMembershipID).hide();
+                $("#divMembershipMemberTab_" + suffixMembershipID).show();
+                CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $(formElement).validationEngine('hideAll');
+            ClearValidationMessages();
+            $("#divAddMember_" + suffixMembershipID).html('');
+            $("#divAddMember_" + suffixMembershipID).hide();
+            $("#divMembershipMemberTab_" + suffixMembershipID).show();
+
+        }
+    }
+
+    function SaveAddMembershipMember(sender, suffixMembershipID, memberNumber, isEdit) {
+
+        var formElement = "#frmAddMembershipMember_" + suffixMembershipID;
+        var errorfound = false;
+        if ($(formElement).validationEngine("validate") == false) {
+            errorfound = true;
+        }
+
+        // Validate Program Combo
+        var programCombo = 'AMProgramID_' + suffixMembershipID;
+
+        if (!ValidateCombo(programCombo)) {
+            errorfound = true;
+        }
+
+        // Validate Address Type COmbo
+        var addressCombo = 'AMAddressType_' + suffixMembershipID;
+
+        if (!ValidateCombo(addressCombo)) {
+            errorfound = true;
+        }
+
+
+        //Validate Effective Date Date Picker
+        var effectiveDP = "AMEffectiveDate_" + suffixMembershipID;
+        var effectiveDate = $("#" + effectiveDP).data('kendoDatePicker').value();
+        if ($.trim(effectiveDate).length == 0) {
+            ShowValidationMessage($('input[id= "' + effectiveDP + '"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[id= "' + effectiveDP + '"]'));
+        }
+
+        //Validate Expiration Date Date Picker
+        var expirationDP = "AMExpirationDate_" + suffixMembershipID;
+        var expirationDate = $("#" + expirationDP).data('kendoDatePicker').value();
+        if ($.trim(expirationDate).length == 0) {
+            ShowValidationMessage($('input[id= "' + expirationDP + '"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[id= "' + expirationDP + '"]'));
+        }
+
+        //Validate Country Combo
+        var countryCombo = "AMCountry_" + suffixMembershipID;
+        if (!ValidateCombo(countryCombo)) {
+            errorfound = true;
+        }
+
+        //Validate State Combo
+        var stateCombo = "AMState_" + suffixMembershipID;
+        if (!ValidateCombo(stateCombo)) {
+            errorfound = true;
+        }
+        var suffixCombo = "AMSuffix_" + suffixMembershipID;
+        var prefixCombo = "AMPrefix_" + suffixMembershipID;
+        if (errorfound == true) {
+            return false;
+        }
+
+        var formData = $("#frmAddMembershipMember_" + suffixMembershipID).serializeArray();
+        formData.push({ name: "ProgramID", value: GetComboValue(programCombo) });
+
+        formData.push({ name: "Prefix", value: GetComboValue(prefixCombo) });
+        formData.push({ name: "Suffix", value: GetComboValue(suffixCombo) });
+
+        formData.push({ name: "FirstName", value: $("#AMFirstName_" + suffixMembershipID).val() });
+        formData.push({ name: "MiddleName", value: $("#AMMiddleName_" + suffixMembershipID).val() });
+        formData.push({ name: "LastName", value: $("#AMLastName_" + suffixMembershipID).val() });
+        formData.push({ name: "Email", value: $("#AMEmail_" + suffixMembershipID).val() });
+
+        formData.push({ name: "AddressLine1", value: $("#AMAddressLine1_" + suffixMembershipID).val() });
+        formData.push({ name: "AddressLine2", value: $("#AMAddressLine2_" + suffixMembershipID).val() });
+        formData.push({ name: "AddressLine3", value: $("#AMAddressLine3_" + suffixMembershipID).val() });
+
+        formData.push({ name: "AddressTypeID", value: GetComboValue(addressCombo) });
+
+        formData.push({ name: "Country", value: GetComboValue(countryCombo) });
+        formData.push({ name: "State", value: GetComboValue(stateCombo) });
+
+        formData.push({ name: "City", value: $("#AMCity_" + suffixMembershipID).val() });
+        formData.push({ name: "PostalCode", value: $("#AMPostalCode_" + suffixMembershipID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("AMPhoneNumber_" + suffixMembershipID) });
+        formData.push({ name: "ExpirationDate", value: expirationDate });
+        formData.push({ name: "EffectiveDate", value: effectiveDate });
+
+        formData.push({ name: "MembershipID", value: suffixMembershipID });
+
+        formData.push({ name: "MemberNumber", value: memberNumber });
+        //memberNumber
+        //ProgramID
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveMembershipMember", "Member", new { area = "MemberManagement" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: formData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+                    openAlertMessage('Member Added Successfully');
+                    $("#GrdMembershipMembers_" + suffixMembershipID).data('kendoGrid').dataSource.read();
+                    $("#divAddMember_" + suffixMembershipID).html('');
+                    $("#divAddMember_" + suffixMembershipID).hide();
+                    $("#divMembershipMemberTab_" + suffixMembershipID + "").show();
+
+                    if (isEdit) {
+                        var recordID = msg.Data;
+                        BindMembershipMember(suffixMembershipID, recordID);
+                    }
+                    else {
+                        BindMembershipMember(suffixMembershipID);
+                    }
+                }
+            }
+        });                  // end of ajax       
+    }
+
+    function MemberManagement_AddMember() {
+
+        $('#PlaceHolderMemberAdd').show();
+        $.ajax({
+            url: '@Url.Action("_AddMember", "Member", new { area = "MemberManagement" })',
+            success: function (msg) {
+                $('#PlaceHolderMemberSearchList').hide();
+                $('#PlaceHolderMemberAdd').html(msg);
+                $('#PlaceHolderMemberAdd').show();
+            }
+
+        })
+    }
+
+    function CreateMembership() {
+        var IsAddMembershipIsValid = true;
+
+        if ($('#frmMembershipAdd').validationEngine("validate") == false) {
+            IsAddMembershipIsValid = false;
+        }
+
+        //Combo Validation
+        $('#frmMembershipAdd :input').each(function () {
+            var comboElement = $(this).attr('comborequired');
+            if (comboElement != undefined && comboElement == "true") {
+                var comboName = $(this).attr('comboname');
+                var comboID = $(this).attr('comboid');
+                if (comboName != undefined && comboID != undefined) {
+                    var actualComboReference = $('#' + comboID).data('kendoComboBox').value();
+                    var elementTextBox = "input[name='" + comboName + "_input']";
+                    if ($.trim(actualComboReference).length == 0) {
+                        ShowValidationMessage($(elementTextBox), "This field is required.");
+                        IsAddMembershipIsValid = false;
+                    }
+                    else {
+                        HideValidationMessage($(elementTextBox));
+                    }
+                }
+            }
+        });
+        //Combo Date Picker Validations
+        var memberEffectiveDate = $('#MemberInformation_EffectiveDate').val();
+        var memberExpireDate = $('#MemberInformation_ExpirationDate').val();
+
+        if ($.trim(memberEffectiveDate).length > 0) {
+            var test = Date.parseExact(memberEffectiveDate, "MM/dd/yyyy");
+            if (!test) {
+                IsAddMembershipIsValid = false;
+                ShowValidationMessage($("input[name='MemberInformation.EffectiveDate']"), "Invalid date. Enter date in MM/DD/YYYY format");
+            }
+        }
+        else {
+            IsAddMembershipIsValid = false;
+            ShowValidationMessage($("input[name='MemberInformation.EffectiveDate']"), "* Effective Date is Required");
+        }
+
+        if ($.trim(memberExpireDate).length > 0) {
+            var test = Date.parseExact(memberExpireDate, "MM/dd/yyyy");
+            if (!test) {
+                IsAddMembershipIsValid = false;
+                ShowValidationMessage($("input[name='MemberInformation.ExpirationDate']"), "Invalid date. Enter date in MM/DD/YYYY format");
+            }
+        }
+        else {
+            IsAddMembershipIsValid = false;
+            ShowValidationMessage($("input[name='MemberInformation.ExpirationDate']"), "* Expiration Date is Required");
+        }
+
+        if (IsAddMembershipIsValid) {
+            var addMemberShipInformation = $('#frmMembershipAdd').serializeArray();
+            if ($('#Member_Add_Prefix_ID').data('kendoComboBox').value() != "") {
+                addMemberShipInformation.push({ name: "MemberInformation.Prefix", value: $('#Member_Add_Prefix_ID').data('kendoComboBox').text() });
+            }
+            if ($('#Member_Add_Suffix_ID').data('kendoComboBox').value() != "") {
+                addMemberShipInformation.push({ name: "MemberInformation.Suffix", value: $('#Member_Add_Suffix_ID').data('kendoComboBox').text() });
+            }
+            addMemberShipInformation.push({ name: "PhoneInfomation.PhoneTypeID", value: $('#MembershipPhoneInfomation_ddlPhoneType').data('kendoComboBox').value() })
+            addMemberShipInformation.push({ name: "PhoneInfomation.PhoneNumber", value: GetPhoneNumberForDB('MembershipPhoneInfomation') })
+            $.ajax({
+                type: 'POST',
+                data: addMemberShipInformation,
+                url: '@Url.Action("CreateMembership", "Member", new { area = "MemberManagement" })',
+                success: function (msg) {
+
+                    // Clear Dirty Flag Container and Swtich to List View
+                    $('#PlaceHolderMemberAdd').html('');
+                    $('#PlaceHolderMemberAdd').hide();
+                    $('#PlaceHolderMemberSearchList').show();
+
+                    var memberID = msg.Data.MemberID;
+                    var membershipID = msg.Data.MembershipID;
+                    var membershipNumber = msg.Data.MembershipNumber;
+                    var memberName = msg.Data.MemberName
+                    LoadMemberInformation(membershipID, membershipNumber, memberName);
+                    setTimeout(function () {
+                        var vlCombo = $("#MemberInformationID" + membershipID).data('kendoComboBox');
+                        if (vlCombo != undefined) {
+                            vlCombo.value(memberID);
+                            vlCombo.trigger('change');
+                        }
+                    }, 1000);
+
+
+                }
+
+            })
+        }
+
+        return false;
+    }
+
+    function CancelMembershipCreation() {
+
+        if ($('#frmMembershipAdd').attr('data') == "true") {
+            var message = "Information has been entered and not saved, if you continue information will be lost.  Do you want to continue?";
+            $.modal.confirm(message, function () {
+                $('#frmMembershipAdd').validationEngine("hide");
+                $('#PlaceHolderMemberAdd').html('');
+                $('#PlaceHolderMemberAdd').hide();
+                $('#PlaceHolderMemberSearchList').show();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $('#frmMembershipAdd').validationEngine("hide");
+            $('#PlaceHolderMemberAdd').html('');
+            $('#PlaceHolderMemberAdd').hide();
+            $('#PlaceHolderMemberSearchList').show();
+        }
+    }
+
+    function GenericLicenseStateCountryChangeHandler(e, targetName) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var vehicleState = $('#' + targetName).data('kendoComboBox');
+        $.ajax({
+            type: 'GET',
+            url: '/Common/ReferenceData/GetStateProvinceWithID',
+            traditional: true,
+            data: { countryID: combo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleState.setDataSource(msg);
+                vehicleState.select(0);
+                var elementState = "input[name='" + targetName + "_input']";
+                $(elementState).focus();
+                $(elementState).select();
+
+            }
+        });
+    }
+</script>

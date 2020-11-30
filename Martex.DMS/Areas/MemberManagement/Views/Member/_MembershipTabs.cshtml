@@ -1,0 +1,61 @@
+﻿@using Kendo.Mvc.UI;
+@model int
+@{
+    string suffixMemberShipID = Model.ToString();
+}
+<div class="with-padding">
+    <div id="MemberManagementMembershipTabs_@suffixMemberShipID" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li>
+                <a href="@Url.Action("_Membership_Info", "Member", new { area = "MemberManagement" })" id="#MembershipInfoTab_@suffixMemberShipID">
+                    Info
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Membership_Members", "Member", new { area = "MemberManagement" })" id="#MembershipMembersTab_@suffixMemberShipID">
+                    Members
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Membership_Vehicles", "Member", new { area = "MemberManagement" })" id="#MembershipVehiclesTab_@suffixMemberShipID">
+                    Vehicles
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Membership_SRHistory", "Member", new { area = "MemberManagement" })" id="#MembershipSRHistoryTab_@suffixMemberShipID">
+                    SR History
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_MemberShipClaimList", "Member", new { area = "MemberManagement" })" id="#MembershipClaimsTab_@suffixMemberShipID">
+                    Claims History
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Membership_Activity", "Member", new { area = "MemberManagement" })" id="#MembershipActivityTab_@suffixMemberShipID">
+                    Activity
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Membership_Products", "Member", new { area = "MemberManagement" })" id="#MembershipProductsTab_@suffixMemberShipID">
+                    Products
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#MemberManagementMembershipTabs_@suffixMemberShipID').tabs({
+            ajaxOptions: {
+                data: { membershipID: '@suffixMemberShipID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+</script>

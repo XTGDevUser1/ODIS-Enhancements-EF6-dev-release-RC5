@@ -1,0 +1,266 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+@using Martex.DMS.BLL.Common
+@using Martex.DMS.DAL.Extensions
+@{
+    string contactPhoneNumber = string.Empty;
+    string contactPhoneTypeID = string.Empty;
+
+    string contactAltPhoneNumber = string.Empty;
+    string contactAltPhoneTypeID = string.Empty;
+
+    if (DMSCallContext.StartCallData != null)
+    {
+        var callData = DMSCallContext.StartCallData;
+        contactPhoneNumber = callData.ContactPhoneNumber.BlankIfNull();
+        contactPhoneTypeID = callData.ContactPhoneTypeID == null ? string.Empty : callData.ContactPhoneTypeID.Value.ToString();
+
+        contactAltPhoneNumber = callData.ContactAltPhoneNumber.BlankIfNull();
+        contactAltPhoneTypeID = callData.ContactAltPhoneTypeID == null ? string.Empty : callData.ContactAltPhoneTypeID.Value.ToString();
+    }
+}
+
+
+<script language="javascript" type="text/javascript">
+
+<!--
+    function addTalkToValidationRule() {
+        $(".talktospanstar").show();
+        $("#LogTalkedTo").removeClass('validate[required,maxSize[50]]');
+        $("#LogTalkedTo").removeClass('validate[maxSize[50]]');
+        $("#LogTalkedTo").addClass('validate[required,maxSize[50]]');
+    }
+
+    function updateTalkToValidationRule() {
+        $(".talktospanstar").hide();
+        $("#LogTalkedTo").removeClass('validate[required,maxSize[50]]');
+        $("#LogTalkedTo").removeClass('validate[maxSize[50]]');
+        $("#LogTalkedTo").addClass('validate[maxSize[50]]');
+    }
+
+    function CLDropdown_onChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        if (IsTalkedToMandatory(combo.value())) {
+            addTalkToValidationRule();
+        }
+        else {
+            updateTalkToValidationRule();
+        }
+    }
+
+    function IsTalkedToMandatory(contactActionID) {
+        for (var i = 0, l = contactActionsForTalkedTo.length; i < l; i++) {
+            if (contactActionsForTalkedTo[i].Name == contactActionID) {
+                return (contactActionsForTalkedTo[i].Value == "true");
+            }
+        }
+        return false;
+    }
+//-->
+</script>
+<form id="frmGetApproval" action="javascript:void(0);" method="post">
+    <div class="with-padding popupcontainer">
+        <div class="columns">
+            <div class="six-columns">
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="MemberName" class="label">
+                            Member
+                        </label>
+                        @Html.Raw(string.Join(" ", DMSCallContext.ContactFirstName, DMSCallContext.ContactLastName))
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Phone" class="label">
+                            Phone
+                        </label>
+                        @if (DMSCallContext.StartCallData != null && !string.IsNullOrEmpty(DMSCallContext.StartCallData.ContactPhoneNumber))
+                        {
+                            @Html.Editor("MemberPhoneNumber", "Phone", new { Value = DMSCallContext.StartCallData.ContactPhoneNumber, ReadOnly = true, CallType = "Member" })
+                        }
+                        @if (DMSCallContext.StartCallData != null && !string.IsNullOrEmpty(DMSCallContext.StartCallData.ContactAltPhoneNumber))
+                        {
+                            if (DMSCallContext.StartCallData != null && !string.IsNullOrEmpty(DMSCallContext.StartCallData.ContactPhoneNumber))
+                            {
+                                <br />
+                            }
+                            @Html.Editor("MemberAltPhoneNumber", "Phone", new { Value = DMSCallContext.StartCallData.ContactAltPhoneNumber, ReadOnly = true, CallType = "Member" })
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Estimate" class="label">
+                            Estimate
+                        </label>
+                        <span class="green big-text">@Html.Raw(DMSCallContext.ServiceEstimateFee.GetValueOrDefault().ToString("C"))</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Cost" class="label">
+                            Cost
+                        </label>
+                        <span class="red big-text" id="approvalForCost"></span>
+                    </p>
+                </div>
+
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="LogTalkedTo" class="label">
+                            Talked To <span class="spanstar talktospanstar">*</span>
+                        </label>
+                        @Html.TextBox("LogTalkedTo", "", new { @class = "input full-width" })
+                        @Html.Hidden("hdnContactActionsForTalkedTo", ViewData["ContactActionsForTalkedTo"])
+                    </p>
+                </div>
+
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContactAction" class="label">
+                        Decision <span class="spanstar">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactActions.ToString()] as IEnumerable<SelectListItem>)
+                                .Name("ContactActionID")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("CLDropdown_onChange");
+                                })
+                                .HtmlAttributes(new { @class = "selectlabel" })
+                                .SelectedIndex(0)
+                    )
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Comments" class="label">
+                        Comments
+                    </label>
+                    @Html.TextArea("OtherComments", new { @class = "input full-width2", rows = "4" })
+                </div>
+                <div class="clear">
+                </div>
+
+                <div class="twelve-columns margin-bottom">
+                    <button id="btnSubmitApproval" class="button green-gradient  float-right mid-margin-left large-margin-bottom"
+                            type="button">
+                        Save
+                    </button>
+                    <button id="btnCancelApproval" class="button gray-gradient  float-right large-margin-bottom"
+                            type="button">
+                        Cancel
+                    </button>
+                </div>
+                <div class="clear">
+                </div>
+            </div>
+            <div class="six-columns" style="height:350px;max-height:400px; overflow-y:scroll;" id="divGetApprovalEstimates">
+                @foreach (var item in ViewBag.EstimateInstructions)
+                {
+                    <div>
+                        <h4 class="thin small-margin-bottom blue-bg wrapped icon-chat" style="text-align:justify">@Html.Raw(item.Value)</h4>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    var phoneDetails = [{ "PhoneNumber": '@contactPhoneNumber', "PhoneTypeID": '@contactPhoneTypeID' },
+                        { "PhoneNumber": '@contactAltPhoneNumber', "PhoneTypeID": '@contactAltPhoneTypeID' }];
+
+    var dialedTo = phoneDetails[0];
+    var contactActionsForTalkedTo = [];
+
+    $(function () {
+        contactActionsForTalkedTo = JSON.parse($("#hdnContactActionsForTalkedTo").val());
+        addTalkToValidationRule();
+        $('#frmGetApproval').validationEngine();
+
+        WatchMyContainer('frmGetApproval', null, null);
+
+        $('span[id$="MemberPhoneNumber_call"]').click(function () {
+            dialedTo = phoneDetails[0];
+        });
+
+        $('span[id$="MemberAltPhoneNumber_call"]').click(function () {
+            dialedTo = phoneDetails[1];
+        });
+        $("#divGetApprovalEstimates").attr('max-height', GetPopupWindowHeight() - 100);
+
+        //TODO: Set Cost and member phone number
+        var $ChargeMbrCC = $("#MemberAmountDueToCoachNet").val();
+        $("#approvalForCost").html("$" + $ChargeMbrCC);
+
+        $("#btnSubmitApproval").click(function () {
+
+            if ($('#frmGetApproval').validationEngine('validate') == false) {
+                return false;
+            }
+            // If Contact Action is not selected then alert the user.
+            var contactAction = $('input[name="ContactActionID_input"]');
+            if ($.trim($('#ContactActionID').data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage(contactAction, "Please select contact action");
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                HideValidationMessage(contactAction);
+            }
+
+            document.dialogResult = "OK";
+            var postData = {
+                PhoneNumberCalled: dialedTo.PhoneNumber,
+                PhoneTypeID: dialedTo.PhoneTypeID,
+                TalkedToForApproval: $('#LogTalkedTo').val(),
+                ContactActionID: $('#ContactActionID').data("kendoComboBox").value(),
+                Comments: $("#OtherComments").val()
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SubmitApproval", "PO", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(postData),
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer("frmGetApproval");
+                        winGetApproval.data('kendoWindow').close();
+
+                        // If Approved, enable the send po buttons.
+                        if (msg.Data.IsApproved) {
+                            // Set the IsOverageApproved value on the screen to be true.
+                            // This prevents the user from getting the Get Approval button due to a change that makes the amount exceed the estimate.
+                            $("#IsOverageApproved").val("true");
+                            showApprovalButton(false);
+                        }
+                    }
+                }
+            }); // end of ajax.
+
+        });
+
+        $("#btnCancelApproval").click(function () {
+            document.dialogResult = "CANCEL";
+            //Clear messages
+            $(".formError").each(function () {
+                $(this).remove();
+            });
+            winGetApproval.data('kendoWindow').close();
+        });
+    });
+//-->
+</script>
+

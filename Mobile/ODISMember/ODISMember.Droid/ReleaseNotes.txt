@@ -1,0 +1,3 @@
+Fixed the following TFS items,
+* 1736 - Edit Vehicle: State dropdown not loading
+* 1737 - No records found text

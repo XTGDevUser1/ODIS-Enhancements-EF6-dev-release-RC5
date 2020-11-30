@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "Verify";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<div class="constrain">
+<form method="post" action="" id="form-generate-token">
+<div class="columns with-padding large-margin-top">
+    <div class="new-row-tablet new-row-mobile seven-columns twelve-columns-tablet instructions margin-top ">
+        <h2 class="thin">
+            Never received your activation email?
+        </h2>
+        <p>
+            Just enter your username and we will resend your Activation Email. If you still
+            do not receive the email please check the SPAM filters in your email application.</p>
+    </div>
+    <div class="new-row-tablet new-row-mobile one-column twelve-columns-tablet">
+    </div>
+    <div class="new-row-tablet new-row-mobile four-columns twelve-columns-tablet margin-top">
+        <div class="divActivationForm">
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                    <small>This is Your Service Provider/Vendor ID #</small> Username
+                </label>
+                @Html.TextBox("UserName", string.Empty, new
+   {
+       name = "username",
+       id = "username",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right",
+       autocomplsete = "off",
+       @error_required = "Please type your User name"
+   })
+            </p>
+            <button type="submit" class="btn btn-large btn-primary"
+                id="btnReSendGenerateActivationEmail">
+                Email Activation Link</button>
+            <p class="float-right margin-top big-text">
+                <a type="button" id="btnVerifyBack">Back to Registration Page</a></p>
+        </div>
+    </div>
+</div>
+</form>
+</div>
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $("#form-generate-token").validationEngine({ promptPosition: "topLeft" });
+
+        $('#btnVerifyBack').click(function () {
+            location.href = '@Url.Action("Index", "Register")'
+            return false;
+        });
+    });
+</script>

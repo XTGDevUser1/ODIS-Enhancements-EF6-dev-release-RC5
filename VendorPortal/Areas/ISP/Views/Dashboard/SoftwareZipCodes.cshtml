@@ -1,0 +1,280 @@
+﻿@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "SoftwareZipCodes";
+}
+<div class="with-padding-with-panels">
+    <div class="row">
+        <div class="twelve-columns">
+            <form id="frmSoftwareZipCodes" method="post" action="javascript:void(0)">
+                <h5 style="text-align:justify;">
+                    A few minutes of your time now could save you a lot of time in the future!
+                </h5>
+                <h4>Digital Dispatch</h4>
+                <p style="text-align:justify">We plan on implementing digital dispatching to help both of us work better together! We would like to know a couple of things about what technology you are using now.</p>
+                <p class="button-height small-margin-bottom inline-large-label ">
+                    <label for="witness" class="label">
+                        What towing software do you use? <span class="red">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .Name("DispatchSoftwareProductID")
+                    .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchSoftwareOther(e);}</text>)))
+                                            .HtmlAttributes(new { style = "width:85%;" })
+                    )
+                </p>
+                <p class="button-height inline-large-label small-margin-bottom  hidden" id="PlaceHolder_DispatchSoftwareProductOther">
+                    <label for="DispatchSoftwareProductOther" class="label">
+                        <i> Other Description <span class="red">*</span></i>
+                    </label>
+                    @Html.TextBox("DispatchSoftwareProductOther", "", new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+                </p>
+                <p class="button-height small-margin-bottom inline-large-label">
+                    <label for="DispatchDispatch" class="label">
+                        Do you currently use digital dispatch? <span class="red">*</span>
+                    </label>
+                    @Html.RadioButton("DigitalDispatch", "Yes", false, new { @class = "radio" })
+                    @Html.Raw("Yes")
+                    @Html.RadioButton("DigitalDispatch", "No", false, new { @class = "radio" })
+                    @Html.Raw("No")
+                    @Html.RadioButton("DigitalDispatch", "Yes", false, new { @class = "radio" })
+                    @Html.Raw("Don't know")
+                </p>
+                <p class="button-height small-margin-bottom  inline-large-label ">
+                    <label for="witness" class="label">
+                        What software are do your drivers use? <span class="red">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .Name("DriverSoftwareProductID")
+                    .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchSoftwareProduct.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDriverSoftwareOther(e);}</text>)))
+                                            .HtmlAttributes(new { style = "width:85%;" })
+                    )
+                </p>
+                <p class="button-height small-margin-bottom  inline-large-label hidden" id="PlaceHolder_DriverSoftwareProductOther">
+                    <label for="DriverSoftwareProductOther" class="label">
+                        <i> Other Description <span class="red">*</span></i>
+                    </label>
+                    @Html.TextBox("DriverSoftwareProductOther", "", new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+                </p>
+
+                <p class="button-height small-margin-bottom  inline-large-label ">
+                    <label for="witness" class="label">
+                        What GPS devices do your drivers use? <span class="red">*</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .Name("DispatchGPSNetworkID")
+                    .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.DispatchGPSNetwork.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoDispatchGPSNetworkOther(e);}</text>)))
+                                            .HtmlAttributes(new { style = "width:85%;" })
+                    )
+                </p>
+                <p class="button-height small-margin-bottom  inline-large-label hidden" id="PlaceHolder_DispatchGPSNetworkOther">
+                    <label for="DispatchGPSNetworkOther" class="label">
+                        <i> Other Description <span class="red">*</span></i>
+                    </label>
+                    @Html.TextBox("DispatchGPSNetworkOther", "", new { @class = "input full-width2 validate[required]", @maxLength = "255" })
+                </p>
+                <h4>Set up or Review Zip Code Areas</h4>
+                <p style="text-align:justify">
+                    We know your time is valuable and we do not want to contact you with service opportunities outside your coverage areas.
+                    Providing us a list of zip code areas that you do cover, will keep us from calling you for services that are too far away.
+                    Please take a few minutes and add your zip code coverage areas.
+                    If you have already setup your zip code areas then take a quick look and make sure they are all listed.
+                </p>
+            </form>
+        </div>
+        <br />
+        <div class="columns">
+            <div class="new twelve-columns">
+                <button id="btnSubmitSoftwareZipCodes" class="button  blue-gradient float-right mid-margin-left margin-bottom" type="button">
+                    Click here to review/setup your zip code areas
+                </button>
+                @*<button id="btnCancelSoftwareZipCodes" class="button silver-gradient float-right margin-bottom" type="button">
+                    Update next time
+                </button>*@
+                <a href="@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorLocationServiceAreasTab" })" id="lnkGoToVendorLocationsServiceAreasTab" class="button hidden red-gradient big margin-bottom margin-top">
+                    Click here to review/setup your zip code areas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#frmSoftwareZipCodes").validationEngine();
+        WatchMyContainer("frmSoftwareZipCodes");
+
+        var kendoWindowId = $(".k-window-content").attr("id");
+        $("#" + kendoWindowId).data('kendoWindow').title("Action Items")
+    });
+
+
+    $("#btnCancelSoftwareZipCodes").click(function (e) {
+        if (IsMyContainerDirty("frmSoftwareZipCodes")) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmSoftwareZipCodes");
+                var kendoWindowId = $(".k-window-content").attr("id");
+                $("#" + kendoWindowId).data('kendoWindow').close();
+            }, function () {
+                // Do Nothing
+            });
+        } else {
+            var kendoWindowId = $(".k-window-content").attr("id");
+            $("#" + kendoWindowId).data('kendoWindow').close();
+        }
+    });
+
+
+    function KendoComboBoxHandleVendorInfoDispatchSoftwareOther(e) {
+
+        var combo = e.sender;
+        var relatedPlaceHolder = "#PlaceHolder_DispatchSoftwareProductOther";
+        var changedDispatchSoftwareOtherTextBox = "#DispatchSoftwareProductOther";
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $(relatedPlaceHolder).removeClass('hidden');
+        }
+        else {
+            $(relatedPlaceHolder).addClass('hidden');
+            $(changedDispatchSoftwareOtherTextBox).val('');
+        }
+    }
+
+
+    function KendoComboBoxHandleVendorInfoDriverSoftwareOther(e) {
+
+        var combo = e.sender;
+        var relatedPlaceHolder = "#PlaceHolder_DriverSoftwareProductOther";
+        var changedDispatchSoftwareOtherTextBox = "#DriverSoftwareProductOther";
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $(relatedPlaceHolder).removeClass('hidden');
+        }
+        else {
+            $(relatedPlaceHolder).addClass('hidden');
+            $(changedDispatchSoftwareOtherTextBox).val('');
+        }
+    }
+
+
+    function KendoComboBoxHandleVendorInfoDispatchGPSNetworkOther(e) {
+
+        var combo = e.sender;
+        var relatedPlaceHolder = "#PlaceHolder_DispatchGPSNetworkOther";
+        var changedDispatchSoftwareOtherTextBox = "#DispatchGPSNetworkOther";
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $(relatedPlaceHolder).removeClass('hidden');
+        }
+        else {
+            $(relatedPlaceHolder).addClass('hidden');
+            $(changedDispatchSoftwareOtherTextBox).val('');
+        }
+    }
+
+
+    $("#btnSubmitSoftwareZipCodes").click(function (e) {
+        var errorfound = false;
+        if ($("#frmSoftwareZipCodes").validationEngine("validate") == false) {
+            errorfound = true;
+        }
+
+        if (!$("input[name='DigitalDispatch']:checked").val()) {
+            errorfound = true;
+            ShowValidationMessage($("input[name=DigitalDispatch]"), "* This field is required");
+        }
+        else {
+            HideValidationMessage($("input[name=DigitalDispatch]"));
+        }
+
+        var dispatchSoftwareCombo = $("#DispatchSoftwareProductID").data("kendoComboBox");
+        var dispatchSoftwareVal = dispatchSoftwareCombo.value();
+
+        if ($.trim(dispatchSoftwareVal).length == 0) {
+            errorfound = true;
+            ShowValidationMessage($('input[name="DispatchSoftwareProductID_input"]'), "* This field is required.");
+        }
+        else {
+            HideValidationMessage($('input[name="DispatchSoftwareProductID_input"]'));
+        }
+
+
+        var driverSoftwareCombo = $("#DriverSoftwareProductID").data("kendoComboBox");
+        var driverSoftwareVal = driverSoftwareCombo.value();
+
+        if ($.trim(driverSoftwareVal).length == 0) {
+            errorfound = true;
+            ShowValidationMessage($('input[name="DriverSoftwareProductID_input"]'), "* This field is required.");
+        }
+        else {
+            HideValidationMessage($('input[name="DriverSoftwareProductID_input"]'));
+        }
+
+        var dispatchGPSCombo = $("#DispatchGPSNetworkID").data("kendoComboBox");
+        var dispatchGPSVal = dispatchGPSCombo.value();
+
+        if ($.trim(dispatchGPSVal).length == 0) {
+            errorfound = true;
+            ShowValidationMessage($('input[name="DispatchGPSNetworkID_input"]'), "* This field is required.");
+        }
+        else {
+            HideValidationMessage($('input[name="DispatchGPSNetworkID_input"]'));
+        }
+
+        if (errorfound == true) {
+            e.preventDefault();
+            return false;
+        }
+        var formData = $("#frmSoftwareZipCodes").serializeArray();
+        formData.push({ name: "dispatchSoftwareProductID", value: $("#DispatchSoftwareProductID").data('kendoComboBox').value() });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitVendorsSoftwareZipCodes", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: formData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer("frmSoftwareZipCodes");
+                    document.dialogResult = "OK";
+                    //openAlertMessage("Thank You! Your information has been updated.", function () {
+                    //    $("#lnkGoToVendorLocationsServiceAreasTab").click();
+                    //});
+
+                    @*//KB: TFS 937. openAlertMessage("Thank You! Your information has been updated.", function () { window.location = '@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorLocationServiceAreasTab" })'; });*@
+
+                    var kendoWindowID = $(".k-window-content").attr("id");
+                    $("#" + kendoWindowID).data('kendoWindow').close();
+                    window.location = '@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorLocationServiceAreasTab" })';
+                }
+            }
+        }); // end of ajax
+
+    });
+</script>

@@ -1,0 +1,143 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.PurchaseOrder
+<script type="text/javascript">
+    function oncomboboxchange_GOAReason(e) {
+        var combo = $('#GOAReasonID').data('kendoComboBox');
+        HideValidationMessage($('input[name="GOAReasonID_input"]'));
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        if (combo.text() == 'Other') {
+            $("#divReasonOther").show();
+        }
+        else {
+            $("#divReasonOther").hide();
+        }
+
+    }
+</script>
+<p>
+    To create a GOA PO select a reason and add comments. If authorization is required
+    get the auth code from a Manager and enter it here. If you do not want to create
+    a GOA PO then click Cancel</p>
+<form name="frmAddGOA" id="frmAddGOA" action="#">
+@Html.HiddenFor(p => p.ID)
+@Html.Hidden("AddGOAID", Model.ID)
+<div class="with-padding">
+    <div class="columns">
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="WeightClass" class="label">
+                Reason <span>*</span></label>
+            @(Html.Kendo().ComboBox()
+                .Name("GOAReasonID")
+                .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("oncomboboxchange_GOAReason"))
+                .Suggest(true)
+                .HtmlAttributes(new { @class = "selectlabel full-width2" })
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.GOAReason.ToString()] as IEnumerable<SelectListItem>)
+                )
+        </div>
+        <div class="button-height inline-label small-margin-bottom seven-columns" id="divReasonOther">
+            <label for="ServiceType" class="label">
+                If Other</label>
+            @Html.TextBoxFor(goa => goa.GOAReasonOther, new { @class = "input full-width2 validate[maxSize[50]]" })
+        </div>
+        <div class="button-height inline-label small-margin-bottom seven-columns">
+            <label for="ServiceType" class="label">
+                Comment</label>
+            @Html.TextAreaFor(goa => goa.GOAComment, new { @class = "input full-width2 validate[maxSize[255]]", rows = "5", cols = "25", style = "width : 100%" })
+        </div>
+        <div class="button-height inline-label small-margin-bottom seven-columns">
+            <label for="ServiceType" class="label">
+                Authorization</label>
+            @Html.TextBoxFor(goa => goa.GOAAuthorization, new { @class = "input full-width2 validate[maxSize[100]]" })
+        </div>
+    </div>
+    <div class="clear">
+    </div>
+    <div>
+        <button id="btnCancel" class="button silver-gradient  float-right margin-top margin-bottom margin-left"
+            type="button" value="Auto">
+            Cancel</button>
+        <button id="btnCreateGOA" class="button green-gradient  float-right margin-top margin-bottom "
+            type="button" value="Auto">
+            Create GOA</button>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        WatchMyContainer('frmAddGOA');
+        //KB: Set the width of the dropdown container to be 250px
+        $("#GOAReasonID").data("kendoComboBox").list.width(250);
+
+        $("#divReasonOther").hide();
+        $("#btnCancel").on('click', function () {
+            if (IsMyContainerDirty('frmAddGOA')) {
+                var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+                $.modal.confirm(message, function () {
+                    HideValidationMessage($('input[name="GOAReasonID_input"]'));
+                    document.dialogResult = "CANCEL";
+                    CleanMyContainer("frmAddGOA");
+                    AddGOAWindow.data('kendoWindow').close();
+
+                }, function () {
+                    return false;
+                });
+            }
+            else {
+                HideValidationMessage($('input[name="GOAReasonID_input"]'));
+                document.dialogResult = "CANCEL";
+                CleanMyContainer("frmAddGOA");
+                AddGOAWindow.data('kendoWindow').close();
+            }
+           
+        });
+        $("#btnCreateGOA").on('click', function () {
+            var retVal = false;
+            var goaRefresh = false;
+            var goaId;
+            var $form = $("#frmAddGOA");
+            if ($form.validationEngine('validate') == false) {
+                return retVal;
+            }
+            var formdata = $form.serializeArray();
+            var isFormValid = true;
+            var goareason = $("#GOAReasonID").data("kendoComboBox").value();
+            var goareasonText = $("#GOAReasonID").data("kendoComboBox").text();
+            if ($.trim(goareason).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="GOAReasonID_input"]'), "Reason is required.");
+                $('#GOAReasonID-input').focus();
+            }
+            else if (goareasonText == 'Other' && $.trim($('#GOAReasonOther').val()).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($("#GOAReasonOther"), "If Other is required");
+                $('#GOAReasonOther').focus();
+            }
+            if (!isFormValid) {
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AddGOA", "History", new { area = "Application" })',
+                traditional: true,
+                data: formdata,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmAddGOA');
+                        HideValidationMessage($('input[name="GOAReasonID_input"]'));
+                        goaId = msg.Data.id;
+                        AddGOAWindow.data('kendoWindow').close();
+                        LoadHistoryPoDetails(goaId, null, 'Edit');
+
+                    }
+                }
+            });
+
+        });
+    });
+</script>

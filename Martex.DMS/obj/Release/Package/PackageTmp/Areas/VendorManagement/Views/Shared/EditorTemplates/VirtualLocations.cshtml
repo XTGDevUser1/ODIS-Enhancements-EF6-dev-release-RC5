@@ -1,0 +1,156 @@
+﻿@using System.Text;
+@using Martex.DMS.DAL;
+<!-- Lightweight grid for managing zip codes -->
+@{
+    string uniqueID = ViewData.TemplateInfo.HtmlFieldPrefix;
+    var jsonSerializer = new System.Web.Script.Serialization.JavaScriptSerializer();
+    StringBuilder jsonVirtualLocations = new StringBuilder();
+    List<VendorLocationVirtual_Result> list = ViewData["VirtualLocations"] as List<VendorLocationVirtual_Result>;
+    if (list != null)
+    {
+        var vls = (from vl in list
+                   select new
+                   {
+                       Description = vl.LocationAddress ,//+ " " + vl.GeographyLocation,
+                       City = vl.LocationCity,
+                       StateProvince = vl.LocationStateProvince,
+                       Country = vl.LocationCountryCode,
+                       PostalCode = vl.LocationPostalCode,
+                       Latitude = vl.Latitude,
+                       Longitude = vl.Longitude,
+                       GeographyLocation = vl.GeographyLocation
+                   }).ToList();
+        jsonSerializer.Serialize(vls, jsonVirtualLocations);
+    }
+}
+<div id="@uniqueID">
+    @Html.Hidden("hdnVirtualLocations", jsonVirtualLocations.ToString())
+    <form data-bind="submit: addItem">
+    <table class="table responsive-table" style="width: 90%">
+        <thead>
+            <tr>
+                <th style="width: 40%">
+                    Address
+                </th>
+                 <th style="width: 40%">
+                    Geography Location
+                </th>
+                <th style="width: 10%" class="align-center">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody data-bind='foreach: items'>
+            <tr>
+                <td>
+                    <p data-bind="text : Description, uniqueName: true">
+                    </p>
+                </td>
+                <td>
+                    <p data-bind="text : GeographyLocation, uniqueName: true">
+                    </p>
+                </td>
+                <td>
+                    <a href='#' class="icon-cross icon-size2 red with-tooltip" data-bind='click: $root.removeItem'>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+        <!-- For debugging, please change the submit binding to addDummyItem -->
+        @*<tfoot>
+            <tr>
+                <td colspan="2">                    
+                    <button type="submit" class="icon-plus icon-size2 with-tooltip">
+                    </button>
+                </td>
+            </tr>
+        </tfoot>  *@
+    </table>
+    </form>
+</div>
+<script language="javascript" type="text/javascript">
+    function VirtualAddress() {
+        this.IsEmpty = true; //ko.observable(true);
+        this.City = ""; // ko.observable("");
+        this.StateProvince = ""; // ko.observable("");
+        this.Country = ""; // ko.observable("");
+        this.PostalCode = ""; // ko.observable("");
+        this.Description = ""; // ko.observable("");
+
+        this.Latitude = ""; // ko.observable("");
+        this.Longitude = ""; // ko.observable("");
+
+    }
+
+    var VirtualLocationsViewModel = function (initItems) {
+        self = this;
+        self.items = ko.observableArray(initItems);
+        //        DEBUG
+        //        self.addDummyItem = function () {
+        //            var va = new VirtualAddress();
+        //            va.IsEmpty(false);
+        //            va.Line1("Ameerpet");
+        //            va.Country("India");
+
+        //            this.addItem(va);
+        //        } .bind(this);
+
+        self.IsADuplicate = function (item) {
+
+            for (var i = 0, l = this.items().length; i < l; i++) {
+                var current = this.items()[i];
+                if (item.Description == current.Description &&
+                item.City == current.City &&
+                item.StateProvince == current.StateProvince &&
+                item.Country == current.Country &&
+                item.PostalCode == current.PostalCode) {
+                    console.log("Is a duplicate");
+                    return true;
+                }
+            }
+            return false;
+        } .bind(this);
+
+        self.addItem = function (item) {
+
+            console.log("Detail is empty? " + item.IsEmpty);
+            //TODO: Check for duplicates.
+            if (!item.IsEmpty && !this.IsADuplicate(item)) {
+                console.log("Not a duplicate");
+                this.items.push(item); // Adds the item. Writing to the "items" observableArray causes any associated UI to update.                
+            }
+
+        } .bind(this);  // Ensure that "this" is always this view model
+
+        self.removeItem = function (item) {
+            var that = this;
+            $.modal.confirm("Are you sure?", function () {
+                console.log("Items : " + that.items());
+                console.log("Item to be removed : " + item);
+                that.items.remove(item);
+            }, function () {
+
+            });
+        } .bind(this);
+
+        self.getVirtualLocations = ko.computed(function () {
+            console.log(this.items());
+            return this.items();
+        }, this);
+
+    };
+    $(function () {
+        var jsonString = $("#" + '@uniqueID' + '_hdnVirtualLocations').val();
+        var json = [];
+        if (jsonString.length > 2) {
+            json = JSON.parse(jsonString);
+        }
+        // Maintain a list of view models so as to allow updating the data programmatically from elsewhere.
+        if (!document.KOViewModels) {
+            document.KOViewModels = [];
+        }
+        document.KOViewModels['@uniqueID'] = new VirtualLocationsViewModel(json);
+        ko.applyBindings(document.KOViewModels['@uniqueID'], document.getElementById('@uniqueID'));
+    });
+
+</script>

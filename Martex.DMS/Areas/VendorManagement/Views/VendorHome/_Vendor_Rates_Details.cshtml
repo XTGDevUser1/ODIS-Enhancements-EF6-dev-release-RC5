@@ -1,0 +1,465 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model Martex.DMS.BLL.Model.VendorRatesModel
+@{
+    var suffixVendorID = Model.VendorID.ToString();
+    bool isReadOnly = "View".Equals(Model.Mode, StringComparison.InvariantCultureIgnoreCase);
+    string contractID = string.Empty;
+    string contractRateScheduleID = string.Empty;
+    string serviceRateAddButtonClass = "hidden";
+    if (Model.CurrentRateSchedule != null)
+    {
+        contractID = Model.CurrentRateSchedule.ContractID.ToString();
+        contractRateScheduleID = Model.CurrentRateSchedule.ContractRateScheduleID.ToString();
+        serviceRateAddButtonClass = string.Empty;
+    }
+}
+<script type="text/javascript">
+    function GrdVSRDetail_onDataBound(e) {
+        var grid = e.sender;
+
+        $("#tooltips").html("");
+        $("#grdVRates_" + @suffixVendorID).find('.k-grid-add').addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add Rate</label>").attr("title", "Add Rate");
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+
+        $(".k-grid-add", ".k-grid-delete").click(function () {
+
+            $("#tooltips").html("");
+        });
+        //handling code
+
+        var grid = e.sender;
+        var subTotal = 0;
+        var isMemberPayValue = 0;
+        var that = this;
+
+        e.sender.table.find('tr').each(function () {
+
+            var $BaseRate = $(this).find('.baseRate');
+            var $serviceRate = $(this).find('.serviceRate');
+            var $enrouteRate = $(this).find('.enrouteRate');
+            var $enrouteFreeMiles = $(this).find('.enrouteFreeMiles');
+            var $serviceFreeMiles = $(this).find('.serviceFreeMiles');
+            var $hourlyRate = $(this).find('.hourlyRate');
+            var $goaRate = $(this).find('.goaRate');
+            //Base Rate
+            if ($BaseRate == null || $BaseRate == undefined || $BaseRate == "0") {
+                $BaseRate.html("");
+            }
+            else {
+                if (parseFloat($BaseRate.html()) > 0) {
+                    $BaseRate.html("$" + parseFloat($BaseRate.html()).toFixed(2));
+                }
+                else {
+                    $BaseRate.html("");
+                }
+            }
+
+            //GOA Rate
+            if ($goaRate == null || $goaRate == undefined || $goaRate == "0") {
+                $goaRate.html("");
+            }
+            else {
+                if (parseFloat($goaRate.html()) > 0) {
+                    $goaRate.html("$" + parseFloat($goaRate.html()).toFixed(2));
+                }
+                else {
+                    $goaRate.html("");
+                }
+            }
+
+            //Enroute Rate
+            if ($enrouteRate == null || $enrouteRate == undefined || $enrouteRate == "0") {
+                $enrouteRate.html("");
+            }
+            else {
+                if (parseFloat($enrouteRate.html()) > 0) {
+                    $enrouteRate.html("$" + parseFloat($enrouteRate.html()).toFixed(2));
+                }
+                else {
+                    $enrouteRate.html("");
+                }
+            }
+            //Enroute Free Miles
+            if ($enrouteFreeMiles == null || $enrouteFreeMiles == undefined || $enrouteFreeMiles == "0") {
+                $enrouteFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($enrouteFreeMiles.html()) > 0) {
+                    $enrouteFreeMiles.html(parseFloat($enrouteFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $enrouteFreeMiles.html("");
+                }
+            }
+            //Service Free Miles
+            if ($serviceFreeMiles == null || $serviceFreeMiles == undefined || $serviceFreeMiles == "0") {
+                $serviceFreeMiles.html("");
+            }
+            else {
+                if (parseFloat($serviceFreeMiles.html()) > 0) {
+                    $serviceFreeMiles.html(parseFloat($serviceFreeMiles.html()).toFixed(0));
+                }
+                else {
+                    $serviceFreeMiles.html("");
+                }
+            }
+            //Hourly Rate
+            if ($hourlyRate == null || $hourlyRate == undefined || $hourlyRate == "0") {
+                $hourlyRate.html("");
+            }
+            else {
+                if (parseFloat($hourlyRate.html()) > 0) {
+                    $hourlyRate.html("$" + parseFloat($hourlyRate.html()).toFixed(2));
+                }
+                else {
+                    $hourlyRate.html("");
+                }
+            }
+            //serviceRate
+            if ($serviceRate == null || $serviceRate == undefined || $serviceRate == "0") {
+                $serviceRate.html("");
+            }
+            else {
+                if (parseFloat($serviceRate.html()) > 0) {
+                    $serviceRate.html("$" + parseFloat($serviceRate.html()).toFixed(2));
+                }
+                else {
+                    $serviceRate.html("");
+                }
+            }
+        });
+    }
+
+    function GrdVSRDetail_OnCancel(e) {
+        var btnUpdate = $(e.container.find(".k-grid-edit"));
+        var btnDelete = $(e.container.find(".k-grid-delete"));
+
+        btnUpdate.addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Save");
+        btnDelete.addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Cancel");
+
+    }
+
+    function GrdVSRDetail_OnEdit(e) {
+
+        //KB: Track edits
+        isDetailEditInProgress = true;
+        // Product
+        try {
+            var $combo = $(e.container.find("[data-role=combobox]")[0]).data().kendoComboBox;
+            var IsServiceRateConfigured = $(e.container.find('.serviceRateConfigured')).html();
+            var $IsServiceRateConfigured = $(e.container.find('#ServiceRate'));
+            var IsServiceFreeMilesConfigured = $(e.container.find('.serviceFreeMilesConfigured')).html();
+            var $IsServiceFreeMilesConfigured = $(e.container.find('#ServiceFreeMiles'));
+
+            var IsBaseRateConfigured = $(e.container.find('.baseRateConfigured')).html();
+            var $IsBaseRateConfigured = $(e.container.find('#BaseRate'));
+
+            var IsEnrouteRateConfigured = $(e.container.find('.enrouteRateConfigured')).html();
+            var $IsEnrouteRateConfigured = $(e.container.find('#EnrouteRate'));
+
+            var IsEnrouteFreeMilesConfigured = $(e.container.find('.enrouteFreeMilesConfigured')).html();
+            var $IsEnrouteFreeMilesConfigured = $(e.container.find('#EnrouteFreeMiles'));
+
+            var IsHourlyRateConfigured = $(e.container.find('.hourlyRateConfigured')).html();
+            var $IsHourlyRateConfigured = $(e.container.find('#HourlyRate'));
+
+            var IsGOARateConfigured = $(e.container.find('.GOARateConfigured')).html();
+            var $IsGOARateConfigured = $(e.container.find('#GoaRate'));
+
+            if (!e.model.isNew()) {
+                if (IsServiceRateConfigured != null && $IsServiceRateConfigured != undefined) {
+                    if (IsServiceRateConfigured == "false") {
+                        $IsServiceRateConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsServiceFreeMilesConfigured != null && $IsServiceFreeMilesConfigured != undefined) {
+                    if (IsServiceFreeMilesConfigured == "false") {
+                        $IsServiceFreeMilesConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsBaseRateConfigured != null && $IsBaseRateConfigured != undefined) {
+                    if (IsBaseRateConfigured == "false") {
+                        $IsBaseRateConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsEnrouteRateConfigured != null && $IsEnrouteRateConfigured != undefined) {
+                    if (IsEnrouteRateConfigured == "false") {
+                        $IsEnrouteRateConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsEnrouteFreeMilesConfigured != null && $IsEnrouteFreeMilesConfigured != undefined) {
+                    if (IsEnrouteFreeMilesConfigured == "false") {
+                        $IsEnrouteFreeMilesConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsHourlyRateConfigured != null && $IsHourlyRateConfigured != undefined) {
+                    if (IsHourlyRateConfigured == "false") {
+                        $IsHourlyRateConfigured.attr("disabled", "disabled");
+                    }
+                }
+
+                if (IsGOARateConfigured != null && $IsGOARateConfigured != undefined) {
+                    if (IsGOARateConfigured == "false") {
+                        $IsGOARateConfigured.attr("disabled", "disabled");
+                    }
+                }
+            }
+        } catch (e) {
+
+        }
+        /* Set the width of the dropdown containers */
+        $combo.list.width(250);
+
+        // Set width on textboxes
+        // Avoid onchange
+        e.container.find("input").each(function () {
+            var tb = $(this);
+            if (!tb.hasClass("k-input")) {
+                tb.addClass("input");
+                tb.css("width", "50px");
+            }
+            tb.change(function (e) { e.stopPropagation(); });
+        });
+
+        var btnUpdate = $(e.container.find(".k-grid-update"));
+        var btnCancel = $(e.container.find(".k-grid-cancel"));
+
+        btnUpdate.addClass("with-tooltip green-active2 active").html('<span class="k-icon k-update"/>').css("min-width", "26px");
+        btnCancel.addClass("with-tooltip red-active2 active").html('<span class="k-icon k-cancel"/>').css("min-width", "26px");
+
+        btnCancel.click(function () {
+
+            //KB: Track edits
+            isDetailEditInProgress = false;
+
+            $("#grdVRates_@suffixVendorID").data('kendoGrid').dataSource.read();
+        });
+    }
+
+    function GrdVSRDetail_OnSave(e) {
+        isDetailEditInProgress = false;
+        var dirtyFlagContainer = $('#frmVendorContainerForDirtyFlag_@suffixVendorID');
+        dirtyFlagContainer.attr("data", "false");
+        setTimeout(function () {
+            $("#grdVRates_@suffixVendorID").data('kendoGrid').dataSource.read();
+        }, 500);
+
+    }
+
+    function GrdVSRDetail_onDelete(e) {
+        setTimeout(function () {
+            $("#grdVRates_@suffixVendorID").data('kendoGrid').dataSource.read();
+        }, 500);
+    }
+
+    function GetReadParams(contractID, rateScheduleID) {
+
+        return { contractID: contractID, contractRateScheduleID: rateScheduleID };
+    }
+</script>
+@Html.HiddenFor(u => u.CurrentRateSchedule.ContractID, new { id = "Vendor_Rates_ContractID_" + suffixVendorID })
+@Html.HiddenFor(u => u.VendorID, new { id = "Vendor_Rates_VendorID_" + suffixVendorID })
+@Html.HiddenFor(u => u.CurrentRateSchedule.ContractRateScheduleID, new { id = "Vendor_Rates_ContractRateScheduleID_" + suffixVendorID })
+<div class="columns">
+    <div class="four-columns">
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="VendorContractRateScheduleStatusID" class="label">
+                Status<span class="star">*</span>
+            </label>
+            @(Html.Kendo().ComboBox()
+            .Name("VendorContractRateScheduleStatusID_" + suffixVendorID)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .Suggest(true)
+            .SelectedIndex(0)
+            .DataTextField("Text")
+            .DataValueField("Value")
+            .HtmlAttributes(new { style = "width:90%;", id = "VendorContractRateScheduleStatusID_" + suffixVendorID })
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorContractRateScheduleStatus.ToString()] as IEnumerable<SelectListItem>)
+                    .Value(Model.CurrentRateSchedule != null && Model.CurrentRateSchedule.ContractRateScheduleStatusID != null ? Model.CurrentRateSchedule.ContractRateScheduleStatusID.Value.ToString() : string.Empty)
+            .Enable(!isReadOnly)
+            )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="StartDate" class="label">
+                Start Date <span class="star">*</span>
+            </label>
+            @(Html.Kendo().DatePickerFor(u => u.CurrentRateSchedule.StartDate)
+                          .HtmlAttributes(new { style = "width:90%;", id = "Vendor_Rates_StartDate_" + suffixVendorID, type = "text" })
+                          .Enable(!isReadOnly)
+             )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="EndDate" class="label">
+                End Date
+            </label>
+            @(Html.Kendo().DatePickerFor(u => u.CurrentRateSchedule.EndDate)
+                          .HtmlAttributes(new { style = "width:90%;", id = "Vendor_Rates_EndDate_" + suffixVendorID, type = "text" })
+                          .Enable(!isReadOnly)
+             )
+        </div>
+    </div>
+    <div class="four-columns">
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="SignedDate" class="label">
+                Signed Date
+            </label>
+            @(Html.Kendo().DatePickerFor(u => u.CurrentRateSchedule.SignedDate)
+                          .HtmlAttributes(new { style = "width:90%;", id = "Vendor_Rates_SignedDate_" + suffixVendorID, type = "text" })
+                          .Enable(!isReadOnly)
+             )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="SignedBy" class="label">
+                Signed By
+            </label>
+            @if (isReadOnly)
+            {
+                @Html.TextBoxFor(u => u.CurrentRateSchedule.SignedBy, new { @class = "validate[maxSize[256]], input full-width", id = "Vendor_Rates_SignedBy_" + suffixVendorID, disabled = "disbaled" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => u.CurrentRateSchedule.SignedBy, new { @class = "validate[maxSize[256]], input full-width", id = "Vendor_Rates_SignedBy_" + suffixVendorID })
+            }
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="SignedByTitle" class="label">
+                Signed By Title
+            </label>
+            @if (isReadOnly)
+            {
+                @Html.TextBoxFor(u => u.CurrentRateSchedule.SignedByTitle, new { @class = "validate[maxSize[256]], input full-width", id = "Vendor_Rates_SignedByTitle_" + suffixVendorID, disabled = "disbaled" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => u.CurrentRateSchedule.SignedByTitle, new { @class = "validate[maxSize[256]], input full-width", id = "Vendor_Rates_SignedByTitle_" + suffixVendorID })
+            }
+        </div>
+    </div>
+    <div class="four-columns">
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="ContractStartDate" class="label">
+                Contract Start</label>
+            @if (Model.CurrentRateSchedule != null && Model.CurrentRateSchedule.ContractStartDate != null)
+            {
+                <span>@Model.CurrentRateSchedule.ContractStartDate.Value.ToString("MM/dd/yyyy")</span>
+            }
+        </p>
+    </div>
+    <div class="new-row six-columns">
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="Source" class="label">
+                Last Updated</label>
+            <small>@Html.DisplayFor(u => u.CurrentRateSchedule.ModifiedBy)</small> <small>@Html.DisplayFor(u => u.CurrentRateSchedule.ModifiedOn)</small>
+        </p>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="Source" class="label">
+                Create Date</label>
+            <small>@Html.DisplayFor(u => u.CurrentRateSchedule.CreatedBy)</small> <small>@Html.DisplayFor(u => u.CurrentRateSchedule.CreatedOn)</small>
+        </p>
+    </div>
+    <div class="six-columns">
+        <div id="PlaceHolder_Vendor_RatesSchedules_Buttons_@suffixVendorID" class="hide">
+            <button id="btnSaveVendorRatesSchedules_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorRatesSchedules('@suffixVendorID');">
+                Save</button>
+            <button id="btnCancelVendorRatesSchedules_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorRatesSchedules('@suffixVendorID');">
+                Cancel</button>
+        </div>
+    </div>
+    <div class="new-row twelve-columns">
+        <h3 class="underline">
+            Service and Rates</h3>
+    </div>
+    <div class="new-row twelve-columns">
+        @(Html.Kendo().Grid(Model.ServiceRates)
+           .Name("grdVRates_" + suffixVendorID)
+    .ToolBar(commands =>
+    {
+        commands.Create().HtmlAttributes(new { @class = serviceRateAddButtonClass });
+    })
+    .DataSource(dataBinding =>
+    {
+        dataBinding.Ajax()
+            .Read(read => read.Action("_SelectVSRDetails", "VendorHome", new { area = "VendorManagement" }).Data(@<text>function(e){
+        return GetReadParams('@contractID', '@contractRateScheduleID');}</text>))
+            .Create(insert => insert.Action("_InsertVSRDetails", "VendorHome", new { area = "VendorManagement" }).Data(@<text>function(e){
+        return GetReadParams('@contractID', '@contractRateScheduleID');}</text>))
+            .Update(update => update.Action("_UpdateVSRDetails", "VendorHome", new { area = "VendorManagement" }).Data(@<text>function(e){
+        return GetReadParams('@contractID', '@contractRateScheduleID');}</text>))
+            .Destroy(del => del.Action("_DeleteVSRDetails", "VendorHome", new { area = "VendorManagement" }).Data(@<text>function(e){
+        return GetReadParams('@contractID', '@contractRateScheduleID');}</text>))
+            .Events(events => events.Error("KendoGridErrorHandler"))
+        .Model(u => u.Id(p => p.ProductID));
+    })
+    .Columns(columns =>
+    {
+        columns.Bound(pd => pd.IsBaseRateConfigured).Hidden().HtmlAttributes(new { @class = "baseRateConfigured" });
+        columns.Bound(pd => pd.IsEnrouteRateConfigured).Hidden().HtmlAttributes(new { @class = "enrouteRateConfigured" });
+        columns.Bound(pd => pd.IsEnrouteFreeMilesConfigured).Hidden().HtmlAttributes(new { @class = "enrouteFreeMilesConfigured" });
+        columns.Bound(pd => pd.IsServiceFreeMilesConfigured).Hidden().HtmlAttributes(new { @class = "serviceFreeMilesConfigured" });
+        columns.Bound(pd => pd.IsServiceRateConfigured).HtmlAttributes(new { @class = "serviceRateConfigured" }).Hidden();
+        columns.Bound(pd => pd.IsHourlyRateConfigured).Hidden().HtmlAttributes(new { @class = "hourlyRateConfigured" });
+        columns.Bound(pd => pd.IsGOARateConfigured).Hidden().HtmlAttributes(new { @class = "GOARateConfigured" });
+
+        columns.Bound(pd => pd.ContractRateScheduleID).Hidden();
+        columns.Bound(pd => pd.ProductID).EditorTemplateName("Product").EditorViewData(new { FieldName = "ProductID", ContractRateScheduleID = Model.CurrentRateSchedule == null ? 0 : Model.CurrentRateSchedule.ContractRateScheduleID, VendorID = Model.VendorID }).ClientTemplate("#= typeof(Name) == \"undefined\" ? '' : Name #");
+        //columns.ForeignKey(pd => pd.ProductID, (System.Collections.IEnumerable)ViewData["VendorServices"], "Value", "Text").Title("Service").Width("100px");
+        columns.Bound(pd => pd.BaseRate).HtmlAttributes(new { @style = "text-align:right;", @class = "baseRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Base Rate");
+        columns.Bound(pd => pd.EnrouteRate).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Rate");
+        columns.Bound(pd => pd.EnrouteFreeMiles).HtmlAttributes(new { @style = "text-align:right;", @class = "enrouteFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Enroute Free Miles");
+        columns.Bound(pd => pd.ServiceRate).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Rate");
+        columns.Bound(pd => pd.ServiceFreeMiles).HtmlAttributes(new { @style = "text-align:right;", @class = "serviceFreeMiles" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Service Free Miles");
+        columns.Bound(pd => pd.HourlyRate).HtmlAttributes(new { @style = "text-align:right;", @class = "hourlyRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("Hourly Rate");
+        columns.Bound(pd => pd.GoaRate).HtmlAttributes(new { @style = "text-align:right;", @class = "goaRate" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Title("GOA Rate");
+        columns.Command(commands =>
+        {
+            commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+            commands.Destroy().HtmlAttributes(new { style = "min-width:26px;" });
+        }).Title("Action(s)");
+    }
+    )
+    .Events(events => events
+
+        .Edit("GrdVSRDetail_OnEdit")
+        .Save("GrdVSRDetail_OnSave")
+        .Remove("GrdVSRDetail_onDelete")
+        .DataBound("GrdVSRDetail_onDataBound")
+    )
+    .Editable(editing => editing.CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom).Mode(Kendo.Mvc.UI.GridEditMode.InLine))
+    .Sortable(p => { p.Enabled(false); })
+    .Filterable(p => { p.Enabled(false); })
+    .Pageable(p => { p.Enabled(false); })
+    .EnableCustomBinding(true)
+    .Resizable(resize => resize.Columns(true))
+    .Scrollable())
+    </div>
+    <div class="new-row six-columns small-margin-top">
+        @if (Model.CurrentRateSchedule != null)
+        {
+            <a id="btnViewVendorRatesChangeLog" onclick="ViewVendorRatesChangeLog('#btnViewVendorRatesChangeLog','@suffixVendorID','@contractRateScheduleID');">
+                View Change Log </a>
+        }
+    </div>
+    <div class="six-columns">
+        @if (Model.CurrentRateSchedule != null)
+        {
+            <button id="btnVendorRatesSendWelcomeMessage_@suffixVendorID" class="button silver-gradient small-margin-left  float-right margin-bottom"
+                        type="button" onclick="VendorRatesSendWelcomeMessage('@suffixVendorID');">
+                Send Welcome Notice</button>
+                
+            <button id="btnVendorRatesSendAgreement_@suffixVendorID" class="button green-gradient  float-right margin-bottom"
+                        type="button" onclick="VendorRatesSendAgreement('@suffixVendorID', '@Model.CurrentRateSchedule.ContractRateScheduleID');">
+                Send Rate Schedule</button>
+        }
+    </div>
+    <div class="new-row twelve-columns small-margin-top hide" id="PlaceHolder_Vendor_Rates_Change_Log_@suffixVendorID">
+    </div>
+</div>

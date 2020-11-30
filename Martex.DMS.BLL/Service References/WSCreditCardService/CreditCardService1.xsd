@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Nmca.Web.Services" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Nmca.Web.Services" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:57407/CreditCardService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:import schemaLocation="http://localhost:57407/CreditCardService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="SaleRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BillingAddress1" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingAddress2" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingCity" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingCountry" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingState" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="BillingZip" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CardNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CertificatePassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ChargeTotal" type="xs:decimal" />
+      <xs:element minOccurs="0" name="CustomerId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CvmNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExpirationDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="OrderId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ReferenceNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StoreNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UseAvs" type="xs:boolean" />
+      <xs:element minOccurs="0" name="UseCvm" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="SaleRequest" nillable="true" type="tns:SaleRequest" />
+  <xs:complexType name="ProcessorResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ApprovalCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AvsMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AvsStatusValue" type="tns:AvsStatus" />
+      <xs:element minOccurs="0" name="CvmMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CvmStatusValue" type="tns:CvmStatus" />
+      <xs:element minOccurs="0" name="ErrorMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OrderId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProcessorReferenceNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProcessorResponseCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProcessorResponseMessage" type="tns:ResponseMessage" />
+      <xs:element minOccurs="0" name="ProcessorTransactionResult" type="tns:TransactionResult" />
+      <xs:element minOccurs="0" name="TDate" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransactionDateTime" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="TransactionId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ProcessorResponse" nillable="true" type="tns:ProcessorResponse" />
+  <xs:simpleType name="AvsStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AddressZipMatch" />
+      <xs:enumeration value="AddressOnlyMatch" />
+      <xs:enumeration value="ZipOnlyMatch" />
+      <xs:enumeration value="NoMatch" />
+      <xs:enumeration value="Other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="AvsStatus" nillable="true" type="tns:AvsStatus" />
+  <xs:simpleType name="CvmStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Match" />
+      <xs:enumeration value="NoMatch" />
+      <xs:enumeration value="Other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="CvmStatus" nillable="true" type="tns:CvmStatus" />
+  <xs:simpleType name="ResponseMessage">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Approved" />
+      <xs:enumeration value="Declined" />
+      <xs:enumeration value="Unknown" />
+      <xs:enumeration value="Accepted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="ResponseMessage" nillable="true" type="tns:ResponseMessage" />
+  <xs:simpleType name="TransactionResult">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Approved" />
+      <xs:enumeration value="Declined" />
+      <xs:enumeration value="Fraud" />
+      <xs:enumeration value="Failed" />
+      <xs:enumeration value="Duplicate" />
+      <xs:enumeration value="Submitted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="TransactionResult" nillable="true" type="tns:TransactionResult" />
+  <xs:complexType name="GenericFaultException">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="ser:guid" />
+      <xs:element minOccurs="0" name="MessageText" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="GenericFaultException" nillable="true" type="tns:GenericFaultException" />
+  <xs:complexType name="ProcessorFaultException">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="ser:guid" />
+      <xs:element minOccurs="0" name="MessageText" nillable="true" type="xs:string" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="ProcessorData" nillable="true" type="q1:ArrayOfKeyValueOfanyTypeanyType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ProcessorFaultException" nillable="true" type="tns:ProcessorFaultException" />
+  <xs:complexType name="PostAuthorizationRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CertificatePassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ChargeTotal" type="xs:decimal" />
+      <xs:element minOccurs="0" name="OrderId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StoreNumber" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PostAuthorizationRequest" nillable="true" type="tns:PostAuthorizationRequest" />
+  <xs:complexType name="VoidRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CertificatePassword" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OrderId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="StoreNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TDate" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VoidRequest" nillable="true" type="tns:VoidRequest" />
+</xs:schema>

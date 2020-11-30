@@ -1,0 +1,167 @@
+﻿@model Martex.DMS.BLL.Model.VendorPortal.PostLoginPromptModel
+@using Kendo.Mvc.UI
+@using VendorPortal.ActionFilters
+@{
+    ViewBag.Title = "PostLoginPrompt"; 
+}
+<form id="frmVendorPostLoginPrompt" action="javascript:void(0)" method="post">
+<div class="with-padding redalert">
+    <div class="columns margin-top">
+        
+        <div class="ten-columns">
+            <h2 class="thin">
+                Vendor Account Information Verification
+            </h2>
+            <p class="alert alert-info">
+                The address and phone information shown below is used during the selection and dispatching
+                process. Please take a moment to verify the accuracy of the information and make updates
+                if needed. Having correct information on your account ensures you get proper dispatches.  Thank You!
+           </p>
+        </div>
+        
+        <div class="new-row twelve-columns">
+            <h2 class="underline ">
+            </h2>
+            <h5 class="blue">
+                Business Address</h5>
+            @*@Html.Editor("BillingAddress", "AddressSingle", new { Value = Model.BillingAddress, IsZipRequired = true })*@
+            @Html.Editor("BusinessAddress", "PostLoginPromptAddress", new { Value = Model.BusinessAddress, IsCityRequired = true, IsZipRequired = true })
+            <h2 class="underline ">
+            </h2>
+            <h5 class="blue">
+                Billing Address</h5>
+            @Html.Editor("BillingAddress", "PostLoginPromptAddress", new { Value = Model.BillingAddress, IsCityRequired = true, IsZipRequired = true })
+            <h3 class="underline thin">
+            </h3>
+            <h5 class="blue">
+                Phone Numbers</h5>
+             <p class="button-height inline-large-label ">
+                <label for="OfficePhone" class="label">
+                    Office <span class="star red">*</span>
+                </label>
+                @Html.Editor("OfficePhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false, Value = Model.OfficePhone != null ? Model.OfficePhone.PhoneNumber : string.Empty, ID = Model.OfficePhone != null ? Model.OfficePhone.ID : 0 })
+            </p>
+            @{ int index = 0;
+               int numOfPhoneNumbers = Model.VendorPhoneNumbers.Count;}
+            @foreach (var phoneNumber in Model.VendorPhoneNumbers)
+            {
+                <br />
+                <p class="big-text blue">
+                    For @Html.Label("LocationAddress",phoneNumber.LocationAddress,null)
+                </p>
+                <p class="button-height inline-large-label ">
+                <label for="dispatchPhone" class="label">
+                    Dispatch <span class="star red">*</span>
+                </label>
+                @Html.Hidden("VendorPhoneNumbers[" + index + "].VendorLocationId",Model.VendorPhoneNumbers[index].VendorLocationId)
+                @Html.Editor("VendorPhoneNumbers[" + index + "].Dispatch", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false, Value = Model.VendorPhoneNumbers[index].Dispatch.PhoneNumber != null ? Model.VendorPhoneNumbers[index].Dispatch.PhoneNumber : string.Empty, ID = phoneNumber.Dispatch.ID })
+                </p>
+                <p class="button-height inline-large-label ">
+                <label for="FaxPhone" class="label">
+                    Fax <span class="star red">*</span>
+                </label>
+                @Html.Editor("VendorPhoneNumbers[" + index + "].Fax", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false, Value = Model.VendorPhoneNumbers[index].Fax.PhoneNumber != null ? Model.VendorPhoneNumbers[index].Fax.PhoneNumber : string.Empty, ID = Model.VendorPhoneNumbers[index].Fax.ID })
+                
+            </p>
+                index++;
+            }
+                       
+           
+            <h3 class="underline thin">
+            </h3>
+            <h5 class="blue">
+                Primary Contact</h5>
+            <p class="button-height inline-large-label ">
+                <label for="ContactFirstName" class="label">
+                    First Name <span class="star red">*</span>
+                </label>
+                @Html.TextBoxFor(m => m.ContactFirstName, new { @class = "input full-width2 validate[required, maxSize[50]]" })
+            </p>
+            <p class="button-height inline-large-label ">
+                <label for="ContactLastName" class="label">
+                    Last Name <span class="star red">*</span>
+                </label>
+                @Html.TextBoxFor(m => m.ContactLastName, new { @class = "input full-width2 validate[required, maxSize[50]]" })
+            </p>
+            <p class="button-height inline-large-label ">
+                <label for="Email" class="label">
+                    Email <span class="star red">*</span>
+                </label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "input full-width2 validate[required,custom[email]]" })
+            </p>
+            <div class="clear">
+            </div>
+            <p class="button-height inline-large-label ">
+                <label for="fax" class="label">
+                    <span class="star red"></span>
+                </label>
+                <button id="btnSavePostLoginDetails" class="button green-gradient big margin-bottom margin-top"
+                    type="submit">
+                    Save</button>
+            </p>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("#frmVendorPostLoginPrompt").validationEngine();
+    });
+    function PreparePhoneNumberAndType(editorPrefix) {
+        var phoneNumberForDB = GetPhoneNumberForDB(editorPrefix);
+        editorPrefix = editorPrefix.replace("[", "_").replace("].", "__");
+        $("#" + editorPrefix + "_PhoneNumber").val(phoneNumberForDB);
+
+    }
+    $("#btnSavePostLoginDetails").click(function (e) {
+        var errorfound = false;
+        if ($("#frmVendorPostLoginPrompt").validationEngine("validate") == false) {
+            errorfound = true;
+        }
+
+        $("#frmVendorPostLoginPrompt").find('span.required input:text').each(function () {
+            if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                var val = $(this).val();
+                if ($.trim(val).length == 0) {
+                    ShowValidationMessage($(this), "Please select a value.");
+                    errorfound = true;
+                }
+                else {
+                    HideValidationMessage($(this));
+                }
+            }
+        });
+
+        if (errorfound == true) {
+            e.preventDefault();
+            return false;
+        }
+        
+        var len = '@numOfPhoneNumbers';
+        for (var i = 0, l = len; i < l; i++) {
+            PreparePhoneNumberAndType("VendorPhoneNumbers[" + i + "]\.Dispatch");
+            PreparePhoneNumberAndType("VendorPhoneNumbers[" + i + "]\.Fax");
+        }
+
+        PreparePhoneNumberAndType("OfficePhone");
+        var formData = $("#frmVendorPostLoginPrompt").serializeArray();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Save", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: formData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    document.dialogResult = "OK";
+                    openAlertMessage("Thank You! Your information has been updated.");
+                    var kendoWindowID = $(".k-window-content").attr("id");
+                    $("#" + kendoWindowID).data('kendoWindow').close();
+                }
+            }
+        }); // end of ajax
+    });
+</script>

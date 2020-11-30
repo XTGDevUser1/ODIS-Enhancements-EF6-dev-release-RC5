@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A049F75A-05BA-48CE-B78A-93A6C985AEC5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MemberAPI.Services</RootNamespace>
+    <AssemblyName>MemberAPI.Services</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Aptify.BusinessObjects">
+      <HintPath>..\ReferenceDLLs\Aptify\Aptify.BusinessObjects.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ReferenceDLLs\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Contracts\IMemberService.cs" />
+    <Compile Include="MemberException.cs" />
+    <Compile Include="MemberInfoException.cs" />
+    <Compile Include="Models\APIOperationResult.cs" />
+    <Compile Include="Models\DeviceRegisterModel.cs" />
+    <Compile Include="Models\JoinModel.cs" />
+    <Compile Include="Models\MemberEmailModel.cs" />
+    <Compile Include="Models\MobileStaticDataVersion.cs" />
+    <Compile Include="Models\ODISAPIAuthResponse.cs" />
+    <Compile Include="Models\ODISAPICountriesResult.cs" />
+    <Compile Include="Models\ODISAPISearchSRListModel.cs" />
+    <Compile Include="Models\RegisterVerifyModel.cs" />
+    <Compile Include="Models\FeedResult.cs" />
+    <Compile Include="Models\FeedMediaResult.cs" />
+    <Compile Include="Service References\Aptify\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Contracts\IODISAPIService.cs" />
+    <Compile Include="Service References\MembershipService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Contracts\IFeedService.cs" />
+    <Compile Include="Services\ODISAPIService.cs" />
+    <Compile Include="Services\PinnacleMemberService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\WordPressFeedService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="MemberAPI.DAL.CNETService.MemberNumbers.datasource" />
+    <None Include="MemberAPI.DAL.CNETService.NMCCompanySalesRepsResponse.datasource" />
+    <None Include="MemberAPI.DAL.CNETService.NMCRoutingValidationResult.datasource" />
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\MemberAPI.DAL.CNETService.MemberNumbers.datasource" />
+    <None Include="Properties\DataSources\MemberAPI.DAL.CNETService.NMCCompanySalesRepsResponse.datasource" />
+    <None Include="Properties\DataSources\MemberAPI.DAL.CNETService.NMCRoutingValidationResult.datasource" />
+    <None Include="Service References\Aptify\CNETService.wsdl" />
+    <None Include="Service References\Aptify\item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Aptify\item1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Aptify\item2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ChangeSocialClubNumberResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.CreateMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.GetMemberNumberResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.GetMemberNumbersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.NMCProcessWebApplicationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessAddressResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessContactLogResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessDependentsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessEmailResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessPhoneNumbersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessSalesRepResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.ProcessVehicleResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.RenewMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Aptify\MemberAPI.Services.Aptify.RequestMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\Aptify.BusinessObjects.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ChangePasswordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ChangePasswordWithTokenResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.CreateMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.DeleteMemberResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.DeleteVehicleResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.MembershipApplicationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.NMCApiMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.PhoneNumber.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ProcessMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ProcessMembersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ProcessVehiclesResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.RegisterUserResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.RegisterVerifyResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.ResetPasswordResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.SendMemberEmailResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\MemberAPI.Services.MembershipService.SendUserNameResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\MembershipService\service.wsdl" />
+    <None Include="Service References\MembershipService\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\MembershipService\service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\Aptify\" />
+    <WCFMetadataStorage Include="Service References\MembershipService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Aptify\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Aptify\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Aptify\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Martex.DMS.DAL\Martex.DMS.DAL.csproj">
+      <Project>{d5d79872-000c-4e5e-917c-ccc939bac84e}</Project>
+      <Name>Martex.DMS.DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MemberAPI.DAL\MemberAPI.DAL.csproj">
+      <Project>{b1cf89d0-a59b-43a8-81a4-9d392bd3dfb5}</Project>
+      <Name>MemberAPI.DAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MembershipService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MembershipService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\MembershipService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,258 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@using Martex.DMS.Areas.Application.Models;
+@using Martex.DMS.DAL.DAO;
+@using Kendo.Mvc.UI;
+@{
+    bool isHagerty = false;
+    bool isFord = false;
+    string warrantyStartDate = "";
+    string purchaseDate = "";
+    bool showFirstOwner = DMSCallContext.ShowFirstOwner;
+    bool showDateOfPurchase = DMSCallContext.ShowDateOfPurchase;
+    // Set the flag when the client is Hagerty. This flag is used to hide fields. Ref: TFS 1175 for more details and an email from Rusty.
+    // summary: The requirement seems to be that we need to hide the fields when the current client is Hagerty and the program is Hagerty Main or one of its children. 
+    if (!string.IsNullOrEmpty(DMSCallContext.ClientName) && DMSCallContext.ClientName.Equals("Hagerty", StringComparison.OrdinalIgnoreCase) && DMSCallContext.IsAHagertyProgram)
+    {
+        isHagerty = true;
+    }
+    isFord = "Ford".Equals(Martex.DMS.Areas.Application.Models.DMSCallContext.ClientName, StringComparison.CurrentCultureIgnoreCase);
+    if (!isFord && Model.IsFirstOwner.GetValueOrDefault())
+    {
+        if (Model.PurchaseDate.HasValue)
+        {
+            purchaseDate = Model.PurchaseDate.Value.ToString("MM/dd/yyyy");
+        }
+    }
+    if (Model.WarrantyStartDate.HasValue)
+    {
+        warrantyStartDate = Model.WarrantyStartDate.Value.ToString("MM/dd/yyyy");
+    }
+
+    ProgramMaintenanceRepository programMaintenanceRepository = new ProgramMaintenanceRepository();
+    var result = programMaintenanceRepository.GetProgramInfo(DMSCallContext.ProgramID, "Vehicle", "Validation");
+    bool vehicleWarrantyApplies = false;
+    var item = result.Where(x => (x.Name.Equals("WarrantyApplies", StringComparison.InvariantCultureIgnoreCase) && x.Value.Equals("yes", StringComparison.InvariantCultureIgnoreCase))).FirstOrDefault();
+    if (item != null)
+    {
+        vehicleWarrantyApplies = true;
+    }
+    
+}
+<script type="text/javascript">
+
+    function Warranty_Change(e) {
+
+        var $warrantyStartDate = $("#WarrantyStartDate").data("kendoDatePicker");
+        var startDate = $warrantyStartDate.value();
+        var $warrantyEndDate = $("#WarrantyEndDate").data("kendoDatePicker");
+        var endDate = $warrantyEndDate.value();
+        var $warrantyPeriod = $("#WarrantyPeriod").data("kendoNumericTextBox").value();
+        var $warrantyPeriodUOM = $("#WarrantyPeriodUOM").data("kendoComboBox");
+        var newEndDate = null;
+        if (startDate != null && $warrantyPeriod != null && $warrantyPeriod > 0) {
+            if ($warrantyPeriodUOM.value() == "Months") {
+                newEndDate = new Date(startDate.getFullYear(), startDate.getMonth() + $warrantyPeriod, startDate.getDate() - 1);
+                //newEndDate.setDate(endDate.getDate() - 1);
+            }
+            else if ($warrantyPeriodUOM.value() == "Years") {
+                newEndDate = new Date(startDate.getFullYear() + $warrantyPeriod, startDate.getMonth(), startDate.getDate() - 1);
+                // endDate.setDate(endDate.getDate() - 1);
+            }
+        }
+
+        if (e != undefined && e.sender != null && e.sender.element.prop("id") != "WarrantyEndDate") {
+            $warrantyEndDate.value(newEndDate);
+        }
+        var $currentMileage = $("#VehicleCurrentMileage").data("kendoNumericTextBox");
+        var $warrantyMiles = $("#EndMileage").data("kendoNumericTextBox");
+        var now = Date.today();
+        var fCurrentMiles = $currentMileage.value();
+        var fWarrantyMiles = $warrantyMiles.value();
+
+        var $msg = $("#warrantyInfo");
+
+        if (($warrantyStartDate.value() != null && $warrantyEndDate.value() != null) && ($currentMileage.value() != null && $warrantyMiles.value() != null)) {
+
+            if ($warrantyStartDate.value() != null && $warrantyEndDate.value() != null) {
+                var sdateVal = $warrantyStartDate.value();
+                var edateVal = $warrantyEndDate.value();
+
+                if (now >= sdateVal && now <= edateVal && fCurrentMiles <= fWarrantyMiles) {
+                    $msg.html("In warranty").removeClass("red-bg").addClass("green-bg");
+                }
+                else {
+                    $msg.html("Out of warranty").addClass("red-bg").removeClass("green-bg");
+                }
+            }
+
+        }
+        else {
+            $msg.html("Undetermined").removeClass("red-bg").removeClass("green-bg");
+        }
+    }
+    function PurchaseDate_Change(e) {
+
+        var isFirstOwnerSelected = $('input[name="rdFirstOwner"]:checked').val();
+        if (isFirstOwnerSelected == "1") {
+            var purchaseDate = $("#PurchaseDate").data("kendoDatePicker").value();
+
+            var copiedDate = new Date(purchaseDate.getFullYear(), purchaseDate.getMonth(), purchaseDate.getDate());
+            $("#WarrantyStartDate").data("kendoDatePicker").value(copiedDate);
+
+        }
+        else {
+            var d = Date.parse('@warrantyStartDate');
+            $("#WarrantyStartDate").data("kendoDatePicker").value(d);
+        }
+        $("#WarrantyStartDate").data("kendoDatePicker").trigger("change");
+    }
+    
+</script>
+@if (!isHagerty && vehicleWarrantyApplies)
+{
+    <div class="four-columns float-left large-margin-left">
+        <fieldset class="fieldset">
+            <legend class="legend">Warranty Information</legend>
+            <div class="with-small-padding">
+                @if (!isFord)
+                {
+                    if (showDateOfPurchase)
+                    {
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="DateofPurchase" class="label">
+                                Date of Purchase</label>
+                            @(Html.Kendo().DatePickerFor(u => u.PurchaseDate)
+                            .Events(events =>
+                            {
+                                events.Change("PurchaseDate_Change");
+                            })
+                            .HtmlAttributes(new { type = "text" })
+                            )
+                        </p>
+                    </div>
+                    }
+                    if (showFirstOwner)
+                    {
+                    <p class="button-height inline-label">
+                        <label for="FirstOwner" class="label">
+                            First Owner</label>
+                        @if (Model.IsFirstOwner.HasValue)
+                        { 
+                            @Html.RadioButton("rdFirstOwner", "1", Model.IsFirstOwner.Value, new { @class = "radio small-margin-right" })
+                            <text> Yes &nbsp;</text>
+                            @Html.RadioButton("rdFirstOwner", "0", !Model.IsFirstOwner.Value, new { @class = "radio small-margin-right" })
+                            <text> No</text>
+                        }
+                        else
+                        { 
+                            @Html.RadioButton("rdFirstOwner", "1", false, new { @class = "radio small-margin-right" })
+                            <text> Yes &nbsp;</text>
+                            @Html.RadioButton("rdFirstOwner", "0", false, new { @class = "radio small-margin-right" })
+                            <text> No</text>
+                        }
+                    </p>
+                    }
+                }
+                <p class="button-height inline-label">
+                    <label for="MileageUOM" class="label">
+                        Mileage UOM</label>
+                    @Html.RadioButton("MileageUOM", "Miles", Model.MileageUOM == "Miles", new { @class = "radio small-margin-right" })
+                    <text> Miles &nbsp;</text>
+                    @Html.RadioButton("MileageUOM", "Kilometers", Model.MileageUOM == "Kilometers", new { @class = "radio small-margin-right" })
+                    <text> Kilometers</text>
+                </p>
+                <p class="button-height inline-label">
+                    <label for="WarrantyPeriod" class="label">
+                        Terms/Mileage</label>
+                    @*@Html.TextBoxFor(v => v.WarrantyPeriod, new { @class = "validate[custom[integer] maxSize[10]]  input warrantyPeriod", style = "width:40px" })*@
+                    @(Html.Kendo().NumericTextBoxFor(v => v.WarrantyPeriod)
+                    .Format("N0")
+                    .Spinners(false)
+                    .HtmlAttributes(new { style = "width:40px;" }).Events(events =>
+                    {
+                        events.Change("Warranty_Change");
+                    })
+                    )
+                    @* &nbsp;
+                    @Html.DisplayFor(v => v.WarrantyPeriodUOM)*@ &nbsp;
+                    @( Html.Kendo().ComboBox()
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.WarrantyPeriodUOM.ToString()] as IEnumerable<SelectListItem>)
+                        .Name("WarrantyPeriodUOM")
+                                   .Suggest(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                    .HtmlAttributes(new { style = "width:80px;" })
+                                   .SelectedIndex(0)
+                                   .Events(events =>
+                                                    {
+                                                        events.Change("Warranty_Change");
+                                                    })
+                                   .HighlightFirst(true)
+                        .Value(Model.WarrantyPeriodUOM)
+                                            )
+                    @Html.Kendo().NumericTextBoxFor(v => v.WarrantyMileage).Format("N0").Spinners(false).Placeholder("Mileage")
+                    @*@Html.TextBoxFor(v => v.WarrantyMileage, new { @class = "validate[custom[integer] maxSize[10]]  input mid-margin-left", @placeholder = "Mileage" })*@
+                </p>
+                <div>
+                    <h5 class="underline mid-margin-top">
+                    </h5>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="WarrantyStart" class="label">
+                                Start Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.WarrantyStartDate).Events(events => events.Change("Warranty_Change")).HtmlAttributes(new { type = "text" })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="WarrantyStart" class="label">
+                                End Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.WarrantyEndDate).Events(events => events.Change("Warranty_Change")).HtmlAttributes(new { type = "text" })
+                        </p>
+                    </div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="EndMileage" class="label">
+                            End Mileage</label>
+                        @*@Html.TextBoxFor(v => v.EndMileage, new { @class = "validate[custom[integer] maxSize[10]]  input" })*@
+                        @Html.Kendo().NumericTextBoxFor(v => v.EndMileage).Format("N0").Spinners(false).Events(events => events.Change("Warranty_Change"))
+                    </p>
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Current" class="label">
+                        Current Mileage</label>
+                    @(Html.Kendo().NumericTextBoxFor(v => v.CurrentMileage).Format("N0").Min(1).Spinners(false)
+                    .HtmlAttributes(new { id = "VehicleCurrentMileage" })
+        .Events(events => events.Change("Warranty_Change")))
+                    @*@Html.Kendo().NumericTextBox().Name("VehicleCurrentMileage").Value(Model.CurrentMileage.HasValue ? Model.CurrentMileage : 0).Format("N0").Spinners(false)*@
+                    @*@Html.TextBoxFor(v => v.CurrentMileage, null, new { @class = "validate[custom[integer] maxSize[10]]  input warranty", style = "width:133px;" })*@
+                </div>
+                <div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="WarrentyStatus" class="label">
+                            Warranty Status</label>
+                        <span id="warrantyInfo" class="tag"></span>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+        if ("@isHagerty" == "False" && "@vehicleWarrantyApplies.ToString().ToLower()" == "true") {
+            Warranty_Change();
+        }
+        $("#CurrentMileage").change(function () {
+            Warranty_Change();
+        });
+
+        $('input[name="rdFirstOwner"]').change(function () {
+            PurchaseDate_Change();
+        });
+    });
+</script>

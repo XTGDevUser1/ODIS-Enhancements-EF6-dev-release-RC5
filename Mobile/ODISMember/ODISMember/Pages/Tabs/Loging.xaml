@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ODISMember.Pages.Tabs.Loging"
+            xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms">
+  <StackLayout Padding="5,10,0,0" Spacing="50" VerticalOptions="FillAndExpand">
+    <!--<controls:ExtendedLabel Text="Use my phone to locate my vehicle.  This will enable us to get help to you more quickly" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Center"/>-->
+    <StackLayout Orientation="Horizontal" VerticalOptions="Start">
+      <controls:ExtendedLabel Text="Enable logging" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+      <Switch x:Name="switchLog" IsToggled="False" HorizontalOptions="EndAndExpand" VerticalOptions="Center"/>
+    </StackLayout>
+  <StackLayout>
+    <Button x:Name="btnSendLogs" Style="{StaticResource BaseButtonStyle}" Text="Send Logs"/>
+  </StackLayout>
+  </StackLayout>
+
+</ContentPage>

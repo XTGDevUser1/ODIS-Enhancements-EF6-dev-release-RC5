@@ -1,0 +1,154 @@
+﻿@model List<Martex.DMS.DAL.CloseLoopSearch_Result>
+@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "_ClosedLoop";
+    
+}
+<script type="text/javascript">
+    function ViewCLDetails(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        ShowServiceRequestDetails('@Url.Action("Get", "Queue")', dataRow.ServiceRequestID, "Service Request Details", true);
+    }
+
+    function GrdSearchCL_OnDatabound(e) {
+        $(".k-grid-viewCLSearchDetails").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+    }
+
+    // For Rebinding and Search Criteria
+    function GetCLSearchParams() {
+        var searchCriteria = { MemberNumber: $('#txtMemberNumber').val(),
+            LastName: $('#txtLastName').val(),
+            FirstName: $('#txtFirstName').val(),
+            CallbackNumber: $('#txtCallBackNumber').val()
+        };
+
+        return searchCriteria;
+    }    
+</script>
+<div class="with-padding">
+    <form id="frmCloseLoopSearch" action="#" name="frmCloseLoopSearch">
+    <div class="large-margin-bottom">
+        <div class="item">
+            <p class="button-height block-label float-left small-margin-right">
+                <label for="MemberNumber" class="label">
+                    Member #</label>
+                <input type="text" class="input validate[maxSize[50] txtitem" id="txtMemberNumber"
+                    name="MemberNumber" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label float-left small-margin-right">
+                <label for="LastName" class="label">
+                    Last Name</label>
+                <input type="text" class="input validate[maxSize[50] txtitem" id="txtLastName" name="LastName" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label float-left small-margin-right">
+                <label for="FirstName" class="label">
+                    First Name</label>
+                <input type="text" class="input validate[maxSize[50] txtitem" id="txtFirstName" name="FirstName" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label float-left small-margin-right">
+                <label for="CallBackNumber" class="label">
+                    Callback Number</label>
+                <input type="text" class="input validate[maxSize[50] txtitem" id="txtCallBackNumber"
+                    name="CallBackNumber" /></p>
+        </div>
+        <button id="btnCloseLoopSearch" class="button blue-gradient compact margin-left margin-top"
+            type="button">
+            Search
+        </button>
+        <button id="btnCloseLoopSearchClear" class="button compact margin-top margin-left"
+            type="button">
+            Clear
+        </button>
+    </div>
+    </form>
+    <div class="clear">
+    </div>
+    @(Html.Kendo()
+    .Grid(Model)
+    .Name("GrdClosedLoop")
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.ServiceRequestID).Title("Service Request #").Filterable(false);
+        columns.Bound(a => a.MemberNumber).Title("Member #").Filterable(false);
+        columns.Bound(a => a.MemberName).Title("Member Name").Filterable(false);
+        columns.Bound(a => a.CallbackNumber).Title("Callback Number").Filterable(false);
+        columns.Bound(a => a.ServiceType).Title("Service Type").Filterable(false);
+        columns.Bound(a => a.ElapsedTime).Title("Elapsed Time").Filterable(false);
+        columns.Command(commands =>
+        {
+            commands
+                .Custom("viewCLSearchDetails")
+                .Text("View")
+                .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "View" })
+                .Click("ViewCLDetails");
+        })
+        .Title("Action(s)").Width(50);       
+    })
+    .DataSource(dataBinding =>
+    {
+        dataBinding.Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("SearchList", "ClosedLoop").Data("GetCLSearchParams"));
+    })
+    .Events(events =>
+    {
+        events.DataBound("GrdSearchCL_OnDatabound");
+    })    
+    .Sortable()
+    .Filterable(filterable => filterable
+        .Extra(false)
+    )
+    .Selectable()
+    .Resizable(a => a.Columns(true))
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 }))
+        .Selectable(select => select.Mode(GridSelectionMode.Single)
+    )
+    )
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+    //For Popup Window
+
+    $(function () {
+        $(".k-grid-content").css("height", "320px");
+        HandleDblClickOnGrid($("#GrdClosedLoop"), ".k-grid-viewCLSearchDetails");
+
+        //DS: Validate user input on PO Number and Vendor Number
+        $('#frmCloseLoopSearch').validationEngine();
+
+        // Cache the tabs
+        var currentTabIndex = $("#startCallSearchTabs").tabs('option', 'selected');
+        var currentTabAnchor = $("#startCallSearchTabs").data('tabs').anchors[currentTabIndex];
+        $(currentTabAnchor).data('cache.tabs', true);
+
+        if (!isCallInProgress) {
+            $("#frmCloseLoopSearch").attr("disabled", "disabled");
+        }
+
+
+        // Handle search button
+        $("#btnCloseLoopSearch").click(function () {
+            if ($('#frmCloseLoopSearch').validationEngine('validate') == false) {
+                return false;
+            }
+            $('#GrdClosedLoop').data('kendoGrid').dataSource.read();
+
+        });
+
+        //Clear the form
+        $('#btnCloseLoopSearchClear').click(function () {
+            $('#frmCloseLoopSearch input:text').each(function () {
+                $(this).val('');
+            });
+        });
+        SearchOnEnter('frmCloseLoopSearch', 'btnCloseLoopSearch');
+
+    });
+//-->
+</script>

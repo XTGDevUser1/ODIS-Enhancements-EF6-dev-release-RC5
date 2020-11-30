@@ -1,0 +1,249 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.Entities
+@using System.Web.Script.Serialization
+@using Martex.DMS.Areas.Application.Models
+@model Martex.DMS.DAL.Entities.Question
+@{
+    var question = Model;
+    var allQuestions = ViewData["Questions"] as List<Question>;
+    string questionClass = string.Empty;
+    if (allQuestions.Where(x => x.ProductCategoryQuestionId == question.ProductCategoryQuestionId).Count() == 0)
+    {
+        questionClass = "hidden";
+    }
+}
+@if (question.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Textbox)
+{
+    <div class="button-height inline-label question @questionClass" id="qpdidiv_@question.ProductCategoryQuestionId">
+        @if (question.IsRequired)
+        {
+            <label class="label">
+                @question.Text<span class="spanstar">*</span>
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+
+            if (question.DataType == DynamicFieldsDataType.Numeric)
+            {
+                <input type="text" class="input validate[required] custom[integer]" id="qpdi_@question.ProductCategoryQuestionId" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+            else if (question.DataType == DynamicFieldsDataType.Date)
+            {
+                <input type="text" class="input validate[required,funcCall[CheckDate]] datepicker" id="qpdi_@question.ProductCategoryQuestionId" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+            else
+            {
+                <input type="text" class="input validate[required]" id="qpdi_@question.ProductCategoryQuestionId" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+        }
+        else
+        {
+            <label class="label">
+                @question.Text
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+            if (question.DataType == DynamicFieldsDataType.Numeric)
+            {
+                <input type="text" class="input custom[integer]" id="qpdi_@question.ProductCategoryQuestionId.ToString()" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+            else if (question.DataType == DynamicFieldsDataType.Date)
+            {
+                <input type="text" class="input validate[funcCall[CheckDate]] datepicker" id="qpdi_@question.ProductCategoryQuestionId" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+            else
+            {
+                <input type="text" class="input" id="qpdi_@question.ProductCategoryQuestionId.ToString()" value="@Model.AnswerValue"
+                       name="@question.ProductCategoryQuestionId" style="width:150px;" />
+            }
+        }
+    </div>
+
+}
+else if (question.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Checkbox)
+{
+    <div class="button-height inline-large-label question @questionClass" id="qpdidiv_@question.ProductCategoryQuestionId">
+        @if (question.IsRequired)
+        {
+            <label class="label">
+                @question.Text<span class="spanstar">*</span>
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+
+
+            @Html.CheckBox(question.ProductCategoryQuestionId.ToString(), !string.IsNullOrEmpty(question.AnswerValue) && "true".Equals(question.AnswerValue), new { @class = "checkbox validate[required]" })
+
+
+        }
+        else
+        {
+            <label class="label">
+                @question.Text
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+
+            @Html.CheckBox(question.ProductCategoryQuestionId.ToString(), !string.IsNullOrEmpty(question.AnswerValue) && "true".Equals(question.AnswerValue), new { @class = "checkbox" })
+
+        }
+    </div>
+
+}
+else if (question.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Textarea)
+{
+    <div class="button-height inline-label question @questionClass" id="qpdidiv_@question.ProductCategoryQuestionId">
+        @if (question.IsRequired)
+        {
+            <label class="label">
+                @question.Text<span class="spanstar">*</span>
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+    <textarea class="input validate[required]" id="qpdi_@question.ProductCategoryQuestionId" rows="10" cols="80" name="@question.ProductCategoryQuestionId" style="width:150px;">@Model.AnswerValue</textarea>
+
+        }
+        else
+        {
+            <label class="label">
+                @question.Text
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+
+    <textarea class="input" id="qpdi_@question.ProductCategoryQuestionId" rows="10" cols="80" name="@question.ProductCategoryQuestionId" style="width:150px;">@Model.AnswerValue</textarea>
+
+        }
+    </div>
+
+}
+else if (question.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Combobox || question.ControlType == Martex.DMS.DAL.Entities.DynamicFieldsControlType.Dropdown)
+{
+    if (question.DropDownValues.Count > 0)
+    {
+        question.DropDownValues.Insert(0, new Answer() { IsPossibleTow = false, Name = string.Empty, QuestionID = question.ProductCategoryQuestionId, Value = string.Empty });
+    }
+    <div id="qpdidiv_@question.ProductCategoryQuestionId" class="button-height inline-large-label question @questionClass">
+        @if (question.IsRequired)
+        {
+
+            <label class="label">
+                @question.Text<span class="spanstar">*</span>
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+            @(Html.Kendo().ComboBox()
+                                .BindTo(new SelectList(question.DropDownValues, "Name", "Value"))
+                                .Name(question.ProductCategoryQuestionId.ToString())
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("PDIAnswerCombo_Change").DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                })
+                                    .HtmlAttributes(new {id="qpdi_" + question.ProductCategoryQuestionId.ToString(), style = "width:150px;", @class = "required", relatedFieldsTrigger = question.AnswerToTriggerRelatedQuestion })
+                                .SelectedIndex(0)
+                                .Value(Model.AnswerValue)
+            )
+        }
+        else
+        {
+            <label class="label">
+                @question.Text
+                @if (!string.IsNullOrEmpty(question.HelpText))
+                {
+                    @Html.Partial("_Help", question.HelpText)
+                }
+            </label>
+            @(Html.Kendo().ComboBox()
+                                .BindTo(new SelectList(question.DropDownValues, "Name", "Value"))
+                                .Name(question.ProductCategoryQuestionId.ToString())
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("PDIAnswerCombo_Change").DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                })
+                                    .HtmlAttributes(new {id="qpdi_" + question.ProductCategoryQuestionId.ToString(), style = "width:150px;", relatedFieldsTrigger = question.AnswerToTriggerRelatedQuestion })
+                                .SelectedIndex(0)
+                                .Value(Model.AnswerValue)
+            )
+
+        }
+        @* KB: Find out if a sub-question has to be rendered or not *@
+        @{
+
+        List<Question> tabQuestions = ViewData["Questions"] as List<Question>;
+        // Get all the sub questions / related questions.
+        var currentQuestionOccurances = tabQuestions.Where(q => q.ProductCategoryQuestionId == question.ProductCategoryQuestionId).ToList<Question>();
+        string hiddenClass = string.Empty; // "hidden"
+        <div class="clear" />
+            <div id="related_qpdidiv_@question.ProductCategoryQuestionId" class="small-margin-left">
+                @foreach (var tq in currentQuestionOccurances)
+                {
+                    var subQuestion = tabQuestions.Where(q => q.ProductCategoryQuestionId == tq.RelatedQuestionId).FirstOrDefault();
+                    if (subQuestion != null)
+                    {
+                        if (tq.AnswerValue == tq.AnswerToTriggerRelatedQuestion)
+                        {
+                            hiddenClass = string.Empty;
+                        }
+                        else
+                        {
+                            hiddenClass = "hidden";
+                        }
+                        <div class="@hiddenClass" id="sqpdi_@subQuestion.ProductCategoryQuestionId">
+                            @Html.Partial("_Question", subQuestion, ViewData)
+                        </div>
+                    }
+                }
+            </div>
+
+        }
+    </div>
+                question.DropDownValues.ForEach(dd =>
+                {
+
+                    dd.Value = dd.Value.Replace("\"", "^");
+                    dd.Name = dd.Name.Replace("\"", "^");
+
+
+                });
+
+                JavaScriptSerializer ser = new JavaScriptSerializer();
+
+                string json = ser.Serialize(question.DropDownValues);
+
+                <script language="javascript" type="text/javascript">
+    <!--
+        
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+    //-->
+                </script>
+
+}

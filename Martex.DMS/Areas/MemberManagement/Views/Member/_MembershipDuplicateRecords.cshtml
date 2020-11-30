@@ -1,0 +1,39 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model string
+@{
+    string phoneNumber = Model;    
+}
+
+<script type="text/javascript">
+    function GetPhoneNumberToFindDuplicates() {
+        return {phoneNumber : '@phoneNumber'}
+    }
+</script>
+@(Html.Kendo().Grid<MemberManagementSearch_Result>()
+    .Name("GrdSearchMemberDuplicaterecords")
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.Program).Title("Program Name").Filterable(false);
+        columns.Bound(a => a.MemberNumber).Title("Member Number").Filterable(false);
+        columns.Bound(a => a.Name).Title("Name").Filterable(false);
+        columns.Bound(a => a.Address).Title("Address").Filterable(false);
+        columns.Bound(a => a.PhoneNumber).Title("PhoneNumber").Filterable(false);
+      
+    })
+    .Sortable()
+    .Filterable(filterable => filterable
+        .Extra(false)
+    )
+    .Resizable(a => a.Columns(true))
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_DuplicateRecords", "Member", new { area = "MemberManagement" }).Data("GetPhoneNumberToFindDuplicates"))
+    ))

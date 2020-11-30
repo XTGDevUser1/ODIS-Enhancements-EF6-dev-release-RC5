@@ -1,0 +1,77 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL.Entities;
+@model MemberShipInfoDetails
+@{
+    string suffixMemberShipID = Model.MembershipID.ToString();
+}
+@helper GetMemberName(MemberShipInfoDetails member)
+    {
+    if (!string.IsNullOrEmpty(member.FirstName))
+    {
+    @Html.DisplayFor(u => u.FirstName)
+    @Html.Raw(" ")
+    }
+    if (!string.IsNullOrEmpty(member.MiddleName))
+    {
+    @Html.DisplayFor(u => u.MiddleName)
+    @Html.Raw(" ")
+    }
+    if (!string.IsNullOrEmpty(member.LastName))
+    {
+    @Html.DisplayFor(u => u.LastName)
+    @Html.Raw(" ")
+    }
+}
+<div class="with-padding">
+    <div style="min-height: 25px; margin: 5px;">
+        <div style="display: inline-block;">
+            @if (!Model.IsMemberExpired)
+            {
+                <small class="tag green-bg">Active</small>
+            }
+            else
+            {
+                <small class="tag red-bg">Inactive</small>
+            }
+        </div>
+        <div style="display: inline-block; vertical-align: top;">
+            @Html.DisplayFor(u => u.MemberShipNumber) &nbsp;
+            @GetMemberName(Model)
+        </div>
+        <div style="display: inline-block; vertical-align: top; float: right;">
+            <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteMemberTab('@suffixMemberShipID');">
+                X</a>
+        </div>
+    </div>
+    <div style="min-height: 25px; margin: 10px;">
+        @(Html.Kendo().ComboBox()
+              .Name("MemberInformationID" + suffixMemberShipID)
+              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MemberManagementMembers.ToString()] as IEnumerable<SelectListItem>)
+              .SelectedIndex(0)
+              .HighlightFirst(true)
+              .Filter(FilterType.StartsWith).MinLength(0)
+              .Events(events => events.Change(@<text>function(e){ HandleMembershipTabDropDown(e,'@suffixMemberShipID');}</text>))
+              .Value(string.Empty)
+              .HtmlAttributes(new { id = "MemberInformationID" + suffixMemberShipID, style = "width:80%;" })
+        )
+        @Html.Hidden("MemberInformationIDPreviousValue_" + suffixMemberShipID, "0")
+    </div>
+    <div id="frmMemberContainerForDirtyFlag_@suffixMemberShipID" data ="false">
+        <div id="MemberContainer_@suffixMemberShipID">
+            @Html.Partial("_MembershipTabs", Model.MembershipID)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var fnbuttonHandler = function (sender) {
+        var cloestForm = $(sender).closest('form');
+        if (cloestForm != undefined) {
+            var formName = cloestForm.attr("id");
+            var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+            if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                $(buttonPlaceHolder).show();
+            }
+        }
+    }
+    WatchMyContainer("frmMemberContainerForDirtyFlag_@suffixMemberShipID", null, fnbuttonHandler);
+</script>

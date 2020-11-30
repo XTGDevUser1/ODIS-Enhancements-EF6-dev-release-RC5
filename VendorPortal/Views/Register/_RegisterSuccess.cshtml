@@ -1,0 +1,74 @@
+﻿@using System.Configuration
+@{
+    ViewBag.Title = "Verify";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<style type="text/css">
+    .listLine
+    {
+        font-size: 14px;
+        line-height: 24px;
+        margin-top: 5px;
+        padding: 5px;
+    }
+</style>
+<div class="leader relative">
+    &nbsp;</div>
+<div class="constrain">
+    <div class="columns with-padding">
+        <div class="twelve-columns instructions margin-top">
+            <h2 class="thin margin-bottom">
+                Step 3 – Email Authentication
+            </h2>
+            <div class="alert alert-info margin-top">
+            <ul>
+                <li>
+                    <p class="listLine">
+                        Your account has been created but you still need to activate it.
+                    </p>
+                </li>
+                <li>
+                    <p class="listLine">
+                        An email has been sent to you with a link to activate your account.
+                    </p>
+                </li>
+                <li>
+                    <p class="listLine">
+                        Please open this email and click on the link, you will be directed to our website
+                        where your account will be activated.
+                    </p>
+                </li>
+                <li>
+                    <p class="listLine">
+                        You may then login and start accessing all the features the Pinnacle Partner Portal has
+                        to offer!
+                    </p>
+                </li>
+                <li>
+                    <p class="listLine">
+                        Be sure to bookmark the Login page. That is the page you will want to come to each
+                        time you want to access the Pinnacle Partner Portal.
+                    </p>
+                </li>
+            </ul>
+            </div>
+        <h6 class="margin-top">
+                If you did not receive the email you can request that it be resent to you. Just
+                click this button.
+            </h6>
+            
+        </div>
+        <div class="new-row four-columns">&nbsp;</div>
+        <div class="four-columns">
+            <button type="submit" class="btn btn-large btn-primary" id="btnReSendConfirmationEmailRegisterSuccess">
+                Resend Activation Email</button></div>
+        <div class="four-columns">&nbsp;</div>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('#btnReSendConfirmationEmailRegisterSuccess').click(function () {
+        location.href = "/Account/ResendActivationEmail";
+    });
+</script>

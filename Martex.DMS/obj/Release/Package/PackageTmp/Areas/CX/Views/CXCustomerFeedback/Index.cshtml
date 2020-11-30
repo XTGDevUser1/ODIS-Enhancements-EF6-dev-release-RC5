@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/CX/Views/Shared/_CXLayout.cshtml";
+}
+
+<hgroup id="main-title" class="thin">
+    <h1>
+        Customer Feedback
+    </h1>
+</hgroup>
+<div class="with-padding">
+    <div id="QACustomerFeedbackTab" class="standard-tabs same-height" data="QACustomerFeedbackDynamicTabs">
+        <ul class="tabs">
+            <li id="tbQAtestList"><a id="hypQACustomerFeedbackCriteria" href="#tabs-1">List</a> </li>
+        </ul>
+        <div id="tabs-1" class="QACustomerFeedbackDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    
+    var tabObject = null;
+    $(function () {
+
+        tabObject = $("#QACustomerFeedbackTab").tabs({
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+        GetSearchCriteria();
+    });
+
+    function DeleteTab(suffixCustomerFeedbackID) {
+        // Sanghi In newer versions of jQueryUI (1.9 +) use active instead of selected to get the active index of tab.
+        var activeIndex = tabObject.tabs('option', 'selected');
+        if (IsMyContainerDirty("frmCustomerFeedbackContainerForDirtyFlag_" + suffixCustomerFeedbackID)) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmCustomerFeedbackContainerForDirtyFlag_" + suffixCustomerFeedbackID);
+                tabObject.tabs('remove', activeIndex);
+                tabObject.tabs('refresh');
+                tabObject.tabs('select', 0);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            tabObject.tabs('remove', activeIndex);
+            tabObject.tabs('refresh');
+            tabObject.tabs('select', 0);
+        }
+    }
+
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "CXCustomerFeedback")',
+            type: 'POST',
+            data: GetCustomerFeedbackSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulQACustomerFeedbackCriteria').html(msg);
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "CXCustomerFeedback")',
+            type: 'POST',
+            data: GetCustomerFeedbackSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#QACustomerFeedbackSearchCriteria').html(msg);
+                $('#GrdQACustomerFeedback').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetCustomerFeedbackSearchCriteria() {
+        var postData = $('#frmQACustomerFeedbackSearchCriteria').serializeArray();
+
+        // Get the grid object
+        var grid = $("#GrdQACustomerFeedback").data("kendoGrid");
+        // Get the datasource bound to the grid
+        var ds = grid.dataSource;
+        // Get current sorting
+        var sort = ds.sort();
+        // Display sorting fields and direction
+        if (sort && sort.length > 0) {
+            var propCounter = 0;
+            for (var i = 0, l = postData.length; i < l; i++) {
+                if (postData[i].name == "GridSortColumnName") {
+                    postData[i].value = sort[0].field;
+                    propCounter++;
+                }
+                if (postData[i].name == "GridSortOrder") {
+                    postData[i].value = sort[0].dir;
+                    propCounter++;
+                }
+                if (propCounter == 2) {
+                    break;
+                }
+            }
+        }
+
+        if ($('#Client').data('kendoComboBox')) {
+            postData.push({ name: "ProgramValue", value: $('#Program').data('kendoComboBox').text() });
+            postData.push({ name: "ClientValue", value: $('#Client').data('kendoComboBox').text() });
+            postData.push({ name: "NextActionValue", value: $('#NextAction').data('kendoComboBox').text() });
+        }
+
+        if ($('#QACustomerFeedbackSearchViewID') != undefined) {
+            var value = parseInt($('#QACustomerFeedbackSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+    function HandleCustomerfeedbackinformationStatus(e, CustomerFeedbackID) {
+
+        var combo = e.sender;
+
+        var relatedClaimReasonPlaceHolder = "#PlaceHolder_ClaimReason_" + claimID;
+        var relatedRejectCombo = $("#ClaimRejectReason_" + claimID).data('kendoComboBox');
+
+        var relatedClaimReasonOtherPlaceHolder = "#PlaceHolder_ClaimReasonOther_" + claimID;
+        var relatedClaimReasonOtherTextBox = "#ClaimRejectReasonOther_" + claimID;
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Denied") {
+            $(relatedClaimReasonPlaceHolder).show();
+        }
+        else {
+            relatedRejectCombo.value('');
+            $(relatedClaimReasonOtherTextBox).val('');
+            $(relatedClaimReasonPlaceHolder).hide();
+            $(relatedClaimReasonOtherPlaceHolder).hide();
+        }
+    }
+</script>

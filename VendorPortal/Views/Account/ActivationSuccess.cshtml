@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "ActivationSuccess";
+    Layout = "~/Views/Shared/_ContentMaster-public.cshtml";
+}
+<div class="leader relative">&nbsp;</div>
+     <div class="triangle-grey"></div> 
+<div class="constrain">
+    <div class="columns with-padding">
+    <div class="twelve-columns"><h2 class="thin align-center">Step 3 – Login and experience the Pinnacle Partner Portal</h2></div>
+    <div class="new-row one-column">&nbsp;</div>
+        <div class="ten-columns instructions margin-top">
+            <p class="wrapped white-bg relative margin-bottom">
+                <span class="ribbon"><span class="ribbon-inner red-gradient">Welcome</span></span>
+                
+                You have successfully activated your account. Now all you have left is to login
+                and explore!<br /> Please bookmark the next page. That is where you will go next  time
+                you want to login to the<br /> Pinnacle Partner Portal.
+                                
+                </p>
+        </div>
+            <div class="one-column">&nbsp;</div>
+                        <div class="new-row four-columns">&nbsp;</div>
+        <div class="four-columns">
+        <button type="button" class="button blue-gradient huge full-width margin-top" id="btnRedirectToLogin">
+                Continue to Log In</button>
+        </div>
+                    <div class="four-columns">&nbsp;</div>
+
+    </div>
+</div>
+
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $("#btnRedirectToLogin").click(function (e) {
+            window.location = '/Account/Login';
+        });
+    });
+
+</script>

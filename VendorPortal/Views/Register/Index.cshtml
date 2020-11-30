@@ -1,0 +1,99 @@
+﻿@using System.Configuration
+@{
+    ViewBag.Title = "Verify";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<div class="leader relative">
+    &nbsp;
+</div>
+<div class="constrain">
+    <div class="frmWrapper" id="frmWrapper">
+        <form method="post" action="" id="form-verify" formtitle="Verify">
+            <div class="columns with-padding">
+                <div class="new-row-tablet new-row-mobile seven-columns twelve-columns-tablet instructions margin-top ">
+
+                    <h2 class="thin">
+                        Create a New Account
+                    </h2>
+                    <p>
+                        Getting registered is as easy as 1-2-3. Account creation is simple and fast. You
+                        will verify your account information and setup your Pinnacle Partner Portal Administrator
+                        Account.
+                    </p>
+                    <div class="alert alert-info margin-top">
+                        <p>
+                            <strong>Step 1 – Begin Registration</strong>
+                        </p>
+                        <p>
+                            Just to make sure we know who you are, please enter your Service Provider ID # and
+                            Phone number in the boxes and click on Begin Registration. If you are a brand
+                            new Service Provider then your Service Provider/Vendor ID # was included in your Welcome Letter.
+                        </p>
+                    </div>
+                    <div class="alert alert-help  margin-top">
+                        <p>
+                            <strong>Registration and Log In Help</strong>
+                        </p>
+                        @Html.Partial("_RegistrationHelpContent")
+                    </div>
+                </div>
+                <div class="new-row-tablet new-row-mobile one-column twelve-columns-tablet">
+                </div>
+                <div class="new-row-tablet new-row-mobile four-columns twelve-columns-tablet margin-top">
+                    <div class="divRegistrationForm">
+                        <p class="button-height block-label">
+                            <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                            <label for="input" class="label">
+                                <small>example TX123456</small>
+                                ID Number
+                            </label>
+                            @Html.TextBox("VendorNumber", string.Empty, new
+                   {
+                       name = "VendorNumber",
+                       id = "VendorNumber",
+                       value = "",
+                       @class = "validate[required] input with-tooltip full-width tooltip-right",
+                       autocomplsete = "off",
+                       title = "Coach-Net Vendor ID Number",
+                       @error_required = "Please type your Vendor Number"
+                   })
+                        </p>
+                        <p class="button-height block-label">
+                            <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                            <label for="input" class="label">
+                                Phone Number
+                            </label>
+                            @*@Html.TextBox("TaxID", string.Empty, new
+                                {
+                                    name = "TaxID",
+                                    id = "TaxID",
+                                    value = "",
+                                    @class = "validate[required] input with-tooltip full-width tooltip-right",
+                                    autocomplsete = "off",
+                                    title = "Tax ID",
+                                    @error_required = "Please type your Tax ID"
+                                })*@
+                            @Html.Editor("OfficePhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false })
+                        </p>
+                        <button type="submit" class="btn btn-large btn-primary" id="btnVerify">
+                            Step 1 - Begin Registration
+                        </button>
+                        <p class=" ">
+                            <strong>Already in the registration process and did not receive your activation email?</strong>
+                        </p>
+                        <p class="">
+                            <button type="button" class="btn btn-large" id="btnGenerateToken">
+                                Resend Activation Email
+                            </button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#form-verify').validationEngine({ promptPosition: "topLeft" });
+    });
+</script>

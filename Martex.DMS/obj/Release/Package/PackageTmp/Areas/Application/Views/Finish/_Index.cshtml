@@ -1,0 +1,1178 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.BLL.Model;
+@using Martex.DMS.Common;
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.ActionFilters
+@model FinishModel
+@{
+    var ShowSurveyEmail = (bool)ViewBag.ShowSurveyEmail;
+    string strDeclinedReason = string.Empty;
+    if (ViewData["DeclinedReason"] != null)
+    {
+        strDeclinedReason = ViewData["DeclinedReason"] as string;
+    }
+    var contactCategory = Model.ContactCategory == 0 ? string.Empty : Model.ContactCategory.ToString();
+
+    bool isCaptureClaimNumber = DMSCallContext.IsCaptureClaimNumber;
+
+    string isDisplayDivCaptureClaimNumber = "none";
+    if (isCaptureClaimNumber == true)
+    {
+        isDisplayDivCaptureClaimNumber = "";
+    }
+
+    string isShowConfirmPrompt = "false";
+    if (Model.IsShowConfirmPrompt == true)
+    {
+        isShowConfirmPrompt = "true";
+    }
+}
+<script type="text/javascript">
+    function ValidateInputForKendoDateTimePicker(e) {
+        var dateTimePicker = e.sender;
+
+        var value = dateTimePicker.value();
+        if (isNaN(value)) {
+            dateTimePicker.value('');
+        }
+
+    }
+    function UpdateMapTabDeclinedReason(e) {
+        var $mapForm = $("#frmMap");
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($mapForm.length > 0) {
+
+            var mapTabDeclinedReason = $mapForm.find("#ComboBox_DeclinedReason").data("kendoComboBox");
+            if (mapTabDeclinedReason != undefined) {
+                mapTabDeclinedReason.value(combo.value());
+            }
+        }
+    }
+
+    function ReloadUsers(userValue) {
+        var nextActionValue = $('#NextAction').data('kendoComboBox').value();
+        if (isNaN(userValue)) {
+            userValue = '';
+        }
+        $.ajax({
+            url: '@Url.Action("NextActionUsers", "Finish", new { area = "Application" })',
+            data: { nextActionID: nextActionValue },
+            success: function (msg) {
+                var assignedtoCombo =
+                $("#AssignedTo").data('kendoComboBox');
+                assignedtoCombo.setDataSource(msg.Data);
+                assignedtoCombo.value(userValue);
+                if (assignedtoCombo.selectedIndex == -1) {
+                    assignedtoCombo.value('');
+                }
+
+                //Re Bind the Drop-Down
+            }
+        });
+    }
+
+    function ServiceRequestStatusChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        var serviceRequestStatus = combo.text();
+        if (serviceRequestStatus == "Complete" || serviceRequestStatus == "Cancelled") {
+            $('#NextAction').data('kendoComboBox').value('');
+            $('#AssignedTo').data('kendoComboBox').value('');
+            $('#ScheduledDate').data('kendoDateTimePicker').value('');
+        }
+    }
+
+    function FinishNextActionChange(e) {
+        var combo = $('#NextAction').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            var nextActionValue = $('#NextAction').data('kendoComboBox').value();
+            if (nextActionValue != undefined && nextActionValue != null && nextActionValue != '') {
+                $.ajax({
+                    url: '@Url.Action("NextActionDefaultValues", "Finish", new { area = "Application" })',
+                    data: { nextActionID: nextActionValue },
+                    success: function (msg) {
+                        if (msg.Data != undefined) {
+                            $('#Priority').data('kendoComboBox').value(msg.Data.PriorityID);
+                            $('#ScheduledDate').data('kendoDateTimePicker').value(msg.Data.ScheduleDate);
+                            //$("#ScheduledTime").val(msg.Data.ScheduleTime);
+                            ReloadUsers(msg.Data.DefaultAssignedToUserID);
+                        }
+                    }
+                });
+            }
+            else {
+                $('#Priority').data('kendoComboBox').text('Normal');
+                $('#ScheduledDate').data('kendoDateTimePicker').value('');
+                //$("#ScheduledTime").val('');
+                ReloadUsers('');
+            }
+        }
+    }
+    function RefreshServiceRequestAttributes() {
+        HideStatus();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetLatestSRAttributes", "Finish", new { area = "Application" })',
+            cache: false,
+            traditional: true,
+            async: true,
+            success: function (msg) {
+                if (msg.Status && msg.Status == "Success") {
+                    // Bind the Status and ClosedLoopStatus Values.
+                    var statusDropdown = $("#Status").data("kendoComboBox");
+                    var closedLoopStatusDropdown = $("#ClosedLoopStatus").data("kendoComboBox");
+                    var srData = msg.Data;
+                    if (srData != null) {
+                        if (srData.StatusId != null) {
+                            statusDropdown.value(srData.StatusId);
+                        }
+                        if (srData.ClosedLoopStatusId != null) {
+                            closedLoopStatusDropdown.value(srData.ClosedLoopStatusId);
+                        }
+                    }
+                }
+            }
+        });
+    }
+    function ContactCategory_onChange(e) {
+
+        // PV: Reset the combo if the value entered is not in the list of allowed values.
+        var combo = $('#ContactCategory').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            var ContactCategory_value = $('#ContactCategory').data('kendoComboBox').value();
+            if (ContactCategory_value != "" && ContactCategory_value != null) {
+                HideValidationMessage($('input[name="ContactCategory_input"]'));
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetReasons", "Finish", new { area = "Application" })',
+                    data: { selectedValue: $('#ContactCategory').data('kendoComboBox').value() },
+                    cache: false,
+                    traditional: true,
+                    async: true,
+                    success: function (msg) {
+                        $('#reasons').html("");
+                        $('#reasons').html(msg);
+                    }
+                });
+            }
+        }
+    }
+
+    function ClosedLoopStatus_onChange(e) {
+        var combo = $('#ClosedLoopStatus').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            if (combo.text() == "Service Arrived") {
+                $("#NextSend").data('kendoDateTimePicker').value(""); //.val("");
+                //$("#NextSendTime").val("");
+            }
+        }
+
+    }
+
+    function MemberPaymentTypeID_Change(e) {
+
+        var combo = e.sender;
+        var serviceTypeId = combo.value();
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+
+            e.preventDefault();
+        }
+    }
+</script>
+@{
+    //var nextSendDateVale = string.Empty;
+    //var nextSendTimeValue = string.Empty;
+    //var scheduledDateValue = string.Empty;
+    //var scheduledTimeValue = string.Empty;
+    //if (Model.NextSend.HasValue)
+    //{
+    //    nextSendDateVale = Model.NextSend.Value.ToString("MM/dd/yyyy");
+    //    nextSendTimeValue = Model.NextSend.Value.ToShortTimeString();
+    //}
+
+    //if (Model.ScheduledDate.HasValue)
+    //{
+    //    scheduledDateValue = Model.ScheduledDate.Value.ToString("MM/dd/yyyy");
+    //    scheduledTimeValue = Model.ScheduledDate.Value.ToShortTimeString();
+    //}
+    var isActiveRequestLocked = @DMSCallContext.ActiveRequestLocked;
+
+
+}
+<div id="divFinishValidationResults">
+    @if (!DMSCallContext.ActiveRequestLocked)
+    {
+        @Html.Partial("_ServiceRequestExceptions", ViewData)
+    }
+</div>
+<form name="frm_FinishTab" id="frm_FinishTab" action="#">
+    <div class="with-padding">
+        <p class="message" id="statusIndicator">
+            <span class="block-arrow"><span></span></span><span class="statusMessage"></span>
+        </p>
+
+        <div class="columns">
+            <!-- Log Inbound Call -->
+            <div class="five-columns twelve-columns-tablet">
+                <fieldset class="fieldset">
+                    <legend class="legend">Log Inbound Call </legend>
+                    <div class="with-small-padding ">
+                        <div>
+                            <p class="button-height inline-label small-margin-bottom">
+                                <label for="LogWarmTransfer" class="label">
+                                    Code the Call
+                                </label>
+                                @if (DMSCallContext.StartingPoint != StringConstants.START)
+                                {
+                                    @Html.CheckBox("LogWarmTransfer", new { @id = "LogWarmTransfer", @class = "checkbox" })
+                                }
+                                else
+                                {
+                                    @Html.CheckBox("LogWarmTransfer", new { @id = "LogWarmTransfer", @class = "checkbox", @disabled = "disabled" })
+                                }
+                            </p>
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="ContactCategory" class="label">
+                                Contact Category <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                        .Name("ContactCategory")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ContactCategory_onChange"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactCategory.ToString()] as IEnumerable<SelectListItem>)
+                        .Value(Model.ContactCategory == 0 ? string.Empty : Model.ContactCategory.ToString())
+                            )
+                        </div>
+                        <div id="reasons">
+                            @Html.Partial("_ReasonsActions", Model.ReasonsActions)
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="seven-columns twelve-columns-tablet">
+                @if (!isActiveRequestLocked)
+                {
+                    @*
+                        <fieldset class="fieldset hidden">
+                            <legend class="legend">Call Wrap-Up</legend>
+                            <div class="with-padding">
+                                <div class="button-height inline-medium-label">
+                                    <label for="ServiceType" class="label">
+                                        How will member Pay ?
+                                    </label>
+                                    @(Html.Kendo().ComboBox()
+                                        .BindTo(ViewData[StaticData.ServiceMemberPayMode.ToString()] as IEnumerable<SelectListItem>)
+                                        .Name("MemberPaymentTypeID")
+                                        .Suggest(true)
+                                        .Filter(FilterType.StartsWith).MinLength(0)
+                                        .HighlightFirst(true)
+                                        .Events(events =>
+                                        {
+                                            events.Change("MemberPaymentTypeID_Change");
+                                        })
+                                        .AutoBind(true)
+                                        .Value(DMSCallContext.MemberPaymentTypeID == null ? string.Empty : DMSCallContext.MemberPaymentTypeID.ToString())
+                                                .SelectedIndex(0)
+                                    )
+                                </div>
+                                <div class="button-height inline-medium-label">
+                                    <label for="CanWeTextYou" class="label">
+                                        Can we text you ?</label>
+                                    @Html.RadioButton("rdSMS", "1", DMSCallContext.IsSMSAvailable == true, new { @class = "radio small-margin-right canSMS" })
+                                    Yes &nbsp;
+                                    @Html.RadioButton("rdSMS", "0", DMSCallContext.IsSMSAvailable == false, new { @class = "radio small-margin-right canSMS" })
+                                    No
+                                </div>
+                                @if ((bool)ViewBag.ShowSurveyEmail)
+                                {
+                                    <div id="divEmail">
+                                        <div class="button-height inline-medium-label">
+                                            <label for="txtMapTabMemberEmail" class="label">
+                                                Survey Email</label>
+                                            @Html.TextBox("txtMapTabMemberEmail", string.Empty, new { @class = "validate[maxSize[50],custom[email]] input ", style = "width : 50%;" })
+                                        </div>
+                                        <div class="button-height inline-medium-label">
+                                            <label for="ComboBox_Products-input" class="label">
+                                                Declined Reason</label>
+                                            @(Html.Kendo().ComboBox()
+                                                     .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.DeclinedReasons.ToString()] as IEnumerable<SelectListItem>)
+                                                             .Name("ComboBox_FinishDeclinedReason")
+                                                            .Suggest(true)
+                                                            .HtmlAttributes(new { style = "width:250px;" })
+                                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                                            .HighlightFirst(true)
+                                                            .HtmlAttributes(new { @class = "selectlabel", tabindex = 14 })
+                                                        .Events(events =>
+                                                        {
+                                                            events.Change("UpdateMapTabDeclinedReason");
+                                                        })
+                                                            .SelectedIndex(0)
+                                                            .Value(strDeclinedReason)
+
+                                    )
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </fieldset>
+                    *@
+                }
+                <!-- Service Request Status -->
+                @if (!isActiveRequestLocked)
+                {
+                    <fieldset class="fieldset">
+                        <legend class="legend">Service Request Status </legend>
+                        <div class="with-padding">
+                            <div class="columns">
+                                <div class="five-columns twelve-columns-tablet">
+                                    <div class="button-height inline-label small-margin-bottom">
+                                        <label for="Status" class="label">
+                                            Status <span class="spanstar">*</span>
+                                        </label>
+                                        @(Html.Kendo().ComboBox()
+                        .Name("Status")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ServiceRequestStatusChange"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ServiceRequestStatus.ToString()] as IEnumerable<SelectListItem>)
+                        .Value(Model.ServiceRequestStatus.ToString())
+                                        )
+                                    </div>
+                                    <div class="button-height inline-label small-margin-bottom">
+                                        <label for="Priority" class="label">
+                                            Priority
+                                        </label>
+                                        @(Html.Kendo().ComboBox()
+                        .Name("Priority")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Priorities.ToString()] as IEnumerable<SelectListItem>)
+                        .Value(Model.Priority != null ? Model.Priority.ToString() : string.Empty)
+                                        )
+                                    </div>
+                                </div>
+                                <div class="seven-columns twelve-columns-tablet">
+                                    <div class="button-height inline-label small-margin-bottom">
+                                        <label for="NextAction" class="label">
+                                            Next Action
+                                        </label>
+
+                                        @(Html.Kendo().ComboBox()
+                        .Name("NextAction")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("FinishNextActionChange"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.NextAction.ToString()] as IEnumerable<SelectListItem>)
+                        .Value(Model.NextAction != null ? Model.NextAction.ToString() : string.Empty)
+                                        )
+                                    </div>
+                                    <div class="button-height inline-label small-margin-bottom">
+                                        <label for="AssignedTo" class="label">
+                                            Assigned To
+                                        </label>
+                                        @(Html.Kendo().ComboBox()
+                        .Name("AssignedTo")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.FinishUsers.ToString()] as IEnumerable<SelectListItem>)
+                                        )
+                                    </div>
+                                    <div id="divscheduledDate">
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="ScheduledDate" class="label">
+                                                Scheduled Date
+                                            </label>
+                                            @(Html.Kendo().DateTimePickerFor(a => a.ScheduledDate)
+                                        .Animation(true)
+                                            )<span> CST</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                }
+                <!-- Closed Loop Status group -->
+                @if (!isActiveRequestLocked)
+                {
+
+                    <fieldset class="fieldset">
+                        <legend class="legend">Closed Loop Status Group </legend>
+                        <div class="with-padding">
+                            <div class="columns">
+                                <div class="five-columns twelve-columns-tablet">
+                                    <div class="button-height inline-label small-margin-bottom">
+                                        <label for="ClosedLoopStatus " class="label">
+                                            Status
+                                        </label>
+                                        @(Html.Kendo().ComboBox()
+                        .Name("ClosedLoopStatus")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ClosedLoopStatus_onChange"))
+                        .Suggest(true)
+                        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClosedLoopStatus.ToString()] as IEnumerable<SelectListItem>)
+                        .Value(Model.ClosedLoopStatus != 0 ? Model.ClosedLoopStatus.ToString() : string.Empty)
+                                        )
+                                    </div>
+                                    @if (Model.ClosedLoopActivities.Count > 0)
+                                    {
+                                        <div class="scrollable">
+                                            @Html.Partial("_ClosedLoopActivities", Model.ClosedLoopActivities)
+                                        </div>
+                                    }
+                                </div>
+                                <div class="seven-columns twelve-columns-tablet">
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="NextSend" class="label">
+                                                Next Send
+                                            </label>
+                                            @(Html.Kendo().DateTimePickerFor(a => a.NextSend)
+                                        .Animation(true)
+                                            )
+                                            <span>CST</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                }
+                <!--Capture Claim Number-->
+                @if (!isActiveRequestLocked)
+                {
+                    <div id="divCaptureClaimNumber" style="display:@isDisplayDivCaptureClaimNumber">
+                        <fieldset class="fieldset">
+                            <legend class="legend">Related Coverage Information </legend>
+                            <div class="with-padding">
+                                <p class="button-height inline-label small-margin-bottom">
+                                    <label for="NextSend" class="label">
+                                        Provider
+                                    </label>
+                                    <strong>@Model.ProductProviderDescription</strong>
+                                </p>
+                                <p class="button-height inline-label small-margin-bottom">
+                                    <label for="NextSend" class="label">
+                                        Claim Number
+                                    </label>
+                                    @Html.TextBoxFor(a => a.ProviderClaimNumber, new { @class = "input", maxlength = 50 })
+                                </p>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <br />
+                }
+                <!--Service Request Comments -->
+                @if (!isActiveRequestLocked)
+                {
+                    <fieldset class="fieldset">
+                        <legend class="legend">Service Request Comments </legend>
+                        <div class="with-padding">
+                            @Html.TextArea("finishComments", new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                        </div>
+                    </fieldset>
+
+                }
+                @if (isActiveRequestLocked)
+                {
+                    <fieldset class="fieldset">
+                        <legend class="legend">Alternative Service Request Comments</legend>
+                        <div class="with-padding">
+                            <p>
+                                <b>
+                                    <label for="Comment" class="label">
+                                        Add a Comment to this service request
+                                    </label>
+                                </b>
+                            </p>
+                            @Html.TextArea("activeRequestLockedComments", new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                            <br />
+                            <p>
+                                <b>
+                                    <label for="sendNotification" class="label">
+                                        Send Notification to Agent working this request
+                                    </label>
+                                </b>&nbsp;&nbsp;
+                                @Html.CheckBox("sendNotification", new { @id = "sendNotification", @class = "checkbox" })
+                            </p>
+                        </div>
+                    </fieldset>
+                }
+                <div class="clear">
+                </div>
+                <div class="new-row twelve-columns">
+                    <button id="btnSumbit" class="button green-gradient huge vehicle float-right small-margin-top small-margin-bottom margin-left"
+                            type="button" value="Auto">
+                        Save
+                    </button>
+                    <button id="btnVerifyFinshTab" class="button blue-gradient huge vehicle float-right small-margin-top small-margin-bottom"
+                            type="button" value="Auto">
+                        Verify
+                    </button>&nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Hidden("isActiveRequestLocked", @isActiveRequestLocked.ToString().ToLower())
+    @Html.Hidden("hdnMemberEmail", ViewData["MemberEmail"])
+    @Html.Hidden("hdnDeclinedReason", ViewData["DeclinedReason"])
+    @Html.Hidden("DefaultNextAction", Model.NextAction)
+    @Html.Hidden("IsShowConfirmPrompt", isShowConfirmPrompt)
+</form>
+
+<script type="text/javascript">
+    var memberEmail = '@ViewData["MemberEmail"]';
+    var declinedReason = '@ViewData["DeclinedReason"]';         //Lakshmi - Email on Map tab
+
+    function HideStatus() {
+        var $msg = $(".message");
+        $msg.hide();
+    }
+
+    function ShowStatus(status, msg) {
+        var $msg = $(".message");
+        if ($msg.hasClass("blue-gradient")) {
+            $msg.removeClass("blue-gradient");
+        }
+        else if ($msg.hasClass("red-gradient")) {
+            $msg.removeClass("red-gradient");
+        }
+        else if ($msg.hasClass("green-gradient")) {
+            $msg.removeClass("green-gradient");
+        }
+
+        if (status == "success") {
+            $(".message").addClass("green-gradient");
+        }
+        else if (status == "inprogress") {
+            $(".message").addClass("blue-gradient");
+        }
+        else if (status == "error") {
+            $(".message").addClass("red-gradient");
+        }
+        $msg.show();
+        $(".message .statusMessage").text(msg);
+    }
+    function formFieldDisable() {
+        $("#ContactCategory").data("kendoComboBox").enable(false);
+        $('[name ^= "reasons"]').each(function () {
+            $(this).parent().addClass("disabled");
+            $(this).attr("disabled", "disabled");
+        });
+
+        $('[name ^= "actions"][type="checkbox"]').each(function () {
+            $(this).parent().addClass("disabled");
+            $(this).attr("disabled", "disabled");
+        });
+    }
+    function formFieldEnable() {
+        $("#ContactCategory").data("kendoComboBox").enable();
+
+        $('[name ^= "reasons"][type="checkbox"]').each(function () {
+
+            $(this).parent().parent().removeClass("disabled");
+            $(this).parent().removeClass("disabled");
+            $(this).removeAttr("disabled");
+        });
+
+        $('[name ^= "actions"][type="checkbox"]').each(function () {
+            $(this).parent().removeClass("disabled");
+            $(this).removeAttr("disabled");
+        });
+    }
+
+    function FinishModel() {
+        this.SelectedActions = [];
+        this.AssignedTo = null;
+        this.ClosedLoopStatus = null;
+        this.Comments = null;
+        this.ContactCategory = null;
+        this.LogWarmTransfer = false;
+        this.NextAction = null;
+        this.NextSend = null;
+        this.SelectedReasons = [];
+        this.ScheduledDate = null;
+        this.ServiceRequestStatus = null;
+        this.Priority = null;
+        this.ActiveRequestLockedComments = null;
+        this.SendNotification = null;
+        this.MemberPaymentTypeID = null;
+        this.IsSMSAvailable = false;
+        this.ServiceRequestEmail = false;
+        this.DeclinedReason = false;
+    }
+
+
+    function ShowServiceRequestExceptions() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetServiceRequestExceptions", "Request", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            global: false,
+            success: function (msg) {
+                $("#divFinishValidationResults").html(msg);
+            }
+        });
+    }
+
+    function ClearServiceRequestExceptions() {
+        $("#divFinishValidationResults").html("");
+    }
+
+    function validEmail(e) {
+        var filter = /^\s*[\w\-\+_]+(\.[\w\-\+_]+)*\@@[\w\-\+_]+\.[\w\-\+_]+(\.[\w\-\+_]+)*\s*$/;
+        return String(e).search(filter) != -1;
+    }
+
+    function validateServiceRequestFields() {
+        var formobj = $("#frm_FinishTab");
+        var emailField = $.trim(formobj.find('#txtMapTabMemberEmail').val());
+        if (emailField.length > 0) {
+            var EmailField = formobj.find('input[name="txtMapTabMemberEmail"]');
+            if (!validEmail(emailField)) {
+                ShowValidationMessage(formobj.find("#txtMapTabMemberEmail"), "Invalid Email Address");
+                EmailField.focus();
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                formobj.find("#txtMapTabMemberEmail").validationEngine('hidePrompt');
+                return true;
+            }
+        }
+        else {
+            var reason = $.trim($('#ComboBox_DeclinedReason').data("kendoComboBox").value());
+            var reasonField = formobj.find('input[name="ComboBox_FinishDeclinedReason_Input"]');
+            if ($.trim(formobj.find('#ComboBox_FinishDeclinedReason').data("kendoComboBox").value()).length == 0) {
+                //ShowValidationMessage($("#ComboBox_DeclinedReason"), "Please choose Declined Reason");
+                //ShowValidationMessage(reasonField, "Please choose Declined Reason");
+                ShowValidationMessage(formobj.find('input[name="ComboBox_FinishDeclinedReason_input"]'), "Please choose Declined Reason");
+                reasonField.focus();
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                formobj.find('input[name="ComboBox_FinishDeclinedReason_input"]').validationEngine('hidePrompt');
+                return true;
+            }
+        }
+    }
+
+    function BindAutocompleteField(elementName, values) {
+        var aLocation = $("#" + elementName).data('kendoAutoComplete');
+        if (aLocation != null) {
+            aLocation.setDataSource(values);
+        }
+    }
+
+    function GetFinishModel() {
+        var model = new FinishModel();
+        var formobj = $("#frm_FinishTab");
+        var hdnisActiveRequestLockedValue = $('#isActiveRequestLocked').val();
+
+        $(".action").each(function () {
+            var checkbox = $($(this).find('input[type="checkbox"]'));
+            if (checkbox.is(":checked")) {
+                model.SelectedActions.push(checkbox.attr("actionId"));
+            }
+        });
+        $(".reason").each(function () {
+            var checkbox = $($(this).find('input[type="checkbox"]'));
+            if (checkbox.is(":checked")) {
+                model.SelectedReasons.push(checkbox.attr("reasonId"));
+            }
+        });
+
+        if (hdnisActiveRequestLockedValue == "false") {
+            model.NextAction = $("#NextAction").data("kendoComboBox").value();
+            model.AssignedTo = $("#AssignedTo").data("kendoComboBox").value();
+            model.ClosedLoopStatus = $("#ClosedLoopStatus").data("kendoComboBox").value();
+            model.ScheduledDate = $("#ScheduledDate").data('kendoDateTimePicker').value(); //  + " " + $("#ScheduledTime").val();
+            model.NextSend = $("#NextSend").data('kendoDateTimePicker').value(); // " " + $("#NextSendTime").val();
+            model.ServiceRequestStatus = $("#Status").data("kendoComboBox").value();
+            model.Comments = $("#finishComments").val();
+            model.Priority = $("#Priority").data("kendoComboBox").value();
+            model.ProviderClaimNumber = $("#ProviderClaimNumber").val();
+            //            var isSMSAvailable = $('input:radio[id=rdSMS]:checked').val();
+            //            isSMSAvailable = isSMSAvailable == "1" ? "true" : "false";
+            //            //model.MemberPaymentTypeID = $('#MemberPaymentTypeID').data('kendoComboBox').value()
+            //            model.IsSMSAvailable = isSMSAvailable;
+            //            if ('@ShowSurveyEmail' == 'True') {
+            //                model.ServiceRequestEmail = formobj.find('#txtMapTabMemberEmail').val();
+            //                model.DeclinedReason = formobj.find('#ComboBox_FinishDeclinedReason').data("kendoComboBox").value();
+
+            //            }
+        }
+
+        if (hdnisActiveRequestLockedValue == "true") {
+            model.ActiveRequestLockedComments = $("#activeRequestLockedComments").val();
+            model.SendNotification = $("#sendNotification").is(':checked');
+        }
+
+
+        model.ContactCategory = $("#ContactCategory").data("kendoComboBox").value();
+        model.LogWarmTransfer = $("#LogWarmTransfer").is(":checked");
+
+
+
+
+        var dynamicDataElementsArray = [];
+        if (typeof (getDynamicFieldsValues) != "undefined") {
+            var dynamicFields = getDynamicFieldsValues();
+            for (var i = 0, l = dynamicFields.length; i < l; i++) {
+                dynamicDataElementsArray.push({ "Key": dynamicFields[i].name, "Value": dynamicFields[i].value });
+            }
+        }
+        model.dynamicDataElements = dynamicDataElementsArray;
+
+        return model;
+    }
+
+    function VerifyFinishForm() {
+
+        var isFormValid = true;
+        var hdnisActiveRequestLockedValue = $('#isActiveRequestLocked').val();
+        var $form = $('#frm_FinishTab');
+        if ($form.validationEngine('validate') == false) {
+            return false;
+        }
+
+        var $contactCategory = $("#ContactCategory").data("kendoComboBox").value();
+        if ($("#ContactCategory").length != 0 && !$("#ContactCategory").is(":disabled")) {
+            if ($.trim($contactCategory).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="ContactCategory_input"]'), "Contact Category is required. ");
+                $('#ContactCategory-input').focus();
+            }
+            var reasonscheckedCount = 0;
+            $('[name ^= "reasons"][type="checkbox"]').each(function () {
+                if ($(this).is(":checked")) {
+                    reasonscheckedCount++;
+                }
+            });
+            if (reasonscheckedCount == 0) {
+                isFormValid = false;
+                $("#reasonsCheckboxes").validationEngine('showPrompt', 'Select at least one reason', '', 'topLeft', true);
+            }
+            else {
+                $("#reasonsCheckboxes").validationEngine('hidePrompt');
+            }
+
+            var actionscheckedCount = 0;
+            $('[name ^= "actions"][type="checkbox"]').each(function () {
+                if ($(this).is(":checked")) {
+                    actionscheckedCount++;
+                }
+            });
+
+            if (actionscheckedCount == 0) {
+                isFormValid = false;
+                $("#actionsCheckboxes").validationEngine('showPrompt', 'Select at least one action', '', 'topLeft', true);
+            }
+            else {
+                $("#reasonsCheckboxes").validationEngine('hidePrompt');
+            }
+        }
+        if (($('#NextSend') != undefined) && ($.trim($('#NextSend').val()).length != 0) && ($.trim($('#NextSend').data('kendoDateTimePicker').value()).length == 0)) {
+            $('#NextSend').validationEngine('showPrompt', 'Please select a Valid Date.', '', 'topRight', true);
+            $('#NextSend').focus();
+            isFormValid = false;
+        }
+        else {
+            HideValidationMessage($('#NextSend'));
+        }
+
+        if (($('#ScheduledDate') != undefined) && ($.trim($('#ScheduledDate').val()).length != 0) && ($.trim($('#ScheduledDate').data('kendoDateTimePicker').value()).length == 0)) {
+            $('#ScheduledDate').validationEngine('showPrompt', 'Please select a Valid Date.', '', 'topRight', true);
+            $('#ScheduledDate').focus();
+            isFormValid = false;
+        }
+        else {
+            HideValidationMessage($('#ScheduledDate'));
+        }
+
+
+        if (hdnisActiveRequestLockedValue == "false") {
+
+
+            if ($("#ClosedLoopStatus").data("kendoComboBox").text() == "Service Arrived") {
+                //HideValidationMessage($('#NextSend'));
+
+
+
+                if ($.trim($('#NextSend').data('kendoDateTimePicker').value()).length != 0) {
+                    $('#NextSend').validationEngine('showPrompt', 'Date must be blank when status is set to Arrived', '', 'topRight', true);
+                    $('#NextSend').focus();
+                    isFormValid = false;
+                }
+
+                //                if ($.trim($('#NextSendTime').val()).length != 0) {
+                //                    $('#NextSendTime').validationEngine('showPrompt', 'Time must be blank when status is set to Arrived', '', 'topRight', true);
+                //                    $('#NextSendTime').focus();
+                //                    isFormValid = false;
+                //                }
+            }
+
+            var $status = $("#Status").data("kendoComboBox").value();
+            if ($.trim($status).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="Status_input"]'), "Status is required. ");
+                $('#Status-input').focus();
+            }
+
+
+        }
+
+        if (hdnisActiveRequestLockedValue == "true") {
+            if ($.trim($('#activeRequestLockedComments').val()).length == 0) {
+                $('#activeRequestLockedComments').validationEngine('showPrompt', 'Comment is required', '', 'topRight', true);
+                $('#activeRequestLockedComments').focus();
+                isFormValid = false;
+            }
+            else {
+                HideValidationMessage($('#activeRequestLockedComments'));
+            }
+        }
+
+
+
+
+        //        if (hdnisActiveRequestLockedValue == "false" && '@ShowSurveyEmail' == 'True' && !validateServiceRequestFields()) {
+        //            isFormValid = false;
+        //        }
+
+        if (hdnisActiveRequestLockedValue == "false") {
+            // KB: Run business rules.
+            var model = GetFinishModel();
+            if (isFormValid) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Verify", "Finish", new { area = "Application" })',
+                    traditional: true,
+                    cache: false,
+                    async: false,
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(model),
+                    success: function (msg) {
+                        if (msg.Status == "BusinessRuleFail") {
+                            isFormValid = false;
+                        }
+                    } // end of success
+                });
+            }
+        }
+
+        return isFormValid;
+    }
+
+    function ShowBusinessErrors(isFormValid) {
+
+        var srstatus = $("#Status").data("kendoComboBox").text();
+
+        if (srstatus == "Cancelled") {
+            if (!isFormValid) {
+                ShowStatus("error", "Missing information");
+                return false;
+            }
+            else {
+                ShowStatus("success", "Validation complete");
+                ClearServiceRequestExceptions();
+            }
+        }
+        else {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetTabValidationStatus", "Finish", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                global: false,
+                success: function (msg) {
+                    if (msg.Data && msg.Data.length > 0) {
+                        var tabValidationStatuses = JSON.parse(msg.Data);
+
+                        for (var i = 0, l = tabValidationStatuses.length; i < l; i++) {
+                            StyleTabUsingValidationStatus(tabValidationStatuses[i].Key.toLowerCase(), tabValidationStatuses[i].Value);
+                        }
+                    }
+                    ShowServiceRequestExceptions();
+                    if (msg.Status == "BusinessRuleFail") {
+                        ShowStatus("error", "Missing information, tabs with validation errors are highlighted in red.");
+
+                    }
+                    else {
+                        if (!isFormValid) {
+                            ShowStatus("error", "Missing information");
+                            return false;
+                        }
+                        else {
+                            ShowStatus("success", "Validation complete");
+                            ClearServiceRequestExceptions();
+                        }
+                    }
+                }
+
+            });
+        } // end else
+    }
+
+    $(function () {
+
+        var formobj = $("#frm_FinishTab");
+        WatchMyContainer('frm_FinishTab', null, null);
+        var hdnisActiveRequestLocked = $('#isActiveRequestLocked').val();
+        //KB: Set the width of the dropdown container to be 250px
+        if (hdnisActiveRequestLocked == 'false') {
+            $("#AssignedTo").data("kendoComboBox").list.width(250);
+            $("#NextAction").data("kendoComboBox").list.width(250);
+            // Refresh the form with latest SR attributes
+            RefreshServiceRequestAttributes();
+        }
+
+        $("#ContactCategory").data("kendoComboBox").list.width(250);
+
+
+        var formobj = $("#frm_FinishTab");
+        formobj.find('#txtMapTabMemberEmail').change(function () {
+
+            var mapFormObj = $('#frmMap');
+            var mapTabMemberEmail = mapFormObj.find('#txtMapTabMemberEmail');
+            if (mapTabMemberEmail.length > 0) {
+                mapFormObj.find('#txtMapTabMemberEmail').val($.trim(formobj.find('#txtMapTabMemberEmail').val()));
+            }
+
+        });
+
+
+
+        // Cache tab.
+        var currentTabIndex = $("#RequestTabs").tabs('option', 'selected');
+        var currentTabAnchor = $("#RequestTabs").data('tabs').anchors[currentTabIndex];
+        $(currentTabAnchor).data('cache.tabs', true)
+        var $form = $('#frm_FinishTab');
+        $form.validationEngine();
+
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+
+        $(".timepicker").timepicker({ 'step': 15 });
+
+        //$("#ScheduledDate").data('kendoDateTimePicker').find('span').find('input').attr("readonly", "readonly");
+        //        $(".k-datetimepicker input").prop("readonly", true);
+        //        $("#btnDeleteScheduledDate").on("click", function () {
+        //            var scheduleDateTimePicker = $("#ScheduledDate").data('kendoDateTimePicker');
+        //            if (scheduleDateTimePicker.value() != null && !isNaN(scheduleDateTimePicker.value())) {
+        //                if (confirm("Do you want to delete the Schedule Date?")) {
+        //                    scheduleDateTimePicker.value('');
+        //                }
+        //            }
+        //        });
+        //        $("#btnDeleteNextSendDate").on("click", function () {
+        //            var scheduleDateTimePicker = $("#NextSend").data('kendoDateTimePicker');
+
+        //            if (scheduleDateTimePicker.value() != null && !isNaN(scheduleDateTimePicker.value())) {
+        //                if (confirm("Do you want to delete the Next Send Date?")) {
+        //                    scheduleDateTimePicker.value('');
+        //                }
+        //            }
+        //        });
+        HideStatus();
+        var $chk = $('#LogWarmTransfer');
+        if ($chk.attr("disabled") != "disabled") {
+            formFieldDisable()
+        }
+        $chk.change(function (e) {
+            if ($(this)[0].checked) {
+                formFieldEnable();
+            }
+            else {
+                formFieldDisable();
+            }
+        });
+
+
+        if ('@ShowSurveyEmail' == 'True') {
+            memberEmail = formobj.find("#hdnMemberEmail").val();               //Added by Lakshmi
+            declinedReason = formobj.find("#hdnDeclinedReason").val();         //Added by Lakshmi
+
+            formobj.find('#txtMapTabMemberEmail').val(memberEmail);
+            //$('#ComboBox_DeclinedReason').data('kendoComboBox').value(declinedReason);  //Added by Lakshmi
+
+            //BindAutocompleteField("txtMapTabMemberEmail", memberEmail);                 //Added by Lakshmi
+            //BindAutocompleteField("ComboBox_DeclinedReason", declinedReason);
+
+        }
+
+        $("#btnVerifyFinshTab").click(function () {
+
+            var hdnisActiveRequestLockedValue = $('#isActiveRequestLocked').val();
+            ShowStatus("inprogress", "Verifying information ...");
+            var isFormValid = VerifyFinishForm();
+
+
+            if (hdnisActiveRequestLockedValue == "false") {
+
+                ShowBusinessErrors(isFormValid);
+            }
+            else {
+                if (!isFormValid) {
+                    ShowStatus("error", "Missing information");
+                    return false;
+                }
+                else {
+                    ShowStatus("success", "Validation complete");
+                    ClearServiceRequestExceptions();
+                }
+            }
+
+        });
+
+
+        $("#btnSumbit").on("click", function () {
+
+            var formobj = $("#frm_FinishTab");
+            var hdnisActiveRequestLockedValue = $('#isActiveRequestLocked').val();
+            ShowStatus("inprogress", "Verifying information ...");
+            var isFormValid = VerifyFinishForm();
+            if (!isFormValid) {
+                ShowStatus("error", "Missing information");
+                if (hdnisActiveRequestLockedValue == "false") {
+                    ShowBusinessErrors(isFormValid);
+                }
+                return false;
+            }
+            else {
+                ShowStatus("success", "Validation complete");
+                ClearServiceRequestExceptions();
+            }
+
+            var combo = $('#NextAction').data('kendoComboBox');
+            var nextActionValue = combo != null ? combo.value() : '';
+            if ($("#DefaultNextAction").val() != null && nextActionValue != null && nextActionValue != '' && $("#DefaultNextAction").val() != '' && $("#DefaultNextAction").val() == nextActionValue && ($("#IsShowConfirmPrompt").val() != null && $("#IsShowConfirmPrompt").val() == "true")) {
+                notificationMsg = "Did you complete the Next Action <strong>" + combo.text() + "</strong>";
+                openAlertMessage(GetNextActionPromptOptions(notificationMsg), function () {
+                    var userInput = $('input[name="rdNextActionConfirmOption"]:checked').val();
+                    if (userInput == "1") {
+                        combo.value('');
+                        $("#AssignedTo").data('kendoComboBox').value('');
+                        combo.trigger('change');
+                        SubmitFinishTab();
+                    }
+                    else {
+                        SubmitFinishTab();
+                    }
+                });
+
+                setTimeout(function () {
+                    $("#modals .button").attr("disabled", "disabled").addClass("disabled");
+                    $('input[name="rdNextActionConfirmOption"]').change(function () {
+                        $("#modals .button").removeAttr("disabled").removeClass("disabled");
+                    });
+
+                }, 300);
+            }
+            else {
+                SubmitFinishTab();
+            }
+        });
+    });
+
+    function GetNextActionPromptOptions(msg) {
+        var optionsHtml = '<table>';
+        optionsHtml += '<tr><td>' + msg + '</td></tr>';
+        optionsHtml += '<tr><td>&nbsp</td></tr>';
+        optionsHtml += '<tr><td>';
+
+        optionsHtml += '         <input name="rdNextActionConfirmOption" type="radio" class="radio" value="1"> Yes &nbsp;  ';
+        optionsHtml += '         <input name="rdNextActionConfirmOption" type="radio" class="radio" value="0"> No &nbsp;   ';
+
+        optionsHtml += '</td></tr>';
+        optionsHtml += ' </table>                                                                                            ';
+        return optionsHtml;
+    }
+
+
+    function SubmitFinishTab() {
+        var model = GetFinishModel();
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Save", "Finish", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(model),
+            success: function (msg) {
+                // Clear off dirty flags on previous tabs
+                CleanMyContainer("frm_FinishTab");
+                if (msg.Data && msg.Data.length > 0) {
+                    var tabValidationStatuses = JSON.parse(msg.Data);
+
+                    for (var i = 0, l = tabValidationStatuses.length; i < l; i++) {
+                        StyleTabUsingValidationStatus(tabValidationStatuses[i].Key.toLowerCase(), tabValidationStatuses[i].Value);
+                    }
+                }
+
+                ShowServiceRequestExceptions();
+                if (msg.Status == "BusinessRuleFail") {
+                    ShowStatus("error", "Missing information, tabs with validation errors are highlighted in red.");
+
+                }
+               else if (msg.Status == "Success") {
+                    ShowStatus("success", "Validation Complete");
+                    if (msg.TabNavigation == "Start") {
+                        window.location = "/Application/Request"
+                    }
+                    else if (msg.TabNavigation == "Queue") {
+                        window.location = "/Application/Queue"
+                    }
+                    else if (msg.TabNavigation == "History") {
+                        window.location = "/Application/History"
+                    }
+                }
+            }
+        });
+    }
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        if (!$('#tbStart').hasClass('disabled')) {
+            if ($('#ContactCategory').data('kendoComboBox') != null && $('#ContactCategory').data('kendoComboBox') != undefined) {
+                $('#ContactCategory').data('kendoComboBox').text('Non-Member');
+                $('#ContactCategory').data('kendoComboBox').trigger('change');
+            }
+        }
+    });
+</script>

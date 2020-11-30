@@ -1,0 +1,39 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right claimsShortcuts">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CLAIMS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClaimsManagement_DashBoard"><a href="@Url.Action("Index", "ClaimsDashboard", new { area = "Claims" })" class="shortcut-dashboard" title="Dashboard" data="ClaimsDashboard">
+            Dashboard</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLAIMS_CLAIMS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClaimsManagement_Claims"><a href="@Url.Action("Index", "Claim", new { area = "Claims" })" class="shortcut-stats" title="Claims Processing" data ="Claim">
+            Claims</a></li>
+    }
+    
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLAIMS_PAYHISTORY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClaimsManagement_ClaimsPaymentHistory"><a href="@Url.Action("Index", "ClaimsPaymentHistory", new { area = "Claims" })" class="shortcut-agenda" title="Payment History" data ="ClaimsPaymentHistory">
+            PaymentHistory</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLAIMS_ACESPAYMENTS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClaimsManagement_ClaimsACESPayments"><a href="@Url.Action("Index", "ClaimsACESPayments", new { area = "Claims" })" class="shortcut-settings" title="ACES Payment" data ="ClaimsACESPayments">
+            ACESPayments</a></li>
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.claimsShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.claimsShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

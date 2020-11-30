@@ -1,0 +1,196 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.ActionFilters;
+@using Martex.DMS.Areas.Application.Models
+@model Martex.DMS.DAL.VendorInformation_Result
+@{
+    var prefixName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    if (string.IsNullOrEmpty(ViewData.TemplateInfo.HtmlFieldPrefix))
+    {
+        prefixName = ViewData["prefixName"].ToString();
+    }
+    if (Model.VendorStatus != null)
+    {
+        var vendorStatus = Model.VendorStatus;
+    }
+}
+<script type="text/javascript" language="javascript">
+    function GetVendorTransactionData(e, prefix) {
+
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVendorTransactionData", "VendorMerge", new { area = "VendorManagement" })',
+                data: { vendorLocationID: combo.value(), prefixName: prefix },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#" + prefix + "_divVendorTransactionDetails").html(msg);
+                    $("#" + prefix + "_divVendorTransactionDetails").show();
+                }
+            });
+        }
+        else {
+            $("#" + prefix + "_divVendorTransactionDetails").html(' ');
+        }
+    }
+
+</script>
+<div class="with-padding">
+    <h5 class="blue small-margin-bottom">
+        <label class="label">
+            @{
+                var iconConfig = new VendorListIconConfig();
+                if (!string.IsNullOrEmpty(Model.ContractStatus))
+                {
+                    var contractStatusIconStyle = iconConfig.GetIconStyle(Model.ContractStatus);
+                <span class="@contractStatusIconStyle.Class vendorinfostarred message-status with-tooltip" title="@contractStatusIconStyle.Title">
+                    &nbsp;</span>
+                }
+            }
+            @Html.DisplayFor(v => v.VendorName)
+            @Html.HiddenFor(v => v.VendorName, new { id = prefixName + "_VendorName" })
+            @Html.HiddenFor(v => v.ID, new { id = prefixName + "_VendorID" })
+        </label>
+    </h5>
+    <p class="small-margin-bottom">
+        <label class="label">
+            @Html.DisplayFor(v => v.VendorNumber)
+            @Html.HiddenFor(v => v.VendorNumber)
+            <span>@Html.HiddenFor(v => v.VendorStatus, new { id = prefixName + "_VendorStatus" })
+                @if (Model.VendorStatus == "Active")
+                {
+                    <span class="tag green-bg">@Model.VendorStatus</span>
+
+                }
+                else if (Model.VendorStatus == "Pending" || Model.VendorStatus == "Temporary" || Model.VendorStatus == "DoNotUse" || Model.VendorStatus == "OnHold")
+                {
+                    <span class="tag red-bg">@Model.VendorStatus</span>
+
+                }
+                else if (Model.VendorStatus == "Inactive")
+                {
+                    <span class="tag black-bg">Deleted</span>
+
+                }
+                else
+                {
+                    <span class="tag black-bg">Deleted</span>
+                }
+            </span>
+        </label>
+    </p>
+    <p class="small-margin-bottom">
+        <label class="label">
+            @Html.DisplayFor(v => v.Address1) @Html.DisplayFor(v => v.Address2)<br />
+            @Html.DisplayFor(v => v.VendorCityStateZipCountry)
+        </label>
+    </p>
+    <p class=" small-margin-bottom">
+        <label class="label">
+            <strong>24hr : </strong>
+            @if (Model.DispatchPhoneNumber != null)
+            {
+                @Html.Editor(prefixName + "_DispatchPhoneNumber", "Phone", new { Value = Model.DispatchPhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+            }
+        </label>
+    </p>
+    <p class="  small-margin-bottom">
+        <label class="label">
+            <strong>Fax : </strong>
+            @if (Model.FaxPhoneNumber != null)
+            {         
+                @Html.Editor(prefixName + "_FaxPhoneNumber", "Phone", new { Value = Model.FaxPhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+            }
+        </label>
+    </p>
+    <p class="  small-margin-bottom">
+        <label class="label">
+            <strong>Office :</strong>
+            @if (Model.OfficePhoneNumber != null)
+            {            
+                @Html.Editor(prefixName + "_OfficePhoneNumber", "Phone", new { Value = Model.OfficePhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+            }
+        </label>
+    </p>
+    <div>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="Source" class="label">
+                Source
+            </label>
+            @Html.Raw("Dispatch")
+        </p>
+    </div>
+    <div>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="CreateDate" class="label">
+                Create Date
+            </label>
+            @Html.DisplayFor(a => a.CreateBy)@Html.Raw(" ") @Html.DisplayFor(a => a.CreateDate)
+        </p>
+    </div>
+    <div>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="ModifiedDate" class="label">
+                Modified Date
+            </label>
+            @Html.DisplayFor(a => a.ModifyBy)@Html.Raw(" ") @Html.DisplayFor(a => a.ModifyDate)
+        </p>
+    </div>
+    <div>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="Locations" class="label">
+                Locations
+            </label>
+            @(Html.Kendo().ComboBox()
+            .DataTextField("Text")
+            .DataValueField("Value")
+            .BindTo(ViewData["VendorLocations"] as IEnumerable<SelectListItem>)
+            .Name(prefixName + "_ddlVendorLocation")
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .HighlightFirst(true)
+            .Events(events =>
+            {
+                events.Change(@<text>function(e){GetVendorTransactionData(e,'@prefixName')}</text>);
+            })
+            .HtmlAttributes(new { style = "width:90%", id = prefixName + "_ddlVendorLocation" })
+            .SelectedIndex(0)
+            )
+        </p>
+    </div>
+    <fieldset class="fieldset">
+        <legend class="legend">Transactions</legend>
+        <div id='@(prefixName + "_divVendorTransactionDetails")'>
+        </div>
+    </fieldset>
+</div>
+<script type="text/javascript" language="javascript">
+    $(document).ready(function (e) {
+        var combo = $("#@prefixName" + "_ddlVendorLocation").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVendorTransactionData", "VendorMerge", new { area = "VendorManagement" })',
+                data: { vendorLocationID: combo.value(), prefixName: "@prefixName" },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#@prefixName" + "_divVendorTransactionDetails").html(msg);
+                    $("#@prefixName" + "_divVendorTransactionDetails").show();
+                }
+            });
+        }
+        else {
+            $("#@prefixName" + "_divVendorTransactionDetails").html(' ');
+        }
+    });
+</script>

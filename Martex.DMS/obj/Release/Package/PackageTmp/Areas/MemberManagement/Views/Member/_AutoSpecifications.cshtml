@@ -1,0 +1,49 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<div class="four-columns float-left large-margin-left">
+    <fieldset class="fieldset">
+        <legend class="legend">Specifications</legend>
+        <div class="with-small-padding">
+            <div class="button-height small-margin-bottom inline-label">
+                <label for="Length" class="label">
+                    Length</label>
+                @Html.TextBoxFor(v => v.Length, new { @class = "validate[custom[integer] maxSize[10]] input full-width2", id = "Length_" + suffixMembershipID })
+            </div>
+            <div class="button-height small-margin-bottom inline-label">
+                <label for="Height" class="label">
+                    Height</label>
+                @Html.TextBoxFor(v => v.Height, new { @class = "validate[maxSize[5]] input full-width2", id = "Height" + suffixMembershipID })
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Chassis" class="label">
+                        Chassis</label>
+                    @Html.TextBoxFor(v => v.Chassis, new { @class = "validate[maxSize[100]] input full-width2", id = "Chassis_" + suffixMembershipID })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Engine" class="label">
+                        Engine</label>
+                    @Html.TextBoxFor(v => v.Engine, new { @class = "validate[maxSize[100]] input full-width2", id = "Engine_" + suffixMembershipID })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Transmission" class="label">
+                        Transmission</label>
+                    @Html.TextBoxFor(v => v.Transmission, new { @class = "validate[maxSize[100]] input full-width2", id = "Transmission_" + suffixMembershipID })
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="GVWR" class="label">
+                        GVWR</label>
+                    @Html.TextBoxFor(v => v.GVWR, new { @class = "validate[custom[integer] maxSize[10]] input full-width2", id = "GVWR_" + suffixMembershipID })
+                </p>
+            </div>
+        </div>
+    </fieldset>
+</div>

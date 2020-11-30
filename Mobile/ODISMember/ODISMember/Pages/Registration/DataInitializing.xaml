@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember" 
+             x:Class="ODISMember.Pages.Registration.DataInitializing">
+  <RelativeLayout x:Name="mainLayoutData">
+    <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.InitializingBackgroundImage}" Opacity="0.8" Aspect="AspectFill" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" />
+  </RelativeLayout>
+</ContentPage>

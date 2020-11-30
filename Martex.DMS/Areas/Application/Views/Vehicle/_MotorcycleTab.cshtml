@@ -1,0 +1,19 @@
+﻿@model Martex.DMS.DAL.Vehicle
+
+<form name="frm_Motorcycle" id="frm_Motorcycle" action="#">
+@Html.Partial("_MotorcycleBasicInformation", Model)
+</form>
+<script type="text/javascript">
+
+    function SaveMotorcycle() {
+
+        return SaveForm('frm_Motorcycle', "Motorcycle");
+    }
+
+    fnSaveTab = SaveMotorcycle;
+    $(function () {
+        CleanAllContainers();
+        $("#frm_Motorcycle").validationEngine();
+        WatchMyContainer('frm_Motorcycle', null, null);
+    });
+</script>

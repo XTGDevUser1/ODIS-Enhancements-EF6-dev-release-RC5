@@ -1,0 +1,151 @@
+﻿@using Kendo.Mvc.UI
+<script type="text/javascript" language="javascript">
+   
+    var programMaintenanceWindow;
+
+    function GrdPrograms_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+    }
+
+    function ManagePrograms(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ProgramID;
+            var programName = this.dataItem($(e.currentTarget).closest("tr")).ProgramName;
+            if (e.data.commandName == 'View') {
+                AddNewProgramDetailsTab(recordID, programName, "view");
+            }
+            else if (e.data.commandName == 'Edit') {
+                AddNewProgramDetailsTab(recordID, programName, "edit");
+            }
+        }
+        else {
+            GetManageProgramMaintenance(recordID, 'add', 'New Program Maintenance Record');
+        }
+        return false;
+    }
+    function GetManageProgramMaintenance(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Get", "ProgramMaintenance")',
+            traditional: true,
+            data: { programMaintenanceId: recordID, mode: mode },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                programMaintenanceWindow = $("<div id='programMaintenanceWindow' />").appendTo(document.body);
+                programMaintenanceWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-ProgramMaintenance').validationEngine('hideAll');
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-ProgramMaintenance')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-ProgramMaintenance');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                programMaintenanceWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+    function GetSearchCriteriaForProgramManagementGrid() {
+        if ($("#frmProgramManagementSearchCriteria").length > 0) {
+
+            var newArray = [];
+            var searchCriteria = {};
+
+            newArray.push({ name: "Name", value: $('#Name').val() });
+            newArray.push({ name: "Number", value: $('#Number').val() });
+
+            if ($('#ProgramMaintenance_Search_ProgramID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ProgramID", value: $('#ProgramMaintenance_Search_ProgramID').data('kendoComboBox').value() });
+                newArray.push({ name: "ProgramName", value: $('#ProgramMaintenance_Search_ProgramID').data('kendoComboBox').text() });
+            }
+            if ($('#ProgramMaintenance_Search_ClientID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ClientName", value: $('#ProgramMaintenance_Search_ClientID').data('kendoComboBox').text() });
+                newArray.push({ name: "ClientID", value: $('#ProgramMaintenance_Search_ClientID').val() });
+            }
+
+            if ($('#NameOperatorValue').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "NameOperator", value: $('#NameOperatorValue').data('kendoComboBox').text() });
+                newArray.push({ name: "NameOperatorValue", value: $('#NameOperatorValue').val() });
+            }
+
+            for (var i = 0; i < newArray.length; ++i)
+                searchCriteria[newArray[i].name] = newArray[i].value;
+            return searchCriteria;
+        }
+    }
+    
+</script>
+<div class="with-padding">
+    @(Html.Kendo().Grid<Martex.DMS.DAL.ProgramMaintainenceList_Result>()
+    .Name("GrdProgramMaintenance")
+    .Columns(column =>
+    {
+        column.Bound(a => a.ProgramID).Title("ID").Width(50);
+        column.Bound(a => a.ClientName).Title("Client");
+        column.Bound(a => a.ParentName).Title("Parent Program");
+        column.Bound(a => a.ProgramName).Title("Program");
+        column.Bound(a => a.IsGroup).Title("Group").ClientTemplate("<input type='checkbox' #= IsGroup ? checked='checked' : '' # disabled='disabled' ></input>").Width(75);
+        column.Bound(a => a.ProgramIsActive).Title("Active").ClientTemplate("<input type='checkbox' #= ProgramIsActive ? checked='checked' : '' # disabled='disabled' ></input>").Width(75);
+        column.Command(command =>
+        {
+            command.Custom("View").Click("ManagePrograms").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+            command.Custom("Edit").Click("ManagePrograms").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+        }).Width(100)
+        .Title("Action(s)");
+
+    })
+    .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManagePrograms(null)' ><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Program</label></a>"))
+    .Events(e =>
+    {
+        e.DataBound("GrdPrograms_OnDataBound");
+    })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_GetProgramList", "ProgramManagement", new { area = "Admin" }).Data("GetSearchCriteriaForProgramManagementGrid"))
+        .PageSize(10)
+    )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdProgramMaintenance"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdProgramMaintenance>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

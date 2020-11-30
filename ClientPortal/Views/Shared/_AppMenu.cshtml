@@ -1,0 +1,122 @@
+﻿@using ClientPortal.Areas.Application.Models
+<ul class="AppMenu">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_DISPATCH) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "Home", new { area = "" })" class="" id="menu_top_dispatch" data="">
+            Dispatch</a>
+            <!--This is an example of a second tier dropdown and should be security driven and only show up if needed. Run the code and you can see how it behaves -->
+            @*<ul>
+                <li><a href="">CSS</a>
+                    <ul>
+                        <li><a href="">Item 11</a></li>
+                        <li><a href="">Item 12</a></li>
+                        <li><a href="">Item 13</a></li>
+                        <li><a href="">Item 14</a></li>
+                    </ul>
+                </li>
+                <li><a href="">Graphic design</a>
+                    <ul>
+                        <li><a href="">Item 21</a></li>
+                        <li><a href="">Item 22</a></li>
+                        <li><a href="">Item 23</a></li>
+                        <li><a href="">Item 24</a></li>
+                    </ul>
+                </li>
+                <li><a href="">Development tools</a>
+                    <ul>
+                        <li><a href="">Item 31</a></li>
+                        <li><a href="">Item 32</a></li>
+                        <li><a href="">Item 33</a></li>
+                        <li><a href="">Item 34</a></li>
+                    </ul>
+                </li>
+                <li><a href="">Web design</a>
+                    <ul>
+                        <li><a href="">Item 41</a></li>
+                        <li><a href="">Item 42</a></li>
+                        <li><a href="">Item 43</a></li>
+                        <li><a href="">Item 44</a></li>
+                    </ul>
+                </li>
+            </ul>*@
+            <!--end sample dropdown-->
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_VENDOR) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "VendorHome", new { area = "VendorManagement" })" class="" id="menu_top_VendorManagement" data="VendorManagement">
+            Vendor</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CLIENT) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "ClientHome", new { area = "ClientManagement" })" class="" id="menu_top_ClientManagement" data = "ClientManagement">
+            Client</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_QA) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "QAHome", new { area = "QA" })" class="" id="menu_top_QA" data = "QA">
+            QA</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_ADMIN) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "VendorHome", new { area = "VendorManagement" })" class="" id="menu_top_VendorManagement_VendorHome">
+            Admin</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_REPORTS) == AccessType.ReadWrite)
+    {
+        <li><a href="#" class="" id="menu_top_Reports">Reports</a>
+            <ul>
+                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_DEPARTMENT) == AccessType.ReadWrite)
+                {
+                    <li><a href="@Url.Action("Index", "DepartmentReport", new { area = "Reports" })" data = "Reports">
+                        Department</a>
+                        <ul>
+                            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_DEPARTMENT_VENDOR) == AccessType.ReadWrite)
+                            {
+                                <li><a href="">Vendor</a></li>
+                            }
+                            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_DEPARTMENT_CLIENT) == AccessType.ReadWrite)
+                            {
+                                <li><a href="">Client</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_SYSTEM) == AccessType.ReadWrite)
+                {
+                    <li><a href="@Url.Action("Index", "SystemReport", new { area = "Reports" })" data = "Reports">
+                        System</a>
+                        <ul>
+                            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_SYSTEM_TRANSACTION) == AccessType.ReadWrite)
+                            {
+                                <li><a href="">Transaction</a></li>
+                            }
+                            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_SYSTEM_EXPORT) == AccessType.ReadWrite)
+                            {
+                                <li><a href="">Export</a></li>}
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+</ul>
+<script type="text/javascript">
+    var area = '@ViewContext.RouteData.DataTokens["area"]';
+    $(function () {
+        $('.AppMenu li a').each(function () {
+            $(this).removeClass("orange");
+        });
+
+        if (area.length == 0) {
+            $('#menu_top_dispatch').addClass("orange");
+        }
+        else {
+            $('.AppMenu li a').each(function () {
+                if ($(this).attr('data') == area) {
+                    $(this).addClass("orange");
+                }
+            });
+        }
+    });
+</script>

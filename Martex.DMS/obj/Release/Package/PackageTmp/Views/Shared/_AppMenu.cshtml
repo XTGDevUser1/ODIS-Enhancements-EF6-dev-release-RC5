@@ -1,0 +1,124 @@
+﻿@using Martex.DMS.Areas.Application.Models
+<ul class="AppMenu">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_DISPATCH) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "Home", new { area = "" })" class="" id="menu_top_dispatch" data="Application">
+                Dispatch
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_VENDOR) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "VendorDashboard", new { area = "VendorManagement" })" class="" id="menu_top_VendorManagement" data="VendorManagement">
+                Vendor
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_MEMBER) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "Dashboard", new { area = "MemberManagement" })" class="" id="menu_top_MemberManagement" data="MemberManagement">
+                Member
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CLAIMS) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "ClaimsDashboard", new { area = "Claims" })" class="" id="menu_top_ClaimstManagement" data="Claims">
+                Claims
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CLIENT) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "Dashboard", new { area = "ClientManagement" })" class="" id="menu_top_ClientManagement" data="ClientManagement">
+                Client
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_ADMIN) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })" class="" data="Admin">
+                Admin
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CX) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "CXHome", new { area = "CX" })" class="" id="MENU_TOP_CX" data="CX">
+                CX
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_DIGITAL_DISPATCH) == AccessType.ReadWrite)
+    {
+        <li>
+            <a href="@Url.Action("Index", "DigitalDispatchHome", new { area = "DigitalDispatch" })" class="" id="menu_top_DigitalDispatch" data="DigitalDispatch">
+                Digital Dispatch
+            </a>
+        </li>
+    }
+    @*@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_REPORTS) == AccessType.ReadWrite)
+        {
+            <li><a href="#" class="" id="menu_top_Reports">Reports</a>
+                <ul>
+                    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_DEPARTMENT) == AccessType.ReadWrite)
+                    {
+                        <li><a href="@Url.Action("Index", "DepartmentReport", new { area = "Reports" })" data = "Reports">
+                            Department</a>
+                            <ul>
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_DEPARTMENT_VENDOR) == AccessType.ReadWrite)
+                                {
+                                    <li><a href="">Vendor</a></li>
+                                }
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_DEPARTMENT_CLIENT) == AccessType.ReadWrite)
+                                {
+                                    <li><a href="">Client</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_SYSTEM) == AccessType.ReadWrite)
+                    {
+                        <li><a href="@Url.Action("Index", "SystemReport", new { area = "Reports" })" data = "Reports">
+                            System</a>
+                            <ul>
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_SYSTEM_TRANSACTION) == AccessType.ReadWrite)
+                                {
+                                    <li><a href="">Transaction</a></li>
+                                }
+                                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_THIRD_REPORTS_SYSTEM_EXPORT) == AccessType.ReadWrite)
+                                {
+                                    <li><a href="">Export</a></li>}
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </li>
+        }*@
+</ul>
+<script type="text/javascript">
+    var area = '@ViewContext.RouteData.DataTokens["area"]';
+    $(function () {
+        $('.AppMenu li a').each(function () {
+            $(this).removeClass("orange");
+        });
+
+        if (area.length == 0) {
+            $('#menu_top_dispatch').addClass("orange");
+        }
+        else {
+            $('.AppMenu li a').each(function () {
+                if ($(this).attr('data') == area) {
+                    $(this).addClass("orange");
+                }
+            });
+        }
+    });
+</script>

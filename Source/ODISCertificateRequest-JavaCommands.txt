@@ -1,0 +1,73 @@
+Prepare the jar file with manifest attributes:
+=============================================
+jar cvfm SignedApplet_v831_unsigned.jar ..\Caller-Allowable-Codebase.txt .
+
+NOTE: Place the class files a new folder (say classes) and ensure that you run the command from with-in classes. The manifest file Caller-Allowable-Codebase.txt should be above the classes directory.
+
+Certificate Request
+===================
+
+PS E:\My Projects\Martex.DMS\Martex.DMS-branch-MVC4-branch-PostPilot\Source> keytool -genkey -keyalg rsa -keysize 2048 -keystore NMCODIS.keystore
+Enter keystore password: martexodis
+What is your first and last name?
+  [Unknown]:  NATIONAL MOTOR CLUB HOLDINGS, INC
+What is the name of your organizational unit?
+  [Unknown]:  NATIONAL MOTOR CLUB HOLDINGS, INC
+What is the name of your organization?
+  [Unknown]:  NATIONAL MOTOR CLUB HOLDINGS, INC
+What is the name of your City or Locality?
+  [Unknown]:  Irving
+What is the name of your State or Province?
+  [Unknown]:  Texas
+What is the two-letter country code for this unit?
+  [Unknown]:  US
+Is CN="NATIONAL MOTOR CLUB HOLDINGS, INC", OU="NATIONAL MOTOR CLUB HOLDINGS, INC", O="NATIONAL MOTOR
+ CLUB HOLDINGS, INC", L=Arlington, ST=Texas, C=US correct?
+  [no]:y
+
+Enter key password for <mykey>
+        (RETURN if same as keystore password):
+		
+Generate CSR
+==============
+PS E:\My Projects\Martex.DMS\Martex.DMS-branch-MVC4-branch-PostPilot\Source>keytool -certreq -keystore NMCODIS.keystore
+
+CSR
+
+-----BEGIN NEW CERTIFICATE REQUEST-----
+MIIDKDCCAhACAQAwgbIxCzAJBgNVBAYTAlVTMQ4wDAYDVQQIEwVUZXhhczEPMA0GA1UEBxMGSXJ2
+aW5nMSowKAYDVQQKEyFOQVRJT05BTCBNT1RPUiBDTFVCIEhPTERJTkdTLCBJTkMxKjAoBgNVBAsT
+IU5BVElPTkFMIE1PVE9SIENMVUIgSE9MRElOR1MsIElOQzEqMCgGA1UEAxMhTkFUSU9OQUwgTU9U
+T1IgQ0xVQiBIT0xESU5HUywgSU5DMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmxyu
+SkxxJQTIUaP2HzvcleYT/GV+chQznMLFKK1NvT7Jm0txurSY+v7BVhbNGo0HlLlqgBOxI88m9yjH
+yMaeELTla+fwDcdLNxVADWj4SqMDerE1KwTw3vQtzT/rK6DpFGVNoJfc9WiPAgeLdV480PyAm3ww
+Ce/zEKJxZFXFsKmif/7xs2tpjYR3g8P+4aKnlOs9qG7UnEkWd+w4dP1ogPEs6MXDDjUZdu2PB9iw
+DwCZNQVuNFiX5WIkRRDAzwwtjCikLaRmTkUqsYVIOjnHQ9yw9NdJnvrDE05Qef+Cg0S46F+l2v7M
+YaKswC1GqYnUOE0RgfFksDM+q3VlhpilEwIDAQABoDAwLgYJKoZIhvcNAQkOMSEwHzAdBgNVHQ4E
+FgQUvyLRE0rk3KKTWcLubLS4hCehDngwDQYJKoZIhvcNAQELBQADggEBAF8U3q8vG73mI+Dox7Yr
+RcR9inLxrBHwmdvXTaZ4FXHZhGZy+0EeJyg3DSZLf2GgAnzBT6pTmET6lsm/LPOMRAFfK8bNiA74
+6gTZi6YccN4nnyojq6OVTvz9O/vKBqFWrRT/xtKD3yUPfKowvoyoBtgw0LmrwtCNJowDt5Rr6DN9
+tjQfZB6/chDILdoCfrAaESS3/DDCKa6EjytYI4vdyszJKrlpRU5vBSbSGYnmHxdCox9IzXEm2zqD
+O7hDsrZ2WcwnoxepYe+yURufVW0ru7p/pfFW2iITES4F+HWf4rCOyuh/jAWq/BqvdGbef4kF39io
+Dnw5MNE4qfHIx8cFDDA=
+-----END NEW CERTIFICATE REQUEST-----
+
+Import certificate:
+PS E:\My Projects\Martex.DMS\Martex.DMS-MVC4-branch-PostGoLive\Martex.DMS\Applet> keytool -import -keystore NMCODIS.keystore -file .\<certificate-file>
+
+Sign:
+PS E:\My Projects\Martex.DMS\Martex.DMS-MVC4-branch-PostGoLive\Martex.DMS\Applet> jarsigner -keystore NMCODIS.keystore -storepass martexodis -keypass martexodis -signedjar SignedApplet_v831.jar SignedApplet_v831_unsigned.jar mykey
+
+Verify:
+PS E:\My Projects\Martex.DMS\Martex.DMS-MVC4-branch-PostGoLive\Martex.DMS\Applet> jarsigner -verify -verbose -certs .\SignedDMSClickToCall.jar
+
+
+
+
+Further reference:
+http://docs.oracle.com/javase/tutorial/deployment/jar/build.html
+
+NOTE: The latest versions of Java require a few more additional attributes in the manifest file and therefore the jar file has to be updated before signing.
+
+
+

@@ -1,0 +1,166 @@
+﻿@model Martex.DMS.DAL.ProgramVehicleType
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL
+@{
+    ViewBag.Title = "Program Vehicle Type";
+    Layout = "~/Views/Shared/_PopupMaster.cshtml";
+    bool isEdit = false;
+    bool isView = false;
+    if (ViewData["mode"].ToString().Equals("edit") || ViewData["mode"].ToString().Equals("view"))
+    {
+        isEdit = true;
+        if (ViewData["mode"].ToString().Equals("view"))
+        {
+            isView = true;
+        }
+    }
+    
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/styles/form.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/form2object.js")" type="text/javascript"></script>
+<form method="post" action="" id="form-ProgramVehicleType">
+<div class="with-padding-with-panels">
+    <fieldset class="fieldset">
+        <legend class="legend">Program Vehicle Type</legend>
+        <div>
+            <div class="inline-label mid-margin-bottom">
+                <label for="VehicleTypeID" class="label">
+                    Vehicle Type<span class="spanstar">*</span></label>
+                @if (isView)
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("VehicleTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Suggest(true)
+                                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model.VehicleTypeID == 0 ? "" : Model.VehicleTypeID.ToString()))
+                    .Enable(false))
+                }
+                else
+                {
+                    @(Html.Kendo().ComboBox()
+                    .Name("VehicleTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo  "))
+                    .Suggest(true)
+                                .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.VehicleType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model.VehicleTypeID == 0 ? "" : Model.VehicleTypeID.ToString())))
+                }
+            </div>
+        </div>
+        <br />
+        <p class="inline-label">
+            <label for="MaxAllowed" class="label">
+                Max Allowed</label>
+            @if (isView)
+            {
+                @Html.TextBoxFor(u => u.MaxAllowed, new { @class = "input full-width2", disabled = "disabled", @readonly = "readonly" })
+            }
+            else
+            {
+                @Html.TextBoxFor(u => u.MaxAllowed, new { @class = "input full-width2,validate[custom[integer]]" })
+            }
+        </p>
+        <p class="button-height inline-medium-label">
+            <label class="label">
+                Is Active
+            </label>
+            @if(isView)
+            {
+                 @Html.CheckBox("IsActive", Model.IsActive, new { @class = "checkbox full-width", disabled = "disabled", @readonly = "readonly" })
+            }
+            else
+            {
+                @Html.CheckBox("IsActive", Model.IsActive, new { @class = "checkbox full-width" })
+            }  
+
+        </p>
+         <div class="field-block button-height">
+                @if (@ViewData["mode"].ToString() != "view")
+                {
+                    <button id="btnAddProgramVehicleType" class="button green-gradient glossy float-right mid-margin-left"
+                        type="submit">
+                        @if (isEdit)
+                        {
+                            @Html.Raw("Update")
+                        }
+                        else
+                        {
+                            @Html.Raw("Add")
+                        }
+                    </button>
+                }
+                <button id="btnCancelProgramVehicleType" class="button gray-gradient glossy  float-right"
+                    type="button">
+                    Cancel
+                </button>
+            </div>
+    </fieldset>
+</div>
+@Html.Hidden("pageMode", ViewData["mode"])
+@Html.HiddenFor(x=>x.ProgramID)
+@Html.HiddenFor(x=>x.ID)
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        CleanMyContainer('form-ProgramVehicleType');
+        WatchMyContainer('form-ProgramVehicleType');
+        $('#form-ProgramVehicleType').validationEngine();
+        $('#btnCancelProgramVehicleType').die('click');
+        $('#btnCancelProgramVehicleType').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                $('#form-ProgramVehicleType').validationEngine('hideAll');
+                document.dialogResult = "CANCEL";
+                programVehicleTypeWindow.data('kendoWindow').close();
+            }
+        });
+
+        $('#btnAddProgramVehicleType').die('click');
+        $('#btnAddProgramVehicleType').live('click', function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                document.dialogResult = "OK";
+                if ($("#form-ProgramVehicleType").validationEngine('validate') == false) {
+                    return false;
+                }
+                if ($("#VehicleTypeID").data('kendoComboBox').value() == "") {
+                    ShowValidationMessage($('input[name="VehicleTypeID_input"]'), "Please select Vehicle Type");
+                    return false;
+                }
+                else {
+                    HideValidationMessage($('input[name="VehicleTypeID_input"]'));
+                }
+
+                var postData = $(this).parents('form').serializeArray();
+                var mode = $("#pageMode").val();
+                var programId = $("#ProgramID").val();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_SaveProgramVehicleType", "ProgramManagement")',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            CleanMyContainer('form-ProgramVehicleType');
+                            if (mode == "add") {
+                                openAlertMessage('Program Vehicle Type successfully added!');
+                            }
+                            else if (mode == "edit") {
+                                openAlertMessage('Program Vehicle Type successfully updated!');
+                            }
+                            $('#form-ProgramVehicleType').validationEngine('hideAll');
+                            programVehicleTypeWindow.data('kendoWindow').close();
+                            $('#GrdProgramManagementVehicleTypes_' + programId).data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+
+            }
+            return false;
+        });
+    });
+</script>

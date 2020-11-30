@@ -1,0 +1,22 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.Entities;
+@{
+    GenericPhoneModel model = ViewData["phone"] as GenericPhoneModel;
+    string recordID = model.RecordID.ToString();
+    int height = model.Height > 0 ? model.Height : 300;
+    string heightPixel = "height:" + height.ToString() + "px;";
+    string entityName = model.EntityName;
+}
+
+<div class="with-padding">
+    <div style="margin-left: 5px; margin-bottom: 5px;" id="PlaceHolder_NewPhoneIcon_@recordID">
+        <a class="icon-list-add icon-size2 with-tooltip" title="New Phone" href="javascript:void(0);" id="phoneNumber_add_@recordID" onclick="SwitchViewToEditPhoneNumber('0','@recordID','@entityName')">
+        </a>
+    </div>
+    <div style="@heightPixel" class="scrollable" id="PlaceHolder_PhoneList_@recordID">    
+        @Html.Partial("_ScrollablePhoneList", model)
+    </div>
+    <div style="height:auto;" class="hidden" id="PlaceHolder_PhoneContainer_@recordID">
+        
+    </div>
+</div>

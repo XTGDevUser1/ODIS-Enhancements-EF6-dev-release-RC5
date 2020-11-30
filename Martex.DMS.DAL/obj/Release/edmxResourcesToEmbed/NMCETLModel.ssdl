@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="Martex.DMS.DAL.NMC.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="ExecutionLog">
+    <Key>
+      <PropertyRef Name="LogID" />
+    </Key>
+    <Property Name="LogID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ParentLogID" Type="int" />
+    <Property Name="Description" Type="varchar" MaxLength="50" />
+    <Property Name="PackageName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="PackageGuid" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="MachineName" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="ExecutionGuid" Type="uniqueidentifier" Nullable="false" />
+    <Property Name="LogicalDate" Type="datetime" Nullable="false" />
+    <Property Name="Operator" Type="varchar" MaxLength="50" Nullable="false" />
+    <Property Name="StartTime" Type="datetime" Nullable="false" />
+    <Property Name="EndTime" Type="datetime" />
+    <Property Name="Status" Type="tinyint" Nullable="false" />
+    <Property Name="FailureTask" Type="varchar" MaxLength="64" />
+  </EntityType>
+  <EntityType Name="APCheckRequest">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ETL_Load_ID" Type="int" />
+    <Property Name="ProcessFlag" Type="bit" />
+    <Property Name="Status" Type="nvarchar" MaxLength="1" />
+    <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+    <Property Name="AddDateTime" Type="datetime" />
+    <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+    <Property Name="VendorNumber" Type="nvarchar" MaxLength="7" />
+    <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="10" />
+    <Property Name="InvoiceDate" Type="datetime" />
+    <Property Name="InvoiceDueDate" Type="datetime" />
+    <Property Name="Comment" Type="nvarchar" MaxLength="30" />
+    <Property Name="SeparateCheck" Type="nvarchar" MaxLength="10" />
+    <Property Name="InvoiceAmount" Type="money" />
+    <Property Name="GLExpenseAccount" Type="nvarchar" MaxLength="11" />
+    <Property Name="ExpenseAmount" Type="money" />
+    <Property Name="AdditionalComment" Type="nvarchar" MaxLength="50" />
+    <Property Name="PaymentMethod" Type="nvarchar" MaxLength="20" />
+    <Property Name="DocumentNoteID" Type="int" />
+    <Property Name="PONumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="POIssuedDate" Type="datetime" />
+    <Property Name="VendorInvoiceNumber" Type="nvarchar" MaxLength="15" />
+    <Property Name="ReceivedDate" Type="datetime" />
+    <Property Name="VendorRepContactName" Type="nvarchar" MaxLength="50" />
+    <Property Name="VendorRepContactPhoneNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="VendorRepContactEmail" Type="nvarchar" MaxLength="100" />
+    <Property Name="ProgramName" Type="nvarchar" MaxLength="50" />
+    <Property Name="ProgramRefNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="RegionNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="DivisionNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="DistrictNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="Leader" Type="bit" />
+    <Property Name="Bulletin" Type="bit" />
+    <Property Name="ContractedDate" Type="datetime" />
+    <Property Name="CancelledDate" Type="datetime" />
+    <Property Name="BegDebitBalance" Type="money" />
+    <Property Name="FirstyearCommissions" Type="money" />
+    <Property Name="Renewals" Type="money" />
+    <Property Name="Comissions" Type="money" />
+    <Property Name="Advances" Type="money" />
+    <Property Name="Backend" Type="money" />
+    <Property Name="ServiceCharge" Type="money" />
+    <Property Name="Other" Type="money" />
+    <Property Name="TotalCharges" Type="money" />
+    <Property Name="EndDebitBalance" Type="money" />
+    <Property Name="EstRemainFirstYear" Type="money" />
+    <Property Name="QualityRatioPct" Type="decimal" Precision="7" Scale="2" />
+    <Property Name="SilverRenewalQaulifier" Type="money" />
+    <Property Name="EarnedCommYTD" Type="money" />
+    <Property Name="AdvancesYTD" Type="money" />
+    <Property Name="SilverRenewalText" Type="nvarchar" MaxLength="30" />
+    <Property Name="QCQYTD" Type="money" />
+    <Property Name="AdvancesQualityYTD" Type="money" />
+    <Property Name="PersonalMembershipCount" Type="int" />
+    <Property Name="PersonalMemberCount" Type="int" />
+    <Property Name="PersonalNBAV" Type="money" />
+    <Property Name="PersonalAdvance" Type="money" />
+    <Property Name="PersonalBonus" Type="money" />
+    <Property Name="OverrideMembershipCount" Type="int" />
+    <Property Name="OverrideMemberCount" Type="int" />
+    <Property Name="OverrideNBAV" Type="money" />
+    <Property Name="OverrideAdvance" Type="money" />
+    <Property Name="OverrideBonus" Type="money" />
+    <Property Name="TIPS" Type="money" />
+    <Property Name="Multiplier" Type="decimal" Precision="7" Scale="2" />
+    <Property Name="AdjustmentAmount" Type="money" />
+    <Property Name="ContractType" Type="nvarchar" MaxLength="50" />
+    <Property Name="PersonalOverrideAdvance" Type="money" />
+    <Property Name="DetailItem1Date" Type="datetime" />
+    <Property Name="DetailItem1Number" Type="nvarchar" MaxLength="10" />
+    <Property Name="DetailItem1Description" Type="nvarchar" MaxLength="50" />
+    <Property Name="DetailItem1Amount" Type="money" />
+    <Property Name="DetailItem2Date" Type="datetime" />
+    <Property Name="DetailItem2Number" Type="nvarchar" MaxLength="10" />
+    <Property Name="DetailItem2Description" Type="nvarchar" MaxLength="50" />
+    <Property Name="DetailItem2Amount" Type="money" />
+    <Property Name="DetailItem3Date" Type="datetime" />
+    <Property Name="DetailItem3Number" Type="nvarchar" MaxLength="10" />
+    <Property Name="DetailItem3Description" Type="nvarchar" MaxLength="50" />
+    <Property Name="DetailItem3Amount" Type="money" />
+    <Property Name="DetailItem4Date" Type="datetime" />
+    <Property Name="DetailItem4Number" Type="nvarchar" MaxLength="10" />
+    <Property Name="DetailItem4Description" Type="nvarchar" MaxLength="50" />
+    <Property Name="DetailItem4Amount" Type="money" />
+    <Property Name="DetailItem5Date" Type="datetime" />
+    <Property Name="DetailItem5Number" Type="nvarchar" MaxLength="10" />
+    <Property Name="DetailItem5Description" Type="nvarchar" MaxLength="50" />
+    <Property Name="DetailItem5Amount" Type="money" />
+    <Property Name="ClientName" Type="nvarchar" MaxLength="50" />
+    <Property Name="ClientAddress1" Type="nvarchar" MaxLength="100" />
+    <Property Name="ClientAddress2" Type="nvarchar" MaxLength="100" />
+    <Property Name="ClientCity" Type="nvarchar" MaxLength="50" />
+    <Property Name="ClientState" Type="nvarchar" MaxLength="30" />
+    <Property Name="ClientZip" Type="nvarchar" MaxLength="25" />
+  </EntityType>
+  <EntityType Name="APVendorMaster">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ETL_Load_ID" Type="int" />
+    <Property Name="ProcessFlag" Type="bit" />
+    <Property Name="Status" Type="nvarchar" MaxLength="1" />
+    <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+    <Property Name="AddDateTime" Type="datetime" />
+    <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+    <Property Name="VendorNumber" Type="nvarchar" MaxLength="7" />
+    <Property Name="VendorName" Type="nvarchar" MaxLength="30" />
+    <Property Name="AddressLine1" Type="nvarchar" MaxLength="30" />
+    <Property Name="AddressLine2" Type="nvarchar" MaxLength="30" />
+    <Property Name="AddressLine3" Type="nvarchar" MaxLength="30" />
+    <Property Name="City" Type="nvarchar" MaxLength="20" />
+    <Property Name="State" Type="nvarchar" MaxLength="2" />
+    <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
+    <Property Name="PhoneNumber" Type="nvarchar" MaxLength="17" />
+    <Property Name="VendorRef" Type="nvarchar" MaxLength="15" />
+    <Property Name="MasterFileComment" Type="nvarchar" MaxLength="30" />
+    <Property Name="SSN" Type="nvarchar" MaxLength="9" />
+    <Property Name="Fax" Type="nvarchar" MaxLength="17" />
+    <Property Name="EmailAddress" Type="nvarchar" MaxLength="50" />
+    <Property Name="ISRNumber" Type="nvarchar" MaxLength="50" />
+    <Property Name="ContractType" Type="nvarchar" MaxLength="50" />
+    <Property Name="BankAccountNumber" Type="nvarchar" MaxLength="17" />
+    <Property Name="BankTransitNumber" Type="nvarchar" MaxLength="9" />
+    <Property Name="BankAccountType" Type="nvarchar" MaxLength="1" />
+    <Property Name="CountryCode" Type="nvarchar" MaxLength="3" />
+  </EntityType>
+  <EntityType Name="InvoiceRequest">
+    <Key>
+      <PropertyRef Name="RecID" />
+    </Key>
+    <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ETL_Load_ID" Type="int" />
+    <Property Name="ProcessFlag" Type="bit" />
+    <Property Name="Status" Type="nvarchar" MaxLength="1" />
+    <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+    <Property Name="AddDateTime" Type="datetime" />
+    <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+    <Property Name="CustomerNumber" Type="nvarchar" MaxLength="7" />
+    <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="7" />
+    <Property Name="InvoiceDate" Type="datetime" />
+    <Property Name="InvoiceDueDate" Type="datetime" />
+    <Property Name="TermsCode" Type="numeric" Precision="2" Scale="0" />
+    <Property Name="CustomerPONumber" Type="nvarchar" MaxLength="15" />
+    <Property Name="Comment" Type="nvarchar" MaxLength="30" />
+    <Property Name="ItemCode" Type="nvarchar" MaxLength="14" />
+    <Property Name="LineAmount" Type="numeric" Precision="9" Scale="2" />
+    <Property Name="AdditionalComment" Type="nvarchar" MaxLength="2048" />
+    <Property Name="AccountingSystemAddressCode" Type="nvarchar" MaxLength="4" />
+    <Property Name="POPrefix" Type="nvarchar" MaxLength="10" />
+    <Property Name="BillingPeriodEndDate" Type="datetime" />
+    <Property Name="InvoiceDescription" Type="nvarchar" MaxLength="255" />
+    <Property Name="LineQuantity" Type="numeric" Precision="6" Scale="0" />
+    <Property Name="LineCost" Type="numeric" Precision="7" Scale="2" />
+    <Property Name="LineNumber" Type="numeric" Precision="3" Scale="0" />
+  </EntityType>
+  <Function Name="dms_staging_tables_status_update" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="etlExecutionLogID" Type="bigint" Mode="In" />
+  </Function>
+  <Function Name="dms_staging_tables_status_update_Billing" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+    <Parameter Name="etlExecutionLogID" Type="bigint" Mode="In" />
+  </Function>
+  <Function Name="CreateExecutionLog" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+    <Parameter Name="Description" Type="nvarchar" Mode="In" />
+    <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+    <Parameter Name="LogID" Type="int" Mode="InOut" />
+  </Function>
+  <Function Name="UpdateExecutionLog" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+    <Parameter Name="LogID" Type="int" Mode="In" />
+    <Parameter Name="Status" Type="int" Mode="In" />
+  </Function>
+  <Function Name="UpdateExecutionLog_Billing" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+    <Parameter Name="LogID" Type="int" Mode="In" />
+    <Parameter Name="Status" Type="int" Mode="In" />
+  </Function>
+  <EntityContainer Name="MartexDMSDALNMCStoreContainer">
+    <EntitySet Name="ExecutionLog" EntityType="Self.ExecutionLog" Schema="audit" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+    <EntitySet Name="APCheckRequest" EntityType="Self.APCheckRequest" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+    <EntitySet Name="APVendorMaster" EntityType="Self.APVendorMaster" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+    <EntitySet Name="InvoiceRequest" EntityType="Self.InvoiceRequest" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+  </EntityContainer>
+</Schema>

@@ -1,0 +1,136 @@
+﻿@using Martex.DMS.BLL.Model;
+@model Martex.DMS.DAL.VendorACH
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster-Vendor.cshtml";
+}
+<style type="text/css">
+    .thin
+    {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+    .closeImage
+    {
+        display:none;
+    }
+</style>
+<script language="javascript" type="text/javascript">
+
+    function OnSelectFile(e) {
+
+        
+        var allowProcessing = true;
+        $.map(e.files, function (file) {
+            //alert(file.size);
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+        }, 500);
+    }
+</script>
+@if (Model.ID == 0)
+{
+    <div class="with-padding large-margin-top" style="text-align: center;" id="AchAddInfo">
+    <div class="alert alert-info margin-top margin-bottom">
+        
+            
+            <h1 class="thin">Get paid faster!</h1>
+           
+       
+           
+            <h3>Avoid the hassle of printing and mailing invoices. Signup for Direct Deposit of your invoice payments.</h3>
+         
+           
+         
+           
+           
+            <h4>By submiting your invoices online, you will
+            get paid with in 10 business days or faster. Just click Sign me up! to get started. Fill out our online
+            form and we will do the rest!</h4>
+         
+            <button id="btnSignUpVendorACH" class="button green-gradient mid-margin-left margin-bottom hide"
+                type="button" data="@Model.VendorID">
+                Sign me up!</button>
+        </div>
+        </div>
+
+}
+else
+{
+    @Html.Partial("_ACHExistingDetails", Model)
+}
+
+<div id="ACH_Registration">
+
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        LoadHelpText("_ACHHelp");
+        $('#btnSignUpVendorACH').click(function () {
+            var vendorID = $(this).attr('data');
+            $.ajax({
+                url: '/ISP/ACH/_SignUpVendorACH',
+                type: 'POST',
+                data: { vendorID: vendorID },
+                success: function (msg) {
+                    $('#AchAddInfo').hide();
+                    $('#ACH_Registration').html(msg);
+                }
+            });
+        });
+    });
+
+    function ValidateABANumber(input) {
+        var i, n, t;
+
+        // First, remove any non-numeric characters.
+        t = "";
+        for (i = 0; i < input.length; i++) {
+            c = parseInt(input.charAt(i), 10);
+            if (c >= 0 && c <= 9)
+                t = t + c;
+        }
+
+        // Check the length, it should be nine digits.
+
+        if (t.length != 9)
+            return false;
+
+        // Now run through each digit and calculate the total.
+        n = 0;
+        for (i = 0; i < t.length; i += 3) {
+            n += parseInt(t.charAt(i), 10) * 3
+              + parseInt(t.charAt(i + 1), 10) * 7
+              + parseInt(t.charAt(i + 2), 10);
+        }
+
+        // If the resulting sum is an even multiple of ten (but not zero),
+        // the aba routing number is good.
+
+        if (n != 0 && n % 10 == 0)
+            return true;
+        else
+            return false;
+
+    }
+
+    function ShowHelpForABANumber() {
+        if ($("#PlaceHolder_Helper").hasClass("closeImage")) {
+            $("#PlaceHolder_Helper").removeClass("closeImage");
+            $('#lnkHelper').html('Close ABA Help');
+        }
+        else {
+            $("#PlaceHolder_Helper").addClass("closeImage");
+            $('#lnkHelper').html('Help finding ABA number');
+        }
+    }
+</script>

@@ -1,0 +1,57 @@
+﻿@using VendorPortal.Models
+
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right shortcuts">
+@*<li id="LMenu_VendorManagement_Merge"><a href="@Url.Action("Index", "VendorMerge", new { area = "VendorManagement" })" class="shortcut-notes" title="Merge" data = "VendorMerge">
+            Merge</a></li>*@
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_ISP) == AccessType.ReadWrite)
+{
+    <li id="Dashboard" class="current"><a href="@Url.Action("Index", "Dashboard", new { area = "ISP" })" class="shortcut-stats with-tooltip" title="Dashboard" data = "Dashboard" action="Index">
+        Dashboard</a> </li>
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_SUBMITINVOICE) == AccessType.ReadWrite)
+{
+    <li id="SubmitInvoice"><a href="@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })" class="shortcut-messages with-tooltip" title="Submit Invoice" data = "Invoice" action="SubmitInvoice">
+        Submit Invoice</a> </li>
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_INVOICEHISTORY) == AccessType.ReadWrite)
+{
+    <li id="InvoiceHistory"><a href="@Url.Action("List", "Invoice", new { area = "ISP" })" class="shortcut-agenda with-tooltip" title="Invoice History" data = "Invoice" action="List">
+        Invoice History</a> </li>
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_SERVICERATINGS) == AccessType.ReadWrite)
+{
+    <li id="ServiceRating"><a href="@Url.Action("Index", "ServiceRating", new { area = "ISP" })" class="shortcut-medias with-tooltip" title="Service Ratings" data = "ServiceRating" action="Index">
+        Service Rating</a> </li>
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_ACH) == AccessType.ReadWrite)
+{
+    <li id="ACH"><a href="@Url.Action("Index", "ACH", new { area = "ISP" })" class="shortcut-dashboard with-tooltip" title="ACH" data = "ACH" action="Index">
+        ACH</a> </li>
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_ACCOUNT) == AccessType.ReadWrite)
+{
+    <li id="MyAccount"><a href="@Url.Action("MyAccount", "Account", new { area = "ISP" })" class="shortcut-contacts with-tooltip" title="Account" data = "Account" action="MyAccount">
+        My Account</a> </li>
+    
+}
+@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_USERMAINTENANCE) == AccessType.ReadWrite)
+{
+    <li id="UserMaintenance"><a href="@Url.Action("Index", "Home", new { area = "Users" })" class="shortcut-settings with-tooltip" title="Setup Users" data = "Home" action="Index">
+        User Maintenance</a> </li>
+}
+</ul>
+
+<script type="text/javascript">
+    $(function () {
+        $('.shortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        var currentAction = '@ViewContext.RouteData.Values["action"]';
+        $('.shortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController && $(this).attr("action") == currentAction) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

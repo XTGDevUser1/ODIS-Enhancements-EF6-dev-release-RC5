@@ -1,0 +1,231 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    int r = 0;
+    bool hasElement = false;
+}
+<!--Service Request Section -->
+@if (Model != null)
+{
+
+    if (!string.IsNullOrEmpty(Model.NumberType))
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="combo" data="NumberType">X</a>
+            @Html.Raw("- Type : ")
+            @Html.DisplayFor(u => Model.NumberType)
+        </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.NumberValue))
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="NumberValue">X</a>
+            @Html.Raw("- ID : ")
+            @Html.DisplayFor(u => Model.NumberValue)
+        </p>
+    }
+
+
+    if (!string.IsNullOrEmpty(Model.NameType) && (!string.IsNullOrEmpty(Model.NameTypeOperator)))
+    {
+        hasElement = true;
+
+        <p id="PSelectedCriteriaNameTypeOperator">
+            <a href="javascript:void(0)" class="delete" role="combo" data="NameTypeOperator"
+               relatedtexbox="NameTypeOperator">X</a> - Name Type Operator : @Model.NameTypeOperator
+        </p>
+        <p id="PSelectedCriteriaNameType">
+            <a href="javascript:void(0)" class="delete" role="textBox" data="NameValue" relatedcombo="NameType">
+                X
+            </a> - Name : @Model.NameType
+        </p>
+        <p id="PSelectedCriteriaNameValue">
+            <a href="javascript:void(0)" class="delete" role="combo" data="NameValue"
+               relatedtexbox="NameValue">X</a> - Name Value : @Model.NameValue
+        </p>
+
+    }
+    foreach (CheckBoxLookUp result in Model.Statuses)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "Statuses_" + i.ToString() + "__Selected";
+            <p>
+                <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+                Status : @result.Name
+            </p>
+        }
+        i = i + 1;
+    }
+
+
+
+    foreach (CheckBoxLookUp result in Model.Sources)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "Sources_" + i.ToString() + "__Selected";
+            <p>
+                <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+                Source : @result.Name
+            </p>
+        }
+        i = i + 1;
+    }
+
+    foreach (CheckBoxLookUp result in Model.FeedbackTypes)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "FeedbackTypes_" + i.ToString() + "__Selected";
+            <p>
+                <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+                Feed Back Type : @result.Name
+            </p>
+        }
+        i = i + 1;
+    }
+
+    foreach (CheckBoxLookUp result in Model.Priority)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "Priority_" + i.ToString() + "__Selected";
+            <p>
+                <a href="javascript:void(0)" class="delete" role="checkBox" data="@id">X</a> -
+                Priority : @result.Name
+            </p>
+        }
+        i = i + 1;
+    }
+
+
+    if (Model.Client.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="combo" data="Client">
+                X
+            </a>
+            @Html.Raw("Client : ")
+            @Html.DisplayFor(u => Model.ClientValue)
+        </p>
+    }
+
+
+    if (Model.Program.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="combo" data="Program">
+                X
+            </a>
+            @Html.Raw("Program : ")
+            @Html.DisplayFor(u => Model.ProgramValue)
+        </p>
+    }
+
+    if (Model.NextAction.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="combo" data="NextAction">
+                X
+            </a>
+            @Html.Raw("Next Action : ")
+            @Html.DisplayFor(u => Model.NextActionValue)
+        </p>
+    }
+
+    if (Model.ReceivedFromDate.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="ReceivedFromDate">
+                X
+            </a>
+            @Html.Raw("- Received Date From : ")
+            @Model.ReceivedFromDate.Value.ToShortDateString()
+        </p>
+    }
+    if (Model.ReceivedToDate.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="ReceivedToDate">X</a>
+            @Html.Raw("- Received Date To : ")
+            @Model.ReceivedToDate.Value.ToShortDateString()
+        </p>
+    }
+
+
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+      $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                        if (relatedCombo == 'CountryID') {
+                            $('#' + relatedCombo).data('kendoComboBox').trigger('change');
+                        }
+                    }
+                }
+                if (role == "combo") {
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+                    $('#' + element).data('kendoComboBox').value('');
+                    if (element == 'Client') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+                    if (element == 'Program') {
+                        $('#Client').data('kendoComboBox').value('');
+                        $('#Client').data('kendoComboBox').trigger('change');
+                    }
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdQACustomerFeedback').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+
+
+</script>

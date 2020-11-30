@@ -1,0 +1,119 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.Entities;
+@model AddressExtendedEntity
+@{
+    string recordID = Model.RecordID.GetValueOrDefault().ToString();
+    string entityName = Model.EntityName;
+    
+}
+<div class="with-padding">
+    <form id="form_Address_@recordID" action="javascript:void(0);">
+   
+    @Html.HiddenFor(u => u.AddressID, new { id = "AddressID_" + recordID })
+    @Html.HiddenFor(u => u.EntityName, new { id = "EntityName_" + recordID })
+    @Html.HiddenFor(u => u.RecordID, new { id = "RecordID_" + recordID })
+    
+    <div class="button-height inline-small-label small-margin-bottom">
+        <label for="AddressType" class="label">
+            Type<span class="star">*</span></label>
+        @(Html.Kendo().ComboBox()
+                              .Name("AddressTypeID_" + recordID)
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.AddressTypes.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                                    {
+                                        events.Change("ValidateInputForKendoComboWithHide");
+                                        events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                    })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:90%", id = "AddressTypeID_" + recordID })
+                              .Value(Model.AddressTypeID.HasValue ? Model.AddressTypeID.Value.ToString() : string.Empty)
+                   )
+    </div>
+    <p class="button-height inline-small-label small-margin-bottom">
+        <label for="AddressLine1" class="label">
+            Line 1<span class="star">*</span></label>
+        @Html.TextBoxFor(u => u.AddressLine1, new { @class = "input full-width validate[required]", maxLength = "255", id = "AddressLine1_" + recordID })
+    </p>
+    <p class="button-height inline-small-label small-margin-bottom">
+        <label for="AddressLine2" class="label">
+            Line 2</label>
+        @Html.TextBoxFor(u => u.AddressLine2, new { @class = "input full-width", maxLength = "255", id = "AddressLine2_" + recordID })
+    </p>
+    <p class="button-height inline-small-label small-margin-bottom">
+        <label for="AddressLine3" class="label">
+            Line 3</label>
+        @Html.TextBoxFor(u => u.AddressLine3, new { @class = "input full-width", maxLength = "255", id = "AddressLine3_" + recordID })
+    </p>
+    <p class="button-height inline-small-label small-margin-bottom">
+        <label for="City" class="label">
+            City<span class="star">*</span></label>
+        @Html.TextBoxFor(u => u.City, new { @class = "input full-width validate[required]", maxLength = "255", id = "City_" + recordID })
+    </p>
+    <p class="button-height inline-small-label small-margin-bottom">
+        <label for="PostalCode" class="label">
+            Postal<span class="star">*</span></label>
+        @Html.TextBoxFor(u => u.ZipCode, new { @class = "input full-width validate[required]", maxLength = "255", id = "ZipCode_" + recordID })
+    </p>
+    <div class="button-height inline-small-label small-margin-bottom">
+        <label for="LicenseCountry" class="label">
+            Country<span class="star">*</span></label>
+        @(Html.Kendo().ComboBox()
+                                  .Name("CountryID_" + recordID)
+                                  .DataSource(source =>
+                                    {
+                                        source.Read(read =>
+                                        {
+                                            read.Action("GetCountryExceptPR", "ReferenceData", new { Area = "Common" });
+                                        })
+                                        .ServerFiltering(false);
+                                    })
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .Suggest(true)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .HighlightFirst(true)
+                                  .Events(events =>
+                                  {
+                                      events.Change(@<text> function(e){ LicenseStateCountryChange(e,'@recordID');
+        }</text>);
+                                  })
+                                  .HtmlAttributes(new { style = "width:90%", id = "CountryID_" + recordID })
+                                  .SelectedIndex(0)
+                                  .Value(Model.CountryID.HasValue ? Model.CountryID.Value.ToString() : string.Empty)
+                  )
+    </div>
+    <div class="button-height inline-small-label small-margin-bottom">
+        <label for="LicenseState" class="label">
+            State<span class="star">*</span></label>
+        @(Html.Kendo().ComboBox()
+                              .Name("StateProvinceID_" + recordID)
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.ProvinceAbbreviation.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                                    {
+                                        events.Change("ValidateInputForKendoComboWithHide");
+                                        events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                                    })
+                              .HighlightFirst(true)
+                              .HtmlAttributes(new { style = "width:90%", id = "StateProvinceID_" + recordID })
+                              .Value(Model.StateProvinceID.HasValue ? Model.StateProvinceID.Value.ToString() : string.Empty)
+                   )
+    </div>
+    <div class="button-height inline-small-label small-margin-bottom">
+        <span class="button-group"><a href="javascript:void(0);" class="button icon-cross with-tooltip compact"
+                                title="Cancel" id="address_cancel_@recordID" onclick="SwitchViewToCancel('@recordID')">
+            Cancel </a><a href="javascript:void(0);" class="button compact icon-tick with-tooltip" title="Save" onclick="SaveAddressDetails('@recordID','@entityName')">
+                Save </a></span>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#form_Address_@recordID').validationEngine();
+    });
+</script>

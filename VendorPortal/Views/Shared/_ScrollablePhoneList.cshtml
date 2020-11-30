@@ -1,0 +1,60 @@
+﻿@using Martex.DMS.DAL.Entities;
+@model GenericPhoneModel
+@{
+    string recordID = Model.RecordID.ToString();
+}
+
+<table class="simple-table responsive-table">
+    <tbody>
+        @foreach (PhoneEntityExtended temp in Model.PhoneNumbers)
+        {
+            <tr>
+                <th scope="row">
+                    <p><small>@temp.PhoneTypeDescription</small></p>
+                </th>
+                <td scope="row">
+                    <small><span class="phoneRegionCode" data="@temp.PhoneNumber"></span></small>
+                </td>
+                <td scope="row">
+                <span class="phoneDetail">@temp.PhoneNumber</span>
+                    
+                </td>
+                <td class="align-right vertical-center show-on-parent-hover">
+                   <span class="button-group compact"> <a href="javascript:void(0);" class="icon-pencil with-tooltip button"
+                                title="Edit" onclick="SwitchViewToEditPhoneNumber('@temp.PhoneID','@recordID','@temp.EntityName');">
+                    </a><a href="javascript:void(0);" class="icon-trash with-tooltip button"
+                        title="Delete" onclick="DeletePhoneNumber('@temp.PhoneID','@recordID','@temp.EntityName')"></a></span>
+                </td>
+                <td>
+                    &nbsp;&nbsp;
+                </td>
+            </tr>
+                                        
+        }
+        @if (Model == null || Model.PhoneNumbers == null || Model.PhoneNumbers.Count == 0)
+        {
+            <tr>
+                <td colspan="3">
+                <small>No Phone Numbers found !</small>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $(".phoneDetail").each(function () {
+            var phoneNumber = "+" + $(this).text();
+            var formattedPhoneNumber = GetFormattedPhoneNumber(phoneNumber, null);
+            $(this).html(formattedPhoneNumber);
+        });
+
+        $(".phoneRegionCode").each(function () {
+            var regionCode = GetRegionCodeForPhone("+"  + $(this).attr('data'));
+            $(this).html(regionCode);
+        });
+
+    });
+
+</script>

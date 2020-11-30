@@ -1,0 +1,498 @@
+﻿
+@using Telerik.Web.Mvc.UI
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@model List<Martex.DMS.DAL.ServiceRequest_Result>
+@{
+    ViewBag.Title = "ServiceRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ServiceRequest_Result summary = null;
+    if (Model.Count > 0)
+    {
+        summary = Model[0];
+    }
+    var isFromStartCall = ((bool?)ViewBag.FromStartCall).GetValueOrDefault();
+    var iconConfig = new Martex.DMS.Areas.Application.Models.VendorListIconConfig();    
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript">
+<!--
+    var isInSRPopup = true;
+//-->
+</script>
+<style>
+    .t-grid-content
+    {
+        height: 300px !important;
+    }
+    
+    .view-centered 
+    {
+        max-width: 990px;
+margin-left: auto;
+margin-right: auto;
+}
+</style>
+@if (summary != null)
+{
+   
+    <form method="post" action="" id="form-Queue">
+    <div class="with-padding view-centered">
+        <h3>Displaying Service Request for PO Number @ViewData["POID"]</h3>
+        <div class="columns">
+       @*     @Html.Partial("_ServiceRequestButtons")*@
+  <div class="new-row twelve-columns">
+    <p class="inline-label" style="float: right;"> 
+        <button id="btnQueueClose" class="button silver-gradient  small-margin-right noPrint"
+            type="button">
+            Return
+        </button>
+    </p>
+</div>
+            <div class="four-columns">
+                <div class="boxed historytop">
+                    <p class="inline-label">
+                        <label class="label" for="Case">
+                            <strong>Request #</strong></label>
+                        @Html.DisplayFor(a => summary.RequestNumber)
+                        @Html.Hidden("hdnAssignedTo", ViewData["AssignedTo"])
+                        @Html.Hidden("hdnAssignedToID", ViewData["AssignedToID"])
+                        @Html.Hidden("hdnCaseId", summary.CaseID)
+                        @Html.Hidden("hdnRequestNumber", summary.RequestNumber)
+                        @Html.Hidden("hdnIsLockRequired", ViewData["isLockRequired"])
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Status">
+                            <strong>Status</strong></label>
+                        <span class="tag">@Html.DisplayFor(a => summary.Status)</span>
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Priority">
+                            <strong>Priority</strong></label>
+                        @Html.DisplayFor(a => summary.Priority)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ClosedLoop">
+                            <strong>Created</strong></label>
+                        @Html.DisplayFor(a => summary.CreateDate)
+                        &nbsp;
+                        @Html.DisplayFor(a => summary.CreateBy)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ClosedLoop">
+                            <strong>Modified</strong></label>
+                        @Html.DisplayFor(a => summary.ModifyDate)
+                        &nbsp;
+                        @Html.DisplayFor(a => summary.ModifyBy)
+                    </p>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="boxed historytop">
+                    <p class="inline-label">
+                        <label class="label" for="NextAction">
+                            <strong>Next Action:</strong></label>
+                        @Html.DisplayFor(a => summary.NextAction)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Scheduled">
+                            <strong>Scheduled:</strong></label>
+                        @Html.DisplayFor(a => summary.NextActionScheduledDate)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="NextAssigned">
+                            <strong>Next Assigned:</strong></label>
+                        @Html.DisplayFor(a => summary.NextActionAssignedTo)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ClosedLoop">
+                            <strong>Closed Loop:</strong></label>
+                        @Html.DisplayFor(a => summary.ClosedLoop)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="NextSend">
+                            <strong>Next Send:</strong></label>
+                        @Html.DisplayFor(a => summary.ClosedLoopNextSend)
+                    </p>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="boxed historytop">
+                    <p class="inline-label">
+                        <label class="label" for="Service">
+                            <strong>Service:</strong></label>
+                        @Html.DisplayFor(a => summary.ServiceCategorySection)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ElapsedTime">
+                            <strong>Elapsed Time :</strong></label>
+                        @Html.DisplayFor(a => summary.Elapsed)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="IssueDate">
+                            <strong>Issue Date:</strong></label>
+                        @Html.DisplayFor(a => summary.PoMaxIssueDate)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ETADate">
+                            <strong>ETA Date:</strong></label>
+                        @Html.DisplayFor(a => summary.PoMaxETADate)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ExportDate">
+                            <strong>Export Date:</strong></label>
+                        @Html.DisplayFor(a => summary.DataTransferDate)
+                    </p>
+                </div>
+            </div>
+            <div class="new-row three-columns">
+                <div class="historyboxedmin">
+                    <!-- Member Details -->
+                    <h3 class="underline">
+                        Member</h3>
+                    <p>
+                        <strong class="blue">
+                            @Html.DisplayFor(a => summary.Member)</strong>
+                    </p>
+                    <p>
+                        ID: @Html.DisplayFor(a => summary.MembershipNumber)</p>
+                    <p>
+                        @if (summary.MemberStatus == "Active")
+                        {
+                            <small class="tag green-bg">@summary.MemberStatus</small>
+                        }
+                        else
+                        {
+                            <small class="tag red-bg">@summary.MemberStatus</small>
+                        }
+                    </p>
+                    <p>
+                        Client: @Html.DisplayFor(a => summary.Client)</p>
+                   
+                    <p>
+                        <p>
+                            Program: @Html.DisplayFor(a => summary.ProgramName)</p>
+                        <p>
+                            Member Since : @Html.DisplayFor(a => summary.MemberSince)</p>
+                        <p>
+                            Expiration : @Html.DisplayFor(a => summary.ExpirationDate)</p>
+                        <p>
+                            Client Ref : @Html.DisplayFor(a => summary.ClientReferenceNumber)</p>
+                        Callback :
+                        @if (!string.IsNullOrEmpty(summary.CallbackNumber))
+                        {
+                            @Html.Editor("PhoneNumber_CallBack", "Phone", new { Value = summary.CallbackNumber, ReadOnly = true })
+                        }
+                    </p>
+                    <p>
+                        Alternate :
+                        @if (!string.IsNullOrEmpty(summary.AlternateNumber))
+                         {
+                            @Html.Editor("PhoneNumber_Alternate", "Phone", new { Value = summary.AlternateNumber, ReadOnly = true })
+                         }
+                    </p>
+                    @*membership address*@
+                    <p>@Html.DisplayFor(a => summary.Line1)</p>
+                    @if (!string.IsNullOrEmpty(summary.Line2))
+                    {
+                        <p>@Html.DisplayFor(a => summary.Line2)</p>
+                    }
+                    @if (!string.IsNullOrEmpty(summary.Line3))
+                    {
+                        <p>@Html.DisplayFor(a => summary.Line3)</p>
+                    }
+                    <p>@Html.DisplayFor(a => summary.MemberCityStateZipCountry)</p>
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="historyboxedmin">
+                    <h3 class="underline">
+                        Vehicle</h3>
+                    <p>@Html.DisplayFor(a => summary.YearMakeModel)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleTypeAndCategory)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleVIN)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleColor)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.License)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleDescription)
+                    </p>
+                    @if (summary.RVType != null)
+                    {
+                        <p>
+                            RVType: @Html.DisplayFor(a => summary.RVType)
+                        </p>
+                        <p>
+                            Chassis : @Html.DisplayFor(a => summary.VehicleChassis)
+                        </p>
+                        <p>
+                            Engine : @Html.DisplayFor(a => summary.VehicleEngine)
+                        </p>
+                        <p>
+                            Trans :
+                            @Html.DisplayFor(a => summary.VehicleTransmission)</p>
+                    }
+                    <!-- Location Details -->
+                    <h3 class="underline">
+                        Location</h3>
+                    @Html.DisplayFor(a => summary.ServiceLocationAddress)
+                    @if (!string.IsNullOrEmpty(summary.ServiceLocationDescription))
+                    {
+                        @Html.DisplayFor(a => summary.ServiceLocationDescription)  <br />
+                    }
+                    <!-- Destination Details -->
+                    <h3 class="underline">
+                        Destination</h3>
+                    @Html.DisplayFor(a => summary.DestinationAddress)
+                    <br />
+                    @if (!string.IsNullOrEmpty(summary.DestinationDescription))
+                    {
+                        @Html.DisplayFor(a => summary.DestinationDescription)  <br />
+                    }
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="historyboxedmin">
+                    <h3 class="underline">
+                        Service</h3>
+                    <p>
+                        @Html.DisplayFor(a => summary.ServiceCategory)
+                    </p>
+                    <p>
+                        Limit : @Html.DisplayFor(a => summary.CoverageLimit)
+                    </p>
+                    <p>
+                        Safe :@Html.DisplayFor(a => summary.Safe)
+                    </p>
+                    @if (ViewData["SRQuestionAnswers"] != null)
+                    {
+                        List<Martex.DMS.BLL.Model.NameValuePair> resultAnswers = ViewData["SRQuestionAnswers"] as List<Martex.DMS.BLL.Model.NameValuePair>;
+                        foreach (Martex.DMS.BLL.Model.NameValuePair temp in resultAnswers)
+                        {
+                        <p>
+                            @temp.Name
+                        </p>
+                        <p>
+                            <strong>@temp.Value</strong>
+                        </p>
+                            
+                        }
+                    }
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="historyboxedmin">
+                    <h3 class="underline">
+                        Service Provider</h3>
+                    @{
+                        List<int?> vendorList = new List<int?>();
+                         foreach (ServiceRequest_Result vendorDetail in Model)
+                         {
+                               if (!vendorList.Contains(vendorDetail.VendorID))
+                                 {
+                                     vendorList.Add(vendorDetail.VendorID);
+                                 }
+                             }
+                    }
+                    @foreach (int? str in vendorList)
+                    {
+                        var vendorDetail = Model.Where(u => u.VendorID == str).FirstOrDefault();
+                        if (vendorDetail != null)
+                        {
+                            var contractStatusIconStyle = iconConfig.GetIconStyle(vendorDetail.ContractStatus);
+                        <span class="@contractStatusIconStyle.Class message-status historystar with-tooltip" title="@contractStatusIconStyle.Title" style="height:17px;">
+                            &nbsp;</span>
+                        
+                        @Html.DisplayFor(a => vendorDetail.VendorName)
+                        <p>
+                            ID : @Html.DisplayFor(a => vendorDetail.VendorNumber)</p>
+                        <p>
+                            24HR :
+                            @if (!string.IsNullOrEmpty(vendorDetail.VendorLocationPhoneNumber))
+                            {
+                                @Html.Editor("PhoneNumber_VendorPhoneNumber" + str.Value, "Phone", new { Value = vendorDetail.VendorLocationPhoneNumber, ReadOnly = true })
+                            }
+                        </p> 
+                        
+                            if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine1))
+                            {
+                        <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine1)</p> 
+                            }
+                            if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine2))
+                            {
+                        <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine2)</p> 
+                            }
+                            if (!string.IsNullOrEmpty(vendorDetail.VendorLocationLine3))
+                            {
+                        <p>@Html.DisplayFor(a => vendorDetail.VendorLocationLine3)</p> 
+                            }
+
+                            if (!string.IsNullOrEmpty(vendorDetail.VendorCityStateZipCountry))
+                            {
+                        <p>
+                            @Html.DisplayFor(a => vendorDetail.VendorCityStateZipCountry)</p> 
+                            }
+
+                            //PO For each vendor
+                            {
+                                if (vendorDetail.VendorID != null)
+                                {
+                                    List<ServiceRequest_Result> poDetails = Model.Where(u => u.VendorID == vendorDetail.VendorID).ToList<ServiceRequest_Result>();
+                                    foreach (ServiceRequest_Result po in poDetails)
+                                    {
+                        <p>
+                            @{
+                                string formattedPONumber = po.PONumber.HasValue ? po.PONumber.Value.ToString() : string.Empty;
+                                if(!string.IsNullOrEmpty(po.LegacyReferenceNumber))
+                                {
+                                    formattedPONumber = string.Format("{0} ( {1} )", formattedPONumber, po.LegacyReferenceNumber);
+                                }
+                                        
+                                }
+                            <strong>PO : @formattedPONumber </strong>
+                        </p>
+                        <p>
+                            @po.POStatus</p>
+                        
+                        <p>
+                            @po.CancelReason
+                        </p>
+                        
+                        <p>
+                            @if (@po.POAmount.HasValue)
+                            {
+                                @po.POAmount.Value.ToString("C2")
+                            }
+                        </p>
+                                                        
+                        <p>
+                            @po.ServiceType</p>
+                        <p>
+                            Issued : @po.IssueDate</p>
+                        <p>
+                            ETADate : @po.ETADate
+                        </p>
+                        <p>
+                            Extracted : @po.ExtractDate
+                        </p>
+                                    }
+                                }
+                            }
+
+                        <br />
+                        }
+                    }
+                </div>
+            </div>
+            <div class="new-row twelve-columns">
+                @{
+    Html.RenderAction("_Activity", "Activity", new { srid = ViewData["srid"] as string }); }
+            </div>
+           @* @Html.Partial("_ServiceRequestButtons")*@
+
+             <div class="new-row twelve-columns">
+    <p class="inline-label" style="float: right;"> 
+        <button id="btnQueueClose" class="button silver-gradient  small-margin-right noPrint"
+            type="button">
+            Return
+        </button>
+    </p>
+</div>
+        </div>
+    </div>
+    </form>
+}
+<script type="text/javascript" src="@Url.Content("~/js/CustomJScript.js")"></script>
+@*<script language="javascript" type="text/javascript">
+
+    function LoadQuequeinEditMode(isOpenClicked) {
+        var assignedToName = $('#hdnAssignedTo').val();
+        var assignedToID = $('#hdnAssignedToID').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Edit", "Queue")',
+            traditional: true,
+            data: { assignTo: assignedToName, assignToID: assignedToID, caseId: $('#hdnCaseId').val(), serRequest: $('#hdnRequestNumber').val(), isFromStartCall: '@isFromStartCall', isOpenClicked: isOpenClicked },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Status && msg.Status == "Success") {
+                    if ('@isFromStartCall' == 'True') {
+                        $('ul.tabs > li.disabled').removeClass("disabled");
+                        $("#RequestTabs").tabs("option", "disabled", []);
+                        $("#tbStart").addClass("disabled");
+                        queueDetailWindow.data('tWindow').close();
+                        $('#hypMemberDetails').click();
+                    }
+                    else {
+                        window.location = "/Application/Request?id=Queue";
+                    }
+                }
+                else {
+                    queueEditWindow = $.telerik.window.create({
+                        title: "Access Restricted",
+                        html: msg,
+                        modal: true,
+                        width: 400,
+                        height: 250,
+                        onClose: function () {
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+                                if (!IsPageDirty()) {
+                                    return false;
+                                }
+                            }
+                            isdirty = false;
+                            $(this).remove();
+                            return true;
+                        }
+                    });
+                    queueEditWindow.data('tWindow').center().open();
+                }
+            }
+        }); // end of ajax
+    }
+    var queueEditWindow;
+    $(document).ready(function () {
+        setTimeout(function () {
+            var win = queueDetailWindow.data('tWindow');
+            // var win = searchMemberPopUp.data('tWindow');
+            var assignedTo = $("#hdnAssignedTo").val();
+            var title = "<span class='float-left'>Service Request</span>";
+            if ($.trim(assignedTo).length > 0) {
+
+                if ($("#hdnIsLockRequired").val() == 'True') {
+                    title = "<span class='float-left'>Service Request</span><span class='float-right large-margin-right icon-lock'> Currently Worked By:" + $("#hdnAssignedTo").val() + "</span>";
+                }
+                else {
+                    title = "<span class='float-left'>Service Request</span><span class='float-right large-margin-right'> Next Action Assigned to:  " + $("#hdnAssignedTo").val() + "</span>";
+                }
+            }
+            $(win.element).find(".t-window-title").html(title);
+        }, 1500);
+        $('#btnQueueClose').die('click');
+        $('#btnQueueClose').live('click', function (e) {
+            queueDetailWindow.data('tWindow').close();
+            // searchMemberPopUp.data('tWindow').close();
+        });
+        $('#btnQueueOpenForEdit').die('click');
+        $('#btnQueueOpenForEdit').live('click', function (e) {
+            LoadQuequeinEditMode(false);
+        });
+    });
+
+</script>*@
+<script type="text/javascript">
+
+    $(function () {
+
+        $('#btnQueueClose').die('click');
+
+        $('#btnQueueClose').live("click", function () {
+            window.close();
+        });
+    });
+</script>

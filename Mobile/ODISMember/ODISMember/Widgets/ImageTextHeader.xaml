@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<StackLayout xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.Widgets.ImageTextHeader"
+             Orientation="Horizontal" HorizontalOptions="FillAndExpand" Spacing="0">
+  <Image x:Name="image" />
+  <controls:ExtendedLabel x:Name="label" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand" />
+</StackLayout>

@@ -1,0 +1,445 @@
+﻿@model Martex.DMS.DAL.CustomerFeedbackDetail
+@using Kendo.Mvc.UI;
+@using Martex.DMS.ActionFilters;
+
+@{
+    var customerFeedbackDetailId = ViewData["CustomerFeedbackDetailId"].ToString();
+    var customerFeedbackId = ViewData["CustomerFeedbackId"].ToString();
+    var poUser = ViewData["PoUser"].ToString();
+    var vendorUser = ViewData["VendorUser"].ToString();
+    var serviceRequestId = ViewData["ServiceRequestId"].ToString();
+}
+
+<script type="text/javascript">
+  $(function () {
+    if(@Model.ID > 0)
+    {
+      $("#Types_@customerFeedbackId").val(@Model.CustomerFeedbackTypeID);
+      $("#Categories_@customerFeedbackId").val(@Model.CustomerFeedbackCategoryID);
+      $("#SubCategories_@customerFeedbackId").val(@Model.CustomerFeedbackSubCategoryID);
+
+      if(('@Model.CustomerFeedbackCategoryID' == '1' || '@Model.CustomerFeedbackCategoryID' == '5') && '@Model.UserID' != '')
+      {
+        $("#idUserDeatails_@customerFeedbackId").show();
+        $("#UserDetails_@customerFeedbackId").val('@Model.UserID');
+      }
+      else if('@Model.CustomerFeedbackCategoryID' == '2'  && '@Model.UserID' != '')
+      {
+        $("#idVendorDeatails_@customerFeedbackId").show();
+        $("#VendorId_"+@customerFeedbackId).val('@Model.UserID');
+        $("#VendorDetails_@customerFeedbackId").val('@vendorUser');
+      }
+
+      if('@Model.IsInvalid'.toLowerCase() == 'true')
+      {
+        $("#IsInvalid_@customerFeedbackId").prop('checked', true);
+        $("#idCustomerFeedbackInvalidReasons_@customerFeedbackId").show();
+        $("#CustomerFeedbackInvalidReasons_@customerFeedbackId").val('@Model.CustomerFeedbackInvalidReasonID');
+      }
+      else
+      {
+        $("#IsInvalid_@customerFeedbackId").prop('checked', false);
+      }
+    }
+
+    $('#IsInvalid_@customerFeedbackId').change(function() {
+      if($(this).is(":checked")) {
+        $("#idCustomerFeedbackInvalidReasons_@customerFeedbackId").show();
+      }
+      else
+      {
+        $("#idCustomerFeedbackInvalidReasons_@customerFeedbackId").hide();
+      }
+    });
+  });
+
+  function getTypes() {
+    return {
+      typeId: $("#Types_@customerFeedbackId").val()
+    };
+  }
+
+  function getCategories() {
+    return {
+      categoryId: $("#Categories_@customerFeedbackId").val()
+    };
+  }
+
+  function getUsers() {
+    return {
+      categoryName: $("#Categories_@customerFeedbackId").data('kendoComboBox').text()
+    };
+  }
+
+  function Categories_OnChange(e) {
+    var combo = e.sender;
+
+    if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+      e.preventDefault();
+      return false;
+    }
+
+    if (combo.text() == "Agent" || combo.text() == "Tech") {
+      $("#idUserDeatails_@customerFeedbackId").show();
+      $("#idVendorDeatails_@customerFeedbackId").hide();
+    }
+    else if(combo.text() == "ISP")
+    {
+      $("#idVendorDeatails_@customerFeedbackId").show();
+      $("#idUserDeatails_@customerFeedbackId").hide();
+    }
+    else
+    {
+      $("#idUserDeatails_@customerFeedbackId").hide();
+      $("#idVendorDeatails_@customerFeedbackId").hide();
+    }
+
+    var categoryName = $("#Categories_@customerFeedbackId").data('kendoComboBox').text();
+    if (categoryName == "Agent" || categoryName == "Tech") {
+      $('#UserDetails_@customerFeedbackId').data().kendoComboBox.text('@poUser');
+    }
+    if(categoryName == "ISP")
+    {
+      $("#VendorDetails_@customerFeedbackId").val('@vendorUser');
+    }
+  }
+</script>
+
+<div id="frmCustomerFeedbackDetailsContainerForDirtyFlag_@customerFeedbackId">
+  <div class="columns">
+    <div class="six-columns">
+      <form method="post" action="" id="formAddCustomerFeedbackDetails_@customerFeedbackId">
+        <div class="with-padding-with-panels popupcontainer">
+          <fieldset class="fieldset">
+            <legend class="legend">Customer Feedback Details</legend>
+            @Html.HiddenFor(a => a.ID)
+            @Html.HiddenFor(a => a.CustomerFeedbackID)
+            @Html.Hidden("VendorId_" + customerFeedbackId)
+            <div class="twelve-columns">
+              <div class="button-height inline-label small-margin-bottom">
+                <label for="Types" class="label">
+                  Type <span class="star"> *</span>
+                </label>
+                @(Html.Kendo().ComboBox()
+                .Name("Types_" + customerFeedbackId)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .DataTextField("TypeName")
+                .DataValueField("TypeId")
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Placeholder("Select")
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .DataSource(source =>
+                {
+                  source.Read(read =>
+                  {
+                    read.Action("GetCustomerFeedbackTypes", "CXCustomerFeedback", new { area = "CX" });
+                  });
+                })
+                )
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom">
+                <label for="Category" class="label">
+                  Category <span class="star"> *</span>
+                </label>
+                @(Html.Kendo().ComboBox()
+                .Name("Categories_" + customerFeedbackId)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .DataTextField("CategoryName")
+                .DataValueField("CategoryId")
+                .Placeholder("Select")
+                .DataSource(source =>
+                {
+                  source.Read(read =>
+                  {
+                    read.Action("GetCustomerFeedbackCategoryByTypeId", "CXCustomerFeedback", new { area = "CX" }).Data("getTypes");
+                  })
+                  .ServerFiltering(true);
+                })
+                .Events(events =>
+                {
+                  events.Change("Categories_OnChange");
+                })
+                .Enable(false)
+                .AutoBind(false)
+                .CascadeFrom("Types_" + customerFeedbackId)
+                )
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom hide" id="idUserDeatails_@customerFeedbackId">
+                <label for="Category" class="label">
+                  Name
+                </label>
+                @(Html.Kendo().ComboBox()
+                    .Name("UserDetails_" + customerFeedbackId)
+                    .HtmlAttributes(new { style = "width:100%;" })
+                    .DataTextField("UserName")
+                    .DataValueField("UserId")
+                    .Placeholder("Select")
+                    .DataSource(source =>
+                    {
+                      source.Read(read =>
+                      {
+                        read.Action("GetUsersByCategoryName", "CXCustomerFeedback", new { area = "CX" }).Data("getUsers");
+                      })
+                      .ServerFiltering(true);
+                    })
+                    .Enable(false)
+                    .AutoBind(false)
+                    .CascadeFrom("Categories_" + customerFeedbackId)
+                )
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom hide" id="idVendorDeatails_@customerFeedbackId">
+                <label for="VendorNumber" class="label">
+                  Name <span style="padding-top: 5px">@Html.Partial("_Help", "Enter part of the vendor number or vendor name to lookup the vendor")</span>
+                </label>
+                <span class="autofill">
+                  <input type="text" class="input validate[maxSize[50],minSize[1]] txtitem" id="VendorDetails_@customerFeedbackId"
+                         style="width: 85%" name="VendorNumber" />
+                </span>
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom">
+                <label for="SubCategory" class="label">
+                  Sub-Category @*<span class="star"> *</span>*@
+                </label>
+                @(Html.Kendo().ComboBox()
+                .Name("SubCategories_" + customerFeedbackId)
+                .HtmlAttributes(new { style = "width:100%;" })
+                .DataTextField("SubCategoryName")
+                .DataValueField("SubCategoryId")
+                .Placeholder("Select")
+                .DataSource(source =>
+                {
+                  source.Read(read =>
+                  {
+                    read.Action("GetCustomerFeedbackSubCategoryByCategoryId", "CXCustomerFeedback", new { area = "CX" }).Data("getCategories");
+                  })
+                  .ServerFiltering(true);
+                })
+                .Enable(false)
+                .AutoBind(false)
+                .CascadeFrom("Categories_" + customerFeedbackId)
+                )
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom">
+                <label for="IsRequired" class="label">
+                  Is Invalid?
+                </label>
+                @Html.CheckBox("IsInvalid_" + customerFeedbackId, new { @class = "full-width checkbox" })
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom hide" id="idCustomerFeedbackInvalidReasons_@customerFeedbackId">
+                <label for="Category" class="label">
+                  Invalid Reason
+                </label>
+                @(Html.Kendo().ComboBox()
+                .Name("CustomerFeedbackInvalidReasons_" + customerFeedbackId)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CustomerFeedbackInvalidReasons.ToString()] as IEnumerable<SelectListItem>)
+                  .SelectedIndex(0)
+                  .HighlightFirst(true)
+                  .Suggest(true)
+                  .Filter(FilterType.StartsWith).MinLength(0)
+                  .Events(events => events.Change("ValidateInputForKendoCombo"))
+                  .HtmlAttributes(new { style = "width:100%;", dmsrole = "Combo" })
+                )
+              </div>
+
+              <div class="button-height inline-label small-margin-bottom">
+                <label for="IsRequired" class="label">
+                  Description of Resolution
+                </label>
+                @Html.TextAreaFor(a => a.ResolutionDescription, new { @class = "input full-width textarea-min-height", @cols = 80, @rows = 50 })
+              </div>
+
+              <div style="text-align: right">
+                <button id="btnCancelCustomerFeedbackDetails_@customerFeedbackId" class="button gray-gradient glossy" type="button" onclick="CancelCustomerFeedbackDetails_('@customerFeedbackId')">
+                  Cancel
+                </button>&nbsp;&nbsp;
+                <button id="btnAddCustomerFeedbackDetails__@customerFeedbackId" class="button green-gradient glossy" type="button" onclick="SaveCustomerFeedbackDetails_('@customerFeedbackId')">
+                  Save
+                </button>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </form>
+    </div>
+    <div class="six-columns">
+      @{
+          Html.RenderAction("_Activity", "Activity", new { Area = "Application", id= serviceRequestId, isCallFrom = "CustomerFeedbackDetails" });
+      }
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(function () {
+    setTimeout(function(){
+      $('#VendorDetails_'+ @customerFeedbackId).next('span').children('span').removeClass('ui-icon ui-icon-search').addClass('k-icon k-i-search');
+      $('#VendorDetails_'+ @customerFeedbackId).next('span').removeClass('ui-state-default ui-corner-all VendorDetails_'+@customerFeedbackId+' cg-searchButton').addClass('k-button k-button-icontext k-grid-View small-margin-left');
+      $("#VendorDetails_"+ @customerFeedbackId).after('<span style="width:10px;">&nbsp;</span>');
+    },500);
+
+    $('#formAddCustomerFeedbackDetails_@customerFeedbackId').validationEngine();
+
+    var fnbuttonHandler = function (sender, routedValues) {
+
+      var buttonHandler = $('#' + routedValues[2].value);
+      buttonHandler.show();
+    }
+
+    var routedValues = [];
+    routedValues.push({ name: "FormName", value: "formAddCustomerFeedbackDetails_@customerFeedbackId" });
+    routedValues.push({ name: "RecordID", value: "@customerFeedbackId" });
+    routedValues.push({ name: "RelatedButtonHandler", value: "btnCancelCustomerFeedbackDetails_@customerFeedbackId" });
+
+    WatchMyContainer('formAddCustomerFeedbackDetails_@customerFeedbackId', null, fnbuttonHandler, routedValues);
+
+  });
+
+  //Fill Vendors list
+  var autoFill = $("#VendorDetails_"+ @customerFeedbackId).combogrid({
+    url: '@Url.Action("Search", "Vendor",new { area = "Application" })',
+    searchButton: true,
+    width: '550px',
+    replaceNull: true,
+    colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                { 'columnName': 'VendorName', 'width': '60', 'label': 'Vendor Name', 'align': 'left' },
+                { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' }
+    ],
+    select: function (event, ui) {
+      $("#VendorId_"+@customerFeedbackId).val(ui.item.VendorID);
+      $("#VendorDetails_"+ @customerFeedbackId).val(ui.item.VendorName);
+
+      return false;
+    }
+  });
+
+
+  function SaveCustomerFeedbackDetails_(customerFeedbackId) {
+    if (tabObject == null) {
+      openAlertMessage('Unable to find Container');
+      return false;
+    }
+
+
+    var isCustomerfeedbackDetailsIsValid = true;
+    var feedbackDetailsDirtyContainerName = "frmCustomerFeedbackDetailsContainerForDirtyFlag_@customerFeedbackId";
+
+    if ($('#formAddCustomerFeedbackDetails_@customerFeedbackId').validationEngine("validate") == false) {
+      isCustomerfeedbackDetailsIsValid = false;
+    }
+
+    //Validate kendo combos
+    //Types
+    var $typeCombo = $("#Types_" + customerFeedbackId);
+    if ($.trim($typeCombo.data("kendoComboBox").value()).length == 0) {
+      ShowValidationMessage($('input[name="Types_' + customerFeedbackId + '_input"]'), "Please select a value. ");
+      isCustomerfeedbackDetailsIsValid = false;
+    }
+    else {
+      HideValidationMessage($('input[name="Types_' + customerFeedbackId + '_input"]'));
+    }
+
+    //Categories
+    var $categoriesCombo = $("#Categories_" + customerFeedbackId);
+    if ($.trim($categoriesCombo.data("kendoComboBox").value()).length == 0) {
+      ShowValidationMessage($('input[name="Categories_' + customerFeedbackId + '_input"]'), "Please select a value. ");
+      isCustomerfeedbackDetailsIsValid = false;
+    }
+    else {
+      HideValidationMessage($('input[name="Categories_' + customerFeedbackId + '_input"]'));
+    }
+
+    //Sub Categories
+    //var $subCategoriesCombo = $("#SubCategories_" + customerFeedbackId);
+    //if ($.trim($subCategoriesCombo.data("kendoComboBox").value()).length == 0) {
+    //  ShowValidationMessage($('input[name="SubCategories_' + customerFeedbackId + '_input"]'), "Please select a value. ");
+    //  isCustomerfeedbackDetailsIsValid = false;
+    //}
+    //else {
+    //  HideValidationMessage($('input[name="SubCategories_' + customerFeedbackId + '_input"]'));
+    //}
+
+    //Users
+    if ($("#Categories_@customerFeedbackId").text() == "Agent" || $("#Categories_@customerFeedbackId").text() == "Tech") {
+      var $userDetailsCombo = $("#UserDetails_" + customerFeedbackId);
+      if ($.trim($userDetailsCombo.data("kendoComboBox").value()).length == 0) {
+        ShowValidationMessage($('input[name="UserDetails_' + customerFeedbackId + '_input"]'), "Please select a value. ");
+        isCustomerfeedbackDetailsIsValid = false;
+      }
+      else {
+        HideValidationMessage($('input[name="UserDetails_' + customerFeedbackId + '_input"]'));
+      }
+    }
+
+
+    if (isCustomerfeedbackDetailsIsValid) {
+
+      var postData = $('#formAddCustomerFeedbackDetails_' + customerFeedbackId).serializeArray();
+
+      postData.push({ name: "CustomerFeedbackTypeID", value: GetComboValue("Types_" + customerFeedbackId) });
+      postData.push({ name: "CustomerFeedbackCategoryID", value: GetComboValue("Categories_" + customerFeedbackId) });
+      postData.push({ name: "CustomerFeedbackSubCategoryID", value: GetComboValue("SubCategories_" + customerFeedbackId) });
+      postData.push({ name: "IsInvalid", value: $('#IsInvalid_' + customerFeedbackId).is(':checked') });
+
+      //Getting User or Vendor ID
+      var categoryName = $("#Categories_@customerFeedbackId").data('kendoComboBox').text();
+      if (categoryName == "Agent" || categoryName == "Tech") {
+        postData.push({ name: "UserID", value: GetComboValue("UserDetails_" + customerFeedbackId) });
+      }
+      if(categoryName == "ISP")
+      {
+        postData.push({ name: "UserID", value: $("#VendorId_" + customerFeedbackId).val() });
+      }
+
+
+      if($("#IsInvalid_@customerFeedbackId").is(':checked'))
+        postData.push({ name: "CustomerFeedbackInvalidReasonID", value: $('#CustomerFeedbackInvalidReasons_' + customerFeedbackId).val() });
+      else
+        postData.push({ name: "CustomerFeedbackInvalidReasonID", value: "" });
+
+      $.ajax({
+        url: '/CX/CXCustomerFeedback/SaveCustomerFeedbackDetails',
+        type: 'POST',
+        data: postData,
+        success: function (msg) {
+          if (msg.Status = "Success") {
+            CleanMyContainer("formAddCustomerFeedbackDetails_" + customerFeedbackId);
+
+            openAlertMessage('Details have been added successfully', function () {
+              customerFeedbackDetailWindow.data('kendoWindow').close();
+              if ($('#GrdCustomerFeedbackDetails_@customerFeedbackId').data('kendoGrid') != undefined) {
+                $('#GrdCustomerFeedbackDetails_@customerFeedbackId').data('kendoGrid').dataSource.read();
+              }
+            });
+          }
+        }
+      })
+    }
+
+    return false;
+  }
+
+  function CancelCustomerFeedbackDetails_(customerFeedbackId) {
+    var customerFeedbackDetailDirtyContainerName = "formAddCustomerFeedbackDetails_" + customerFeedbackId;
+    if (IsMyContainerDirty(customerFeedbackDetailDirtyContainerName)) {
+      var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+      $.modal.confirm(message, function () {
+        CleanMyContainer(customerFeedbackDetailDirtyContainerName);
+        customerFeedbackDetailWindow.data('kendoWindow').close();
+      }, function () {
+        return false;
+      });
+    }
+    else {
+      customerFeedbackDetailWindow.data('kendoWindow').close();
+    }
+  }
+</script>
+
+

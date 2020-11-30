@@ -1,0 +1,78 @@
+﻿@model Dictionary<string, string>
+@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.DAL;
+@{
+    string memberIDList = Model.Where(u => u.Key.Equals("MemberIDList")).FirstOrDefault().Value;
+    string memberShipIDList = Model.Where(u => u.Key.Equals("MemberShipIDList")).FirstOrDefault().Value;
+}
+<script type="text/javascript">
+    function SelectMemberFromSelections(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        var memberID = dataRow.MemberID;
+        var membershipID = dataRow.MembershipID;
+        Dialog_Container_Member_Selections.data('kendoWindow').close();
+        CallbackNumber_OnChange_Action(memberID, membershipID);
+    }
+
+    function MemberSelectionsSearchParams() {
+
+        var params =
+        {
+            memberIDList: '@memberIDList',
+            membershipIDList: '@memberShipIDList'
+        };
+        return params;
+    }
+
+    function GrdStartCallMemberSelection_OnDataBound(e) {
+        $(".k-grid-selectMemberFromSelections").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+    }
+</script>
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            @(Html.Kendo().Grid<StartCallMemberSelections_Result>()
+                        .Name("GrdStartCallMemberSelection")
+                        .Columns(columns =>
+            {
+                columns.Bound(a => a.MemberID).Title("MemberID").Filterable(false).Visible(false);
+                columns.Bound(a => a.MembershipID).Title("MemershipID").Filterable(false).Visible(false);
+                columns.Bound(a => a.MembershipNumber).Title("Membership #").Filterable(false).Visible(true);
+                columns.Bound(a => a.FirstName).Title("First Name").Filterable(false).Visible(true);
+                columns.Bound(a => a.LastName).Title("Last Name").Filterable(false).Visible(true);
+                columns.Bound(a => a.Suffix).Title("Suffix").Filterable(false).Visible(true);
+                columns.Command(commands =>
+                {
+                    commands
+                        .Custom("selectMemberFromSelections")
+                        .Text("View")
+                        .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "Use" })
+                        .Click("SelectMemberFromSelections");
+                })
+                .Title("Action(s)").Width(125);
+            })
+            .Sortable()
+            .Filterable(filterable => filterable
+                .Extra(false)
+            )
+            .Events(e =>
+                 {
+                     e.DataBound("GrdStartCallMemberSelection_OnDataBound");
+                })
+            .Resizable(a => a.Columns(true))
+            .Scrollable()
+            .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+            )
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+            .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("_StartCallMemberSelectionList", "Request", new { area = "Application" }).Data("MemberSelectionsSearchParams"))
+            )
+            )
+        </div>
+    </div>
+</div>

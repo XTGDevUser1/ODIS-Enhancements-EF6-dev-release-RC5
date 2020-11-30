@@ -1,0 +1,74 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    string suffixVendorID = Model.ToString();
+}
+<form id="frmVendorRatesExistingContractDetails_@suffixVendorID" method="post" action="javascript:void(0)">
+<div class="with-padding">
+    <div class="button-height">
+        <p>
+            Please select which Contract you want to add a rate schedule to,from the following
+            list.</p>
+    </div>
+    <div class="button-height inline-medium-label large-margin-bottom">
+        <label for="ExistingContracts" class="label">
+            Existing Contracts<span class="star">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+                                .Name("VendorRatesExistingContractID")
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .Suggest(true)
+                                .SelectedIndex(0)
+                                .DataTextField("Text")
+                                .DataValueField("Value")
+                                .HtmlAttributes(new { id = "VendorRatesExistingContractID", style = "width:100%;" })
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorRatesExistingContract.ToString()] as IEnumerable<SelectListItem>)
+                                .Value(string.Empty)
+                                )
+    </div>
+    <div class="button-height inline-medium-label small-margin-bottom">
+        <button id="btnVendorRatesExistingContractSelection" class="button green-gradient  float-right mid-margin-left margin-bottom"
+            type="button" onclick="VendorRatesExistingContractSelected('@suffixVendorID');">
+            Select</button>
+        <button id="btnVendorRatesExistingContractSelectionCancel" class="button gray-gradient  float-right margin-bottom"
+            type="button" onclick="VendorRatesExistingContractCancel();">
+            Cancel</button>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorRatesExistingContractDetails_@suffixVendorID').validationEngine();
+    });
+
+    function VendorRatesExistingContractCancel() {
+        POPUP_Vendor_Rates_Existing_Rates.data('kendoWindow').close();
+    }
+
+    function VendorRatesExistingContractSelected(vendorID) {
+        var Combo_Vendor_Existing_Rates_ID = "VendorRatesExistingContractID";
+        if (!ValidateCombo(Combo_Vendor_Existing_Rates_ID)) {
+            return false;
+        }
+
+        if ($('#frmVendorRatesExistingContractDetails_@suffixVendorID').validationEngine('validate') == false) {
+            return false;
+        }
+
+        $.ajax({
+            url: '/VendorManagement/VendorHome/_Vendor_Rates_Details',
+            data: { vendorID: vendorID, contractRateScheduleID: 0, mode: 'Add', contractID: $('#VendorRatesExistingContractID').data('kendoComboBox').value() },
+            success: function (msg) {
+                $('#PlaceHolder_Vendor_Rates_Details_' + vendorID).html(msg);
+                POPUP_Vendor_Rates_Existing_Rates.data('kendoWindow').close();
+                var comboSelector = 'VendorContractRateScheduleStatusID_' + vendorID + '_input'
+                $("input[name=" + comboSelector + "]").select();
+                $("input[name=" + comboSelector + "]").focus();
+                $("#PlaceHolder_Vendor_RatesSchedules_Buttons_" + vendorID).removeClass("hide");
+            }
+        })
+
+        return false;
+    }
+</script>

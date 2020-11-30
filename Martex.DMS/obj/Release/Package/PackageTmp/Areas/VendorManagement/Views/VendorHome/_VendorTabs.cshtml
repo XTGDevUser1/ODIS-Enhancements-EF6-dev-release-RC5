@@ -1,0 +1,46 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+}
+<div id="VendorDetailsTab_@suffixVendorID" class="standard-tabs same-height">
+    <ul class="tabs">
+        <li><a href="@Url.Action("_Vendor_Information", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsInfoTab_@suffixVendorID">
+            Info</a></li>
+        <li><a href="@Url.Action("_Vendor_Locations", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsLocationsTab_@suffixVendorID">
+            Locations</a></li>
+        <li><a href="@Url.Action("_Vendor_Service", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsServicesTab_@suffixVendorID">
+            Services</a></li>
+        <li><a href="@Url.Action("_Vendor_Contract", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsContractTab_@suffixVendorID">
+            Contract</a></li>
+        <li><a href="@Url.Action("_Vendor_Rates", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsRateTab_@suffixVendorID">Rates</a></li>
+        <li><a href="@Url.Action("_Vendor_ServiceRating", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsServiceRateTab_@suffixVendorID">Svc Ratings</a></li>
+        
+        <li><a href="@Url.Action("_Vendor_Information_ACH", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsAchTab_@suffixVendorID">
+            ACH</a></li>
+        <li><a href="@Url.Action("_Vendor_PO_History", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsPOHistoryTab_@suffixVendorID">
+            PO History</a></li>
+         <li><a href="@Url.Action("_VendorClaims", "VendorClaims", new { area = "VendorManagement" })" id="#VendorClaimsTab_@suffixVendorID">
+            Claims History</a></li>
+        <li><a href="@Url.Action("_Vendor_Activity", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsActivityHistoryTab_@suffixVendorID">
+            Activity History</a></li>
+         <li><a href="@Url.Action("_Vendor_Documents", "VendorHome", new { area = "VendorManagement" })" id="#VendorDetailsDocumentTab_@suffixVendorID">
+            Documents</a></li>
+       
+    </ul>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#VendorDetailsTab_@suffixVendorID').tabs({
+            ajaxOptions: { data: { vendorID: '@suffixVendorID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });   
+</script>

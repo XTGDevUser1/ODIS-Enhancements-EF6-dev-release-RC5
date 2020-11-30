@@ -1,0 +1,346 @@
+﻿@model Martex.DMS.BLL.Model.VendorPortal.VendorAccountModel
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL.Entities;
+@{
+    string suffixVendorID = Model.VendorDetails.ID.ToString();
+    string classNameForTaxClassification = "hidden";
+    if (!string.IsNullOrEmpty(Model.VendorDetails.TaxClassification) && Model.VendorDetails.TaxClassification.Equals("Other"))
+    {
+        classNameForTaxClassification = "";
+    }
+}
+<style type="text/css">
+    .customLabelQualityIndicators
+    {
+        width: 180px;
+        display: inline-block;
+    }
+</style>
+<form id="frmVendorDetailsBasicInformationSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+@Html.HiddenFor(u => u.VendorDetails.ID)
+<div class="with-padding">
+    <div class="columns">
+        <div class="eight-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Basic Information</legend>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        Vendor Number</label>
+                    @Html.DisplayFor(u => u.VendorDetails.VendorNumber)
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        DBA Name</label>
+                    @Html.DisplayFor(u => u.VendorDetails.Name)
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        Corporate Name</label>
+                    @Html.DisplayFor(u => u.VendorDetails.CorporationName)
+                </p>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        Tax Classification</label>
+                    @(Html.Kendo().ComboBox()
+        .Name("TaxClassification_" + suffixVendorID)
+        .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.VendorInfoTaxClassification.ToString()] as IEnumerable<SelectListItem>)
+        .SelectedIndex(0)
+        .HighlightFirst(true)
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .Events(events => events.Change((@<text> function(e){ KendoComboBoxHandleVendorInfoTaxClassificationOther(e,'@suffixVendorID');}</text>)))
+        .Value(Model.VendorDetails.TaxClassification)
+        .HtmlAttributes(new { id = "TaxClassification_" + @suffixVendorID, style = "width:90%;" })
+    )
+                </div>
+                <div class="button-height inline-label small-margin-bottom @classNameForTaxClassification" id="PlaceHolder_VendorInfo_TaxClassificationOther_@suffixVendorID">
+                    <label for="TaxClassificationOther" class="label">
+                        <i>Other Description</i></label>
+                    @Html.TextBoxFor(u => u.VendorDetails.TaxClassificationOther, new { @class = "input full-width", id = "TaxClassificationOther_" + @suffixVendorID, maxLength = "50" })
+                </div>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="TaxEIN" class="label">
+                        Tax EIN</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.TaxEIN, new { @class = "input full-width", maxLength = "20", id = "TaxEIN_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="TaxSSN" class="label">
+                        Tax SSN</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.TaxSSN, new { @class = "input full-width", maxLength = "20", id = "TaxSSN_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="ContactFirstName" class="label">
+                        Contact First Name</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.ContactFirstName, new { @class = "input full-width", maxLength = "50", id = "ContactFirstName_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="ContactLastName" class="label">
+                        Contact Last Name</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.ContactLastName, new { @class = "input full-width", maxLength = "50", id = "ContactLastName_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        Email</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.Email, new { @class = "input full-width validate[custom[email]]", maxLength = "255", id = "Email_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        Website</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.Website, new { @class = "input full-width validate[custom[url]]", maxLength = "100", id = "Website_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        DOT Number</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.DepartmentOfTransportationNumber, new { @class = "input full-width", maxLength = "50", id = "DepartmentOfTransportationNumber_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        Motor Carrier #</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.MotorCarrierNumber, new { @class = "input full-width", maxLength = "50", id = "MotorCarrierNumber_" + suffixVendorID })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Description" class="label">
+                        W9 On File</label>
+                    @Html.CheckBox("VendorDetails.IsW9OnFile", Model.VendorDetails.IsW9OnFile.HasValue ? Model.VendorDetails.IsW9OnFile.Value : false, new { @class = "checkbox full-width", id = "IsW9OnFile_" + suffixVendorID, @disabled = "disabled" })
+                    @if (!Model.VendorDetails.IsW9OnFile.HasValue)
+                    {
+                        <span>Go to Documents tab to upload a W-9 Form</span>
+                    }
+                    else if (!Model.VendorDetails.IsW9OnFile.Value)
+                    {
+                        <span>Go to Documents tab to upload a W-9 Form</span>
+                    }
+                </p>
+                @if (Model.VendorDetails.IsLevyActive.HasValue && Model.VendorDetails.IsLevyActive.Value)
+                {
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Levy" class="label">
+                            Levy</label>
+                        @Html.CheckBox("VendorDetails.IsLevyActive", Model.VendorDetails.IsLevyActive.HasValue ? Model.VendorDetails.IsLevyActive.Value : false, new { @class = "checkbox full-width small-margin-right", id = "IsLevyActive_" + suffixVendorID, @disabled = "disabled" })
+                        @Html.DisplayFor(u => u.VendorDetails.LevyRecipientName)
+                    </div>
+                }
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Office Addresses</legend>
+                @Html.Editor("ScrollableAddress", "ScrollableAddress", new
+           {
+               address = new GenericAddressEntityModel()
+               {
+                   RecordID = Model.VendorDetails.ID,
+                   EntityName = "Vendor",
+                   Height = 385,
+                   IsVendorPortal = true
+
+               }
+           })
+            </fieldset>
+        </div>
+        <div class="new-row four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Quality Indicators</legend>
+                <div class="button-height small-margin-bottom">
+                    <span class="small-margin-bottom customLabelQualityIndicators">Background Checked Performed</span>
+                    @if (Model.VendorDetails.IsEmployeeBackgroundChecked.HasValue)
+                    {
+                        if (Model.VendorDetails.IsEmployeeBackgroundChecked.Value)
+                        {
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div class="button-height small-margin-bottom">
+                    <span class="small-margin-bottom customLabelQualityIndicators">Drug Test Performed</span>
+                    @if (Model.VendorDetails.IsEmployeeDrugTested.HasValue)
+                    {
+                        if (Model.VendorDetails.IsEmployeeDrugTested.Value)
+                        {
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEmployeeDrugTested_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div class="button-height small-margin-bottom">
+                    <span class="small-margin-bottom customLabelQualityIndicators">Drivers wear uniforms</span>
+                    @if (Model.VendorDetails.IsDriverUniformed.HasValue)
+                    {
+                        if (Model.VendorDetails.IsDriverUniformed.Value)
+                        {
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsDriverUniformed_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+                        @Html.Raw("No")
+                    }
+                </div>
+                <div class="button-height small-margin-bottom">
+                    <span class="small-margin-bottom customLabelQualityIndicators">Trucks have company markings</span>
+                    @if (Model.VendorDetails.IsEachServiceTruckMarked.HasValue)
+                    {
+                        if (Model.VendorDetails.IsEachServiceTruckMarked.Value)
+                        {
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                        else
+                        {
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("No")
+                        }
+                    }
+                    else
+                    {
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("Yes")
+                        @Html.Raw(" ")
+                        @Html.RadioButton("VendorDetails.IsEachServiceTruckMarked_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+                        @Html.Raw("No")
+                    }
+                </div>
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Insurance</legend>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="InsuranceExpirationDate" class="label">
+                        Expiration Date</label>
+                    @(Html.Kendo().DatePicker()
+                           .Name("VendorDetails.InsuranceExpirationDate")
+                   .Value(Model.VendorDetails.InsuranceExpirationDate)
+                   .HtmlAttributes(new { id = "InsuranceExpirationDate_" + suffixVendorID, @readonly = "readonly", type = "text" })
+                    )
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="InsuranceCarrierName" class="label">
+                        Carrier Name</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.InsuranceCarrierName, new { @class = "input full-width", id = "InsuranceCarrierName_" + suffixVendorID, @maxLength = "255" })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="InsurancePolicyNumber" class="label">
+                        Policy Number</label>
+                    @Html.TextBoxFor(u => u.VendorDetails.InsurancePolicyNumber, new { @class = "input full-width", id = "InsurancePolicyNumber_" + suffixVendorID, @maxLength = "50" })
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="IsInsuranceCertificateOnFile" class="label">
+                        Certificate on File</label>
+                    @Html.CheckBox("VendorDetails.IsInsuranceCertificateOnFile", Model.VendorDetails.IsInsuranceCertificateOnFile.HasValue ? Model.VendorDetails.IsInsuranceCertificateOnFile.Value : false, new { @class = "checkbox full-width", id = "IsInsuranceCertificateOnFile_" + suffixVendorID, @disabled = "disabled" })
+                    @if (!Model.VendorDetails.IsInsuranceCertificateOnFile.HasValue)
+                    {
+                        <span>Go to Documents tab to upload certificate</span>
+                    }
+                    else if (!Model.VendorDetails.IsInsuranceCertificateOnFile.Value)
+                    {
+                        <span>Go to Documents tab to upload certificate</span>
+                    }
+                </p>
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Office Phone Numbers</legend>
+                @Html.Editor("ScrollablePhone", "ScrollablePhone", new
+           {
+               phone = new GenericPhoneModel()
+               {
+                   RecordID = Model.VendorDetails.ID,
+                   EntityName = "Vendor",
+                   Height = 90
+
+               }
+           })
+            </fieldset>
+        </div>
+        <div class="twelve-columns hide" id="PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+            <button id="btnSaveVendorInfoSection_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorInfoTabInformation(this,'@suffixVendorID');">
+                Save</button>
+            <button id="btnCancelVendorInfoSection_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorInfoTabInformation('@suffixVendorID');">
+                Cancel</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsBasicInformationSection_@suffixVendorID').validationEngine();
+        ApplyMaskingforVendorInfoSection('@suffixVendorID');
+    });
+
+    $(document).ready(function () {
+        var isie = isIE();
+        var iconSize = "icon-size2";
+        if (isie) {
+            iconSize = "icon-size9";
+            $('.icon-add-user').removeClass('icon-size2');
+            $('.icon-add-user').addClass(iconSize);
+            $('.icon-list-add').removeClass('icon-size2');
+            $('.icon-list-add').addClass(iconSize);
+        }
+    });    
+</script>

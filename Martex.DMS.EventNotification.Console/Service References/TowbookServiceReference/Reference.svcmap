@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="99db3dd7-6e3e-4a6a-aeb5-93f84df2b329" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://towbook/TowbookRequestHandler.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="TowbookRequestHandler.xsd" MetadataType="Schema" ID="51cd18e7-2401-4ae7-aeeb-4ca8fb272aa7" SourceId="1" SourceUrl="http://towbook/TowbookRequestHandler.svc?xsd=xsd0" />
+    <MetadataFile FileName="TowbookRequestHandler1.xsd" MetadataType="Schema" ID="fa721497-63a7-458c-86be-87a106f52292" SourceId="1" SourceUrl="http://towbook/TowbookRequestHandler.svc?xsd=xsd1" />
+    <MetadataFile FileName="TowbookRequestHandler1.disco" MetadataType="Disco" ID="e643b828-a3d7-4099-b63b-bcd2a2ca8ed3" SourceId="1" SourceUrl="http://towbook/TowbookRequestHandler.svc?disco" />
+    <MetadataFile FileName="TowbookRequestHandler1.wsdl" MetadataType="Wsdl" ID="d375b605-a036-40e9-8862-93650bf45005" SourceId="1" SourceUrl="http://towbook/TowbookRequestHandler.svc?wsdl" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

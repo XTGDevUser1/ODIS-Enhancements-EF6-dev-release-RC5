@@ -1,0 +1,184 @@
+﻿<form id="frmSendRatesForPreview" action="javascript:void(0);" method="post">
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <div>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="Email" class="label">
+                        Send Method</label>
+                    @Html.RadioButton("PurposeForPreview", "email", new { @class = "radio" }) Email
+                    @Html.RadioButton("PurposeForPreview", "print", new { @class = "radio" }) Print
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="EmailAddress" class="label">
+                        Email
+                    </label>
+                    @Html.TextBox("Email", ViewData["Email"], new { @class = "input full-width validate[maxSize[50], custom[email]" })
+                    @Html.Hidden("VendorID", ViewData["VendorID"])
+                    @Html.Hidden("RateScheduleID", ViewData["RateScheduleID"])
+                    @Html.Hidden("Source", ViewData["Source"])
+                </p>
+            </div>
+            <div>
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="AdditionalData" class="label">
+                        Additional Text
+                    </label>
+                    @Html.TextArea("AdditionalText", "", new { @class = "input full-width validate[maxSize[255]]" })
+                </p>
+            </div>
+            <div>
+                <button id="btnPreviewRates" class="button green-gradient glossy float-right small-margin-bottom mid-margin-left"
+                    type="button">
+                    Preview</button>
+                <button id="btnPrintLetter" class="button blue-gradient glossy float-right small-margin-bottom mid-margin-left hidden"
+                    type="button">
+                    Printed Letter</button>
+                <button id="btnSendRates" class="button blue-gradient glossy float-right small-margin-bottom mid-margin-left hidden"
+                    type="button">
+                    Send Email</button>
+                <button id="btnCloseSendRatesForPreview" class="button gray-gradient glossy float-right small-margin-bottom"
+                    type="button">
+                    Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<form id="frmGetPDF" action="@Url.Action("GetRatesForPreview", "VendorHome", new { area = "VendorManagement" })" method="post" target="_blank">
+<input type="hidden" name="PurposeForPreview" id="hdnPurposeForPreview" />
+<input type="hidden" name="Email" id="hdnEmail" />
+<input type="hidden" name="AdditionalText" id="hdnAdditionalText" />
+<input type="hidden" name="VendorID" id="hdnVendorID" />
+<input type="hidden" name="RateScheduleID" id="hdnRateScheduleID" />
+<input type="hidden" name="Source" id="hdnSource" />
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+
+    function IsEmailChosen() {
+        return $('input[name="PurposeForPreview"]:checked').val() == "email";
+    }
+
+    function IsPurposeChosen() {
+        return $('input[name="PurposeForPreview"]:checked').length > 0;
+    }
+    $(function () {
+        $("#frmSendRatesForPreview").validationEngine();
+        WatchMyContainer('frmSendRatesForPreview', null, null);
+
+
+        $("#btnSendRates").click(function (e) {
+            document.dialogResult = "OK";
+
+            var form = $("#frmSendRatesForPreview");
+            var isFormValid = true;
+            if (form.validationEngine('validate') == false) {
+                isFormValid = false;
+            }
+
+
+            if (IsEmailChosen() && $.trim($("#Email").val()).length == 0) {
+                ShowValidationMessage($("#Email"), "Please provide an email address");
+                isFormValid = false;
+            }
+            else {
+                HideValidationMessage($("#Email"));
+            }
+            if (!isFormValid) {
+                return false;
+            }
+            var formData = form.serializeArray();
+
+            $.ajax({
+                type: 'POST',
+                url: '/VendorManagement/VendorHome/SendRatesAsEmail',
+                traditional: true,
+                data: formData,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status && msg.Status == "Success") {
+                        openAlertMessage("Email sent successfully");
+                        sendRatesPreviewLauncher.data('kendoWindow').close();
+                    }
+                }
+            });
+
+            return false;
+        });
+        $("#btnCloseSendRatesForPreview").click(function (e) {
+
+
+            ClearValidationMessages();
+            sendRatesPreviewLauncher.data('kendoWindow').close();
+        });
+
+        $("#btnPrintLetter").click(function (e) {
+            var form = $("#frmSendRatesForPreview");
+
+            var formData = form.serializeArray();
+
+            $.ajax({
+                type: 'POST',
+                url: '/VendorManagement/VendorHome/PrintLetter',
+                traditional: true,
+                data: formData,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status && msg.Status == "Success") {
+                        //openAlertMessage("Rates sent as an email successfully");
+                        CleanMyContainer("frmSendRatesForPreview");
+                        document.dialogResult = "OK";
+                        sendRatesPreviewLauncher.data('kendoWindow').close();
+
+                    }
+                }
+            });
+
+            return false;
+        });
+
+        $("#btnPreviewRates").click(function (e) {
+
+            if (!IsPurposeChosen()) {
+                isFormValid = false;
+                ShowValidationMessage($("#PurposeForPreview"), "Please select an option");
+                return false;
+            }
+            else {
+                HideValidationMessage($("#PurposeForPreview"));
+            }
+            document.dialogResult = "OK";
+
+            //TODO: Validations go here.
+
+            var hdnForm = $("#frmGetPDF");
+            hdnForm.find("#hdnPurposeForPreview").val($('input[name="PurposeForPreview"]:checked').val());
+            hdnForm.find("#hdnEmail").val($("#Email").val());
+            hdnForm.find("#hdnAdditionalText").val($("#AdditionalText").val());
+            hdnForm.find("#hdnVendorID").val('@ViewData["VendorID"]');
+            hdnForm.find("#hdnRateScheduleID").val('@ViewData["RateScheduleID"]');
+            hdnForm.find("#hdnSource").val('@ViewData["Source"]');
+
+            hdnForm.submit();
+
+            if (IsEmailChosen()) {
+                $(this).addClass("hidden");
+                $("#btnSendRates").removeClass("hidden");
+            }
+            else {
+                $(this).addClass("hidden");
+                $("#btnPrintLetter").removeClass("hidden");
+            }
+            return false;
+        });
+
+    });
+
+//-->
+
+</script>

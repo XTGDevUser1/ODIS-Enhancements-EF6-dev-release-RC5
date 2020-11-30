@@ -1,0 +1,19 @@
+﻿@model List<Martex.DMS.DAL.ClosedLoopActivities_Result>
+<div>
+    <p class="button-height inline-label small-margin-bottom">
+        <label for="Activity" class="label">
+            Activity</label></p>
+    <div class="scrollable">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="closedLoopActivity" style="width: 100%; float: left; display: inline-table;
+        margin-bottom: 10px; margin-top: 5px;" id="@("closedLoopActivity" + i.ToString())">
+            <div class="callLogDetails" style="width: 50%; float: left;">
+                <ul style="list-style-type: none; margin-left: 5px;">
+                    <li class="contactSource">@Model[i].CREATEDATE @Model[i].DESCRIPTION</li>
+                </ul>
+            </div>
+        </div>
+    }
+    </div>
+</div>

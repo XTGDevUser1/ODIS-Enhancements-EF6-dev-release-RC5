@@ -1,0 +1,210 @@
+﻿@model string
+@using Kendo.Mvc.UI;
+@{
+    var suffixCustomerFeedbackID = Model;
+}
+
+<form id="frmCustomerFeedbackValidate_@suffixCustomerFeedbackID" action="javascript:void(0)" method="post">
+    <div class="columns">
+        <div class="seven-columns">
+            <div id="divServiceRequest_@suffixCustomerFeedbackID">
+                <div id="divSearchBySR" class="searchbyoptionsForSR">
+                    <p class="button-height inline-medium-label small-margin-bottom">
+                        <label class="label">
+                            SR #
+                        </label>
+                        @Html.TextBox("CustomerFeedbackSR", string.Empty, new { @class = "validate[maxSize[50]] input inputForValidation", placeHolder = "Search by SR", style = "width : 50%", @maxlength = "255" })
+                    </p>
+                </div>
+            </div>
+
+            <div id="divPO_@suffixCustomerFeedbackID">
+                <p class="button-height inline-medium-label small-margin-bottom">
+                    <label for="PONumber" class="label">
+                        PO #
+                    </label>
+                    @Html.TextBox("CustomerFeedbackPO_" + suffixCustomerFeedbackID, null, new { @class = "validate[maxSize[50]]  input inputForValidation", placeHolder= "Search by PO", style = "width : 50%", @maxlength = "255" })
+                    <a id="btnLookupPO" class="k-button k-button-icontext k-grid-View small-margin-left"
+                       style="min-width: auto;" tabindex="2" href="#">
+                        <span class="k-icon k-i-search"></span>
+                    </a>
+                </p>
+            </div>
+
+        </div>
+        <div class="four-columns">
+            <div id="statusIndicator_@suffixCustomerFeedbackID">
+                <p class="message">
+                    <span class="statusMessage"></span>
+                </p>
+            </div> 
+
+            <div id="duplicateIndicator_@suffixCustomerFeedbackID" style="padding-top:5px;">
+              <p class="message">
+                <span class="statusMessage"></span>
+              </p>
+          </div>                     
+        </div>   
+        <div class="new-row one-columns">
+            <button id="btnContinueCustomerFeedback_@suffixCustomerFeedbackID" class="button glossy green-gradient float-right" type="button">
+                Continue
+            </button>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" language="javascript">
+
+    var serviceRequestID = '';
+    var purchaseOrderNumber = '';
+
+    $(function (e) {
+
+        $("#frmCustomerFeedbackValidate_@suffixCustomerFeedbackID").validationEngine();
+        HideStatus($("#statusIndicator_@suffixCustomerFeedbackID"));
+        HideStatus($("#duplicateIndicator_@suffixCustomerFeedbackID"));
+
+        // Lookup functionality for PO.
+        $("#btnLookupPO").click(function (e) {
+            $poInputField = $('#CustomerFeedbackPO_@suffixCustomerFeedbackID');
+            var inputPONumber = $poInputField.val();
+            if ($.trim(inputPONumber).length == 0)
+            {
+                ShowValidationMessage($poInputField, "Please enter PurchaseOrder number");
+                return false;
+            }
+            HideValidationMessage($poInputField);
+            $.ajax({
+                url: '/CX/CXCustomerFeedback/_ValidateByPONumber',
+                type:'POST',
+                data: { numberValue: inputPONumber },
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        var srDetails = msg.Data.Result[0];
+                        $("#CustomerFeedbackSR").val(srDetails.ServiceRequestID);
+
+                        serviceRequestID = srDetails.ServiceRequestID;
+                        purchaseOrderNumber = srDetails.PurchaseOrderNumber;
+
+                        var statusMessage = "<table>"
+                        statusMessage += "<tr><td>SR #</td><td>" + srDetails.ServiceRequestID + "</td></tr>"
+                        statusMessage += "<tr><td>SR Date</td><td>" + srDetails.SubmittedDateFormatted + "</td></tr>"
+                        statusMessage += "<tr><td>Client / Program</td><td>" + srDetails.ClientName + " / " + srDetails.ProgramName + "</td></tr>"
+                        var member = (srDetails.MembershipNumber != null ? srDetails.MembershipNumber : "") + " / " + srDetails.MemberName;
+                        statusMessage += "<tr><td>Member # / Name &nbsp;&nbsp;&nbsp;</td><td>" + member + "</td></tr>"
+                        statusMessage += "</table>"
+
+                        ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+
+                        if (msg.Data.IsSRExists)
+                        {
+                          var duplicateStatusMessage = "<div> Warning: A customer feedback already exists for this SR #" + serviceRequestID + "</div>";
+                          ShowStatus("warning", duplicateStatusMessage, $('#duplicateIndicator_0'));
+                        }
+                        else
+                        {
+                          HideStatus($("#duplicateIndicator_@suffixCustomerFeedbackID"));
+                        }
+                    }
+                    else if (msg.Status == "BusinessRuleFail") {
+                        HideStatus($("#duplicateIndicator_@suffixCustomerFeedbackID"));
+                        $("#CustomerFeedbackSR").val("");
+                        serviceRequestID = '';
+                        purchaseOrderNumber = '';
+                        var statusMessage = msg.Data.Message;
+                        ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                    }
+
+                }
+            });
+        });
+
+
+        $("#CustomerFeedbackSR").change(function (e) {
+          HideStatus($('#statusIndicator_0'));
+          HideStatus($('#duplicateIndicator_0'));
+        });
+        var autoFillWarrantySR = $("#CustomerFeedbackSR").combogrid({
+            url: '@Url.Action("_ValidateBySRNumber", "CXCustomerFeedback", new { area = "CX" })',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            autoChoose: true,
+            colModel: [{ 'columnName': 'MemberNumber', 'width': '20', 'label': 'Member #', 'align': 'left' },
+                        { 'columnName': 'Member', 'width': '15', 'label': 'Name', 'align': 'left' },
+                        { 'columnName': 'ProgramName', 'width': '15', 'label': 'Program', 'align': 'left' },
+            ],
+            select: function (event, ui) {
+                if (ui.item.ServiceRequestID != null && ui.item.ServiceRequestID != 0) {
+                    $("#CustomerFeedbackSR").val(ui.item.ServiceRequestID);
+
+                    serviceRequestID = ui.item.ServiceRequestID;
+                    purchaseOrderNumber = '';
+
+                    var statusMessage = "<table>"
+                    statusMessage += "<tr><td>SR #</td><td>" + ui.item.ServiceRequestID + "</td></tr>"
+                    statusMessage += "<tr><td>SR Date</td><td>" + ui.item.SubmittedDateFormatted + "</td></tr>"
+                    statusMessage += "<tr><td>Client / Program</td><td>" + ui.item.ClientName + " / " + ui.item.ProgramName + "</td></tr>"
+                    //statusMessage += "<tr><td>Member # - Name &nbsp;&nbsp;&nbsp;</td><td>" + ui.item.MemberNumber +", "+ ui.item.Member + "</td></tr>"
+                    var member = (ui.item.MembershipNumber != null ? ui.item.MembershipNumber : "") + " / " + ui.item.MemberName;
+                    statusMessage += "<tr><td>Member # / Name &nbsp;&nbsp;&nbsp;</td><td>" + member + "</td></tr>"
+                    statusMessage += "</table>"
+                    ShowStatus("success", statusMessage, $('#statusIndicator_0'));
+
+                    if (ui.item.IsSRExists)
+                    {
+                      var duplicateStatusMessage = "<div> Warning: A customer feedback already exists for this SR #" + serviceRequestID + "</div>";
+                      ShowStatus("warning", duplicateStatusMessage, $('#duplicateIndicator_0'));
+                    }
+                    else {
+                      HideStatus($("#duplicateIndicator_@suffixCustomerFeedbackID"));
+                    }
+                }
+                else {
+                    HideStatus($("#duplicateIndicator_@suffixCustomerFeedbackID"));
+                    $("#CustomerFeedbackSR").val("");
+                    serviceRequestID = '';
+                    purchaseOrderNumber = '';
+                    var statusMessage = ui.item.MembershipNumber; // Error message comes back in this attribute
+                    ShowStatus("error", statusMessage, $('#statusIndicator_0'));
+                }
+
+                return false;
+            }
+        });
+
+        $(".inputForValidation").change(function () {
+            serviceRequestID = purchaseOrderNumber = '';
+        });
+        $("#btnContinueCustomerFeedback_0").click(function (e) {
+            if ($.trim(serviceRequestID).length == 0) {
+                openAlertMessage("The information provided is not adequate to process the request, please review your input and try again");
+                return false;
+            }
+
+            $.ajax({
+              type: 'POST',
+              url: '/CX/CXCustomerFeedback/Add',
+              data: { ServiceRequestID: serviceRequestID, PurchaseOrderNumber: purchaseOrderNumber },
+              cache: false,
+              async: true,
+              success: function (msg) {
+                var customerFeedbackID = msg.Data;
+                DeleteTab(0);
+                AddCustomerFeedbackTab(customerFeedbackID, tabObject);
+              }
+            });
+
+        });
+
+    });
+
+    $(document).ready(function () {
+
+
+        $('#CustomerFeedbackSR').next('span').children('span').removeClass('ui-icon ui-icon-search').addClass('k-icon k-i-search');
+        $('#CustomerFeedbackSR').next('span').removeClass('ui-state-default ui-corner-all CustomerFeedbackSR cg-searchButton').addClass('k-button k-button-icontext k-grid-View small-margin-left');
+        $("#CustomerFeedbackSR").after('<span style="width:10px;">&nbsp;</span>');
+
+    });
+</script>

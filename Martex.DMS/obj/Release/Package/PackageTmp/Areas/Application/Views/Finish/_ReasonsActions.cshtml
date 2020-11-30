@@ -1,0 +1,32 @@
+﻿@model Martex.DMS.BLL.Model.FinishReasonsActionsModel
+<fieldset class="block float-left small-margin-right small-margin-bottom fieldset">
+    <legend class="legend">Reasons<span class="spanstar"> *</span></legend>
+    <div class="with-small-padding">
+        @for (int i = 0; i < Model.ContactReasons.Count; i++)
+        {
+            <p class="button-height">
+                @{
+            var reasons = "reasons" + i.ToString();
+                }
+                @Html.CheckBox(reasons, new { @class = "checkbox reason", reasonId = Model.ContactReasons[i].ID })
+                <label for="Reasons" class="label">@Model.ContactReasons[i].Description</label>
+            </p>
+        }
+    </div>
+</fieldset>
+<fieldset class="block float-left small-margin-right fieldset">
+    <legend class="legend">Actions <span class="spanstar">*</span></legend>
+    <div class="with-small-padding">
+        @for (int i = 0; i < Model.ContactActions.Count; i++)
+        {
+            <p class="button-height">
+                @{
+            var actions = "actions" + i.ToString(); 
+         
+                }
+                @Html.CheckBox(actions, new { @class = "checkbox action", actionId = Model.ContactActions[i].ID })
+                <label for="Reasons" class="label">@Model.ContactActions[i].Description</label>
+            </p>
+        }
+    </div>
+</fieldset>

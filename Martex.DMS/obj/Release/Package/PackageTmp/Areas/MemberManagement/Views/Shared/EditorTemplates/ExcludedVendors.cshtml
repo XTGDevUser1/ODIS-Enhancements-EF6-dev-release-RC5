@@ -1,0 +1,21 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.Entities;
+@{
+    ExcludedVendorExtended model = ViewData["excludedVendors"] as ExcludedVendorExtended;
+    string recordID = model.MemberShipID.ToString();
+    int height = model.Height > 0 ? model.Height : 300;
+    string heightPixel = "height:" + height.ToString() + "px;";
+}
+
+<div class="with-padding">
+    <div style="margin-left: 5px; margin-bottom: 5px;" id="PlaceHolder_NewVendorIcon_@recordID">
+        <a class="icon-list-add icon-size2 with-tooltip" title="New Vendor" href="javascript:void(0);" id="excludedVendor_add_@recordID" onclick="ExcludedVendorMemberShipSwitchViewToEdit('@recordID')">
+        </a>
+    </div>
+    <div style="@heightPixel" class="scrollable" id="PlaceHolder_ExcludedVendorList_@recordID">    
+        @Html.Partial("_ScrollableExcludedVendors", model)
+    </div>
+    <div style="height:auto;" class="hidden" id="PlaceHolder_ExcludedVendorContainer_@recordID">
+        
+    </div>
+</div>

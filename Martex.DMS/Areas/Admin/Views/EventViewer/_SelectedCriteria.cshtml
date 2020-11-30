@@ -1,0 +1,141 @@
+﻿@model Martex.DMS.DAL.DAO.Admin.EventViewerSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    <!-- User Name Section -->
+    
+    if (!string.IsNullOrEmpty(Model.ApplicationName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="ApplicationName">X</a>
+        @Html.Raw("- User Type : ")
+        @Html.DisplayFor(u => Model.ApplicationName)
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.UserName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="UserName">X</a>
+        @Html.Raw("- User Name : ")
+        @Html.DisplayFor(u => Model.UserName)
+    </p>
+    }
+
+    <!-- Date Section -->
+    if (Model.FromDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="FromDate">X</a>
+        @Html.Raw("- From : ")
+        @Model.FromDate.Value.ToShortDateString()
+    </p>
+    }
+    if (Model.ToDate.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ToDate">X</a>
+        @Html.Raw("- To : ")
+        @Model.ToDate.Value.ToShortDateString()
+    </p>
+    }
+    
+    <!-- Event Section -->
+    if (Model.EventCategoryID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="EventCategoryID">X</a>
+        @Html.Raw("- Category : ")
+        @Html.DisplayFor(u => Model.EventCategoryName)
+    </p>
+    }
+    if (Model.EventTypeID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="EventTypeID">X</a>
+        @Html.Raw("- Type : ")
+        @Html.DisplayFor(u => Model.EventTypeName)
+    </p>
+    }
+    if (Model.EventID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="EventID">X</a>
+        @Html.Raw("- Event : ")
+        @Html.DisplayFor(u => Model.EventName)
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                    }
+                }
+                else if (role == "slider") {
+                    $('#' + element).data("kendoRangeSlider").value([0, 10000]);
+                    $('#ClaimAmountStart').val('');
+                    $('#ClaimAmountEnd').val('');
+                }
+                else if (role == "kendoNumeric") {
+                    $('#' + element).data('kendoNumericTextBox').value('');
+                }
+                if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+
+                    if (element == 'CountryID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdEventLogList').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

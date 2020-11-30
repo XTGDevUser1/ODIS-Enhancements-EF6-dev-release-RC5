@@ -1,0 +1,149 @@
+﻿@model VendorPortal.Models.VendorRegisterModel
+@{
+    ViewBag.Title = "Transition Verify";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+    string name = string.Join(" ", Model.FirstName, Model.LastName);
+}
+<div class="leader relative">
+    &nbsp;</div>
+<div class="constrain">
+    <div class="columns with-padding">
+        <div class="new-row-tablet new-row-mobile seven-columns twelve-columns-tablet margin-top">
+            <h2 class="thin margin-bottom">
+                Step 2 - Create Account
+            </h2>
+            <p>We have verified your information and now we need you to setup a new user account.  
+If we had information on file for you we have displayed it here.  Please review 
+and update the information if it is incorrect.</p>
+<div class="alert alert-info margin-top">
+            <ul class="big-list">
+                <li><strong>First Name</strong> – please provide the first name of the main contact for your account.</li>
+                <li><strong>Last Name</strong> – please provide the last name of the main contact for your account.</li>
+                <li><strong>Username</strong> – this is your Coach-Net Vendor number. It is already filled in for 
+you and cannot be changed</li>
+<li><strong>Enter Your Email Address</strong> - please provide the main email address for your account.</li>
+                <li><strong>Create a Password</strong> - to provide better security we ask that you create a new Password. </li>
+                <li><strong>Password Rules:</strong></li>
+                <li class="margin-left"> Must be a minimum of 7 characters long (can be letters, numbers, special characters)</li>
+                <li class="margin-left">Passwords are CaSe SensitivE, so be sure to enter upper and 
+lowercase letters carefully.</li>
+                <li><span class="alert alert-info">Password examples *W*i*n*t*e*r*  $pr1ngtime $ummeR </span>
+                </li>
+                <li><strong>Re-Enter Your Password</strong> – type in your password again just to confirm.</li>
+                <li></li>
+                <li><strong>Now click on Step 2 – Create Account</strong> </li>
+            </ul>
+            </div>
+        </div>
+        <div class="new-row-tablet new-row-mobile one-column twelve-columns-tablet">
+            </div>
+            <div class="new-row-tablet new-row-mobile four-columns twelve-columns-tablet margin-top">
+            <form method="post" action='@Url.Action("VendorTransitionSuccess", "TransitionRegister")' id="form_registerVendor" name= "form_registerVendor" formtitle="Register" class="frmWrapper">
+            @Html.HiddenFor(u => u.VendorID)
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                                <small>Main Contact's Information</small>
+                    First Name
+                </label>
+                @Html.TextBoxFor(m => m.FirstName, new
+   {
+       id = "register_firstname",
+       autocomplete = "off",
+       name = "register_firstname",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right"
+   })
+            </p>
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                                <small>Main Contact's Information</small>
+                    Last Name
+                </label>
+                @Html.TextBoxFor(m => m.LastName, new
+   {
+       id = "register_lastname",
+       autocomplete = "off",
+       name = "register_lastname",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right"
+
+   })
+            </p>
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                <small>Cannot Be Changed </small>
+                    Username
+                </label>
+                @Html.TextBoxFor(m => m.UserName, new
+   {
+       id = "register_username",
+       autocomplete = "off",
+       name = "register_username",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right",
+       @readonly = "readonly"
+   })
+            </p>
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                                <small>Main Contact's Information</small>
+                    Enter Your Email Address
+                </label>
+                @Html.TextBoxFor(m => m.Email, new
+   {
+       type = "email",
+       name = "register_email",
+       id = "register_email",
+       value = "",
+       @class = "validate[required,custom[email]] input with-tooltip full-width tooltip-right",
+       autocomplete = "off"
+   })
+            </p>
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                    <small>minimum (7) Digits</small>
+                    Create a Password
+                </label>
+                @Html.PasswordFor(m => m.Password, new
+{
+    name = "register_password",
+    id = "register_password",
+    value = "",
+    @class = "validate[required] input with-tooltip full-width tooltip-right",
+    autocomplete = "off"
+})
+            </p>
+            <p class="button-height block-label">
+                <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                <label for="input" class="label">
+                    Re-Enter Your Password
+                </label>
+                @Html.PasswordFor(m => m.ConfirmPassword, new
+{
+    name = "register_confirmpassword",
+    id = "register_confirmpassword",
+    value = "",
+    @class = "validate[required,equals[register_password]] input with-tooltip full-width tooltip-right",
+    autocomplete = "off"
+
+})
+            </p>
+            <button type="submit" class="btn btn-large btn-primary" id="btnRegisterVendorTransition">
+                Step 2 - Create Account</button>
+                <small>Please record your User Name and Password and store in a safe location.
+These are the credentials you will use each time you come to the new Vendor Portal. 
+Your old username and password for nmc.com will no longer work.</small>
+            </form>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $("#form_registerVendor").validationEngine({ promptPosition: "topLeft" });
+    });
+</script>

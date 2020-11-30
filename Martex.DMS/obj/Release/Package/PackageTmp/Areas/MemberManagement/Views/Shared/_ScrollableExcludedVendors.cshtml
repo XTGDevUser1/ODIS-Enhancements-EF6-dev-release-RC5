@@ -1,0 +1,30 @@
+﻿@using Martex.DMS.DAL.Entities;
+@model ExcludedVendorExtended
+@{
+    string recordID = Model.MemberShipID.ToString();
+
+}
+<table class="simple-table responsive-table">
+    <tbody>
+        @if (Model == null || Model.ExcludedList == null || Model.ExcludedList.Count == 0)
+        {
+            <tr>
+                <td colspan="3">
+                    <small>No Vendors found !</small>
+                </td>
+            </tr>
+        }
+        else
+        {
+            foreach (ExcludedVendorItem temp in Model.ExcludedList)
+            {
+                <tr> <th scope="row"> <small>@temp.VendorNumber</small> </th> <td scope="row"> <p>
+                <small style="color: #000000; font-weight: normal;">@temp.VendorName</small></p>
+                </td> <td class="align-right vertical-center"> <a href="javascript:void(0);" class="icon-trash
+                with-tooltip icon-size1" title="Delete" onclick="DeleteExcludedVendorForMembership('@temp.ID','@recordID')">
+            </a> </td> <td> &nbsp;&nbsp; </td> </tr>
+                                        
+            }
+        }
+    </tbody>
+</table>

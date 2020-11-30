@@ -1,0 +1,42 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+@using Kendo.Mvc.UI
+<h2 class="thin  margin-bottom">Terms and Conditions of Service Provider Agreement</h2>
+
+<p class="button-height inline-large-label ">
+    <label for="tc" class="label">
+        @Html.CheckBox("chkAgreeTC",false, new { @class = "checkbox", id= "chkAgreeTC" }) <span class="star red">*</span> 
+        I have read the terms and conditions.
+    </label>
+    <span class="star red">*</span><a href="@Url.Content("~/ReferenceForms/PinnacleMotorClub_SPA_v102017.pdf")" target="_blank" id="lnkTerms">Click here</a> to view the terms and conditions
+</p>
+
+<p class="message-flat">
+<strong>IN WITNESS WHERE OF</strong>, this Agreement has been executed by the duly authorized representatives of the parties hereto as of the date 
+accepted and executed by Pinnacle Motor Club as set forth below.
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="witness" class="label">
+        Electronic Signature (type your name) <span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.WitnessName, new { @class = "input full-width2 validate[required, maxSize[255]]" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="witnessTitle" class="label">
+        Title <span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.WitnessTitle, new { @class = "input full-width2 validate[required, maxSize[50]]" })
+</p>
+<div class="button-height inline-large-label ">
+    <label for="SignedDate" class="label">
+        Signed Date <span class="star red">*</span>
+    </label>
+    @(Html.Kendo().DatePickerFor(u => u.SignedDate).Max(DateTime.Now)    
+    )
+</div>
+<p class="button-height inline-large-label ">
+    <label for="applicationComments" class="label">
+        Comments <span class="star red">*</span>
+    </label>
+    @Html.TextAreaFor(v => v.ApplicationComments, new { @class = "input full-width2 validate[required, maxSize[2000]]", rows = "10", cols = "50" })
+</p>

@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" 
+xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms" 
+xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+x:Class="ODISMember.MembershipReviewOrder"
+Style="{StaticResource BaseContentPage}">
+	<ContentPage.Content>
+		<ScrollView Style="{StaticResource MainLayout}">
+		<StackLayout>
+      <widget:CustomIconActionBar Title="Review" x:Name="widgetActionBar"/>
+     
+			<StackLayout x:Name="stackReview" HorizontalOptions="CenterAndExpand">
+				<controls:ExtendedLabel x:Name="entryName" Style="{StaticResource BaseLabelStyle}" Text="{Binding MemberFullName}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryAddress1" Style="{StaticResource BaseLabelStyle}" Text="{Binding Address1}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryAddress2" Style="{StaticResource BaseLabelStyle}" Text="{Binding Address2}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryDOB" Style="{StaticResource BaseLabelStyle}" Text="{Binding StringDOB}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryHomePhone" Style="{StaticResource BaseLabelStyle}" Text="{Binding HomePhoneNumber}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryCellPhone" Style="{StaticResource BaseLabelStyle}" Text="{Binding CellPhoneNumber}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryEmail" Style="{StaticResource BaseLabelStyle}" Text="{Binding Email}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryPlan" Style="{StaticResource BaseLabelStyle}" Text="{Binding Plan}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryTotal" Style="{StaticResource BaseLabelStyle}" Text="{Binding Total}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryCard" Style="{StaticResource BaseLabelStyle}" Text="{Binding CreditCardNumber}" HorizontalOptions="Start" />
+				<controls:ExtendedLabel x:Name="entryExpires" Style="{StaticResource BaseLabelStyle}" Text="{Binding CreditCardExpirationDate}" HorizontalOptions="Start" />
+				<Button x:Name="btnSubmit" Style="{StaticResource BaseButtonStyle}" Text="SUBMIT" VerticalOptions="End" HorizontalOptions="Center"/>
+			</StackLayout>
+			<StackLayout x:Name="stackReviewConfirmation" HorizontalOptions="CenterAndExpand" IsVisible="false">
+			<controls:ExtendedLabel Text="Confirmation" Style="{StaticResource HeaderLabelStyle}" HorizontalOptions="CenterAndExpand" />
+			<controls:ExtendedLabel x:Name="entryConfirmation" Text="Thank You! You can now take advantage of your membership benefits!" Style="{StaticResource BaseLabelStyle}" HorizontalOptions="Start" />
+			</StackLayout>
+			</StackLayout>
+		</ScrollView>
+	</ContentPage.Content>
+</ContentPage>

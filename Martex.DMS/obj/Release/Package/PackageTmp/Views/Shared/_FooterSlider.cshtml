@@ -1,0 +1,80 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.ActionFilters
+
+@{
+    StickyNoteModel sNote = Session["StickyNote"] as StickyNoteModel;
+    if (sNote == null)
+    {
+        sNote = new StickyNoteModel();
+    }
+    
+}
+<link href="@Url.Content("~/Content/Jquery.StickyNoteBasic.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/jquery.stickyNote.basic.js")" type="text/javascript"></script>
+<div class="footer">
+    <div class="copyright">
+        Copyright ©2012 National Motor Club, Inc. All Rights Reserved</div>
+        @{ // Show Stickynotes always : TFS # 797
+            ViewData[ControlConstants.ShowStickyNotes.ToString()] = true;
+        }
+        @if (!(ViewData[ControlConstants.ShowComments.ToString()] == null && ViewData[ControlConstants.ShowStickyNotes.ToString()] == null))
+        { 
+    <div id="bottompanel">
+        @if (ViewData[ControlConstants.ShowComments.ToString()] != null)
+        { 
+        <div id="panel" class="fpanel comments">
+            <form class="" onsubmit="return false;">
+            <p class="inline-label">
+                <textarea id="txtComments" rows="4" cols="25" class="input full-width small-margin-right"></textarea>                
+            </p>
+            <button id="btnSendFeedback" class="button green-gradient glossy float-right small-margin-right" type="submit">
+                Save Comment
+            </button>
+            </form>
+            
+        </div>
+        }
+        <!-- /login -->
+        <!-- The tab on top -->
+        <div class="tab">
+            <ul class="login">
+                <li class="left">&nbsp;</li>
+                @if (ViewData[ControlConstants.ShowStickyNotes.ToString()] != null)
+                { 
+                <li><a id="btnStickyNoteBasic" class="icon-paperclip icon-size2 with-tooltip" href="javascript:void(0);" title="Temporary Clipboard"></a></li>
+                }
+                <li class="sep">|</li>
+                @if (ViewData[ControlConstants.ShowComments.ToString()] != null)
+                { 
+                <li id="toggleFooter"><a id="Fslideopen" class="icon-speech icon-size2 with-tooltip" href="javascript:void(0);" title="Show Comments">
+                    </a> <a id="Fslideclose" style="display: none;" class="icon-speech icon-size2 with-tooltip" href="javascript:void(0);" title="Hide Comments">
+                        </a> </li>
+                }
+                <li class="right">&nbsp;</li>
+            </ul>
+        </div>
+        <!-- / top -->
+    </div>
+        }
+    <!--panel -->
+    
+</div>
+@if (ViewData[ControlConstants.ShowStickyNotes.ToString()] != null)
+{ 
+<div id="stickyNoteBasic" class="stickyNote"></div>
+}
+<script language="javascript" type="text/javascript">
+    $(function () {
+        
+        $("#stickyNoteBasic").stickyNote({
+            showOnLoad: @sNote.IsOpen.Value.ToString().ToLower(),
+            trigger: "#btnStickyNoteBasic",
+            autoSaveUrl: '@Url.Action("Index", "StickyNote",new {area="Application"})',
+            content: '@sNote.StickyText',
+            left: '@sNote.Left',
+            top: '@sNote.Top'
+        });
+
+        
+    });
+</script>

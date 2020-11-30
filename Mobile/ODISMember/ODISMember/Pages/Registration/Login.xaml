@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+                 Style="{StaticResource BaseContentPage}"
+                 xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+                 xmlns:custom="clr-namespace:ODISMember.CustomControls;assembly=ODISMember"
+                 xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+                 xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+                 x:Class="ODISMember.Pages.Registration.Login">
+  <RelativeLayout x:Name="mainLayout">
+    <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.LoginBackgroundImage}" Opacity="0.8" Aspect="AspectFill" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" />
+    <ScrollView RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" BackgroundColor="Transparent" Padding="5" x:Name="scrollMain">
+      <StackLayout VerticalOptions="FillAndExpand">
+        <StackLayout Padding="50,50,50,20">
+          <ffimageloading:CachedImage Source="{x:Static Resource:ImagePathResources.Logo}" VerticalOptions="CenterAndExpand" />
+        </StackLayout>
+        <StackLayout Orientation="Vertical" Spacing="10" HorizontalOptions="Fill"  VerticalOptions="CenterAndExpand">
+          <widget:LabelEntryVertical IsRemoveWhiteBackground="true" LabelText="Username" x:Name="widgetUserName" IsLabelVisible="False" EntryHint="Username" IsLeftAlign="True"/>
+          <widget:LabelEntryVertical IsRemoveWhiteBackground="true" LabelText="Password" IsPasswordEntry="true" x:Name="widgetPassword" IsLabelVisible="False" EntryHint="Password" IsLeftAlign="True"/>
+          <StackLayout Orientation="Horizontal" Spacing="0" HorizontalOptions="Center">
+            <Button x:Name="btnForgotPwd" Style="{StaticResource LabledButtonStyle}" Text="FORGOT PASSWORD? /" HorizontalOptions="StartAndExpand" TextColor="#1D1D26"/>
+            <Button x:Name="btnSendUserName" Style="{StaticResource LabledButtonStyle}" Text=" FORGOT USERNAME?" HorizontalOptions="StartAndExpand" TextColor="#1D1D26" />
+          </StackLayout>
+          <StackLayout Padding="20,0,20,0" Spacing="10" VerticalOptions="FillAndExpand">
+            <Button x:Name="btnLogin" Style="{StaticResource BaseButtonStyle}" Text="SIGN IN"/>
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+              </Grid.ColumnDefinitions>
+              <Button Grid.Column="0" Grid.Row="0" Text="REGISTER" Style="{StaticResource BaseButtonStyle}" VerticalOptions="Center" x:Name="btnRegister" BackgroundColor="#000000"/>
+              <Button Grid.Column="1" Grid.Row="0" Text="JOIN" Style="{StaticResource BaseButtonStyle}" VerticalOptions="Center" x:Name="btnJoin" BackgroundColor="#9B9B9B"/>
+            </Grid>
+          </StackLayout>
+        </StackLayout>
+      <Button x:Name="btnTermsAndConditions" Style="{StaticResource LabledButtonStyle}" Text="TERMS &amp; CONDITIONS" HorizontalOptions="StartAndExpand" TextColor="#1D1D26" VerticalOptions="EndAndExpand"/>
+      </StackLayout>
+    </ScrollView>
+  </RelativeLayout>
+</BaseContentPage>

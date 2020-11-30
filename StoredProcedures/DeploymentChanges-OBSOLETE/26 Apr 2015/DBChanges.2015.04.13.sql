@@ -1,0 +1,1 @@
+ALTER TABLE [staging_MAS90].[InvoiceRequest] ALTER  COLUMN  LineCost NUMERIC(7,2) 

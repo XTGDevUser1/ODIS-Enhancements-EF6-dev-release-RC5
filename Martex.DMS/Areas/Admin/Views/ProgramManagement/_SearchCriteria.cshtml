@@ -1,0 +1,188 @@
+﻿@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@model ProgramManagementSearchCriteria
+@{
+    int i = 0;
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "ProgramManagement";
+    string JSMethodNameToCollectData = "GetSearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForProgramManagement";
+    string applyCallBackFuntion = "LoadProgramManagementPredefinedViews";
+}
+<style type="text/css">
+    .search
+    {
+        width: 90% !important;
+    }
+</style>
+<script type="text/javascript">
+    function Client_onChange(e) {
+        var combo = $("#ProgramMaintenance_Search_ClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboProgram = $("#ProgramMaintenance_Search_ProgramID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("GetPrograms", "ProgramManagement", new { area = "Admin" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboProgram.setDataSource(msg);
+                comboProgram.select(0);
+                SetFocusOnField("Claim_Search_ProgramID");
+            }
+
+        })
+    }
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+</script>
+<li>
+    <form id="frmProgramManagementSearchCriteria" action="javascript:void(0)" method="post">
+     
+     @Html.Hidden("ProgramManagementSearchViewID", string.Empty)
+     @Html.HiddenFor(u => u.GridSortOrder)
+     @Html.HiddenFor(u => u.GridSortColumnName)
+     @Html.HiddenFor(u => u.ResetModelCriteria)
+     @Html.HiddenFor(u => u.PanelItemsSelected)
+     @Html.HiddenFor(u => u.PanelViewsSelected)
+
+     @Html.HiddenFor(u => u.PanelNameSelected)
+     @Html.HiddenFor(u => u.PanelNumberSelected)
+     @Html.HiddenFor(u => u.PanelClientSelected)
+
+     @(Html.Kendo().PanelBar()
+           .Name("panelbarSearchCriteria")
+           .ExpandMode(PanelBarExpandMode.Multiple)
+           .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+           .Items(panelbar =>
+           {
+             panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="GetSelectedCriteria();">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+             
+             panelbar.Add().Text("Views").Content(
+             @<div class="with-padding small-margin-right">
+             @Html.Editor("FilterView", "FilterView", new
+             {
+               filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+             })
+            </div>
+             ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+             
+             panelbar.Add().Text("Items Selected").Content(
+              @<div class="with-padding" id="programManagementSelectedSearchCriteriaDetails">
+                  @Html.Partial("_SelectedCriteria", Model)
+              </div>
+             ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+
+            panelbar.Add().Text("Number").Expanded(Model.PanelNumberSelected.HasValue ? Model.PanelNumberSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelNumberSelected" })
+            .Content(@<div class="with-padding">
+                <p class="inline-label">
+                    <label class="label">
+                        Number</label>
+                    @Html.TextBoxFor(u => Model.Number, new { @class = "input full-width search" })
+                </p>
+            </div>
+            );
+
+             
+            panelbar.Add().Text("Name").Expanded(Model.PanelNameSelected.HasValue ? Model.PanelNameSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelNameSelected" })
+             .Content(@<div class="with-padding">
+                <p class="inline-label">
+                    <label class="label">
+                        Name</label>
+                    @Html.TextBoxFor(u => Model.Name, new { @class = "input full-width search" })
+                </p>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label class="label">
+                        value that
+                    </label>
+                    @(Html.Kendo().ComboBoxFor(u => Model.NameOperatorValue)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.SearchFilterTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(string.IsNullOrEmpty(Model.NameOperatorValue) ? string.Empty : Model.NameOperatorValue)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                </div>
+            </div>
+             );
+
+             panelbar.Add().Text("Client").Expanded(Model.PanelClientSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelClientSelected" })
+              .Content(@<div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Client" class="label">
+                            Client</label>
+                        @(Html.Kendo().ComboBoxFor(u => u.ClientID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("Client_onChange"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "ProgramMaintenance_Search_ClientID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ClientID.HasValue ? Model.ClientID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Program" class="label">
+                            Program</label>
+                        @(Html.Kendo().ComboBoxFor(u => u.ProgramID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "ProgramMaintenance_Search_ProgramID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ProgramID.HasValue ? Model.ProgramID.Value.ToString() : string.Empty)
+                            )
+                    </div>
+                </div>
+             );
+           
+           }))
+     </form>
+</li>
+
+<script type="text/javascript">
+    function LoadProgramManagementPredefinedViews(recordID) {
+        $('#ProgramManagementSearchViewID').val(recordID);
+        GetProgramManagementFilters();
+        var gridReference = $('#GrdProgramMaintenance').data('kendoGrid').dataSource;
+        var sortOrder = $('#GridSortOrder').val();
+        var sortColumn = $('#GridSortColumnName').val();
+        if (sortOrder != undefined && sortColumn != undefined) {
+            gridReference.sort({ field: sortColumn, dir: sortOrder });
+        }
+        gridReference.read();
+        setTimeout(function () {
+            $('#ProgramManagementSearchViewID').val('');
+        }, 1000);
+    }
+</script>

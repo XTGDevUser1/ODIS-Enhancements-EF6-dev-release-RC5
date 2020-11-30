@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:ser="http://schemas.microsoft.com/2003/10/Serialization/" xmlns:tns="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:complexType name="Membership">
+    <xs:sequence>
+      <xs:element name="Address" nillable="true" type="tns:Address" />
+      <xs:element name="Addresses" nillable="true" type="tns:ArrayOfAddress" />
+      <xs:element name="ApplicationSource" nillable="true" type="xs:string" />
+      <xs:element name="AutoRenew" type="xs:boolean" />
+      <xs:element name="DirExclude" type="xs:boolean" />
+      <xs:element name="EffectiveDate" nillable="true" type="xs:string" />
+      <xs:element name="EmailAddress" nillable="true" type="xs:string" />
+      <xs:element name="EmailExclude" type="xs:boolean" />
+      <xs:element name="EmailParams" nillable="true" type="tns:EmailTemplateParams" />
+      <xs:element name="ExpirationDate" nillable="true" type="xs:string" />
+      <xs:element name="FaxExclude" type="xs:boolean" />
+      <xs:element name="FeeAmount" type="xs:decimal" />
+      <xs:element name="Frequency" nillable="true" type="xs:string" />
+      <xs:element name="MailExclude" type="xs:boolean" />
+      <xs:element name="MasterMember" nillable="true" type="tns:Member" />
+      <xs:element name="MemberSinceDate" nillable="true" type="xs:string" />
+      <xs:element name="Members" nillable="true" type="tns:ArrayOfMember" />
+      <xs:element name="MembershipNumber" nillable="true" type="xs:string" />
+      <xs:element name="MembershipProductCode" nillable="true" type="xs:string" />
+      <xs:element name="NMCAppSubmissionDate" type="xs:dateTime" />
+      <xs:element name="NMCInvoiceExclude" type="xs:boolean" />
+      <xs:element name="NMCPhoneExclude" type="xs:boolean" />
+      <xs:element name="NMCRenewToCompanyFlag" type="xs:boolean" />
+      <xs:element name="NMCRenewToCompanyYears" type="xs:int" />
+      <xs:element name="NumberOfDays" type="xs:int" />
+      <xs:element name="NumberOfYears" type="xs:int" />
+      <xs:element name="OrderSource" nillable="true" type="xs:string" />
+      <xs:element name="OrganizationID" type="xs:int" />
+      <xs:element name="PMCCreditCardInfo" nillable="true" type="tns:CreditCardInfo" />
+      <xs:element name="PMCInitialPayment" nillable="true" type="tns:InitialPayment" />
+      <xs:element name="PMCProduct" nillable="true" type="tns:Product" />
+      <xs:element name="PaymentPlan" type="xs:boolean" />
+      <xs:element name="PhoneNumbers" nillable="true" type="tns:ArrayOfPhoneNumber" />
+      <xs:element name="Products" nillable="true" type="tns:ArrayOfProduct" />
+      <xs:element name="ProgramUser" nillable="true" type="xs:string" />
+      <xs:element name="ProgramUserGroup" nillable="true" type="xs:string" />
+      <xs:element name="PromoCode" nillable="true" type="xs:string" />
+      <xs:element name="PromoDiscountAmount" type="xs:decimal" />
+      <xs:element name="SalesChannelID" type="xs:int" />
+      <xs:element name="SalesChannelName" nillable="true" type="xs:string" />
+      <xs:element name="SocialClubMembershipNumber" nillable="true" type="xs:string" />
+      <xs:element name="Towable" type="xs:boolean" />
+      <xs:element name="Vehicles" nillable="true" type="tns:ArrayOfVehicleInformation" />
+      <xs:element name="i5InternalMemberNumber" nillable="true" type="xs:string" />
+      <xs:element name="i5MembershipNumber" nillable="true" type="xs:string" />
+      <xs:element name="i5OriginalOrgID" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Membership" nillable="true" type="tns:Membership" />
+  <xs:complexType name="Address">
+    <xs:sequence>
+      <xs:element name="Address1" nillable="true" type="xs:string" />
+      <xs:element name="Address2" nillable="true" type="xs:string" />
+      <xs:element name="Address3" nillable="true" type="xs:string" />
+      <xs:element name="AddressType" type="tns:enumAddressType" />
+      <xs:element name="City" nillable="true" type="xs:string" />
+      <xs:element name="CountryCode" nillable="true" type="xs:string" />
+      <xs:element name="CountryCodeID" type="xs:int" />
+      <xs:element name="PostalCode" nillable="true" type="xs:string" />
+      <xs:element name="State" nillable="true" type="xs:string" />
+      <xs:element name="SystemIdentifier" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Address" nillable="true" type="tns:Address" />
+  <xs:simpleType name="enumAddressType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Primary" />
+      <xs:enumeration value="Secondary" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="enumAddressType" nillable="true" type="tns:enumAddressType" />
+  <xs:complexType name="ArrayOfAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Address" nillable="true" type="tns:Address" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAddress" nillable="true" type="tns:ArrayOfAddress" />
+  <xs:complexType name="EmailTemplateParams">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BenefitLinkPage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CardImagePrefix" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CompanyWebFolder" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="DispatchPhoneNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MembershipPhoneNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="RequestURL" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EmailTemplateParams" nillable="true" type="tns:EmailTemplateParams" />
+  <xs:complexType name="Member">
+    <xs:sequence>
+      <xs:element name="CellPhone" nillable="true" type="tns:PhoneNumber" />
+      <xs:element name="DateOfBirth" nillable="true" type="xs:string" />
+      <xs:element name="Email" nillable="true" type="xs:string" />
+      <xs:element name="FirstName" nillable="true" type="xs:string" />
+      <xs:element name="InitalJoinDate" nillable="true" type="xs:string" />
+      <xs:element name="IsActive" type="xs:boolean" />
+      <xs:element name="IsRegistered" type="xs:boolean" />
+      <xs:element name="LastName" nillable="true" type="xs:string" />
+      <xs:element name="MemberNumber" nillable="true" type="xs:string" />
+      <xs:element name="MemberType" type="tns:MemberType" />
+      <xs:element name="MembershipNumber" nillable="true" type="xs:string" />
+      <xs:element name="MiddleName" nillable="true" type="xs:string" />
+      <xs:element name="Photo" nillable="true" type="xs:base64Binary" />
+      <xs:element name="RelationshipType" type="tns:enumPersonRelationship" />
+      <xs:element name="Suffix" nillable="true" type="xs:string" />
+      <xs:element name="SystemIdentifier" type="xs:long" />
+      <xs:element name="UserName" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Member" nillable="true" type="tns:Member" />
+  <xs:complexType name="PhoneNumber">
+    <xs:sequence>
+      <xs:element name="AreaCode" nillable="true" type="xs:string" />
+      <xs:element name="CountryCode" nillable="true" type="xs:string" />
+      <xs:element name="Extension" nillable="true" type="xs:string" />
+      <xs:element name="Number" nillable="true" type="xs:string" />
+      <xs:element name="PhoneNumberType" type="tns:enumPhoneType" />
+      <xs:element name="SystemIdentifier" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PhoneNumber" nillable="true" type="tns:PhoneNumber" />
+  <xs:simpleType name="enumPhoneType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Primary" />
+      <xs:enumeration value="Home" />
+      <xs:enumeration value="Cell" />
+      <xs:enumeration value="Fax" />
+      <xs:enumeration value="Pager" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="enumPhoneType" nillable="true" type="tns:enumPhoneType" />
+  <xs:simpleType name="MemberType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MasterMember" />
+      <xs:enumeration value="Dependent" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MemberType" nillable="true" type="tns:MemberType" />
+  <xs:simpleType name="enumPersonRelationship">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Associate" />
+      <xs:enumeration value="Master" />
+      <xs:enumeration value="Child" />
+      <xs:enumeration value="Spouse" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="enumPersonRelationship" nillable="true" type="tns:enumPersonRelationship" />
+  <xs:complexType name="ArrayOfMember">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Member" nillable="true" type="tns:Member" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfMember" nillable="true" type="tns:ArrayOfMember" />
+  <xs:complexType name="CreditCardInfo">
+    <xs:sequence>
+      <xs:element name="BillingAddress1" nillable="true" type="xs:string" />
+      <xs:element name="BillingAddress2" nillable="true" type="xs:string" />
+      <xs:element name="BillingCity" nillable="true" type="xs:string" />
+      <xs:element name="BillingState" nillable="true" type="xs:string" />
+      <xs:element name="BillingZip" nillable="true" type="xs:string" />
+      <xs:element name="CCNameOnCard" nillable="true" type="xs:string" />
+      <xs:element name="CardExpirationMM" nillable="true" type="xs:string" />
+      <xs:element name="CardExpirationYYYY" nillable="true" type="xs:string" />
+      <xs:element name="CardType" type="tns:CreditCardCardType" />
+      <xs:element name="EncryptCardNumber" nillable="true" type="xs:string" />
+      <xs:element name="PaymentTotal" type="xs:decimal" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CreditCardInfo" nillable="true" type="tns:CreditCardInfo" />
+  <xs:simpleType name="CreditCardCardType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NONE" />
+      <xs:enumeration value="MC" />
+      <xs:enumeration value="VS" />
+      <xs:enumeration value="AE" />
+      <xs:enumeration value="DS" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="CreditCardCardType" nillable="true" type="tns:CreditCardCardType" />
+  <xs:complexType name="InitialPayment">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PMCCheckTransaction" nillable="true" type="tns:CheckTransaction" />
+      <xs:element minOccurs="0" name="PMCCreditCardTransaction" nillable="true" type="tns:CreditCardTransaction" />
+      <xs:element minOccurs="0" name="PMCPaymentLine" nillable="true" type="tns:PaymentLine" />
+      <xs:element minOccurs="0" name="TransactionAmount" type="xs:decimal" />
+      <xs:element minOccurs="0" name="TransactionType" type="tns:EnumPaymentTransactionType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="InitialPayment" nillable="true" type="tns:InitialPayment" />
+  <xs:complexType name="CheckTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ABANumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AccountNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CheckNumber" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CheckTransaction" nillable="true" type="tns:CheckTransaction" />
+  <xs:complexType name="CreditCardTransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AuthType" type="tns:EnumCreditCardAuthorizationType" />
+      <xs:element minOccurs="0" name="AuthorizationCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CCNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CreditCardType" type="tns:enumCreditCardType" />
+      <xs:element minOccurs="0" name="ExpirationDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="NameOnAccount" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProcessorReferenceNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ReferenceNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TransactionDate" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CreditCardTransaction" nillable="true" type="tns:CreditCardTransaction" />
+  <xs:simpleType name="EnumCreditCardAuthorizationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Auth" />
+      <xs:enumeration value="Capture">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="EnumCreditCardAuthorizationType" nillable="true" type="tns:EnumCreditCardAuthorizationType" />
+  <xs:simpleType name="enumCreditCardType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AmericanExpress" />
+      <xs:enumeration value="Visa" />
+      <xs:enumeration value="MasterCard" />
+      <xs:enumeration value="Discover" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="enumCreditCardType" nillable="true" type="tns:enumCreditCardType" />
+  <xs:complexType name="PaymentLine">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DiscountAmount" type="xs:decimal" />
+      <xs:element minOccurs="0" name="FeeAmount" type="xs:decimal" />
+      <xs:element minOccurs="0" name="ProductAmount" type="xs:decimal" />
+      <xs:element minOccurs="0" name="ProductCode" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PaymentLine" nillable="true" type="tns:PaymentLine" />
+  <xs:simpleType name="EnumPaymentTransactionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CreditCard" />
+      <xs:enumeration value="Check" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="EnumPaymentTransactionType" nillable="true" type="tns:EnumPaymentTransactionType" />
+  <xs:complexType name="Product">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Price" type="xs:decimal" />
+      <xs:element minOccurs="0" name="ProductCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ProductShortName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VendorCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VendorReferenceNumber" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Product" nillable="true" type="tns:Product" />
+  <xs:complexType name="ArrayOfPhoneNumber">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PhoneNumber" nillable="true" type="tns:PhoneNumber" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPhoneNumber" nillable="true" type="tns:ArrayOfPhoneNumber" />
+  <xs:complexType name="ArrayOfProduct">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Product" nillable="true" type="tns:Product" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfProduct" nillable="true" type="tns:ArrayOfProduct" />
+  <xs:complexType name="ArrayOfVehicleInformation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="VehicleInformation" nillable="true" type="tns:VehicleInformation" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfVehicleInformation" nillable="true" type="tns:ArrayOfVehicleInformation" />
+  <xs:complexType name="VehicleInformation">
+    <xs:sequence>
+      <xs:element name="Chassis" nillable="true" type="xs:string" />
+      <xs:element name="Color" nillable="true" type="xs:string" />
+      <xs:element name="Description" nillable="true" type="xs:string" />
+      <xs:element name="Engine" nillable="true" type="xs:string" />
+      <xs:element name="Height" nillable="true" type="xs:string" />
+      <xs:element name="HitchType" nillable="true" type="xs:string" />
+      <xs:element name="IsActive" type="xs:boolean" />
+      <xs:element name="IsFirstOwner" type="xs:boolean" />
+      <xs:element name="Length" nillable="true" type="xs:string" />
+      <xs:element name="LicenseCountry" nillable="true" type="xs:string" />
+      <xs:element name="LicenseNumber" nillable="true" type="xs:string" />
+      <xs:element name="LicenseState" nillable="true" type="xs:string" />
+      <xs:element name="Make" nillable="true" type="xs:string" />
+      <xs:element name="MakeOther" nillable="true" type="xs:string" />
+      <xs:element name="MemberNumber" nillable="true" type="xs:string" />
+      <xs:element name="Model" nillable="true" type="xs:string" />
+      <xs:element name="ModelOther" nillable="true" type="xs:string" />
+      <xs:element name="PersonId" type="xs:long" />
+      <xs:element name="Photo" nillable="true" type="xs:base64Binary" />
+      <xs:element name="RVType" nillable="true" type="xs:string" />
+      <xs:element name="SystemIdentifier" type="xs:long" />
+      <xs:element name="Transmission" nillable="true" type="xs:string" />
+      <xs:element name="VIN" nillable="true" type="xs:string" />
+      <xs:element name="VehicleCategory" nillable="true" type="xs:string" />
+      <xs:element name="VehicleType" nillable="true" type="xs:string" />
+      <xs:element name="WarrantyEndDate" type="xs:dateTime" />
+      <xs:element name="WarrantyStartDate" type="xs:dateTime" />
+      <xs:element name="Year" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VehicleInformation" nillable="true" type="tns:VehicleInformation" />
+  <xs:complexType name="MembershipApplicationResponse">
+    <xs:sequence>
+      <xs:element name="ErrorMessage" nillable="true" type="xs:string" />
+      <xs:element name="ErrorType" type="tns:AptifyMembershipApplicationResponseErrorType" />
+      <xs:element name="Members" nillable="true" type="tns:ArrayOfPMCMember" />
+      <xs:element name="Status" type="tns:MembershipProcessingStatus" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MembershipApplicationResponse" nillable="true" type="tns:MembershipApplicationResponse" />
+  <xs:simpleType name="AptifyMembershipApplicationResponseErrorType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NONE" />
+      <xs:enumeration value="DATAVALIDATION" />
+      <xs:enumeration value="PAYMENTPROCESSING" />
+      <xs:enumeration value="TECHNICAL" />
+      <xs:enumeration value="APTIFYPROCESSINGEXCEPTION" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="AptifyMembershipApplicationResponseErrorType" nillable="true" type="tns:AptifyMembershipApplicationResponseErrorType" />
+  <xs:complexType name="ArrayOfPMCMember">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PMCMember" nillable="true" type="tns:PMCMember" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPMCMember" nillable="true" type="tns:ArrayOfPMCMember" />
+  <xs:complexType name="PMCMember">
+    <xs:sequence>
+      <xs:element name="FirstName" nillable="true" type="xs:string" />
+      <xs:element name="LastName" nillable="true" type="xs:string" />
+      <xs:element name="MemberNumber" nillable="true" type="xs:string" />
+      <xs:element name="MembershipNumber" nillable="true" type="xs:string" />
+      <xs:element name="RelationType" type="tns:MemberType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PMCMember" nillable="true" type="tns:PMCMember" />
+  <xs:simpleType name="MembershipProcessingStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FAILURE" />
+      <xs:enumeration value="SUCCESS" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="MembershipProcessingStatus" nillable="true" type="tns:MembershipProcessingStatus" />
+  <xs:complexType name="NMCApiMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SystemIdentifier" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="NMCApiMessage" nillable="true" type="tns:NMCApiMessage" />
+  <xs:complexType name="WebUser">
+    <xs:sequence>
+      <xs:element name="CellPhone" nillable="true" type="tns:PhoneNumber" />
+      <xs:element name="Email" nillable="true" type="xs:string" />
+      <xs:element name="MemberNumber" nillable="true" type="xs:string" />
+      <xs:element name="NMCPasswordLastChangeDate" type="xs:dateTime" />
+      <xs:element name="NMCPasswordResetToken" type="ser:guid" />
+      <xs:element name="NMCPasswordTokenGeneratedOn" type="xs:dateTime" />
+      <xs:element name="NMCPasswordTokenValidityInHours" type="xs:long" />
+      <xs:element name="Password" nillable="true" type="xs:string" />
+      <xs:element name="PersonID" type="xs:long" />
+      <xs:element name="SystemIdentifier" type="xs:long" />
+      <xs:element name="UserID" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WebUser" nillable="true" type="tns:WebUser" />
+  <xs:simpleType name="enumMemberEmailType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ForgotUserName" />
+      <xs:enumeration value="ForgotPassword" />
+      <xs:enumeration value="WebAccountSetupConfirmation" />
+      <xs:enumeration value="InvitationToRegister" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="enumMemberEmailType" nillable="true" type="tns:enumMemberEmailType" />
+</xs:schema>

@@ -1,0 +1,197 @@
+﻿@model Martex.DMS.DAL.Entities.VendorInvoiceSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    int p = 0;
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    if (!string.IsNullOrEmpty(Model.IDType))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceType">
+        <a href="javascript:void(0)" class="delete" role="combo" data="IDType">X</a> - Type
+        : @Model.IDType
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.IDValue))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceTypeID">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="IDValue">X</a>
+        - ID : @Model.IDValue
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.NameValue))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaVendorName">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="NameValue">X</a>
+        - Name : @Model.NameValue
+    </p>
+    }
+
+    if (Model.NameOperator.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaVendorNameOperator">
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameOperator">X</a>
+        - value that : @Model.NameOperator
+    </p>
+    }
+
+    foreach (CheckBoxLookUp result in Model.InvoiceStatuses)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "InvoiceStatuses_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Invoice Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+
+    foreach (CheckBoxLookUp result in Model.POStatuses)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "POStatuses_" + p.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        PO Status : @result.Name
+    </p>
+        }
+        p = p + 1;
+    }
+    { p = 0; }
+    foreach (CheckBoxLookUp result in Model.PayStatusCodes)
+    {
+
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "PayStatusCodes_" + p.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Pay Status : @result.Name
+    </p>
+        }
+        p = p + 1;
+    }
+
+    { p = 0; }
+    foreach (CheckBoxLookUp result in Model.ExceptionTypes)
+    {
+
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ExceptionTypes_" + p.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Exception Type : @result.Name
+    </p>
+        }
+        p = p + 1;
+    }
+
+    if (Model.InvoiceFrom.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceFrom">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="InvoiceFrom">X</a>
+        - From : @Model.InvoiceFrom.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.InvoiceTo.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceTo">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="InvoiceTo">X</a>
+        - To : @Model.InvoiceTo.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ToBePaidFrom.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceFrom">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ToBePaidFrom">X</a>
+        - To be paid From : @Model.ToBePaidFrom.Value.ToShortDateString()
+    </p>
+    }
+
+    if (Model.ToBePaidTo.HasValue)
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaInvoiceTo">
+        <a href="javascript:void(0)" class="delete" role="textBox" data="ToBePaidTo">X</a>
+        - To be paid To : @Model.ToBePaidTo.Value.ToShortDateString()
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.ExportType))
+    {
+        hasElement = true;
+    <p id="PSelectedCriteriaExportBatch">
+        <a href="javascript:void(0)" class="delete" role="combo" data="ExportType">X</a>
+        - Run : @Model.ExportTypeName
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                    SynchronizeCheckBoxesForInvoiceStatus();
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                }
+                if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+                    $('#' + element).data('kendoComboBox').trigger('change');
+
+
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdVendorInvoices').data('kendoGrid').dataSource.read();
+            SynchronizeCheckBoxesForInvoiceStatus();
+            return false;
+        });
+    });
+
+
+</script>

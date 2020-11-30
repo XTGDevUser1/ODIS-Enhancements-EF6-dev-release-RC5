@@ -1,0 +1,248 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+@{
+    var dummyList = new List<SelectListItem>();
+}
+<script language="javascript" type="text/javascript">
+
+    function PhysicalAddress_CountryAfterChange(combo) {
+        if (combo != null && combo.text() == "Canada") {
+            $(".caoptional").removeClass("star").removeClass("red").html("");
+        }
+        else {
+            $(".caoptional").addClass("star").addClass("red").html("*");
+        }
+    }
+
+</script>
+<style type="text/css">
+.hidden
+{
+    display:none;    
+}
+</style>
+<div class="twelve-columns">
+<h2 class="thin margin-bottom">
+    Business Information</h2>
+<p class="button-height inline-large-label ">
+    <label for="dba" class="label">
+        DBA (Doing Business as Name) <span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.DBA, new { @class = "input full-width2 validate[required, maxSize[255]]" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="corporateName" class="label">
+        Corporate Name <span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.CorporateName, new { @class = "input full-width2 validate[required, maxSize[255]]" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="website" class="label">
+        Website
+    </label>
+    @Html.TextBoxFor(v => v.Website, new { @class = "input full-width2 validate[custom[url], maxSize[100]]" })
+</p>
+<p class="button-height inline-large-label">
+    <label for="contactname" class="label">
+        Contact First Name (Owner) <span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.ContactFirstName, new { @class = "input full-width2 validate[required, maxSize[50]]" })
+    
+</p>
+<p class="button-height inline-large-label">
+    <label for="contactname" class="label">
+        Contact Last Name <span class="star red">*</span>
+    </label>    
+    @Html.TextBoxFor(v => v.ContactLastName, new { @class = "input full-width2 validate[required, maxSize[50]]" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="email" class="label">
+        Email Address<span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.Email, new { @class = "input full-width2 validate[required, custom[email], maxSize[255]]" })
+</p>
+
+<h3 class="underline margin-bottom">Physical Business Address</h3>
+@Html.Editor("PhysicalAddress", "AddressSingle", new { IsCityRequired = true, IsZipRequired = true, CountryPostChangeCallback = "PhysicalAddress_CountryAfterChange" })
+
+<h3 class="underline margin-bottom">Billing Address <span class="small-margin-left">@Html.CheckBox("IsBillingAddressDifferent", false, new { @class = "checkbox" }) <small>Different than Business Address</small></span></h3>
+<div id="divBillingAddress" class="hidden">
+@Html.Editor("BillingAddress", "AddressSingle", new { IsCityRequired = true, IsZipRequired = true })
+</div>
+
+<p class="button-height inline-large-label ">
+    <label for="officePhone" class="label">
+        Office Phone<span class="star red">*</span>
+    </label>
+    @Html.Editor("OfficePhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="dispatchPhone" class="label">
+        Dispatch Phone <small>(24-hour if available)</small><span class="star red">*</span>
+    </label>
+    @Html.Editor("DispatchPhone", "Phone", new { ShowPhoneType = false, IsRequired = true, ShowCallIcon = false })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="fax" class="label">
+        Fax Number
+    </label>
+    @Html.Editor("FaxPhone", "Phone", new { ShowPhoneType = false, ShowCallIcon = false })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="businessCellPhone" class="label">
+        Business Cell Phone
+    </label>
+    @Html.Editor("BusinessCellPhone", "Phone", new { ShowPhoneType = false, ShowCallIcon = false })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="open24x7" class="label">
+        Open 24 X 7<span class="star red">*</span>
+    </label>
+    @Html.RadioButton("Open24X7", true, new { @class = "radio" }) Yes
+    @Html.RadioButton("Open24X7", false, new { @class = "radio" }) No
+
+    @*@Html.CheckBoxFor(v => v.Open24X7, new { @class = "checkbox", id = "Open24X7" })*@
+</p>
+
+<div id="divBusinessHours" class="hidden">
+@Html.Partial("_BusinessHours",Model == null ? null : Model.BusinessHours)
+</div>
+
+<p class="button-height inline-large-label ">
+    <label for="dotNumber" class="label">
+        DOT Number
+    </label>
+    @Html.TextBoxFor(v => v.DotNumber, new { @class = "input validate[maxSize[50]] "})
+</p>
+<p class="button-height inline-large-label ">
+    <label for="motorCarrierNumber" class="label">
+        Motor Carrier Number
+    </label>
+    @Html.TextBoxFor(v => v.MotorCarrierNumber, new { @class = "input validate[maxSize[50]]" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="bgcheck" class="label">
+        Do you perform pre-employment background checks?
+    </label>
+    @Html.CheckBoxFor(v => v.PreEmploymentBackgroundCheck, new { @class = "checkbox" })
+</p>
+<p></p>
+<p class="button-height inline-large-label ">
+    <label for="drugtest" class="label">
+        Do you perform random drug testing?
+    </label>
+    @Html.CheckBoxFor(v => v.RandomDrugTesting, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="driver" class="label">
+        Do you have uniformed drivers?
+    </label>
+    @Html.CheckBoxFor(v => v.HasUniformedDrivers, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="displayCompanyName" class="label">
+        Do all your service vehicles display the company name?
+    </label>
+    @Html.CheckBoxFor(v => v.VehiclesDisplayCompanyName, new { @class = "checkbox" })
+</p>
+
+<h3 class=" underline margin-bottom">Methods for receiving dispatch information</h3>
+<p class="button-height inline-large-label ">
+    <label for="digital" class="label">
+        Electronic / Digital Dispatch
+    </label>
+    @Html.CheckBoxFor(v => v.SupportForElectronicDispatch, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="faxDispatch" class="label">
+        Fax
+    </label>
+    @Html.CheckBoxFor(v => v.SupportForFax, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="emailDispatch" class="label">
+        Email
+    </label>
+    @Html.CheckBoxFor(v => v.SupportForEmail, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="textDispatch" class="label">
+        Text
+    </label>
+    @Html.CheckBoxFor(v => v.SupportForText, new { @class = "checkbox" })
+</p>
+<h3 class="underline margin-bottom">Payment types accepted</h3>
+<p class="button-height inline-large-label ">
+    <label for="cash" class="label">
+        Cash
+    </label>
+    @Html.CheckBoxFor(v => v.Cash, new { @class = "checkbox" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="personalCheck" class="label">
+        Personal Check
+    </label>
+    @Html.CheckBoxFor(v => v.PersonalCheck, new { @class = "checkbox" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="visa" class="label">
+        Visa
+    </label>
+    @Html.CheckBoxFor(v => v.Visa, new { @class = "checkbox" })
+</p>
+
+<p class="button-height inline-large-label ">
+    <label for="mastercard" class="label">
+        MasterCard
+    </label>
+    @Html.CheckBoxFor(v => v.MasterCard, new { @class = "checkbox" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="amex" class="label">
+        American Express
+    </label>
+    @Html.CheckBoxFor(v => v.AmericanExpress, new { @class = "checkbox" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="discover" class="label">
+        Discover
+    </label>
+    @Html.CheckBoxFor(v => v.Discover, new { @class = "checkbox" })
+</p>
+</div>
+<script language="javascript" type="text/javascript">
+
+    $(function () {
+        var divBillingAddress = $("#divBillingAddress");
+        var divBusinessHours = $("#divBusinessHours");
+
+        $('input[name="IsBillingAddressDifferent"]').change(function (e) {
+
+            if ($(this).attr('checked')) {
+                divBillingAddress.removeClass("hidden");
+                divBillingAddress.show("slide", {}, 800, function () { /*IsFormValid();*/ });
+            }
+            else {
+                divBillingAddress.hide("slide", {}, 800, function () { divBillingAddress.addClass("hidden"); /*IsFormValid(); */ });
+            }
+        });
+
+        $('input[name="Open24X7"]').change(function (e) {
+            
+            if ($(this).val() == "False") {
+                divBusinessHours.removeClass("hidden");
+                divBusinessHours.show();
+            }
+            else {
+                divBusinessHours.hide();
+                divBusinessHours.addClass("hidden"); /* IsFormValid(); */
+            }
+        });
+
+    });
+</script>

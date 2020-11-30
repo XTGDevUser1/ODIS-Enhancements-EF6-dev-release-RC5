@@ -1,0 +1,264 @@
+﻿@using Telerik.Web.Mvc.UI
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7 oldie"><![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js ie7 oldie" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js ie8 oldie" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js ie9" lang="en"><![endif]-->
+<!--[if (gt IE 9)|(gt IEMobile 7)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Martex :: Dispatch Management System</title>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <!-- http://davidbcalhoun.com/2010/viewport-metatag -->
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- For all browsers -->
+    <link rel="stylesheet" href="@Url.Content("~/css/reset.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/style.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/colors.css?v=1")"/>
+    <link rel="stylesheet" media="print" href="@Url.Content("~/css/print.css?v=1")"/>
+    <!-- For progressively larger displays -->
+    <link rel="stylesheet" media="only all and (min-width: 480px)" href="@Url.Content("~/css/480.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 768px)" href="@Url.Content("~/css/768.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 992px)" href="@Url.Content("~/css/992.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 1200px)" href="@Url.Content("~/css/1200.css?v=1")"/>
+    <!-- For Retina displays -->
+    <link rel="stylesheet" media="only all and (-webkit-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5)" href="@Url.Content("~/css/2x.css?v=1")"/>
+    <!-- Webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet'
+        type='text/css' />
+    <!-- Additional styles -->
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/agenda.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/dashboard.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/form.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/modal.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/progress-slider.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/switches.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/js/libs/formValidator/developr.validationEngine.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/slidepanel/slide.css")"/>
+    <link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/js/libs/jquery-1.7.2.min.js")"></script>
+    <!-- JavaScript at bottom except for Modernizr -->
+    <script src="@Url.Content("~/js/libs/modernizr.custom.js")"></script>
+    <!-- For Modern Browsers -->
+    <link rel="shortcut icon" href="@Url.Content("~/img/favicons/favicon.png")"/>
+    <!-- For everything else -->
+    <link rel="shortcut icon" href="@Url.Content("img/favicons/favicon.ico")"/>
+    <!-- For retina screens -->
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@Url.Content("~/img/favicons/apple-touch-icon-retina.png")"/>
+    <!-- For iPad 1-->
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@Url.Content("~/img/favicons/apple-touch-icon-ipad.png")"/>
+    <!-- For iPhone 3G, iPod Touch and Android -->
+    <link rel="apple-touch-icon-precomposed" href="@Url.Content("~/img/favicons/apple-touch-icon.png")"/>
+    <!-- iOS web-app metas -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- Startup image for web apps -->
+    <link rel="apple-touch-startup-image" href="img/splash/ipad-landscape.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" />
+    <link rel="apple-touch-startup-image" href="img/splash/ipad-portrait.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" />
+    <link rel="apple-touch-startup-image" href="img/splash/iphone.png" media="screen and (max-device-width: 320px)" />
+    <link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+    <!-- Microsoft clear type rendering -->
+    <meta http-equiv="cleartype" content="on" />
+    <!-- IE9 Pinned Sites: http://msdn.microsoft.com/en-us/library/gg131029.aspx -->
+    <meta name="application-name" content="Martex Dispatch Management System" />
+    <meta name="msapplication-tooltip" content="Cross-platform admin template." />
+    <meta name="msapplication-starturl" content="http://www.display-inline.fr/demo/developr" />
+    <!-- These custom tasks are examples, you need to edit them to show actual pages -->
+    <meta name="msapplication-task" content="name=Agenda;action-uri=http://www.display-inline.fr/demo/developr/agenda.html;icon-uri=http://www.display-inline.fr/demo/developr/img/favicons/favicon.ico" />
+    <meta name="msapplication-task" content="name=My profile;action-uri=http://www.display-inline.fr/demo/developr/profile.html;icon-uri=http://www.display-inline.fr/demo/developr/img/favicons/favicon.ico" />
+</head>
+<body class="clearfix with-menu menu-hidden">
+    <!-- Prompt IE 6 users to install Chrome Frame -->
+    <!--[if lt IE 7]><p class="message red-gradient simpler">Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+    <!-- Top Header -->
+    @*<div id="top-header">
+        <ul>
+            <li><a href="@Url.Action("LogOff", "Account", new { area = "" })">Log Off</a></li>
+            <li>|</li>
+            <li><a href="@Url.Action("Index", "Feedback", new { area = "Application" })">Feedback</a></li>
+        </ul>
+        <img src="../../img/logo-small.png" alt="" class="logo" />
+    </div>*@
+    <!-- end Top Header-->
+    <!-- Title bar -->
+    <header role="banner" id="title-bar">
+		<!--start of horizontal menu -->
+         @Html.Partial("_Menu")
+        <!--end of horizontal menu -->
+	</header>
+    <span class="workArea">
+    <section id="main">
+        @RenderBody()
+        </section>
+    </span>
+    <!-- Side tabs shortcuts -->
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right">
+  <li class="current"><a href="/Home" class="shortcut-dashboard" title="Home">Home</a></li>
+  <li><a href="@Url.Action("Index", "Request", new { area = "Application" })" class="shortcut-messages" title="Request">Request</a></li>
+  <li><a href="@Url.Action("Index", "Queue", new { area = "Application" })" class="shortcut-agenda" title="Queue">Queue</a></li>
+  <li><a href="#" class="shortcut-contacts" title="Case History">Case History</a></li>
+  <li><a href="#" class="shortcut-medias" title="Admin">Admin</a></li>
+</ul>
+    @Html.Partial("_FooterSlider")
+</body>
+<!-- JavaScript at the bottom for fast page loading -->
+<!-- Scripts -->
+<script src="@Url.Content("~/js/setup.js")"></script>
+<!-- Template functions -->
+<script src="@Url.Content("~/js/developr.input.js")"></script>
+<script src="@Url.Content("~/js/developr.message.js")"></script>
+<script src="@Url.Content("~/js/developr.modal.js")"></script>
+<script src="@Url.Content("~/js/developr.navigable.js")"></script>
+<script src="@Url.Content("~/js/developr.notify.js")"></script>
+<script src="@Url.Content("~/js/developr.scroll.js")"></script>
+<script src="@Url.Content("~/js/developr.progress-slider.js")"></script>
+<script src="@Url.Content("~/js/developr.tooltip.js")"></script>
+<script src="@Url.Content("~/js/developr.confirm.js")"></script>
+<script src="@Url.Content("~/js/developr.agenda.js")"></script>
+<script src="@Url.Content("~/js/developr.tabs.js")"></script>
+<script src="@Url.Content("~/js/developr.tabs.js")"></script>
+<script src="@Url.Content("~/js/developr.tabs.js")"></script>
+<script src="@Url.Content("~/js/libs/formValidator/jquery.validationEngine.js?v=1")"></script>
+<script src="@Url.Content("~/js/libs/formValidator/languages/jquery.validationEngine-en.js?v=1")"></script>
+<script src="@Url.Content("~/js/slidePanel/slide.js")"></script>
+<script src="@Url.Content("~/js/jquery-ui-1.8.11.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/js/CustomWindowUtil.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.blockUI.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/js/CustomJScript.js")" type="text/javascript"></script>
+<!-- Block UI -->
+<script language="javascript" type="text/javascript">
+
+    $(function () {
+        $('html')
+        .ajaxStart(function () {
+
+            $.blockUI({ message: '<div class="ajax-load"/>'
+                ,
+                css: { background: 'transparent', border: '0px' }
+            });
+        })
+        .ajaxStop(function () {
+
+            $.unblockUI();
+            $('html').css('cursor', 'pointer');
+
+        })
+        .ajaxError(function (err, errStatus) {
+            var errorMessage = 'An error occurred while processing the request.';
+            if (errStatus.status == 403) {
+                Handle403(errStatus);
+                return false;
+            }
+            try {
+                var json = $.parseJSON(errStatus.responseText);
+                if (json.Data == null) {
+                    errorMessage = json.ErrorMessage;
+                }
+                else {
+                    errorMessage = json.ErrorMessage + "<br/> Please contact administrator with the key [ " + json.Data + " ] for more details";
+                }
+            }
+            catch (exception) {
+                // possible error while parsing response as JSON
+            }
+            $.unblockUI();
+            $('html').css('cursor', 'pointer');
+
+            if (typeof (formWrapper) != "undefined") {
+                formWrapper.clearMessages();
+            }
+            openAlertMessage(errorMessage);
+
+        });
+    });
+
+    function Handle403(errStatus) {
+
+        openAlertMessage("Session timed out");
+        var json = JSON.parse(errStatus.responseText);
+        window.location = json.Data;
+
+    }
+</script>
+<script src="@Url.Content("~/js/libs/tinycon.min.js")"></script>
+@(Html.Telerik().StyleSheetRegistrar()
+                      .DefaultGroup(group => group
+                          .Add("telerik.common.css")
+                          .Add("telerik.office2010silver.min.css")
+                          .Add("Site.css")
+                          .Add("validationEngine.jquery.css")
+                          .Combined(true)
+                          .Compress(true)))
+@Html.Telerik().ScriptRegistrar().DefaultGroup(group => group
+                                .Add("telerik.common.min.js")
+                                .Add("telerik.grid.min.js")
+                                .Add("telerik.draganddrop.min.js")
+                                .Add("telerik.tabstrip.min.js")
+                                .Add("telerik.window.min.js")
+                                .Add("telerik.grid.filtering.min.js")
+                                .Add("telerik.list.min.js")
+                                .Add("telerik.combobox.min.js")
+
+                                .CacheDurationInDays(10)).jQuery(false)
+<script language="javascript" type="text/javascript">
+    function GetWindowHeight() {
+        if (window.innerHeight) {
+            return window.innerHeight;
+        }
+        return document.documentElement.clientHeight;
+    }
+    function GetPopupWindowHeight() {
+        var winHeight;
+        if (window.innerHeight) {
+            winHeight = window.innerHeight;
+        }
+        winHeight = document.documentElement.clientHeight;
+
+        return winHeight - 50;
+    }
+
+    var isdirty = false;
+    function IsPageDirty() {
+        if (isdirty) {
+
+            var answer = confirm('There are some unsaved changes on the form. Click Cancel to stay on the page or click OK to discard your changes and navigate away.');
+            if (answer) {
+                isdirty = false;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            return true;
+        }
+    }
+    // Set the following variable to false if dirty page checks are not required
+    var handleDirtyPage = true;
+    $(function () {
+        $("input,textarea,select").live("change",function (e) {
+            //KB: Stickynote should be excluded from dirty page checks
+            if ($(e.currentTarget).attr("class") != "stickyNote-editable" && handleDirtyPage) {                
+                isdirty = true;
+            }
+
+        });
+    });
+
+    window.onbeforeunload = confirmExit;
+    function confirmExit() {
+        if (isdirty)
+            return "You have attempted to leave this page.  If you have made any changes to the fields without clicking the Save button, your changes will be lost.  Are you sure you want to exit this page?";
+    }
+
+        
+</script>
+</html>

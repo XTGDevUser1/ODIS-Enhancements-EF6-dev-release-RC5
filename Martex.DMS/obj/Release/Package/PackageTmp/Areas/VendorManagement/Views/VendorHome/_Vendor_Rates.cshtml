@@ -1,0 +1,96 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model Martex.DMS.BLL.Model.VendorRatesModel
+@{
+    var suffixVendorID = Model.VendorID.ToString();
+    string toolVarTemplate = GetToolBarTemplate(suffixVendorID).ToHtmlString();
+}
+<script type="text/javascript">
+    function VendorSearchCriteria() {
+        return { VendorId: '@suffixVendorID' };
+    }
+   
+</script>
+<form id="frmVendorRateAndSchedules_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_RatesSchedules_Buttons_@suffixVendorID">
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Rate Schedule</legend>
+                <div class="with-padding">
+                    <div class="columns">
+                        <div class="twelve-columns">
+                            <fieldset class="fieldset">
+                                <legend class="legend">Details</legend>
+                                <div id="PlaceHolder_Vendor_Rates_Details_@suffixVendorID">
+                                    @Html.Partial("_Vendor_Rates_Details", Model)
+                                </div>
+                            </fieldset>
+                        </div>
+                        
+                        
+                        <div class="new-row twelve-columns">
+                            
+                                <h3 class="underline"> Rate Schedules</h3>
+                               
+                        </div>
+                        <div class="new-row twelve-columns">
+                            @(Html.Kendo().Grid<Vendor_Rates_Schedules_Result>()                            
+                                          .Name("GrdVendorRatesAndSchedule_" + suffixVendorID)
+                                          .Columns(column =>
+                                          {
+                                              column.Bound(a => a.ContractID).Visible(false);
+                                              column.Bound(a => a.ContractRateScheduleID).Visible(false);
+                                              column.Bound(a => a.ContractRateScheduleStartDate).Title("Start Date").Format("{0:MM/dd/yyyy}");
+                                              column.Bound(a => a.ContractRateScheduleEndDate).Title("End Date").Format("{0:MM/dd/yyyy}");
+                                              column.Bound(a => a.ContractRateScheduleStatus).Title("Status");
+                                              column.Bound(a => a.ContractRateScheduleSignedDate).Title("Date Signed").Format("{0:MM/dd/yyyy}");
+                                              column.Bound(a => a.SignedBy).Title("Signed By");
+                                              column.Bound(a => a.SignedByTitle).Title("Signed By Title");
+                                              column.Bound(a => a.ContractStartDate).Title("Contract").Format("{0:MM/dd/yyyy}");
+                                              column.Command(command =>
+                                              {
+                                                  command.Custom("View").Click(@<text>function(e){Grid_ManageVendorRatesAndSchedule(e,this,'@suffixVendorID')}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                                                  command.Custom("Edit").Click(@<text>function(e){Grid_ManageVendorRatesAndSchedule(e,this,'@suffixVendorID')}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                                                  command.Custom("Delete").Click(@<text>function(e){Grid_ManageVendorRatesAndSchedule(e,this,'@suffixVendorID')}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                                              })
+                                             .Width(150)
+                                             .Title("Action(s)");
+                                          })
+                                           .ToolBar(toolBar => toolBar.Template(toolVarTemplate))
+                                           .Events(e =>
+                                           {
+                                               e.DataBound("GrdVendorRatesAndSchedule_OnDataBound");
+                                           })
+                                        .EnableCustomBinding(true)
+                                        .Pageable(pager => pager
+                                            .Refresh(true)
+                                            .PageSizes(false)                                            
+                                        )
+                                        .Selectable(select => select.Mode(GridSelectionMode.Single))
+                                        .DataSource(datasource => datasource
+                                        .Ajax()
+                                        .Events(events => events.Error("KendoGridErrorHandler"))
+                                                .Read(read => read.Action("VendorRateAndSchedulesList", "VendorHome").Data("VendorSearchCriteria"))
+                                        .PageSize(10)
+                                        )
+                                        .Resizable(resize => resize.Columns(true))
+                                        )
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>
+</form>
+@helper GetToolBarTemplate(string vendorID)
+    {
+    <a style = "min-width:auto;", title="Add" , class="k-button k-button-icontext k-grid-add with-tooltip" href="javascript:void(0);" onclick="Grid_ManageVendorRatesAndSchedule(null,null,'@vendorID')">
+        <span class="k-icon k-add"></span>Add Rate Schedule</a>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorRateAndSchedules_@suffixVendorID').validationEngine();
+    });
+</script>

@@ -1,0 +1,32 @@
+﻿@model Martex.DMS.BLL.Model.TempCCPModels.ImportCCFileResult
+<div class="with-padding">
+    <p>
+        Import CC Charged File Results
+    </p>
+    <table class="table simple-table">
+        <tr>
+            <td>
+                Total records read
+            </td>
+            <td>
+                @Model.TotalRecordRead
+            </td>
+        </tr>
+         <tr>
+            <td>
+                Total detail transactions added
+            </td>
+            <td>
+                @Model.TotalDetailTransactionAdded
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Total error records
+            </td>
+            <td>
+                @Model.TotalErrorRecords
+            </td>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,96 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+}
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        User Name</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.DisplayFor(u => u.WebAccountInfo.Username)
+    }
+</p>
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        First/Last Name</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.DisplayFor(u => u.WebAccountInfo.FirstLastName)
+    }
+</p>
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        Email</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.DisplayFor(u => u.WebAccountInfo.Email)
+    }
+</p>
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        Last Activity Date</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Model.WebAccountInfo.LastActivityDate
+    }
+</p>
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        Last Password Changed</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Model.WebAccountInfo.LastPasswordChangedDate
+    }
+</p>
+<div class="inline-label small-margin-bottom">
+    <label class="label">
+        Access Status</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.CheckBox("WebAccountIsApproved", @Model.WebAccountInfo.IsApproved, new { @class = "checkbox full-width", @disabled = "disabled", id = "WebAccountIsApproved_" + @suffixVendorID })
+        @Html.Raw("Is Approved")
+    }
+</div>
+<div class="inline-label small-margin-bottom">
+    <label class="label">
+        &nbsp;</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.CheckBox("WebAccountIsLockedOut", @Model.WebAccountInfo.IsLockedOut, new { @class = "checkbox full-width", @disabled = "disabled", id = "WebAccountIsLockedOut_" + @suffixVendorID })
+        @Html.Raw("Is Locked Out")
+    }
+</div>
+<p class="inline-label small-margin-bottom">
+    <label class="label">
+        i5 Account</label>
+    @if (Model.WebAccountInfo != null)
+    {
+        @Html.DisplayFor(u => u.WebAccountInfo.LegacyUsername)
+        @Html.Raw(" | ")
+        @Html.DisplayFor(u => u.WebAccountInfo.LegacyPassword)
+    }
+</p>
+@if (Model.WebAccountInfo != null)
+{
+    <div class="inline-label small-margin-bottom">
+        <button  class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="ShowVendorInfoWebAccountEditMode('@suffixVendorID');">
+            Edit</button>
+    </div>
+}
+<script type="text/javascript">
+    function ShowVendorInfoWebAccountEditMode(vendorID) {
+        $.ajax({
+            type: 'GET',
+            url: '/VendorManagement/VendorHome/_VendorInformation_WebAccountEdit',
+            data: { vendorID: vendorID },
+            cache: false,
+            success: function (msg) {
+                $('#PlaceHolder_Vendor_Info_Web_Account_' + vendorID).html(msg);
+
+            }
+        });
+    }
+</script>

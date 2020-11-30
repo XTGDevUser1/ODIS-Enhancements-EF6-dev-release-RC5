@@ -1,0 +1,16 @@
+﻿<?xml version="1.0"?>
+	<DDMessage Version="1.0">
+		<DDMessageHeader>
+			<HeaderVersion>$HeaderVersion</HeaderVersion>
+			<Key>$Key</Key>
+			<ContractorID>$ContractorID</ContractorID>
+			<ResponseID>$ResponseID</ResponseID>
+			<TransType>$TransType</TransType>
+			<MsgVersion>$MsgVersion</MsgVersion>
+			<ConRequired>$ConRequired</ConRequired>
+			<ResponseType>$ResponseType</ResponseType>
+		</DDMessageHeader>
+		<DSRMessage>
+      <DSRStruc>$DSRStruc</DSRStruc>
+		</DSRMessage>
+	</DDMessage>

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             x:Class="ODISMember.Pages.Tabs.RoadsideVehicleServiceQuestions"
+             BackgroundColor="{x:Static Resource:ColorResources.PageBackgroundColor}">
+  <ScrollView>
+    <StackLayout VerticalOptions="Start" Padding="10">
+      <StackLayout x:Name="stackQuestion"/>
+      <StackLayout Spacing="10" Padding="10,30,10,0">
+        <Button Text="Previous" x:Name="btnPrev" HorizontalOptions="Fill" Style="{StaticResource BaseButtonStyle}"/>
+        <Button Text="NEXT" x:Name="btnNext" HorizontalOptions="Fill" Style="{StaticResource BaseButtonStyle}"/>
+      </StackLayout>
+    </StackLayout>
+  </ScrollView>
+ 
+</ContentPage>

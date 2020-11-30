@@ -1,0 +1,161 @@
+﻿@using Kendo.Mvc.UI
+@using VendorPortal.ActionFilters
+@using Martex.DMS.DAL
+@{
+    var model = ViewData["Value"] as AddressEntity;
+    if (model == null)
+    {
+        model = new AddressEntity();
+    }
+
+    var cityRequired = ViewData["IsCityRequired"] as bool?;
+    if (cityRequired == null)
+    {
+        cityRequired = false;
+    }
+
+    var zipRequired = ViewData["IsZipRequired"] as bool?;
+    if (zipRequired == null)
+    {
+        zipRequired = false;
+    }
+
+    var countryPostChangeCallback = string.Empty;
+    if (ViewData["CountryPostChangeCallback"] != null)
+    {
+        countryPostChangeCallback = ViewData["CountryPostChangeCallback"].ToString();
+    }
+}
+<script type="text/javascript">
+
+    function Country_OnChange(e, prefix, postChangeCallback) {
+
+        var combo = e.sender;
+        var stateComboID = prefix + "_StateProvinceID";
+        var stateComboName = prefix + ".StateProvinceID";
+        var comboChild = $("#" + stateComboID).data("kendoComboBox");
+        var fnCallback = null;
+        if (postChangeCallback != null && $.trim(postChangeCallback).length > 0) {
+            fnCallback = eval(postChangeCallback);
+        }
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+            if (fnCallback != null) {
+                fnCallback(combo);
+            }
+        }
+        else {
+            if (combo.value() != null && $.trim(combo.value()).length > 0) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                    data: { countryId: combo.value() },
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        comboChild.setDataSource(msg);
+                        //comboChild.select(0);
+                        comboChild.value('');
+                        comboChild.text('');
+                        SetFocusOnField(stateComboName);
+                        if (fnCallback != null) {
+                            fnCallback(combo);
+                        }
+                    }
+
+                });
+            }
+            else {
+                ResetCombo(comboChild);
+                SetFocusOnField(stateComboName);
+                if (fnCallback != null) {
+                    fnCallback(combo);
+                }
+            }
+        }
+
+    }
+</script>
+@Html.Hidden("ID", model.ID)
+<p class="button-height inline-large-label ">
+    <label for="Line1" class="label">
+        Line 1 <span class="star red">*</span>
+    </label>
+    @Html.TextBox("Line1", model.Line1, new { @class = "input full-width2 validate[required]", @maxlength = 100 })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="Lin2" class="label">
+        Line 2
+    </label>
+    @Html.TextBox("Line2", model.Line2, new { @class = "input full-width2", @maxlength = 100 })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="Line3" class="label">
+        Line 3
+    </label>
+    @Html.TextBox("Line3", model.Line3, new { @class = "input full-width2", @maxlength = 100 })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="city" class="label">
+        City @if (cityRequired == true)
+             {<span class="star red">*</span> }
+    </label>
+    @if (cityRequired == true)
+    {
+        @Html.TextBox("City", model.City, new { @class = "input full-width2 validate[required]", @maxlength = 100 })
+    }
+    else
+    {
+        @Html.TextBox("City", model.City, new { @class = "input full-width2", @maxlength = 100 })
+    }
+</p>
+<div class="button-height inline-large-label">
+    <label for="Country" class="label">
+        Country <span class="star red">*</span>
+    </label>
+    @(Html.Kendo().ComboBox()
+    .Name(ViewData.TemplateInfo.HtmlFieldPrefix + ".CountryID")
+    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+    .Events(events => events
+        .Change(@<text> function(e){ return Country_OnChange(e,'@ViewData.TemplateInfo.HtmlFieldPrefix','@countryPostChangeCallback');
+    }</text>)
+    )
+    .Suggest(true)
+    .BindTo(ViewData[StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+    .HtmlAttributes(new { @class = "required" })
+    .SelectedIndex(0)
+    .Value(model.CountryID != null ? model.CountryID.ToString() : string.Empty)
+    )
+</div>
+<div class="button-height inline-large-label">
+    <label for="State" class="label">
+        State / Province <span class="star red">*</span>
+    </label>
+    @(Html.Kendo().ComboBox()
+    .Name(ViewData.TemplateInfo.HtmlFieldPrefix + ".StateProvinceID")
+    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+    .Events(events => events.Change("ValidateInputForKendoCombo").DataBound("DefaultDataBoundToAdjustContainerWidth"))
+    .Suggest(true)
+    .BindTo(ViewData[StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+    .HtmlAttributes(new { @class = "required" })
+    .Value(model.StateProvinceID != null ? model.StateProvinceID.ToString() : string.Empty)
+    )
+</div>
+<p class="button-height inline-large-label ">
+    <label for="zip" class="label">
+        Zip
+        @if (zipRequired == true)
+        {<span class="star red">*</span>}
+    </label>
+    @if (zipRequired == true)
+    {
+        @Html.TextBox("PostalCode", model.PostalCode, new { @class = "input validate[required]", @maxlength = 20 })
+    }
+    else
+    {
+        @Html.TextBox("PostalCode", model.PostalCode, new { @class = "input", @maxlength = 20 })
+    }
+</p>

@@ -1,0 +1,139 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+<script type="text/javascript">
+
+    var clientRepMaintenanceWindow;
+
+    function GrdClientRepMaintenance_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+    }
+
+    function ManageClientRep(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            if (e.data.commandName == 'View') {
+                LoadClientRepDetails(recordID, "View", "View : " + recordID);
+            }
+            else if (e.data.commandName == 'Edit') {
+                LoadClientRepDetails(recordID, "Edit", "Edit : " + recordID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                $.modal.confirm('Are you sure you want to delete this ClientRep?', function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeleteClientRep", "ClientRep", new { area = "ClientManagement" })',
+                        data: { recordID: recordID },
+                        success: function (msg) {
+                            openAlertMessage('ClientRep Deleted Successfully');
+                            $('#GrdClientRepMaintenance').data('kendoGrid').dataSource.read();
+                        }
+                    });
+                }, function () {
+
+                });
+            }
+        }
+        else {
+            LoadClientRepDetails(recordID, "Add", "New ClientRep");
+        }
+        return false;
+    }
+
+    function LoadClientRepDetails(recordID, mode, title) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("ClientRepDetails", "ClientRep", new { area = "ClientManagement" })',
+            data: { recordID: recordID, mode: mode },
+            cache: false,
+            success: function (msg) {
+                clientRepMaintenanceWindow = $("<div id='clientRepMaintenanceWindow' />").appendTo(document.body);
+                clientRepMaintenanceWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#formClientRepMaintenanceDetails').validationEngine('hideAll');
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('formClientRepMaintenanceDetails')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('formClientRepMaintenanceDetails');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                clientRepMaintenanceWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="columns">
+    <div class="new-row twelve-columns">
+        @(Html.Kendo().Grid<ClientRepList_Result>()
+              .Name("GrdClientRepMaintenance")
+              .Columns(column =>
+                {
+                    column.Bound(a => a.ID).Title("ID");
+                    column.Bound(a => a.RepName).Title("Rep Name");
+                    column.Bound(a => a.Title).Title("Title");
+                    column.Bound(a => a.Email).Title("Email");
+                    column.Bound(a => a.PhoneNumber).Title("Phone Number");
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageClientRep").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                        command.Custom("Edit").Click("ManageClientRep").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                        command.Custom("Delete").Click("ManageClientRep").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                    }).Width(175)
+                      .Title("Action(s)");
+
+                })
+                   .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageClientRep(null)' ><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add ClientRep</label></a>"))
+           .Events(e =>
+            {
+                e.DataBound("GrdClientRepMaintenance_OnDataBound");
+            })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("ClientRepList", "ClientRep", new { area = "ClientManagement" }))
+        .PageSize(10)
+    )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdClientRepMaintenance"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdClientRepMaintenance>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

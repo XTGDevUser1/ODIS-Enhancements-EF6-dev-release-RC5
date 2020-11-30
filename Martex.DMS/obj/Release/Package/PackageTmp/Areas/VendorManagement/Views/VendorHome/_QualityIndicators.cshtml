@@ -1,0 +1,172 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+    string eventHandler = "HandleVendorQualityIndicators(this," + suffixVendorID + ");";
+    string classNameForIsEmployeeBackgroundChecked = "hidden";
+    string classNameForIsEmployeeDrugTested = "hidden";
+    string classNameForIsDriverUniformed = "hidden";
+    string classNameForIsEachServiceTruckMarked = "hidden";
+
+    if (Model.BasicInformation.IsDriverUniformed.HasValue && !Model.BasicInformation.IsDriverUniformed.Value)
+    {
+        classNameForIsDriverUniformed = string.Empty;
+    }
+    if (Model.BasicInformation.IsEmployeeBackgroundChecked.HasValue && !Model.BasicInformation.IsEmployeeBackgroundChecked.Value)
+    {
+        classNameForIsEmployeeBackgroundChecked = string.Empty;
+    }
+    if (Model.BasicInformation.IsEmployeeDrugTested.HasValue && !Model.BasicInformation.IsEmployeeDrugTested.Value)
+    {
+        classNameForIsEmployeeDrugTested = string.Empty;
+    }
+    if (Model.BasicInformation.IsEachServiceTruckMarked.HasValue && !Model.BasicInformation.IsEachServiceTruckMarked.Value)
+    {
+        classNameForIsEachServiceTruckMarked = string.Empty;
+    }
+}
+<style type="text/css">
+.customLabelQualityIndicators
+{
+    width:180px;
+    display:inline-block;
+}
+</style>
+<form id="frmVendorDetailsQualityIndicatorsSection_@suffixVendorID" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+<div class="button-height small-margin-bottom">
+    <span class="small-margin-bottom customLabelQualityIndicators">Background Checked Performed</span>
+    @if (Model.BasicInformation.IsEmployeeBackgroundChecked.HasValue)
+    {
+        if (Model.BasicInformation.IsEmployeeBackgroundChecked.Value)
+        {
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID})
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+        else
+        {
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+    }
+    else
+    {
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeBackgroundChecked_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEmployeeBackgroundChecked_" + suffixVendorID })
+        @Html.Raw("No")
+    }
+    @*<div id="PlaceHolder_IsEmployeeBackgroundChecked_@suffixVendorID" class="@classNameForIsEmployeeBackgroundChecked">
+        @Html.TextBoxFor(u => u.BasicInformation.IsEmployeeBackgroundCheckedComment, new { @class = "input full-width", id = "IsEmployeeBackgroundCheckedComment_" + suffixVendorID, @maxLength = "255" })
+    </div>*@
+</div>
+<div class="button-height small-margin-bottom">
+    <span class="small-margin-bottom customLabelQualityIndicators">Drug Test Performed</span>
+    @if (Model.BasicInformation.IsEmployeeDrugTested.HasValue)
+    {
+        if (Model.BasicInformation.IsEmployeeDrugTested.Value)
+        {
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+        else
+        {
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+    }
+    else
+    {
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEmployeeDrugTested_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEmployeeDrugTested_" + suffixVendorID })
+        @Html.Raw("No")
+    }
+   @* <div id="PlaceHolder_IsEmployeeDrugTested_@suffixVendorID" class="@classNameForIsEmployeeDrugTested">
+        @Html.TextBoxFor(u => u.BasicInformation.IsEmployeeDrugTestedComment, new { @class = "input full-width", id = "IsEmployeeDrugTestedComment_" + suffixVendorID, @maxLength = "255" })
+    </div>*@
+</div>
+<div class="button-height small-margin-bottom">
+    <span class="small-margin-bottom customLabelQualityIndicators">Drivers wear uniforms</span>
+    @if (Model.BasicInformation.IsDriverUniformed.HasValue)
+    {
+        if (Model.BasicInformation.IsDriverUniformed.Value)
+        {
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+        else
+        {
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+    }
+    else
+    {
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsDriverUniformed_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsDriverUniformed_" + suffixVendorID })
+        @Html.Raw("No")
+    }
+   @* <div id="PlaceHolder_IsDriverUniformed_@suffixVendorID" class="@classNameForIsDriverUniformed">
+        @Html.TextBoxFor(u => u.BasicInformation.IsDriverUniformedComment, new { @class = "input full-width", id = "IsDriverUniformedComment_" + suffixVendorID, @maxLength = "255" })
+    </div>*@
+</div>
+<div class="button-height small-margin-bottom">
+    <span class="small-margin-bottom customLabelQualityIndicators">Trucks have company markings</span>
+    @if (Model.BasicInformation.IsEachServiceTruckMarked.HasValue)
+    {
+        if (Model.BasicInformation.IsEachServiceTruckMarked.Value)
+        {
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "true", true, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "false", false, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+        else
+        {
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "true", false, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "false", true, new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("No")
+        }
+    }
+    else
+    {
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "true", new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("Yes")
+        @Html.Raw(" ")
+        @Html.RadioButton("BasicInformation.IsEachServiceTruckMarked_" + suffixVendorID, "false", new { @class = "radio full-width", id = "IsEachServiceTruckMarked_" + suffixVendorID })
+        @Html.Raw("No")
+    }
+   @* <div id="PlaceHolder_IsEachServiceTruckMarked_@suffixVendorID" class="@classNameForIsEachServiceTruckMarked">
+        @Html.TextBoxFor(u => u.BasicInformation.IsEachServiceTruckMarkedComment, new { @class = "input full-width", id = "IsEachServiceTruckMarkedComment_" + suffixVendorID, @maxLength = "255" })
+    </div>*@
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorDetailsQualityIndicatorsSection_@suffixVendorID').validationEngine();
+    });   
+</script>

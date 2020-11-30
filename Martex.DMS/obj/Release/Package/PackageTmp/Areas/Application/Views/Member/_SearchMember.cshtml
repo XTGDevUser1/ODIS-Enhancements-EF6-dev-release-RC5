@@ -1,0 +1,520 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@model List<Martex.DMS.DAL.SearchMember_Result>
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript">
+   
+    function StateSearch_Change(e) {
+        var combo = $('#StateSearch').data('kendoComboBox'); ;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function MemberProgramID_onChange(e) {
+        var combo = $('#MemberProgramID').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+</script>
+<!-- TODO : Move the below style definitions to a style sheet file -->
+<style type="text/css">
+    .item
+    {
+        float: left;
+        padding: 5px;
+    }
+
+    .memberSearch
+    {
+        margin-bottom: 30px;
+        display: block;
+    }
+    .txtitem
+    {
+        width: 90px;
+    }
+</style>
+<div class="with-padding" id="div_memberDetails" style="display: none;">
+</div>
+<div class="with-padding" id="div_searchMemberList">
+    <form id="frmMemberSearch" action="#" name="frmMemberSearch">
+    <input type="hidden" id="MemberID" name="MemberID" />
+    <input type="hidden" id="MemberFoundFromMobile" name="MemberFoundFromMobile" />
+    <input type="hidden" id="CommaSepratedMemberIDList" name="CommaSepratedMemberIDList" />
+    <div class="memberSearch">
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="MemberNumber" class="label">
+                    Member #</label>
+                <input type="text" class="input validate[maxSize[25],minSize[4]] txtitem" id="MemberNumber"
+                    name="MemberNumber" style="width: 125px" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="LastName" class="label">
+                    Last Name</label>
+                <input type="text" class="input validate[maxSize[50],minSize[2]]" id="LastName" name="LastName"
+                    style="width: 115px" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="FirstName" class="label">
+                    First Name</label>
+                <input type="text" class="input validate[maxSize[50],minSize[1]] txtitem" id="FirstName"
+                    name="FirstName" /></p>
+        </div>
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="Phone" class="label">
+                    Phone
+                </label>
+                @{
+                    foreach (var memberInformation in Model)
+                    {
+                        if (memberInformation.isFromConnect == true)
+                        {
+                            <input type="text" class="input validate[maxSize[50],minSize[10]] txtitem" id="Phone"
+                                   name="Phone" value=" @memberInformation.memberPhoneNumber" />
+                        }
+                        else
+                        {
+                            <input type="text" class="input validate[maxSize[50],minSize[10]] txtitem" id="Phone"
+                                   name="Phone" />
+                        }
+                    }
+
+                }
+            </p>
+        </div>
+        <div class="item">
+            <div class="button-height block-label">
+                <label for="memberProgram" class="label">
+                    Program</label>
+                @(Html.Kendo().ComboBox()
+                                .Name("MemberProgramID")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .Events(events => { events.Change("MemberProgramID_onChange"); })
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Programs.ToString()] as IEnumerable<SelectListItem>)
+                                .HtmlAttributes(new { @class = "selectlabel", style = "width:180px;" })
+                                .HighlightFirst(true)
+                    )
+            </div>
+        </div>
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="VIN" class="label">
+                    VIN</label>
+                <input type="text" class="input validate[maxSize[17]]" id="VIN" name="VIN" style="width: 115px" /></p>
+        </div>
+        <div class="item">
+            <div class="button-height block-label">
+                <label for="State" class="label">
+                    State</label>
+                @(Html.Kendo().ComboBox()
+                             .Name("StateSearch")
+                             .Suggest(true)
+                             .Filter(FilterType.StartsWith).MinLength(0)
+                             .Events(events => { events.Change("StateSearch_Change"); })
+                             .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.AllStateProvince.ToString()] as IEnumerable<SelectListItem>)
+                             .HtmlAttributes(new { @class = "selectlabel", style = "width:100px;" })
+                             .HighlightFirst(true)
+                )
+            </div>
+        </div>
+        <div class="item">
+            <p class="button-height block-label">
+                <label for="ZipCode" class="label">
+                    Zip Code</label>
+                <input type="text" class="input validate[maxSize[20],minSize[5]]" id="ZipCode" name="ZipCode"
+                    style="width: 75px" /></p>
+        </div>
+        <div class="item" style="display: none" id="divSearchMemberCriteriaEmployee">
+            <p class="button-height block-label">
+                <label for="EmployeeInd" class="label">
+                    Employee</label>
+                <input type="checkbox" class="input checkbox" id="EmployeeInd" name="EmployeeInd" /></p>
+        </div>
+        <button id="btnMemberSearch" class="button blue-gradient compact margin-top margin-left"
+            type="button">
+            Search
+        </button>
+        &nbsp;&nbsp;
+        <button id="btnMemberSearchClear" class="button compact margin-top" type="button">
+            Clear
+        </button>
+        <button id="btnNonCall" class="button compact green-gradient float-right margin-top margin-left"
+            type="button">
+            Non-Member
+        </button>
+        <button id="btnMemberRegister" class="button compact green-gradient float-right margin-top"
+            type="button">
+            Register
+        </button>
+        <div class="clear">
+            &nbsp;</div>
+    </div>
+    </form>
+    @(Html.Kendo().Grid(Model)
+    .Name("GrdSearchMember")
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.MemberID).Title("MemberID").Filterable(false).Visible(false);
+        columns.Bound(a => a.MembershipID).Title("Member #").Filterable(false).Visible(false);
+        columns.Bound(a => a.MemberNumber).Title("Member #").Width(80).Filterable(false);
+        columns.Bound(a => a.Name).Title("Member Name").Width(150).Filterable(false);
+        columns.Bound(a => a.Address).Title("City, State, Zip").Width(150).Filterable(false);
+        columns.Bound(a => a.PhoneNumber).Title("Phone Number").Filterable(false).Width(150);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Width(150);
+        columns.Bound(a => a.Program).Title("Program").Filterable(false).Visible(false);
+        columns.Bound(a => a.VIN).Title("VIN").Filterable(false).Width(150);
+        columns.Bound(a => a.MemberStatus).Title("Status").Width(100).Filterable(false).HtmlAttributes(new { @class = "status" }); ;
+        columns.Bound(a => a.POCount).Title("Requests").Width(70).Filterable(false);
+        columns.Bound(a => a.ClientMemberType).Visible(false).HtmlAttributes(new { @class = "clientMemberType" });
+        columns.Command(commands =>
+        {
+            commands
+                .Custom("viewMemberSearchDetails")
+                .Text("View")
+                .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "View" })
+                .Click("ViewMemberDetails");
+        })
+        .Title("Action(s)").Width(125);
+    })
+    .Events(events =>
+    {
+        events.DataBound("GrdSearchMember_OnLoad");
+    })
+    .Sortable()
+    .Filterable(filterable => filterable
+        .Extra(false)
+    )
+    .Resizable(a => a.Columns(true))
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_Search", "Member").Data("GetMemberSearchParams"))
+    )
+    )
+</div>
+<script type="text/javascript">
+
+    function ViewMemberDetails(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        ShowMemberSearchPopUp(dataRow.MemberID, dataRow.MembershipID, "Search Member Details");
+    }
+
+    function GrdSearchMember_OnLoad(e) {
+
+        $(".k-grid-viewMemberSearchDetails").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 3);
+
+        // Format the status column. - CR # 837
+        table.find('tr').each(function () {
+            var activeColumn = $("td:eq(6)", this);
+            if (activeColumn.length > 0) {
+                var memberStatus = activeColumn.text();
+                if (memberStatus == "Active") {
+                    memberStatus = '<small class="tag green-bg">' + memberStatus + '</small>';
+                }
+                else {
+                    memberStatus = '<small class="tag red-bg">' + memberStatus + '</small>';
+                }
+                activeColumn.html(memberStatus);
+            }
+        });
+
+        // Format Clien Member Type
+        var grid = $("#GrdSearchMember").data("kendoGrid");
+        var data = grid.dataSource.view();
+        $.each(data, function (i, row) {
+            var memberStatus = $('tr[data-uid="' + row.uid + '"]').find(".status");
+            var memberType = $(this)[0].ClientMemberType;
+            if (memberStatus != null && memberType != null) {
+                var memberTypeText = memberType;
+                if (memberTypeText == "PCS" || memberTypeText == "VIP" || memberTypeText == "EMPLOYEE") {
+                    memberStatus.html(memberStatus.html() + '&nbsp;&nbsp;<small class="tag purple-bg">' + memberTypeText + '</small>');
+                }
+            }
+        });
+    }
+    // For Rebinding and Search Criteria
+    function GetMemberSearchParams() {
+
+        var searchCriteria = { MemberNumber: $('#MemberNumber').val(),
+            LastName: $('#LastName').val(),
+            FirstName: $('#FirstName').val(),
+            ProgramID: $('#ddlProgram').data('kendoComboBox').value(),
+            MemberProgramID: $('#MemberProgramID').data('kendoComboBox').value(),
+            Phone: $('#Phone').val(),
+            VIN: $('#VIN').val(),
+            State: $('#StateSearch').data('kendoComboBox').value(),
+            ZipCode: $('#ZipCode').val(),
+            MemberID: $('#MemberID').val(),
+            MemberFoundFromMobile: $('#MemberFoundFromMobile').val(),
+            CommaSepratedMemberIDList: $('#CommaSepratedMemberIDList').val(),
+            EmployeeInd: $('#EmployeeInd').is(":checked")
+        };
+        return searchCriteria;
+    }
+
+    function ShowMemberSearchPopUp(memberID, membershipID, popupTitle) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMemberDetails", "Member")',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { memberID: memberID, membershipID: membershipID },
+            success: function (msg) {
+                $("#div_memberDetails").html(msg);
+                $("#div_memberDetails").show();
+                $("#div_searchMemberList").hide();
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+</script>
+<script type="text/javascript">
+    $(function () {
+
+        //KB: Set the width of the dropdown container to be 250px
+        $("#MemberProgramID").data("kendoComboBox").list.width(250);
+        $("#StateSearch").data("kendoComboBox").list.width(250);
+
+        HandleDblClickOnGrid($("#GrdSearchMember"), ".k-grid-viewMemberSearchDetails");
+
+        // Disable the search button.
+        if (!isCallInProgress) {
+            $("#btnMemberSearch").attr("disabled", "disabled");
+            $("#btnMemberSearchClear").attr("disabled", "disabled");
+
+            $('.memberSearch input:text').each(function () {
+                $(this).attr("disabled", "disabled");
+            });
+            if ($("#StateSearch").data && $("#StateSearch").data("kendoComboBox") != null) {
+                $("#StateSearch").data("kendoComboBox").enable(false);
+            }
+
+            if ($("#MemberProgramID").data && $("#MemberProgramID").data("kendoComboBox") != null) {
+                $("#MemberProgramID").data("kendoComboBox").enable(false);
+            }
+        }
+
+        $("#btnNonCall").attr("disabled", "disabled");
+        $("#btnMemberRegister").attr("disabled", "disabled");
+        $('#frmMemberSearch').validationEngine();
+
+        $('#btnMemberSearchClear').click(function () {
+            $("#frmMemberSearch").validationEngine('hideAll');
+            $('.memberSearch input:text').each(function () {
+                $(this).val('');
+            });
+        });
+
+        $('#btnMemberSearch').click(function () {
+
+            $('#MemberID').val("0"); // reset member ID
+            $('#MemberFoundFromMobile').val('false');
+            if ($("#frmMemberSearch").validationEngine('validate') == false) {
+                return false;
+            }
+
+            // If Program is not selected then alert the user.
+            var programField = $('input[name="ddlProgram_input"]');
+            if ($.trim($('#ddlProgram').data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage(programField, "Please select a program");
+                programField.focus();
+                $("html").scrollTop(0);
+                return false;
+            }
+            else {
+                HideValidationMessage(programField);
+            }
+
+            var firstNameVal = $.trim($('#FirstName').val());
+            var lastNameVal = $.trim($('#LastName').val());
+            var memberNumberVal = $.trim($('#MemberNumber').val());
+            var phoneVal = $.trim($('#Phone').val());
+            var vinVal = $.trim($('#VIN').val());
+            var stateVal = $.trim($('#StateSearch').data('kendoComboBox').value());
+            var zipCodeVal = $.trim($('#ZipCode').val());
+            var $ddlProgram = $("#ddlProgram").data("kendoComboBox");
+            if ($ddlProgram.value() != null & $ddlProgram.value() != '' & $ddlProgram.value() != 'Select') {
+                var programID = $("#ddlProgram").data("kendoComboBox").value();
+            }
+
+            //Validate all fields if empty
+            if (firstNameVal.length == 0 && lastNameVal.length == 0 && memberNumberVal.length == 0 && phoneVal.length == 0 && vinVal.length == 0 && stateVal.length == 0 && zipCodeVal.length == 0) {
+                $('#btnMemberSearch').validationEngine('showPrompt', 'Please enter search criteria', '', 'topRight', true);
+                return false;
+            }
+
+            //Lakshmi - Hagerty Integration begin
+            if ('@DMSCallContext.HagertyIntegrationConfigFlag' == 'True') {
+                if ($ddlProgram.value() != null & $ddlProgram.value() != '' & $ddlProgram.value() != 'Select') {
+                    if (programID.length > 0) {
+                        if (programID == '@DMSCallContext.GetHagertyParentProgramID') {
+                            if (memberNumberVal.length == 0) {
+                                if (firstNameVal.length == 0 | lastNameVal.length == 0 | stateVal.length == 0 | zipCodeVal.length == 0) {
+                                    ShowValidationMessage($('#btnMemberSearch'), "First Name,Last Name,State &Zip are mandatory fields to search for Hagerty Member.");
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+            //End
+            // If state or zip is provided and first name and last name are not provided, then throw a message
+            if (stateVal.length > 0) {
+                // CR : Made FirstName optional
+                if (lastNameVal.length == 0) {
+                    ShowValidationMessage($('#LastName'), "State should only be used in combination with Last name");
+                    return false;
+                }
+            }
+            if (zipCodeVal.length > 0) {
+                // CR : Made FirstName optional
+                if (lastNameVal.length == 0) {
+                    ShowValidationMessage($('#LastName'), "Zip code should only be used in combination with Last name");
+                    return false;
+                }
+            }
+
+            if (memberNumberVal.length == 0 && phoneVal.length == 0 && vinVal.length == 0) {
+
+                //Validate First Name Logic Search Criteria
+                if (lastNameVal.length == 0) {
+                    ShowValidationMessage($('#LastName'), "Last Name should only be used in combination with First name and with any fields.");
+                    return false;
+                }
+            }
+            $("#frmMemberSearch").validationEngine('hide');
+            // Clear Old Selection which was auto generated when for a call back number multiple Members found
+            $('#CommaSepratedMemberIDList').val('');
+            $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+        });
+
+    });
+</script>
+<script type="text/javascript">
+    var memberWindow;
+    $(function () {
+        SearchOnEnter('frmMemberSearch', 'btnMemberSearch');
+        $('#btnNonCall').live("click", function (e) {
+
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+            }
+
+            var canProceed = true;
+            //9/19 CR: Make VIN Mandatory for Ford Program.
+            var selectedProgram = $("#ddlProgram").data("kendoComboBox").text();
+            if ("ford" === selectedProgram.toLowerCase()) {
+
+                var pdis = $("#programDataFields").find("input[name*='VIN'");
+                if (pdis.length > 0) {
+                    var $vinPDI = $(pdis[0]);
+                    var vinVal = $.trim($vinPDI.val());
+                    if (vinVal.length == 0 || vinVal.length != 17) {
+                        ShowValidationMessage($vinPDI, "VIN (17 characters) is mandatory for a Ford Program");
+                        canProceed = false;
+                    }
+                    else {
+                        HideValidationMessage($vinPDI);
+                        canProceed = true;
+                    }
+                }
+            }
+
+            if (!canProceed) {
+                return false;
+            }
+
+            $("#tbFinishTab").removeClass("disabled");
+            $("#RequestTabs").tabs("enable", 11);
+            $("#RequestTabs").tabs("select", 11);
+        });
+        $('#btnMemberRegister').live("click", function (e) {
+
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+            }
+            var ID = $('#ddlProgram').data('kendoComboBox').value();
+            var postData = new Array();
+            postData.push("programID", ID);
+            var childProgramID = $('#MemberProgramID').data('kendoComboBox').value();
+
+            SetProgramIDInContext(ID);
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Index", "Member", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { childProgramID: childProgramID },
+                success: function (msg) {
+                    memberWindow = $("<div id='memberWindow' />").appendTo(document.body);
+                    memberWindow.kendoWindow({
+                        title: 'Register New Member',
+                        modal: true,
+                        width: 700,
+                        height: GetPopupWindowHeight(),
+                        deactivate: function () {
+                            this.destroy();
+                        },
+                        close: function (e) {
+                            $('#form-Member').validationEngine('hideAll'); // to hide the validation message of the popup
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+                                if (IsMyContainerDirty('form-Member')) {
+                                    var prompt = PromptForDirtyFlag();
+                                    if (!prompt) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                }
+                                CleanMyContainer('form-Member');
+                            }
+
+
+                            if (document.dialogResult == "OK") {
+                                // Rebind the grid with the currently added member.
+                                // Clear all other parameters except for MemberID
+                                CleanMyContainer("form-Member");
+                                $('#MemberNumber').val('');
+                                $('#LastName').val('');
+                                $('#FirstName').val('');
+                                $('#MemberProgramID').data('kendoComboBox').value('');
+                                $('#Phone').val('');
+                                $('#VIN').val('');
+                                $('#StateSearch').data('kendoComboBox').value('');
+                                $('#ZipCode').val('');
+                                $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+                            }
+                            return true;
+                        }
+                    });
+                    memberWindow.data('kendoWindow').content(msg).center().open();
+                }
+            });
+
+        });
+    });
+</script>

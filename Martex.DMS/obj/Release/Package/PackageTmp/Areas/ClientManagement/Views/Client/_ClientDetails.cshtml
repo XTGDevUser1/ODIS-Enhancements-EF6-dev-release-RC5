@@ -1,0 +1,45 @@
+﻿@model Martex.DMS.Models.ClientModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixClientID = Model.Client.ID.ToString();
+}
+
+<div class="with-padding">
+    <div style="min-height: 25px; margin: 5px;">
+        <div style="display: inline-block; vertical-align: top;">
+            <span>
+                @Html.Raw(Model.Client.Name)
+
+            </span>
+        </div>
+        <div style="display: inline-block; vertical-align: top; float: right;">
+            <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteClientTab('@suffixClientID');">
+                X
+            </a>
+        </div>
+    </div>
+    <div id="frmClientContainerForDirtyFlag_@suffixClientID" data="false">
+        <div id="ClientContainer_@suffixClientID">
+            @Html.Partial("_ClientTabs", Model)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+
+        var fnbuttonHandler = function (sender) {
+            var cloestForm = $(sender).closest('form');
+            if (cloestForm != undefined) {
+                var formName = cloestForm.attr("id");
+                var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+                if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                    $(buttonPlaceHolder).show();
+                }
+            }
+        }
+        @*var routedValues = [];
+            routedValues.push({ name: "FormName", value: "frmClientContainerForDirtyFlag_@suffixClientID" });
+            routedValues.push({ name: "RecordID", value: "@suffixClientID" });*@
+        WatchMyContainer("frmClientContainerForDirtyFlag_@suffixClientID");
+    });
+</script>

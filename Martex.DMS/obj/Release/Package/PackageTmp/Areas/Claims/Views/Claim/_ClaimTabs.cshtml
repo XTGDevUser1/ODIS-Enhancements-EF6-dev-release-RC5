@@ -1,0 +1,214 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimInformationModel
+@{
+    var suffixClaimID = Model.Claim.ID.ToString();
+    var isDisabled = "disabled";
+}
+<style type="text/css">
+    .cg-searchButton
+    {
+        width: 14px;
+        height: 14px;
+        background-image: url('/Content/img/magnifier.png') !important;
+        background-repeat: no-repeat;
+    }
+    .cg-autocomplete
+    {
+        z-index: 99999;
+    }
+</style>
+<link href="~/Content/jquery.ui.combogrid.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/jquery.ui.combogrid-1.6.3.js" type="text/javascript"></script>
+<!-- Event handlers for buttons in Services tab -->
+<script language="javascript" type="text/javascript">
+
+    function SaveClaimComments(sender, uniqueID) {
+
+        var $txtComment = $("#txtClaimComments_" + uniqueID);
+        var commentText = $txtComment.val();
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveClaimComments", "Claim", new { area = "Claims" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { claimID: uniqueID, commentText: commentText },
+            success: function (msg) {
+                $('#previousComments_' + uniqueID).html(msg);
+                $txtComment.val('')
+            }
+        });
+
+        return false;
+    }
+
+    function ShowCodes(uniqueID) {
+
+        var title = 'Diagnostic Codes';
+        var vehicleTypeID = $("#VehicleTypeID_" + uniqueID).data("kendoComboBox").value();
+        if (vehicleTypeID == null || $.trim(vehicleTypeID).length == 0) {
+            openAlertMessage("Please select a vehicle type");
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetDiagnosticCodes", "Claim", new { area = "Claims" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { claimID: uniqueID, vehicleTypeID: vehicleTypeID, codeType: '' },
+            success: function (msg) {
+                dCodesWin = $("<div id='dCodesWin' />").appendTo(document.body);
+                dCodesWin.kendoWindow({
+
+                    title: title,
+                    modal: true,
+                    width: 1000,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmCodes')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmCodes');
+                            }
+                        }
+                        if (document.dialogResult == "OK") {
+                            CleanMyContainer('frmCodes');
+                            RefreshSelectedCodes(uniqueID);
+                        }
+
+                        return true;
+                    }
+                });
+                dCodesWin.data('kendoWindow').center().open().content(msg);
+            }
+        }); // end of ajax
+    }
+
+    function RefreshSelectedCodes(uniqueID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetSelectedDiagnosticCodesForClaim", "Claim", new { area = "Claims" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { claimID: uniqueID },
+            success: function (msg) {
+                $("#selectedCodes_" + uniqueID).html(msg);
+            }
+        });
+    }   
+
+</script>
+<div class="columns">
+    @if (Model.Claim.ID > 0)
+    {
+        <div class="nine-columns" style="margin-top: -50px">
+            <p class="inline-medium-label">
+                <label class="label">
+                    Claim:</label>
+                @Model.Claim.ID - @Model.ClaimTypeName
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Payee:</label>
+                @Model.Claim.PayeeType
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Program:</label>
+                @Model.ProgramName
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Member:</label>
+                @Model.MembershipNumber - @Model.MemberName
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Vendor:</label>
+                @Model.VendorNumber - @Model.VendorName
+            </p>
+        </div>
+            
+            
+    }
+    <div class="new-row twelve-columns">
+        <div id="ClaimDetailsTab_@suffixClaimID" class="standard-tabs same-height">
+            <ul class="tabs">
+                <li><a href="#ClaimsInfoTab_@suffixClaimID" id="TABClaimsInfoTab_@suffixClaimID" class="@isDisabled">
+                    Info</a></li>
+                <li><a href="#ClaimsPayeeTab_@suffixClaimID" id="TABClaimsPayeeTab_@suffixClaimID" class="@isDisabled">
+                    Payee</a></li>
+                <li><a href="#ClaimsVehicleServiceTab_@suffixClaimID" id="TABClaimsVehicleServiceTab_@suffixClaimID" class="@isDisabled">
+                    Vehicle</a></li>
+                <li><a href="#ClaimsServices_@suffixClaimID" id="TABClaimsServiceTab_@suffixClaimID" class="@isDisabled">
+                    Service</a></li>
+                <li><a href="@Url.Action("_Claims_PO", "Claim", new { area = "Claims" })" id="ClaimsPOTab_@suffixClaimID" class="@isDisabled">
+                    PO</a></li>
+                <li><a href="@Url.Action("_Claims_Activity", "Claim", new { area = "Claims" })" id="ClaimsActivityTab_@suffixClaimID" class="@isDisabled">
+                    Activity</a></li>
+                <li><a href="@Url.Action("_ClaimDocuments", "Claim", new { area = "Claims" })" id="ClaimsDocumentTab_@suffixClaimID">
+                    Documents</a></li>
+            </ul>
+            <div id="ClaimsInfoTab_@suffixClaimID">
+                @Html.Partial("_Claims_Information", Model)
+            </div>
+            <div id="ClaimsPayeeTab_@suffixClaimID">
+                @Html.Partial("_Claims_Payee", Model)
+            </div>
+            <div id="ClaimsVehicleServiceTab_@suffixClaimID">
+                @Html.Partial("_Claims_Vehicle_Service", Model)
+            </div>
+            <div id="ClaimsServices_@suffixClaimID">
+                @Html.Partial("_Claims_Services", Model)
+            </div>
+        </div>
+    </div>
+    <div class="new-row nine-columns">
+    </div>
+    <div class="three-columns">
+        <button id="btnSaveClaimSection_@suffixClaimID" class="button green-gradient  float-right mid-margin-left margin-bottom hide"
+                    type="button" onclick="SaveClaimInformation_('@suffixClaimID');">
+            Save</button>
+        <button id="btnCancelClaimInfoSection_@suffixClaimID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelClaimInformation_('@suffixClaimID');">
+            Cancel</button>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        if ('@suffixClaimID' == '0') {
+            $('#ClaimDetailsTab_@suffixClaimID').tabs({
+                ajaxOptions: { data: { suffixClaimID: '@suffixClaimID' }
+                },
+                disabled: [0, 1, 2, 3, 4, 5, 6],
+                cache: false
+            });
+        }
+        else {
+            $('#ClaimDetailsTab_@suffixClaimID').tabs({
+                ajaxOptions: { data: { suffixClaimID: '@suffixClaimID' }
+                },
+                disabled: EnableTabsBasedonTheClaimType('@Model.ClaimTypeName', '@suffixClaimID'),
+                cache: false
+            });
+        }
+    });
+
+    function SaveClaimInformation_(recordID) {
+        SaveClaimInformation(recordID, tabObject);
+    }
+
+    function CancelClaimInformation_(recordID) {
+        CancelClaimInformation(recordID, tabObject)
+    }
+</script>

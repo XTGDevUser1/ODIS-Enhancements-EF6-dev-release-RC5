@@ -1,0 +1,107 @@
+﻿@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@{
+    List<BusinessHours> list = ViewData["businessHours"] as List<BusinessHours>;
+}
+@{
+    // Move this code to controller  / facade
+    var businessHours = list;
+    if (businessHours == null || businessHours.Count == 0)
+    {
+        if (businessHours == null)
+        {
+            businessHours = new List<BusinessHours>();
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            var item = new BusinessHours();
+            item.DayNumber = (i + 1);
+            switch (i)
+            {
+                case 0:
+                    item.DayName = "Monday";
+                    break;
+                case 1:
+                    item.DayName = "Tuesday";
+                    break;
+                case 2:
+                    item.DayName = "Wednesday";
+                    break;
+                case 3:
+                    item.DayName = "Thursday";
+                    break;
+                case 4:
+                    item.DayName = "Friday";
+                    break;
+                case 5:
+                    item.DayName = "Saturday";
+                    break;
+                case 6:
+                    item.DayName = "Sunday";
+                    break;
+            }
+            businessHours.Add(item);
+        }
+
+    }
+}
+<script language="javascript" type="text/javascript">
+    function Start_OnChange(e) {
+
+        var start = e.sender;
+        var endElementID = $(start.element).attr("id");
+        endElementID = endElementID.replace("StartTime", "EndTime").replace("[", "\\[").replace("]", "\\]");
+
+        var endPicker = $("#" + endElementID).data("kendoTimePicker");
+        var startTime = start.value();
+
+        if (startTime) {
+            startTime = new Date(startTime);
+
+            endPicker.max(startTime);
+
+            startTime.setMinutes(startTime.getMinutes() + this.options.interval);
+            endPicker.min(startTime);
+            endPicker.value(startTime);
+        }
+
+    }
+
+</script>
+<div class="clear">
+</div>
+@{ int index = 0;}
+@foreach (var item in businessHours)
+{
+
+    <div class="button-height inline-large-label">
+        <label for="dayName" class="label">
+            @item.DayName
+            @{
+    string name = string.Format("businessHours[{0}].DayName", index);
+    string id = string.Format("{0}_businessHours[{1}]_DayName", ViewData.TemplateInfo.HtmlFieldPrefix, index);
+            }
+            <input type="hidden" name="@name" id="@id" value="@item.DayName" />
+            @{
+    name = string.Format("businessHours[{0}].DayNumber", index);
+    id = string.Format("{0}_businessHours[{1}]_DayNumber", ViewData.TemplateInfo.HtmlFieldPrefix, index);
+            }
+            <input type="hidden" name="@name" id="@id" value="@item.DayNumber" />
+        </label>
+        @(Html.Kendo().TimePicker()
+            .Name(string.Format("businessHours[{0}].StartTime", index))
+            .Value(businessHours[index].StartTime)
+            .Events(e => e.Change("Start_OnChange"))
+            .HtmlAttributes(new { @class = "bh", id = string.Format("{0}_businessHours[{1}]_StartTime", ViewData.TemplateInfo.HtmlFieldPrefix, index),style="width:30%;" })
+        )
+        &nbsp;to&nbsp;
+        @(Html.Kendo().TimePicker()
+            .Name(string.Format("businessHours[{0}].EndTime", index))
+            .Value(businessHours[index].EndTime)
+            .HtmlAttributes(new { @class = "bh", id = string.Format("{0}_businessHours[{1}]_EndTime", ViewData.TemplateInfo.HtmlFieldPrefix, index), style = "width:30%;" })
+        )
+    </div>
+    index++;
+}
+<div class="clear large-margin-bottom">
+</div>

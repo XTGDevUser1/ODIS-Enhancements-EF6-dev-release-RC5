@@ -1,0 +1,886 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@using Kendo.Mvc.UI
+
+@model Martex.DMS.Areas.Application.Models.ProgramModel
+
+<script language="javascript" type="text/javascript">
+<!--
+    let model = @Html.Raw(Json.Encode(Model));
+
+    if (model && model.isFromConnect === true) {
+        window.onload = function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StartCall", "Request", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    // No need to inform the user
+                    $(".timer").timer("reset");
+                    $(".timer").timer("start");
+                    // Enable Get help tab
+                    $("#tbGetHelp").removeClass("disabled");
+                    $("#RequestTabs").tabs("enable", 1);
+                    //TFS Bug 205
+                    //$("#tbFinishTab").removeClass("disabled");
+                    //            $("#RequestTabs").tabs("enable", 1);
+                    //            $("#RequestTabs").tabs("enable", 11);
+
+                    setTimeout(function () { EnableFields(); }, 1000);
+                    $('#btnStartCall').attr("disabled", "disabled");
+                    $('#btnStartCall').removeClass("green-gradient");
+
+                    let ddlprogram = $("#ddlProgram").data("kendoComboBox");
+
+                    let matchingProgram = ddlprogram.dataSource.options.data.findIndex(MatchIndex);
+
+                    $("#ddlProgram").data("kendoComboBox").select(matchingProgram);
+
+                    ddlProgram_OnChange();
+
+                    searchMember();
+
+                    let formattedCustomerNumber = model.memberPhoneNumber.slice(2);
+
+                    $("#CallbackNumber_txtPhoneNumber").val(formattedCustomerNumber)
+                }
+            });
+        };
+    }
+
+    function MatchIndex(element) {
+        if (model.programs[0] === undefined) {
+            return element.Value === "";
+        } else {
+            return element.Value == model.programs[0].ID;
+        }
+    }
+
+    function EnableFields() {
+
+        $("#ddlProgram").data("kendoComboBox").enable(true);
+        $("#ddlCallType").data("kendoComboBox").enable(true);
+        $("#ddlLanguage").data("kendoComboBox").enable(true);
+        $(".Areyousafe").removeClass("disabled");
+        $("#startCallSearchTabs").tabs("option", "disabled", [3]);
+
+        //Jeevan
+        $("#startCallSearchTabs").find("#tbPO").removeClass("disabled");
+        $("#tbClosedLoop").removeClass("disabled");
+
+        $("#CallbackNumber_ddlPhoneType").data("kendoComboBox").enable(true);
+        $("#CallbackNumber_ddlCountryCode").data("kendoComboBox").enable(true);
+
+        $("#CallbackNumber_txtPhoneNumber").removeAttr("disabled");
+        $("#CallbackNumber_txtExtension").removeAttr("disabled");
+
+        $("#AlternateNumber_ddlPhoneType").data("kendoComboBox").enable(true);
+        $("#AlternateNumber_ddlCountryCode").data("kendoComboBox").enable(true);
+
+        $("#AlternateNumber_txtPhoneNumber").removeAttr("disabled");
+        $("#AlternateNumber_txtExtension").removeAttr("disabled");
+
+
+        $("#btnMemberSearch").removeAttr("disabled");
+        $("#btnMemberSearchClear").removeAttr("disabled");
+        $("#btnNonCall").removeAttr("disabled");
+
+        if ($("#StateSearch").data("kendoComboBox") != null) {
+            $("#StateSearch").data("kendoComboBox").enable(true);
+        }
+        if ($("#MemberProgramID").data("kendoComboBox") != null) {
+            $("#MemberProgramID").data("kendoComboBox").enable(true);
+        }
+
+        $('.memberSearch input:text').each(function () {
+            $(this).removeAttr("disabled");
+        });
+
+        return true
+    }
+
+    function searchMember() {
+        $('#MemberID').val("0"); // reset member ID
+        $('#MemberFoundFromMobile').val('false');
+        if ($("#frmMemberSearch").validationEngine('validate') == false) {
+            return false;
+        }
+
+        // If Program is not selected then alert the user.
+        var programField = $('input[name="ddlProgram_input"]');
+        if ($.trim($('#ddlProgram').data("kendoComboBox").value()).length == 0) {
+            ShowValidationMessage(programField, "Please select a program");
+            programField.focus();
+            $("html").scrollTop(0);
+            return false;
+        }
+        else {
+            HideValidationMessage(programField);
+        }
+
+        var firstNameVal = $.trim($('#FirstName').val());
+        var lastNameVal = $.trim($('#LastName').val());
+        var memberNumberVal = $.trim($('#MemberNumber').val());
+        var phoneVal = $.trim($('#Phone').val());
+        var vinVal = $.trim($('#VIN').val());
+        var stateVal = $.trim($('#StateSearch').data('kendoComboBox').value());
+        var zipCodeVal = $.trim($('#ZipCode').val());
+        var $ddlProgram = $("#ddlProgram").data("kendoComboBox");
+        if ($ddlProgram.value() != null & $ddlProgram.value() != '' & $ddlProgram.value() != 'Select') {
+            var programID = $("#ddlProgram").data("kendoComboBox").value();
+        }
+
+        //Validate all fields if empty
+        if (firstNameVal.length == 0 && lastNameVal.length == 0 && memberNumberVal.length == 0 && phoneVal.length == 0 && vinVal.length == 0 && stateVal.length == 0 && zipCodeVal.length == 0) {
+            $('#btnMemberSearch').validationEngine('showPrompt', 'Please enter search criteria', '', 'topRight', true);
+            return false;
+        }
+
+        //Lakshmi - Hagerty Integration begin
+        if ('@DMSCallContext.HagertyIntegrationConfigFlag' == 'True') {
+            if ($ddlProgram.value() != null & $ddlProgram.value() != '' & $ddlProgram.value() != 'Select') {
+                if (programID.length > 0) {
+                    if (programID == '@DMSCallContext.GetHagertyParentProgramID') {
+                        if (memberNumberVal.length == 0) {
+                            if (firstNameVal.length == 0 | lastNameVal.length == 0 | stateVal.length == 0 | zipCodeVal.length == 0) {
+                                ShowValidationMessage($('#btnMemberSearch'), "First Name,Last Name,State &Zip are mandatory fields to search for Hagerty Member.");
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        //End
+        // If state or zip is provided and first name and last name are not provided, then throw a message
+        if (stateVal.length > 0) {
+            // CR : Made FirstName optional
+            if (lastNameVal.length == 0) {
+                ShowValidationMessage($('#LastName'), "State should only be used in combination with Last name");
+                return false;
+            }
+        }
+        if (zipCodeVal.length > 0) {
+            // CR : Made FirstName optional
+            if (lastNameVal.length == 0) {
+                ShowValidationMessage($('#LastName'), "Zip code should only be used in combination with Last name");
+                return false;
+            }
+        }
+
+        if (memberNumberVal.length == 0 && phoneVal.length == 0 && vinVal.length == 0) {
+
+            //Validate First Name Logic Search Criteria
+            if (lastNameVal.length == 0) {
+                ShowValidationMessage($('#LastName'), "Last Name should only be used in combination with First name and with any fields.");
+                return false;
+            }
+        }
+        $("#frmMemberSearch").validationEngine('hide');
+        // Clear Old Selection which was auto generated when for a call back number multiple Members found
+        $('#CommaSepratedMemberIDList').val('');
+        $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+    }
+
+    var callScripts = [];
+    var callScriptIndex = 0;
+    @{
+        bool isCallInProgress = (DMSCallContext.InboundCallID != 0);
+    }
+    var isCallInProgress = @isCallInProgress.ToString().ToLower(); // Global variable that helps while enabling/disabling buttons
+
+
+    function CallType_Change(e)
+    {
+        var combo = e.sender;
+        var comboVal = combo.text();
+        // PV: Validate user input on Telerik dropdowns
+        if(!IsUserInputValidForChangeOnKendoCombo(combo))
+        {
+            e.preventDefault();
+        }
+
+        //PV
+
+        if(comboVal == 'ClosedLoop')
+        {
+           $("#startCallSearchTabs").tabs("select", 2);
+        }
+        else if(comboVal == 'VendorCallback')
+        {
+           $("#startCallSearchTabs").tabs("select",1);
+        }
+        else    if(comboVal == 'CustomerCallback' || comboVal == 'NewCall')
+        {
+           $("#startCallSearchTabs").tabs("select", 0);
+        }
+    }
+
+    function LoadProgramInformation(id){
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetProgramInformationDuringCall", "ProgramMaintenance", new { area = "Admin" })',
+                    traditional: true,
+                    data: { programId: id,isCoverageInfoVisible : false },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        $("#programDetails").html(msg);
+                        $("#programDetails").show("highlight", { color: "#FFBB2B" }, 500, null);
+
+                    }
+                }); // end of ajax
+               // PopulateRightPanelWithProgramInfo(id);
+
+    }
+
+    function LoadCallScripts(id){
+        $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetCallScripts", "ProgramMaintenance", new { area = "Admin" })',
+                    traditional: true,
+                    data: { programId: id },
+                    cache: false,
+                    async: true,
+                    global:false,
+                    success: function (msg) {
+                        callScriptIndex = 0;
+                        callScripts = msg.Data;
+                        $("#callScriptList").html("");
+                        //ShowNextCallScript();
+                        //ShowNextCallScript();
+                        ShowCallScripts();
+                    }
+                }); // end of ajax
+    }
+
+
+    function ddlProgram_OnChange(e) {
+
+        var combo = $('#ddlProgram').data('kendoComboBox');
+
+        if($("#frmDynamicFields").length > 0)
+        {
+            $("#frmDynamicFields").validationEngine('hide');
+        }
+        // PV: Validate user input on Telerik dropdowns
+        if(!IsUserInputValidForChangeOnKendoCombo(combo))
+        {
+            // disable register button
+            $("#btnMemberRegister").attr("disabled","disabled");
+            e.preventDefault();
+        }
+        else
+        {
+
+            if ($("#ddlProgram").data) {
+
+                var $ddlProgram = $("#ddlProgram").data("kendoComboBox");
+                if ($ddlProgram.value() != null && $ddlProgram.value() != '' && $ddlProgram.value() != 'Select') {
+
+                    SetProgramIDInContext(combo.value());
+                    // Clear off validation messages on telerik dropdowns if there is no validation failure.
+                    HideValidationMessage($('#ddlProgram-input'));
+                    LoadProgramInformation($ddlProgram.value());
+                    LoadCallScripts($ddlProgram.value());
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetProgramConfig", "ProgramMaintenance", new { area = "Admin" })',
+                        traditional: true,
+                        data: { programID: $ddlProgram.value(), configurationType : 'Application', configurationCategory : 'Rule', name : 'AllowRegisterMember' },
+                        cache: false,
+                        async: true,
+                        success: function (msg) {
+                            var data = msg.Data;
+                            if(data.length > 0 && data[0].Value == 'Yes'){
+                                // enable register button
+                                console.log("Enabling register member button due to program config");
+                                $("#btnMemberRegister").removeAttr("disabled");
+                            }
+                            else{
+                                console.log("Disabling register member button due to program config");
+                                $("#btnMemberRegister").attr("disabled","disabled");
+                            }
+                        }
+                    }); // end of ajax
+
+
+                    if ($ddlProgram.value() != '') {
+
+                    selectedItemValue = combo.value();
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetProgramDynamicFields", "Request", new { area = "Application" })',
+                            traditional: true,
+                            data: { screenName: 'StartCall', programID: selectedItemValue },
+                            cache: false,
+                            async: true,
+                            success: function (msg) {
+                                $('#programDataFields').html(msg);
+                            }
+                        }); // end of ajax
+
+                        //Bind the program dropdown.
+                        $.ajax({
+                                    type: 'POST',
+                                    url: '@Url.Action("_GetChildrenPrograms", "Member", new { area = "Application" })',
+                                    traditional: true,
+                                    data: { programID: selectedItemValue },
+                                    cache: false,
+                                    async: true,
+                                    success: function (msg) {
+                                        $("#MemberProgramID").data("kendoComboBox").setDataSource(msg);
+                                        $("#MemberProgramID").data("kendoComboBox").value('');
+                                    }
+                                }); // end of ajax
+                        } // end if
+                }   // end if
+                else
+                {
+                    // disable register button
+                    $("#btnMemberRegister").attr("disabled","disabled");
+                }
+            }
+        }
+    }
+
+    function SetProgramIDInContext(id)
+    {
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SetProgramID", "Request", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                data: { programID: id },
+                success: function (msg) {
+                    if($("#divSearchMemberCriteriaEmployee").length>0){
+                        if(msg!=null&&msg.Data!=null&&msg.Data.ClientName=="Hagerty")
+                        {
+
+                            $("#divSearchMemberCriteriaEmployee").show();
+                        }
+                        else{
+                            $("#divSearchMemberCriteriaEmployee").hide();
+                        }
+                    }
+                    //Set the values into Session.
+                }
+            });
+    }
+
+
+    function ShowCallScripts() {
+        while (callScriptIndex < callScripts.length) {
+            var $scriptItem = $('<p class="wrapped blue-bg icon-chat"/>');
+            $scriptItem.html(callScripts[callScriptIndex++].Value);
+            $("#callScriptList").append($scriptItem);
+            $scriptItem.show("highlight", { color: "#FFBB2B" }, 1500, null);
+        }
+    }
+
+    function AutohighlightMember(memberID, membershipID)
+    {
+        $('#MemberID').val(memberID);
+        $('#MemberFoundFromMobile').val('true');
+        $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+
+        $('#ddlCallType').data("kendoComboBox").value('2');
+        ShowMemberSearchPopUp(memberID, membershipID,"Member Details :: " + memberID);
+    }
+    var Dialog_Container_Member_Selections = null;
+    function DisplayMemberSelections(memberIDList,membershipIDList){
+        $.ajax({
+            url: '@Url.Action("_StartCallMemberSelection", "Request", new { area = "Application" })',
+            data : {memberIDList :memberIDList, membershipIDList : membershipIDList},
+            type : 'POST',
+            cache: false,
+            success: function (msg) {
+                Dialog_Container_Member_Selections = $("<div id='winMemberSelection' />").appendTo(document.body);
+                Dialog_Container_Member_Selections.kendoWindow({
+                    title: "Select Member",
+                    modal: true,
+                    width: 700,
+                    height: 500,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                Dialog_Container_Member_Selections.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    function CallbackNumber_OnChange_Action(memberID,membershipID){
+    var fullPhoneNumber = GetPhoneNumberForDB("CallbackNumber");
+     $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetMemberFromCase", "Request", new { area = "Application" })',
+                traditional: true,
+                data: { callbackNumber: fullPhoneNumber,typeID : $('#CallbackNumber_ddlPhoneType').val(),selectedMemberID :memberID,selectedMembershipID : membershipID  },
+                cache: false,
+                async: true,
+                success: function (json) {
+                    if (json.Data && $.trim(json.Data).length > 0) {
+                        var memberData = json.Data;
+                        if(typeof(memberData.RecordCount) != "undefined" && memberData.RecordCount == 1)
+                        {
+                            $('#CommaSepratedMemberIDList').val('');
+                            $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+                            if(typeof(memberData.memberID) != "undefined" && memberData.memberID != null  && typeof(memberData.membershipID) != "undefined" && memberData.membershipID != null)
+                            {
+                                AutohighlightMember(memberData.memberID,memberData.membershipID);
+                            }
+                        }
+                        else
+                        {
+                            $('#CommaSepratedMemberIDList').val(memberData.MemberIDList);
+                            $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+                        }
+
+                    }
+
+                }
+            });  // end of ajax
+    }
+
+    function CallbackNumber_OnChange(e) {
+
+        var fullPhoneNumber = GetPhoneNumberForDB("CallbackNumber");
+
+        if (fullPhoneNumber.length > 8) {
+            // Make an ajax request to see if there is a case with the given callback number
+            var programID = $("#ddlProgram").data("kendoComboBox").value();
+            SetProgramIDInContext(programID);
+            CallbackNumber_OnChange_Action();
+        }
+    }
+//-->
+</script>
+<div id="tab-1" class="with-padding">
+    <div class="columns">
+        <!-- Call Information -->
+        <div class="five-columns">
+            <form id="frmCallInformation" action="javascript:void(0)">
+            <!-- The button gets enabled after the member search tab is loaded -->
+            <button id="btnStartCall" class="button huge green-gradient mid-margin-bottom full-width"
+                type="button">
+                Start Call
+            </button>
+            <fieldset class="fieldset">
+                <legend class="legend">Call Information</legend>
+                <div class="with-small-padding">
+                    <div>
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Program" class="label">
+                            Program <span class="star">*</span></label>
+                        @(Html.Kendo().ComboBox()
+                                            .BindTo(ViewData["Programs"] as IEnumerable<SelectListItem>)
+                                            .Name("ddlProgram")
+                                            .Suggest(true)
+                                            .HtmlAttributes(new { style = "width:250px;" })
+                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                            .Enable(false)
+                                            .HighlightFirst(true)
+                                            .Events(events =>
+                                            {
+                                                events.Change("ddlProgram_OnChange");
+                                            })
+                                           .HtmlAttributes(new { @class = "selectlabel" })
+
+
+                            )
+                    </div>
+                    <!-- CR # 804 -->
+                    <p class="button-height inline-label">
+                        <label for="AreYouSafe" class="label">
+                            Are you safe ? <span class="star">*</span></label>
+                        @Html.RadioButton("rdSafe", "1", false, new { @class = "radio small-margin-right Areyousafe" })
+                        Yes &nbsp;
+                        @Html.RadioButton("rdSafe", "0", false, new { @class = "radio small-margin-right Areyousafe" })
+                        No
+                    </p>
+                    <div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ddlCallbackNumberCountryCode" class="label">
+                                Callback</label>
+                           @Html.Editor("CallbackNumber", "Phone", new { entityName = "Member", CallType = "Member"  })
+                        </p>
+                    </div>
+                    <div>
+                        <p class="button-height inline-label">
+                            <label for="drpdwnAlternateNumberCountryCode" class="label">
+                                Alternate</label>
+                            @Html.Editor("AlternateNumber", "Phone", new { entityName = "Member", CallType = "Member" })
+                        </p>
+                    </div>
+                    <div class="button-height inline-label">
+                        <label for="CallType" class="label">
+                            Call Type</label>
+                        @( Html.Kendo().ComboBox()
+                                            .BindTo(ViewData["CallType"] as IEnumerable<SelectListItem>)
+                                                    .Name("ddlCallType")
+                                            .Suggest(true)
+                                            .Enable(false)
+                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                            .Events(events => events.Change("CallType_Change"))
+                                            .HighlightFirst(true)
+                                            )
+                    </div>
+                    <div class="button-height inline-label">
+                        <label for="Language" class="label">
+                            Language</label>
+                        @( Html.Kendo().ComboBox()
+                                       .BindTo(ViewData["Language"] as IEnumerable<SelectListItem>)
+                                       .Name("ddlLanguage")
+                                       .Suggest(true)
+                                       .Enable(false)
+                                       .Filter(FilterType.StartsWith).MinLength(0)
+                                       .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                       .HighlightFirst(true)
+                         )
+                    </div>
+                    <div id="programDataFields">
+                    </div>
+                    <div class="clear">
+                    </div>
+                </div>
+            </fieldset>
+            </form>
+        </div>
+        <!-- Program Information -->
+        <div class="three-columns">
+            <h3 class=" underline">
+                Program Information</h3>
+            <div class="scrollable" id="programDetails">
+            </div>
+        </div>
+        <!-- Call scripts -->
+        <div class="four-columns">
+            <h3 class=" underline">
+                Call Scripts</h3>
+            <div class="scrollable" id="callScriptList">
+            </div>
+        </div>
+    </div>
+    <!--end colums-->
+    <!-- Search section -->
+    <div class="full-width" id="searchSection">
+        <div class="boxed silver-gradient">
+            <h3 class=" underline">
+                Search</h3>
+            <!-- Tabs with Member, PO, Closed loop and ISP go here ... -->
+            <div id="startCallSearchTabs" class="standard-tabs same-height">
+                <ul class="tabs">
+                    <li><a href="#tabs-membersearch" id="tbMemberSearch"><span class="icon-user">Member</span></a></li>
+                    <li id="tbPO"><a href="@Url.Action("Search", "PO", new { area = "Application" })"><span
+                        class="icon-page-list">PO</span></a></li>
+                    <li id="tbClosedLoop"><a href="@Url.Action("Search", "ClosedLoop", new { area = "Application" })">
+                        <span class="icon-user">Closed Loop</span></a></li>
+                </ul>
+                <div id="tabs-membersearch">
+                    @{
+                        if (Model.isFromConnect == true)
+                        {
+                            Html.RenderAction("Search", "Member", new { area = "Application", isFromConnect = Model.isFromConnect, memberPhoneNumber = Model.memberPhoneNumber});
+                        }
+                        else
+                        {
+                            Html.RenderAction("Search", "Member", new { area = "Application", isFromConnect = false });
+                        }
+
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+
+    function IsStartTabValid() {
+
+        if ($('#btnNewRequest').length > 0) {
+            if (typeof (validateDynamicFields) != "undefined") {
+                var isFormValid = validateDynamicFields();
+                if (!isFormValid) {
+                    //TFS:163
+                    StyleTabAfterValidation("start", true);
+                    return false;
+
+                }
+            }
+        }
+
+        var caseIDFromServiceRequestDetailsPage = parseInt($('#hdnCaseId').val());
+        var caseIDFromServiceRequestDetailsPageisValid = false;
+        if (caseIDFromServiceRequestDetailsPage != undefined && !isNaN(caseIDFromServiceRequestDetailsPage) && caseIDFromServiceRequestDetailsPage > 0) {
+            caseIDFromServiceRequestDetailsPageisValid = true;
+        }
+
+        //TFS: 460 and 462.
+        if (!caseIDFromServiceRequestDetailsPageisValid) {
+            var programField = $('input[name="ddlProgram_input"]');
+            if ($.trim($('#ddlProgram').data("kendoComboBox").value()).length == 0) {
+                ShowValidationMessage(programField, "Please select a program");
+                programField.focus();
+                $("html").scrollTop(0);
+                StyleTabAfterValidation("start", true);
+                return false;
+            }
+            else {
+                HideValidationMessage(programField);
+            }
+        }
+
+        //TFS : 337
+        if (!caseIDFromServiceRequestDetailsPageisValid) {
+            var isSafeValue = $('input:radio[id=rdSafe]:checked').val();
+            if (isSafeValue === undefined) {
+                StyleTabAfterValidation("start", true);
+                ShowValidationMessage($('input:radio[id=rdSafe]'), "Please select a value.");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input:radio[id=rdSafe]'));
+            }
+        }
+
+
+        StyleTabAfterValidation("start", false);
+        return true;
+    }
+
+    function GetCallInformation() {
+
+        var dynamicDataElementsArray = [];
+        if (typeof (getDynamicFieldsValues) != "undefined") {
+            var dynamicFields = getDynamicFieldsValues();
+            for (var i = 0, l = dynamicFields.length; i < l; i++) {
+                dynamicDataElementsArray.push({ "Key": dynamicFields[i].name, "Value": dynamicFields[i].value });
+            }
+        }
+        var isSafeValue = $('input:radio[id=rdSafe]:checked').val();
+
+        if (isSafeValue === undefined) {
+            isSafeValue = null;
+        }
+        else {
+            isSafeValue = isSafeValue == "1" ? "true" : "false";
+        }
+        var postData = {
+            programId: $("#ddlProgram").data("kendoComboBox").value(),
+            callTypeId: $("#ddlCallType").data("kendoComboBox").value(),
+            languageId: $("#ddlLanguage").data("kendoComboBox").value(),
+            isSafe: isSafeValue,
+            ContactPhoneNumber: GetPhoneNumberForDB("CallbackNumber"),
+            ContactPhoneTypeID: $("#CallbackNumber_ddlPhoneType").val(),
+            ContactAltPhoneTypeID: $("#AlternateNumber_ddlPhoneType").val(),
+
+            ContactAltPhoneNumber: GetPhoneNumberForDB("AlternateNumber"),
+
+            // Add member ID later
+            dynamicDataElements: dynamicDataElementsArray
+        };
+
+        return postData;
+    }
+
+    function SaveInboundCallData() {
+        var retVal = false;
+        var postData = GetCallInformation();
+        if (postData.programId != null && $.trim(postData.programId).length != 0) {
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveInboundCall", "Request", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(postData),
+                async: false,
+                success: function (msg) {
+                    // Inbound data saved successfully.
+                    retVal = true;
+                    CleanMyContainer("frmCallInformation");
+                }
+            });
+        }
+
+        return retVal;
+    }
+
+    fnSaveTab = IsStartTabValid;
+
+    $(function () {
+
+        // Watch form for changes.
+        WatchMyContainer('frmCallInformation', null, null);
+
+        //KB: Set the width of the dropdown container to be 250px
+        $("#ddlProgram").data("kendoComboBox").list.width(250);
+
+        $("#CallbackNumber_txtPhoneNumber,#CallbackNumber_txtExtension").change(function (e) {
+            // This function returns true when there is an error.
+            if (!$('#frmCallInformation').validationEngine('validateField', '#CallbackNumber_txtPhoneNumber')) {
+                CallbackNumber_OnChange(e);
+            }
+        });
+
+        $("#ddlProgram").data("kendoComboBox").value('')
+
+        function EnableFields() {
+
+            $("#ddlProgram").data("kendoComboBox").enable(true);
+            $("#ddlCallType").data("kendoComboBox").enable(true);
+            $("#ddlLanguage").data("kendoComboBox").enable(true);
+            $(".Areyousafe").removeClass("disabled");
+            $("#startCallSearchTabs").tabs("option", "disabled", [3]);
+
+            //Jeevan
+            $("#startCallSearchTabs").find("#tbPO").removeClass("disabled");
+            $("#tbClosedLoop").removeClass("disabled");
+
+            $("#CallbackNumber_ddlPhoneType").data("kendoComboBox").enable(true);
+            $("#CallbackNumber_ddlCountryCode").data("kendoComboBox").enable(true);
+
+            $("#CallbackNumber_txtPhoneNumber").removeAttr("disabled");
+            $("#CallbackNumber_txtExtension").removeAttr("disabled");
+
+            $("#AlternateNumber_ddlPhoneType").data("kendoComboBox").enable(true);
+            $("#AlternateNumber_ddlCountryCode").data("kendoComboBox").enable(true);
+
+            $("#AlternateNumber_txtPhoneNumber").removeAttr("disabled");
+            $("#AlternateNumber_txtExtension").removeAttr("disabled");
+
+
+            $("#btnMemberSearch").removeAttr("disabled");
+            $("#btnMemberSearchClear").removeAttr("disabled");
+            $("#btnNonCall").removeAttr("disabled");
+
+            if ($("#StateSearch").data("kendoComboBox") != null) {
+                $("#StateSearch").data("kendoComboBox").enable(true);
+            }
+            if ($("#MemberProgramID").data("kendoComboBox") != null) {
+                $("#MemberProgramID").data("kendoComboBox").enable(true);
+            }
+
+
+
+            $('.memberSearch input:text').each(function () {
+                $(this).removeAttr("disabled");
+            });
+        }
+
+        function DisableFields() {
+            setTimeout(function () {
+                if (!isCallInProgress) {
+                    $("#ddlProgram").data("kendoComboBox").enable(false);
+                    $("#ddlCallType").data("kendoComboBox").enable(false);
+                    $("#ddlLanguage").data("kendoComboBox").enable(false);
+                    $(".Areyousafe").addClass("disabled");
+                    $("#startCallSearchTabs").tabs("option", "disabled", [1, 2]);
+                    // Jeevan
+                    $("#startCallSearchTabs").find("#tbPO").addClass("disabled");
+
+                    $("#tbClosedLoop").addClass("disabled");
+
+
+                    // Phone fields
+                    $("#CallbackNumber_ddlPhoneType").data("kendoComboBox").enable(false);
+                    $("#CallbackNumber_ddlCountryCode").data("kendoComboBox").enable(false);
+
+                    $("#CallbackNumber_txtPhoneNumber").attr("disabled", "disabled");
+                    $("#CallbackNumber_txtExtension").attr("disabled", "disabled");
+
+                    $("#AlternateNumber_ddlPhoneType").data("kendoComboBox").enable(false);
+                    $("#AlternateNumber_ddlCountryCode").data("kendoComboBox").enable(false);
+
+                    $("#AlternateNumber_txtPhoneNumber").attr("disabled", "disabled");
+                    $("#AlternateNumber_txtExtension").attr("disabled", "disabled");
+                }
+            }, 1000);
+        }
+        $('#startCallSearchTabs').tabs();
+        if (!isCallInProgress) {
+            setTimeout(function () { if (!isCallInProgress) { DisableFields(); } }, 500);
+            $("#tbGetHelp").addClass("disabled");
+            $("#RequestTabs").tabs("disable", 1);
+
+        }
+        else {
+            setTimeout(function () { EnableFields(); }, 500);
+            // Enable Get help tab
+            $("#tbGetHelp").removeClass("disabled");
+            $("#RequestTabs").tabs("enable", 1);
+            $("#btnStartCall").attr("disabled", "disabled");
+            $("#btnStartCall").removeClass("green-gradient");
+        }
+        $("#frmCallInformation").validationEngine();
+
+
+        $(".timer").timer();
+
+        $("#btnStartCall").click(function () {
+            isCallInProgress = true;
+
+
+            // Create an inbound entry
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StartCall", "Request", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    // No need to inform the user
+                    $(".timer").timer("reset");
+                    $(".timer").timer("start");
+                    // Enable Get help tab
+                    $("#tbGetHelp").removeClass("disabled");
+                    $("#RequestTabs").tabs("enable", 1);
+                    //TFS Bug 205
+                    //$("#tbFinishTab").removeClass("disabled");
+                    //            $("#RequestTabs").tabs("enable", 1);
+                    //            $("#RequestTabs").tabs("enable", 11);
+                    EnableFields();
+                    $('#btnStartCall').attr("disabled", "disabled");
+                    $('#btnStartCall').removeClass("green-gradient");
+                    SetFocusOnField("ddlProgram");
+                }
+            });
+
+
+        });
+
+
+    });
+
+    //Sanghi To set the focus on active tab search field.
+    $(function () {
+        $('#ddlLanguage-input').focusout(function (e) {
+            // Code to get the active tab for search.
+            var $tabs = $('#startCallSearchTabs').tabs();
+            var selected = $tabs.tabs('option', 'selected');
+            if (selected == 0) {
+                $('#MemberNumber').focus();
+            }
+            else if (selected == 1) {
+                $('#txtPONumber').focus();
+            }
+            else if (selected == 2) {
+                $('#txtMemberNumber').focus();
+            }
+        });
+    });
+
+</script>

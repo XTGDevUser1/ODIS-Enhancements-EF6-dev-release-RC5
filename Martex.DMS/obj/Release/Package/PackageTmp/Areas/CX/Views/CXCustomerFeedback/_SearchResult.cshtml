@@ -1,0 +1,285 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@using Martex.DMS.DAL.Entities;
+@model Martex.DMS.DAL.Entities.CustomerFeedbackSearchCriteria
+@using Martex.DMS.Areas.Application.Models;
+@{
+    string IsReadWriteForQASummary = string.Empty; // DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_CX_CUSTOMERFEEDBACK_SUMMARY) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string IsReadWriteForQAEdit = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_CX_CUSTOMERFEEDBACK_EDIT) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string canOpenEdit = string.Empty; // DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_CX_CUSTOMERFEEDBACK_EDIT) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? "true" : "false";
+    string IsReadWriteForAddQA = "";
+
+    string gridName = "CustomerFeedback";
+
+}
+
+<script type="text/javascript">
+
+    function QACustomerFeedbackSearchCriteria() {
+        if ($("#frmQACustomerFeedbackSearchCriteria").length > 0) {
+            var newArray = [];
+
+            newArray.push({ name: "NumberType", value: $("#frmQACustomerFeedbackSearchCriteria").find("#NumberType").val() });
+            newArray.push({ name: "NumberValue", value: $("#frmQACustomerFeedbackSearchCriteria").find("#NumberValue").val() });
+            newArray.push({ name: "NameTypeOperator", value: $('#frmQACustomerFeedbackSearchCriteria').find("#NameTypeOperator").val() });
+            newArray.push({ name: "NameType", value: $('#frmQACustomerFeedbackSearchCriteria').find("#NameType").val() });
+            newArray.push({ name: "NameValue", value: $('#frmQACustomerFeedbackSearchCriteria').find("#NameValue").val() });
+
+
+            $("#frmQACustomerFeedbackSearchCriteria").find("#PanelStatus input:checkbox").each(function (index) {
+                if ($(this).attr('recordID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "Statuses[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "Statuses[" + index + "].ID", value: $(this).attr('recordID') });
+                    newArray.push({ name: "Statuses[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+
+            $("#frmQACustomerFeedbackSearchCriteria").find("#PanelSources input:checkbox").each(function (index) {
+                if ($(this).attr('recordID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "Sources[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "Sources[" + index + "].ID", value: $(this).attr('recordID') });
+                    newArray.push({ name: "Sources[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+
+
+            $("#frmQACustomerFeedbackSearchCriteria").find("#PanelFeedbackTypes input:checkbox").each(function (index) {
+                if ($(this).attr('recordID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "FeedbackTypes[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "FeedbackTypes[" + index + "].ID", value: $(this).attr('recordID') });
+                    newArray.push({ name: "FeedbackTypes[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+            $("#frmQACustomerFeedbackSearchCriteria").find("#PanelPriority input:checkbox").each(function (index) {
+                if ($(this).attr('recordID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "Priority[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "Priority[" + index + "].ID", value: $(this).attr('recordID') });
+                    newArray.push({ name: "Priority[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+
+
+            newArray.push({ name: "Client", value: $('#frmQACustomerFeedbackSearchCriteria').find("#Client").val() });
+            newArray.push({ name: "Program", value: $('#frmQACustomerFeedbackSearchCriteria').find("#Program").val() });
+            newArray.push({ name: "NextAction", value: $('#frmQACustomerFeedbackSearchCriteria').find("#NextAction").val() });
+
+            newArray.push({ name: "ReceivedFromDate", value: $('#ReceivedFromDate').val() });
+            newArray.push({ name: "ReceivedToDate", value: $('#ReceivedToDate').val() });
+
+
+            var CustomerFeedbackCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                CustomerFeedbackCriteria[newArray[i].name] = newArray[i].value;
+            return CustomerFeedbackCriteria;
+        }
+    }
+
+    function ManageCustomerFeedback(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).CustomerFeedbackID;
+            var CustomerFeedbackNumber = this.dataItem($(e.currentTarget).closest("tr")).CustomerFeedbackNumber;
+            var CustomerFeedbackName = this.dataItem($(e.currentTarget).closest("tr")).CustomerFeedbackName;
+            if (e.data.commandName == 'Edit') {
+                AddCustomerFeedbackTab(recordID, tabObject);
+            }
+            else if (e.data.commandName == 'View') {
+                alert("View in progress");
+            }
+        }
+        else {
+            AddCustomerFeedbackInformation(null, tabObject);
+        }
+    }
+
+
+    function AdjustTooltipForLongText() {
+        $(".toBeEllipsized").data("tooltip-options", {
+            onShow: function (target) {
+                var tip = $("#tooltips").find(".message");
+                if (tip.width() > 200) {
+                    tip.css("white-space", "normal");
+                    tip.css("min-width", "200px");
+                }
+            },
+            onRemove: function (target) {
+                var tip = $("#tooltips").find(".message");
+                tip.css("white-space", "nowrap");
+                tip.css("min-width", "auto");
+            }
+        });
+    }
+    function ManageCustomerFeedback_Databound(e) {
+
+        $(".toBeEllipsized").each(function () {
+            $(this).addClass("with-tooltip").attr("title", $(this).text());
+        });
+        AdjustTooltipForLongText();
+        $(".k-grid-Edit").addClass("with-tooltip @IsReadWriteForQAEdit").html("<span class='k-icon k-edit'/>");
+        @*$(".k-grid-Merge").addClass("with-tooltip @IsReadWriteForQAMerge").html("<span class='k-icon k-i-restore'/>");*@
+        $(".k-grid-View").addClass("with-tooltip @IsReadWriteForQASummary").html("<span class='k-icon k-i-search'/>");
+        var rowCount = e.sender.dataSource.total();
+        if (rowCount == 0) {
+            try {
+                $("#StatusCounter_Closed").html("0");
+                $("#StatusCounter_Open").html("0");
+                $("#StatusCounter_ResearchCompleted").html("0");
+                $("#StatusCounter_InProgress").html("0");
+                $("#StatusCounter_Pending").html("0");
+
+            } catch (e) {
+
+            }
+        }
+        if (rowCount > 0) {
+            try {
+                var item = e.sender.dataSource.data()[0];
+                $("#StatusCounter_Closed").html(item.ClosedCount);
+                $("#StatusCounter_Open").html(item.OpenCount);
+                $("#StatusCounter_ResearchCompleted").html(item.ResearchCompletedCount);
+                $("#StatusCounter_InProgress").html(item.InprogressCount);
+                $("#StatusCounter_Pending").html(item.PendingCount);
+            } catch (e) {
+
+            }
+        }
+    }
+</script>
+<div class="columns">
+    <div class="twelve-columns">
+        <div class="with-padding">
+            <div class="float-right">
+                <p class="button-height filterButtons" id="CustomerFeedbackFilterTopButtons">
+                    <span class="button-group">
+                        @foreach (CheckBoxLookUp temp in Model.Statuses)
+                        {
+                            <label for="display-@temp.ID" class="button compact green-active">
+                                <span class="count blue-bg" id="StatusCounter_@temp.Name.Replace(" ", string.Empty)">
+                                    0
+                                </span>
+                                <input type="checkbox" name="rbstatusCustomerFeedback" class="rbStatus" id="display-@temp.ID" value="@temp.ID" />
+                                @temp.Name
+                            </label>
+                        }
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="new-row twelve-columns">
+        <div class="small-margin-top" id="div_QACustomerFeedback">
+            <div class="tabs-content">
+                @(Html.Kendo().Grid<dms_CustomerFeedback_list_Result>()
+                .Name("GrdQACustomerFeedback")
+                .Columns(column =>
+                {
+
+                    column.Bound(u => u.CustomerFeedbackID).Title("ID").Width(50);
+                    column.Bound(u => u.Status).Title("Status").Width(100);
+                    column.Bound(u => u.Source).Title("Source").Width(100);
+                    column.Bound(u => u.Priority).Title("Priority").Width(100);
+                    column.Bound(u => u.DueDate).Title("Due Date").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(u => u.CreatedBy).Title("Created By").Width(100);
+                    column.Bound(u => u.WorkedBy).Title("Worked By").Width(100);
+                    column.Bound(u => u.MemberNumber).Title("MS #").Width(100);
+                    column.Bound(u => u.MemberFirstName).Title("First Name").Width(100);
+                    column.Bound(u => u.MemberLastName).Title("Last Name").Width(100);
+                    column.Bound(u => u.PurchaseOrderNumber).Title("PO #").Width(100);
+                    column.Bound(u => u.ServiceRequestID).Title("Req #").Width(100);
+                    column.Bound(u => u.Type).Title("Type").Width(100);
+                    column.Bound(u => u.DateofService).Title("Date of Service").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(u => u.NextAction).Title("Next Action").Width(100);
+                    column.Bound(u => u.NextActionAssignedTo).Title("Assigned To").Width(100);
+                    column.Bound(u => u.NextActionScheduledDate).Title("Scheduled").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(u => u.DescriptionofConcern).Title("Description").Width(150).HtmlAttributes(new { @class = "toBeEllipsized" });
+                    column.Command(command =>
+                    {
+                        command.Custom("Edit").Click("ManageCustomerFeedback").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    })
+                    .Width(150)
+                    .Title("Action(s)");
+                })
+                .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add Customer Feedback' , class='k-button " + IsReadWriteForAddQA + " k-button-icontext k-grid-CustomerFeedback-add with-tooltip' href='javascript:void(0);' onclick='ManageCustomerFeedback(null)'><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Customer Feedback</label></a>"))
+                .Events(e =>
+                {
+                    e.DataBound("ManageCustomerFeedback_Databound");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("CXSearch", "CXCustomerFeedback").Data("QACustomerFeedbackSearchCriteria"))
+                    .PageSize(20)
+               )
+                .Resizable(resize => resize.Columns(true))
+
+                )
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        340
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+       
+        if('@IsReadWriteForQAEdit' !='hidden')
+        {
+            $("#GrdQACustomerFeedback").delegate("tbody>tr", "dblclick", function () {
+                $(this).find('.k-grid-Edit').click();
+            });
+        }
+
+
+
+        $('input[name="rbstatusCustomerFeedback"]').click(function (e) {
+            var claimStatusID = $(this).attr('value');
+            var IsRbStatusSelected = $(this).is(" :checked");
+            $("#frmQACustomerFeedbackSearchCriteria").find("#ChkSearchCustomerFeedbackStatus input:checkbox").each(function (index) {
+                var recordID = $(this).attr('recordID');
+                if (recordID != undefined && claimStatusID != undefined && IsRbStatusSelected != undefined) {
+                    if (recordID == claimStatusID) {
+                        if (IsRbStatusSelected) {
+                            $(this).prop("checked", true);
+                            $(this).parent().addClass("checked");
+                        }
+                        else {
+                            $(this).prop("checked", false);
+                            $(this).parent().removeClass("checked");
+                        }
+                    }
+                }
+            });
+            $("#GrdQACustomerFeedback").data('kendoGrid').dataSource.read();
+
+        });
+
+    });
+
+    function AddCustomerFeedbackInformation(customerFeedBackId, tabObjectReference) {
+        AddCustomerFeedbackTab(customerFeedBackId, tabObjectReference)
+    }
+
+   
+</script>
+
+

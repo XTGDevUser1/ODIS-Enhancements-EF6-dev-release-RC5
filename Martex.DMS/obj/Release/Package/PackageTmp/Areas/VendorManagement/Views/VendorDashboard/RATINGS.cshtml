@@ -1,0 +1,24 @@
+﻿@using Martex.DMS.DAL
+@model Portlet
+@{
+    string portletID = Model.ID.ToString();
+}
+
+<div class="portlet portlet-sortable" id="@portletID">
+    <div class="block large-margin-bottom">
+        <div class="block-title">
+            <h3>Vendor Ratings</h3>
+            <span class="ribbon"><span class="ribbon-inner">New</span></span>
+        </div>
+        <div class="with-padding">
+            <ul>
+                <li>
+                    Rating 1
+                </li>
+                <li>
+                    Ratings 2
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

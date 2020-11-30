@@ -1,0 +1,172 @@
+﻿@model Martex.DMS.BLL.Model.VendorInvoiceInfoCommonModel
+<div class="columns">
+    <div class="twelve-columns">
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="ExportDate" class="label">
+                    Export Date
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.ExportDate)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.ExportDate)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="ExportBatch" class="label">
+                    Export Batch
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.ExportBatchID)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.ExportBatchID)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="PaidTo" class="label">
+                    Paid To
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingBusinessName)<br />
+                }
+            </p>
+        </div>
+        @if (Model.VendorInvoiceDetails != null)
+        {
+            if (Model.VendorInvoiceDetails.BillingAddressLine1 != null && Model.VendorInvoiceDetails.BillingAddressLine1 != "")
+            {
+                
+            <div>
+                <p class=" inline-label small-margin-bottom">
+                    <label for="BillingAddressLine1" class="label">
+                    </label>
+                    <span>
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressLine1)<br />
+                    </span>
+                </p>
+            </div>
+            }
+            if (Model.VendorInvoiceDetails.BillingAddressLine2 != null && Model.VendorInvoiceDetails.BillingAddressLine2 != "")
+            {
+                
+            <div>
+                <p class=" inline-label small-margin-bottom">
+                    <label for="BillingAddressLine2" class="label">
+                    </label>
+                    <span>
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressLine2)<br />
+                    </span>
+                </p>
+            </div>
+            }
+
+            if (Model.VendorInvoiceDetails.BillingAddressLine3 != null && Model.VendorInvoiceDetails.BillingAddressLine3 != "")
+            {
+            <div>
+                <p class=" inline-label small-margin-bottom">
+                    <label for="BillingAddressLine3" class="label">
+                    </label>
+                    <span>
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressLine3)<br />
+                    </span>
+                </p>
+            </div>
+            }
+            <div>
+                <p class=" inline-label small-margin-bottom">
+                    <label for="BillingAddressLine2" class="label">
+                    </label>
+                    <span>
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressCity)@Html.Raw(", ")
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressStateProvince)@Html.Raw(" ")
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressPostalCode) @Html.Raw(" ")
+                        @Html.DisplayFor(a => a.VendorInvoiceDetails.BillingAddressCountryCode)
+                    </span>
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.BillingBusinessName)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressLine1)@Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressLine2)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressLine3)@Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressStateProvince)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressPostalCode) @Html.HiddenFor(a => a.VendorInvoiceDetails.BillingAddressCountryCode)
+                </p>
+            </div>
+        }
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="PaymentType" class="label">
+                    Payment Type
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.PaymentType)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.PaymentType)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="PaymentDate" class="label">
+                    Payment Date
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.PaymentDate)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.PaymentDate)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="PaymentAmount" class="label">
+                    Payment Amount
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    if (Model.VendorInvoiceDetails.PaymentAmount != null)
+                    {
+                    @Html.Raw("$")}@Html.DisplayFor(a => a.VendorInvoiceDetails.PaymentAmount)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.PaymentAmount)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="PaymentNumber" class="label">
+                    Payment Number
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.PaymentNumber)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.PaymentNumber)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="CheckClearedDate" class="label">
+                    Check Cleared Date
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.CheckClearedDate)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.CheckClearedDate)
+                }
+            </p>
+        </div>
+        <div>
+            <p class=" inline-label small-margin-bottom">
+                <label for="GLExpenseAccount" class="label">
+                    GL Exp Account
+                </label>
+                @if (Model.VendorInvoiceDetails != null)
+                {
+                    @Html.DisplayFor(a => a.VendorInvoiceDetails.GLExpenseAccount)
+                    @Html.HiddenFor(a => a.VendorInvoiceDetails.GLExpenseAccount)
+                }
+            </p>
+        </div>
+    </div>
+</div>

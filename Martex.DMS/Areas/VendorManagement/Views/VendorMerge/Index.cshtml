@@ -1,0 +1,166 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/VendorManagement/Views/Shared/_VendorLayout.cshtml";
+    var vendorDetails_Source = ViewData["vendorDetails_Source"];
+    var vendorLocations_Source = ViewData["VendorLocations_Source"];
+    var vendorDetails_Target = ViewData["vendorDetails_Target"];
+    var vendorLocations_Target = ViewData["VendorLocations_Target"];
+}
+<hgroup id="main-title" class="thin">
+<h1>Vendor Merge</h1>
+</hgroup>
+<div class="with-padding">
+    <form id="frmVendorMerge" method="post" action="javascript:void(0)">
+    <div class="columns">
+        <div class="six-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Source Vendor</legend>
+                @Html.Editor("SourceVendor", "VendorDetail", new { vendorDetails = vendorDetails_Source, VendorLocations = vendorLocations_Source })
+                <div class="clear">
+                </div>
+                <button id="btnCompareVendor" class="button icon-search blue-gradient float-right  mid-margin-left margin-bottom"
+                    type="button">
+                    Find Matches</button>
+            </fieldset>
+        </div>
+        <div class="six-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Target Vendor</legend>
+                @Html.Editor("TargetVendor", "VendorDetail", new { vendorDetails = vendorDetails_Target, VendorLocations = vendorLocations_Target })
+                <button id="btnMergeVendor" class="button icon-reduce green-gradient float-left margin-bottom margin-left"
+                    type="button">
+                    Merge
+                </button>
+            </fieldset>
+        </div>
+        <div class="message full-width" style="width: 96%; text-align: center; display: none"
+            id="statusIndicator">
+            @*<span class="block-arrow"><span></span></span>*@<span class="statusMessage full-width"
+                style="text-align: center; width: 98%;"></span>
+        </div>
+        <div class="new-row seven-columns">
+            <div>
+                <button id="btnActivateVendor" class="button silver-gradient float-right hide margin-bottom margin-left margin-right"
+                    type="button">
+                    Activate</button>
+            </div>
+        </div>
+        <div class="new-row twelve-columns" id="divAvailableMatchedVendors" style="display: none">
+        </div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript" language="javascript">
+
+    $("#btnCompareVendor").click(function (e) {
+        var formElemnt = $("#frmVendorMerge");
+        HideStatus(formElemnt);
+        var vendorID = $("#SourceVendor_VendorID").val();
+        if (vendorID != '' && vendorID != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetVendorDuplicates", "VendorMerge", new { area = "VendorManagement" })',
+                data: { vendorID: vendorID },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    $("#divAvailableMatchedVendors").html(msg);
+                    $("#divAvailableMatchedVendors").show();
+                }
+            });
+        }
+        else {
+            ShowStatus("error", "You should select Source Vendor inorder to compare it with another one", formElemnt);
+        }
+    });
+
+    $("#btnMergeVendor").click(function (e) {
+
+        var formElemnt = $("#frmVendorMerge");
+        HideStatus(formElemnt);
+        ShowStatus("inprogress", "Processing merge...", formElemnt);
+        var sourceVendorID = $("#SourceVendor_VendorID").val();
+        var targetVendorID = $("#TargetVendor_VendorID").val();
+        var sourceVendorStatus = $("#SourceVendor_VendorStatus").val();
+        var targetVendorName = $("#TargetVendor_VendorName").val();
+        var sourceVendorName = $("#SourceVendor_VendorName").val();
+        var sourceVendorLocationID = '';
+        if ($("#SourceVendor_ddlVendorLocation").data('kendoComboBox') != undefined) {
+            sourceVendorLocationID = $("#SourceVendor_ddlVendorLocation").data('kendoComboBox').value();
+        }
+        var targetVendorLocationID = '';
+        if ($("#TargetVendor_ddlVendorLocation").data('kendoComboBox') != undefined) {
+            targetVendorLocationID = $("#TargetVendor_ddlVendorLocation").data('kendoComboBox').value();
+        }
+
+        if (sourceVendorID != '' && sourceVendorID != null && targetVendorID != '' && targetVendorID != null) {
+            if (sourceVendorStatus != "Inactive") {
+                if (sourceVendorID != targetVendorID) {
+
+                    if (sourceVendorLocationID != '' && sourceVendorLocationID != null && targetVendorLocationID != '' && targetVendorLocationID != null) {
+                        $.modal.confirm('Items will be moved from <b>' + sourceVendorName + '</b> to <b>' + targetVendorName + '</b> and <b>' + sourceVendorName + '</b> will be deleted.  Are sure you want to continue?', function () {
+                            $.ajax({
+                                type: 'POST',
+                                url: '@Url.Action("MergeVendor", "VendorMerge", new { area = "VendorManagement" })',
+                                data: { sourceVendorID: sourceVendorID, targetVendorID: targetVendorID, sourceVendorLocationID: sourceVendorLocationID, targetVendorLocationID: targetVendorLocationID },
+                                traditional: true,
+                                cache: false,
+                                async: true,
+                                success: function (msg) {
+                                    ShowStatus("success", "Merge complete", formElemnt);
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '@Url.Action("GetVendorDetailsOfVendor", "VendorMerge", new { area = "VendorManagement" })',
+                                        data: { vendorID: sourceVendorID, prefixName: "SourceVendor" },
+                                        traditional: true,
+                                        cache: false,
+                                        async: true,
+                                        success: function (msg) {
+                                            $("#SourceVendor_divVendorDetails").html(msg);
+                                        }
+                                    });
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '@Url.Action("GetVendorDetailsOfVendor", "VendorMerge", new { area = "VendorManagement" })',
+                                        data: { vendorID: targetVendorID, prefixName: "TargetVendor" },
+                                        traditional: true,
+                                        cache: false,
+                                        async: true,
+                                        success: function (msg) {
+                                            $("#TargetVendor_divVendorDetails").html(msg);
+                                        }
+                                    });
+                                }
+                            });
+                        }, function () {
+                            HideStatus(formElemnt);
+                            return false;
+                        });
+                    }
+
+                    else {
+                        ShowStatus("error", "Must specify both a source location and target location before you can Merge", formElemnt);
+                        return false;
+                    }
+
+                }
+                else {
+                    ShowStatus("error", "Source Vendor and Target Vendor must be different.", formElemnt);
+                    return false;
+                }
+            }
+            else {
+                ShowStatus("error", "Source Vendor is deleted, you can't merge him.", formElemnt);
+                return false;
+            }
+        }
+        else {
+            ShowStatus("error", "Must specify both a source vendor and target vendor before you can Merge", formElemnt);
+            return false;
+        }
+
+    });
+</script>

@@ -1,0 +1,77 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model Martex.DMS.BLL.Model.VendorServiceModel
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    var suffixVendorID = Model.VendorID.ToString();
+    var categories = Model.DBServices.GroupBy(t => t.ServiceGroup).Select(grp => grp.FirstOrDefault()).OrderBy(t => t.SortOrder).ToList<VendorServices_Result>();
+    bool repairsStatred = false;
+}
+@helper GetServiceItem(string vendorID, int index, string name, int productID, bool isSelected)
+    {
+    @Html.Hidden("Services[" + index.ToString() + "].Name", name, new { id = "Services[" + index.ToString() + "].Name_" + vendorID })
+    @Html.Hidden("Services[" + index.ToString() + "].ID", productID, new { id = "Services[" + index.ToString() + "].ID_" + vendorID })
+    @Html.CheckBox("Services[" + index.ToString() + "].Selected", isSelected, new { @class = "checkbox", id = "Services[" + index.ToString() + "].Selected_" + vendorID })
+    @Html.Raw(" " + name)
+    
+}
+<div class="with-padding">
+    <form id="frmVendorServices_@suffixVendorID" method="post" action="javascript:void(0)" relatedButtons = "PlaceHolder_Vendor_Services_Buttons_@suffixVendorID">
+    @Html.HiddenFor(u => u.VendorID, new { id = "ServiceTab_VendorID_" + suffixVendorID })
+    <div class="columns">
+        <div class="twelve-columns">
+            <div class="columns">
+            <div class="clear">
+                    </div>
+                @foreach (var item in categories)
+                {
+                    if (!repairsStatred)
+                    {
+                        if (item.ProductCategory == "Repair")
+                        {
+                            repairsStatred = true;
+                    <div class="clear">
+                    </div>
+                    <br />
+                        }
+                    }
+                    @*if (item.ServiceGroup == "Chassis" && item.ProductCategory == "Repair" && item.ServiceName == "Alignment")
+                    {
+                    <div class="clear">
+                    </div>
+                    
+                    }*@
+                    
+                    <div class="block float-left small-margin-right">
+                        <h3 class="block-title">
+                            @item.ServiceGroup
+                            @*@if (item.ProductCategory == "Repair")
+                            {@Html.Raw(" - ") @item.ProductCategory}*@
+                        </h3>
+                        <div class="with-small-padding">
+                            @{ 
+                    var productsForCategory = Model.DBServices.Where(x => x.ServiceGroup == item.ServiceGroup).OrderBy(u => u.ServiceName).ToList<VendorServices_Result>(); 
+                            }
+                            @foreach (var p in productsForCategory)
+                            {
+                                <div>
+                                    @GetServiceItem(suffixVendorID, i++, p.ServiceName, p.ProductID.GetValueOrDefault(), p.IsAvailByVendor.GetValueOrDefault())
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="new-row twelve-columns hide" id="PlaceHolder_Vendor_Services_Buttons_@suffixVendorID">
+            <button id="btnSaveVendorService_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom margin-top"
+                        type="button" onclick="SaveVendorServices(this,@suffixVendorID,false)">
+                Save</button>
+            <button id="btnCancelVendorService_@suffixVendorID" class="button gray-gradient  float-right margin-bottom margin-top"
+                        type="button" onclick="CancelVendorServices(this,@suffixVendorID)">
+                Cancel</button>
+        </div>
+    </div>
+    </form>
+</div>

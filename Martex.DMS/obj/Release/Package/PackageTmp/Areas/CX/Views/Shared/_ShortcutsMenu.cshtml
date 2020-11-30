@@ -1,0 +1,104 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right qaShortcuts">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_DASHBOARD) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_DashBoard">
+            <a href="@Url.Action("Index", "CXHome", new { area = "CX" })" class="shortcut-dashboard" title="Dashboard" data="CXHome">
+                Dashboard
+            </a>
+        </li>
+    }
+
+
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_CUSTOMER_FEEDBACK) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Concern_Type_Feedback">
+            <a href="@Url.Action("Index", "CXCustomerFeedback", new { area = "CX" })" class="shortcut-messages" title="Customer Feedback" data="CXCustomerFeedback">
+                Customer Feedback
+            </a>
+        </li>
+    }
+
+
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_SURVEY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Concern_Type_Survey">
+            <a href="@Url.Action("Index", "CXSurvey", new { area = "CX" })" class="shortcut-agenda" title="Survey" data="CXSurvey">
+                Survey
+            </a>
+        </li>
+    }
+
+
+
+    @*@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_COACHING_CONCERN) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Coaching_Concern">
+            <a href="@Url.Action("Index", "CXCoachingConcern", new { area = "CX" })" class="shortcut-stats" title="Coaching Concern" data="CXCoachingConcern">
+                Coaching Concern
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_CONCERN_MAINTAINENCE) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Concern_Maintenance">
+            <a href="@Url.Action("Index", "CXConcernMaintenance", new { area = "CX" })" class="shortcut-settings" title="Concern Maintenance" data="CXConcernMaintenance">
+                Concern Maintenance
+            </a>
+        </li>
+    }
+
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CX_CONCERN_TYPE_MAINTAINENCE) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Concern_Type_Maintenance">
+            <a href="@Url.Action("Index", "CXConcernTypeMaintenance", new { area = "CX" })" class="shortcut-settings" title="Concern Type Maintenance" data="CXConcernTypeMaintenance">
+                Concern Type Maintenance
+            </a>
+        </li>
+    }*@
+
+
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_QA_MEMBERS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Members">
+            <a href="@Url.Action("Index", "CXMembers", new { area = "CX" })" class="shortcut-stats" title="Members" data="CXMembers">
+                Members
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_QA_COMP) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Comp">
+            <a href="@Url.Action("Index", "CXComp", new { area = "CX" })" class="shortcut-settings" title="Comp" data="CXComp">
+                Comp
+            </a>
+        </li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_QA_TASKS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_QA_Task">
+            <a href="@Url.Action("Index", "CXTasks", new { area = "CX" })" class="shortcut-stats" title="Tasks" data="CXTasks">
+                Tasks
+            </a>
+        </li>
+    }
+   
+   
+   
+   
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.qaShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.qaShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

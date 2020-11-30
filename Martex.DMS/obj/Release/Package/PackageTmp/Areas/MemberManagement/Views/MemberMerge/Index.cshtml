@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/MemberManagement/Views/Shared/_MemberManagementLayout.cshtml";
+    
+}
+
+<script language="javascript" type="text/javascript">
+
+    function RefreshMemberSearchGrid() {
+        $('#GrdSearchMember').data('kendoGrid').dataSource.read();
+    }
+
+</script>
+<hgroup id="main-title" class="thin">
+<h1>Member Merge</h1>
+</hgroup>
+<div class="with-padding">
+    <div class="columns">
+        <div class="six-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Source Member</legend>
+                <div id="div_Source">
+                </div>
+            </fieldset>
+        </div>
+        <div class="six-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Target Member</legend>
+                <div id="div_Target">
+                </div>
+            </fieldset>
+        </div>
+        <div class="message full-width" style="width: 100%; display: none" id="statusIndicator">
+            <span class="block-arrow"><span></span></span><span class="statusMessage full-width"
+                style="text-align: center; width: 100%"></span>
+        </div>
+        <div class="new-row seven-columns">
+            <div>
+                <button id="btnMergeVendor" class="button icon-reduce green-gradient float-right margin-bottom margin-left"
+                    type="button">
+                    Merge
+                </button>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Search section -->
+    <div class="full-width" id="searchSection">
+        <div class="boxed emboss glow silver-gradient">
+            <h3 class=" underline">
+                Search</h3>
+            <!-- Tabs with Member, PO, Closed loop and ISP go here ... -->
+            <div id="startCallSearchTabs" class="standard-tabs same-height">
+                <div id="tabs-membersearch">
+                    @{
+                        Html.RenderAction("Search", "MemberMerge", new { area = "MemberManagement" });
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.Hidden("hdnMemberIdFromList", @ViewData["MemberIdFromList"])
+<script language="javascript" type="text/javascript">
+
+    function ShowMergeDetails(memberId, mergeSection) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetMergeMemberDetails", "MemberMerge")',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { memberID: memberId, mergeSection: mergeSection },
+            success: function (msg) {
+                if (mergeSection == "Source") {
+                    $("#div_Source").html(msg);
+                }
+                else {
+                    $("#div_Target").html(msg);
+                }
+
+            }
+        });
+    }
+    $(function () {
+
+        var hdnMemberIdFromListValue = $("#hdnMemberIdFromList").val();
+        if (hdnMemberIdFromListValue != null && hdnMemberIdFromListValue != '') {
+            ShowMergeDetails(hdnMemberIdFromListValue, "Source");
+        }
+
+
+        $("#btnMergeVendor").click(function (e) {
+
+            e.preventDefault();
+
+            // Get the source and target member IDs.
+
+            var $srcMemberID = $("#div_Source").find("#hdnMemberId");
+            var $targetMemberID = $("#div_Target").find("#hdnMemberId");
+
+            if ($srcMemberID.length == 0 ||
+                    $targetMemberID.length == 0 ||
+                    $.trim($srcMemberID.val()).length == 0 ||
+                    $.trim($targetMemberID.val()).length == 0) {
+                openAlertMessage("Must specify both a source member and target member before you can Merge");
+                return false;
+            }
+            var sourceMemberID = $srcMemberID.val();
+            var targetMemberID = $targetMemberID.val();
+            if (sourceMemberID == targetMemberID) {
+                openAlertMessage("Source Member and Target Member should be different");
+                return false;
+            }
+            //hdnMemberStatus
+            var sourceMemberStatus = $("#div_Source").find("#hdnMemberStatus").val();
+            var targetMemberStatus = $("#div_Target").find("#hdnMemberStatus").val();
+
+            if (sourceMemberStatus == "Deleted" || targetMemberStatus == "Deleted") {
+                openAlertMessage("Cannot perform merge when the status of one or both of the members is deleted");
+                return false;
+            }
+
+            var tranGrid = $("#GrdTransactions_Source").data("kendoGrid");
+            var dataSource = tranGrid.dataSource;
+            var tranItemsCount = dataSource.total();
+            var sourceMemberName = $("#div_Source").find("#hdnMemberName").val();
+            var targetMemberName = $("#div_Target").find("#hdnMemberName").val();
+            var confirmMessage = tranItemsCount + ' items will be moved from ' + sourceMemberName + ' to ' + targetMemberName + ' and ' + sourceMemberName + ' will be deleted.Are sure you want to continue?'
+            $.modal.confirm(confirmMessage, function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Merge", "MemberMerge")',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    data: { sourceMemberID: sourceMemberID, targetMemberID: targetMemberID },
+                    success: function (msg) {
+                        if (msg.Status == "BusinessRuleFail") {
+                            openAlertMessage(msg.ErrorMessage);
+                        }
+                        else {
+                            openAlertMessage("Merge Complete");
+                            ShowMergeDetails(sourceMemberID, "Source");
+                            ShowMergeDetails(targetMemberID, "Target");
+
+                            RefreshMemberSearchGrid();
+                        }
+                    }
+                });
+            }, function () {
+            });
+
+
+            return false;
+        });
+    });
+
+</script>

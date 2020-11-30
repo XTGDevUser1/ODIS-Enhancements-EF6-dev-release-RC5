@@ -1,0 +1,1576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">iPhoneSimulator</Platform>
+    <ProjectGuid>{34559ACE-A32F-4E72-B21F-A849740FBBA2}</ProjectGuid>
+    <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ODISMember.iOS</RootNamespace>
+    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <AssemblyName>ODISMemberiOS</AssemblyName>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchArch>i386, x86_64</MtouchArch>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchDebug>True</MtouchDebug>
+    <MtouchSdkVersion>10.2</MtouchSdkVersion>
+    <MtouchProfiling>False</MtouchProfiling>
+    <MtouchFastDev>False</MtouchFastDev>
+    <MtouchUseLlvm>False</MtouchUseLlvm>
+    <MtouchUseThumb>False</MtouchUseThumb>
+    <MtouchUseSGen>False</MtouchUseSGen>
+    <MtouchUseRefCounting>False</MtouchUseRefCounting>
+    <MtouchOptimizePNGs>True</MtouchOptimizePNGs>
+    <CodesignKey>iPhone Developer: Kiran Banda (2VWUNLW76B)</CodesignKey>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchFloat32>False</MtouchFloat32>
+    <CodesignProvision>14d60c5c-45df-4bcc-bcb2-ac4ce883d197</CodesignProvision>
+    <MtouchExtraArgs>-gcc_flags -ObjC</MtouchExtraArgs>
+    <MtouchEnableBitcode>False</MtouchEnableBitcode>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <MtouchLink>None</MtouchLink>
+    <MtouchArch>i386, x86_64</MtouchArch>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\iPhone\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <CodesignKey>iPhone Developer: Kiran Banda (2VWUNLW76B)</CodesignKey>
+    <MtouchDebug>True</MtouchDebug>
+    <MtouchSdkVersion>10.1</MtouchSdkVersion>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchProfiling>False</MtouchProfiling>
+    <MtouchFastDev>False</MtouchFastDev>
+    <MtouchUseLlvm>False</MtouchUseLlvm>
+    <MtouchUseThumb>False</MtouchUseThumb>
+    <MtouchEnableBitcode>False</MtouchEnableBitcode>
+    <MtouchUseSGen>False</MtouchUseSGen>
+    <MtouchUseRefCounting>False</MtouchUseRefCounting>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchFloat32>False</MtouchFloat32>
+    <DeviceSpecificBuild>False</DeviceSpecificBuild>
+    <CodesignProvision>14d60c5c-45df-4bcc-bcb2-ac4ce883d197</CodesignProvision>
+    <MtouchExtraArgs>--linkskip=Xamarin.CropView -gcc_flags -ObjC</MtouchExtraArgs>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\iPhone\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <ConsolePause>false</ConsolePause>
+    <CodesignKey>iPhone Distribution: Sudeep DSouza (62QFQ63CQ9)</CodesignKey>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <CodesignProvision>7b2be0b3-5bcf-4cde-8fa6-3a1fa5fca74c</CodesignProvision>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\iPhone\Ad-Hoc</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <BuildIpa>True</BuildIpa>
+    <CodesignKey>iPhone Distribution: Pinnacle Partners Solutions, Inc. (JZQ26ZC2AT)</CodesignKey>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchSdkVersion>10.2</MtouchSdkVersion>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchDebug>False</MtouchDebug>
+    <MtouchProfiling>False</MtouchProfiling>
+    <MtouchFastDev>False</MtouchFastDev>
+    <MtouchUseLlvm>False</MtouchUseLlvm>
+    <MtouchUseThumb>False</MtouchUseThumb>
+    <MtouchUseSGen>False</MtouchUseSGen>
+    <MtouchUseRefCounting>False</MtouchUseRefCounting>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchFloat32>False</MtouchFloat32>
+    <MtouchEnableBitcode>False</MtouchEnableBitcode>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <CodesignProvision>3c32894d-f5e7-46db-baed-2d9088838eec</CodesignProvision>
+    <MtouchExtraArgs>-gcc_flags -ObjC</MtouchExtraArgs>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
+    <DebugType>none</DebugType>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\iPhone\AppStore</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>False</ConsolePause>
+    <MtouchArch>ARMv7, ARM64</MtouchArch>
+    <CodesignProvision>Automatic:AppStore</CodesignProvision>
+    <CodesignKey>iPhone Distribution</CodesignKey>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhoneSimulator'">
+    <CodesignKey>iPhone Distribution: Sudeep DSouza (62QFQ63CQ9)</CodesignKey>
+    <CodesignProvision>4f38a6b9-4100-4d68-b49d-83466fae0abf</CodesignProvision>
+    <CodesignEntitlements>
+    </CodesignEntitlements>
+    <CodesignResourceRules>
+    </CodesignResourceRules>
+    <CodesignExtraArgs>
+    </CodesignExtraArgs>
+    <OutputPath>.</OutputPath>
+    <MtouchSdkVersion>9.3</MtouchSdkVersion>
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchDebug>False</MtouchDebug>
+    <MtouchProfiling>False</MtouchProfiling>
+    <MtouchFastDev>False</MtouchFastDev>
+    <MtouchArch>i386</MtouchArch>
+    <MtouchUseLlvm>False</MtouchUseLlvm>
+    <MtouchUseThumb>False</MtouchUseThumb>
+    <MtouchEnableBitcode>False</MtouchEnableBitcode>
+    <MtouchUseSGen>False</MtouchUseSGen>
+    <MtouchUseRefCounting>False</MtouchUseRefCounting>
+    <OptimizePNGs>True</OptimizePNGs>
+    <MtouchTlsProvider>Default</MtouchTlsProvider>
+    <MtouchHttpClientHandler>HttpClientHandler</MtouchHttpClientHandler>
+    <MtouchFloat32>False</MtouchFloat32>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Controls\FlipView.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="AppDelegate.cs" />
+    <Compile Include="Notifications\PushNotification.cs" />
+    <Compile Include="Renderers\CarouselLayoutRenderer.cs" />
+    <Compile Include="Renderers\CropViewDelegate.cs" />
+    <Compile Include="Renderers\CropViewRenderer.cs" />
+    <Compile Include="Renderers\CustomButtonRenderer.cs" />
+    <Compile Include="Renderers\CustomContentPageRenderer.cs" />
+    <Compile Include="Renderers\CustomEditorRenderer.cs" />
+    <Compile Include="Renderers\DateEntryRenderer.cs" />
+    <Compile Include="Renderers\ExtendedEntryRenderer.cs" />
+    <Compile Include="Renderers\HUDProvider.cs" />
+    <Compile Include="Renderers\InforicaImageButtonRenderer.cs" />
+    <Compile Include="Renderers\iOS_Analytics.cs" />
+    <Compile Include="Renderers\NativeMenuCellRenderer.cs" />
+    <Compile Include="Renderers\NativeCellRenderer.cs" />
+    <Compile Include="Renderers\NativePermissions.cs" />
+    <Compile Include="Renderers\OpenSettingsRenderer.cs" />
+    <Compile Include="Renderers\PhoneCallImplementation.cs" />
+    <Compile Include="Renderers\PhoneEntryRenderer.cs" />
+    <Compile Include="Renderers\ScreenshotManager.cs" />
+    <Compile Include="Renderers\SliderCarouselViewRenderer.cs" />
+    <Compile Include="Renderers\SQLite_iOS.cs" />
+    <None Include="app.config" />
+    <None Include="Entitlements.plist">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Info.plist" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Compile Include="Renderers\CustomPickerRenderer.cs" />
+    <BundleResource Include="temp.log" />
+    <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
+    <BundleResource Include="Resources\Fonts\Avenir-Light.ttf" />
+    <BundleResource Include="Resources\Fonts\AvenirLTStd-Heavy.ttf" />
+    <BundleResource Include="Resources\Fonts\AvenirLTStd-Medium.ttf" />
+    <BundleResource Include="Resources\Fonts\AvenirNextLTPro-MediumCnIt.ttf" />
+    <BundleResource Include="Resources\Ubuntu-Bold.ttf" />
+    <BundleResource Include="Resources\Ubuntu-Light.ttf" />
+    <BundleResource Include="Resources\Ubuntu-Medium.ttf" />
+    <BundleResource Include="Resources\Ubuntu-MediumItalic.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ODISMember.Entities\ODISMember.Entities.csproj">
+      <Project>{3D5C3466-F7B8-44AB-9231-C82E33A23C1C}</Project>
+      <Name>ODISMember.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ODISMember.Services\ODISMember.Services.csproj">
+      <Project>{B707E1F8-AD14-4C29-9A73-FA5CF560BD38}</Project>
+      <Name>ODISMember.Services</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TK.CustomMap\TK.CustomMap.iOSUnified\TK.CustomMap.iOSUnified.csproj">
+      <Project>{d525f236-6a2d-4010-b1cc-4a4b8581c90b}</Project>
+      <Name>TK.CustomMap.iOSUnified</Name>
+      <IsAppExtension>false</IsAppExtension>
+      <IsWatchApp>false</IsWatchApp>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TK.CustomMap\TK.CustomMap\TK.CustomMap.csproj">
+      <Project>{14c534b6-1984-41a9-a384-d3a5508588e3}</Project>
+      <Name>TK.CustomMap</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODISMember\ODISMember.csproj">
+      <Name>ODISMember</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="BTProgressHUD">
+      <HintPath>..\..\packages\BTProgressHUD.1.0.0\lib\Xamarin.iOS10\BTProgressHUD.dll</HintPath>
+    </Reference>
+    <Reference Include="ExifLib, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\ExifLib.PCL.1.0.1\lib\portable-net45+sl50+win+WindowsPhoneApp81+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\ExifLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FFImageLoading, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.FFImageLoading.2.1.6\lib\Xamarin.iOS10\FFImageLoading.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FFImageLoading.Forms, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.FFImageLoading.Forms.2.1.6\lib\Xamarin.iOS10\FFImageLoading.Forms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FFImageLoading.Forms.Touch, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.FFImageLoading.Forms.2.1.6\lib\Xamarin.iOS10\FFImageLoading.Forms.Touch.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FFImageLoading.Platform, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.FFImageLoading.2.1.6\lib\Xamarin.iOS10\FFImageLoading.Platform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="FFImageLoading.Transformations, Version=1.0.6031.22153, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.FFImageLoading.Transformations.2.1.6\lib\Xamarin.iOS10\FFImageLoading.Transformations.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="HockeySDK, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Components\HockeySDK.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Messaging.iOS">
+      <HintPath>..\..\Components\azure-messaging-1.1.5.6\lib\ios-unified\Microsoft.WindowsAzure.Messaging.iOS.dll</HintPath>
+    </Reference>
+    <Reference Include="ModernHttpClient, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\modernhttpclient.2.4.2\lib\Xamarin.iOS10\ModernHttpClient.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.3\lib\portable-net40+sl5+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PCLStorage, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\PCLStorage.1.0.2\lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PCLStorage.Abstractions, Version=1.0.2.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\PCLStorage.1.0.2\lib\portable-Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Connectivity, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Connectivity.2.3.0\lib\Xamarin.iOS10\Plugin.Connectivity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Connectivity.Abstractions, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Connectivity.2.3.0\lib\Xamarin.iOS10\Plugin.Connectivity.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Geolocator, Version=3.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Geolocator.4.0.0-beta4\lib\Xamarin.iOS10\Plugin.Geolocator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Geolocator.Abstractions, Version=3.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Geolocator.4.0.0-beta4\lib\Xamarin.iOS10\Plugin.Geolocator.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Media, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Media.2.3.0\lib\Xamarin.iOS10\Plugin.Media.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Media.Abstractions, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugin.Media.2.3.0\lib\Xamarin.iOS10\Plugin.Media.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Messaging, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugins.Messaging.3.2.1\lib\Xamarin.iOS10\Plugin.Messaging.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Messaging.Abstractions, Version=3.2.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xam.Plugins.Messaging.3.2.1\lib\Xamarin.iOS10\Plugin.Messaging.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Permissions, Version=1.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Plugin.Permissions.1.1.7\lib\Xamarin.iOS10\Plugin.Permissions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Plugin.Permissions.Abstractions, Version=1.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Plugin.Permissions.1.1.7\lib\Xamarin.iOS10\Plugin.Permissions.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SQLite.Net, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SQLite.Net.Core-PCL.3.1.1\lib\portable-win8+net45+wp8+wpa81+MonoAndroid1+MonoTouch1\SQLite.Net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SQLite.Net.Platform.XamarinIOS.Unified, Version=3.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\SQLite.Net-PCL.3.1.1\lib\Xamarin.iOS10\SQLite.Net.Platform.XamarinIOS.Unified.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Net.Http.Extensions, Version=2.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\Xamarin.iOS10\System.Net.Http.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives, Version=4.2.29.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\Xamarin.iOS10\System.Net.Http.Primitives.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="Toasts.Forms.Plugin.Abstractions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Toasts.Forms.Plugin.2.0.4\lib\Xamarin.iOS10\Toasts.Forms.Plugin.Abstractions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Toasts.Forms.Plugin.iOS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Toasts.Forms.Plugin.2.0.4\lib\Xamarin.iOS10\Toasts.Forms.Plugin.iOS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="WebP.Touch, Version=1.0.5923.35383, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\WebP.Touch.1.0.2\lib\Xamarin.iOS10\WebP.Touch.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.CropView, Version=1.0.6115.29465, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Xamarin.CropView\bin\Debug\Xamarin.CropView.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Maps, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.Maps.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Maps.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Maps.iOS, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.Maps.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Maps.iOS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Platform, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Platform.iOS, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Platform.iOS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Xaml, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Xamarin.Forms.2.2.0.31\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Xamarin.iOS" />
+    <Reference Include="XLabs.Core, Version=2.0.5782.12218, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Core.2.0.5782\lib\Xamarin.iOS10\XLabs.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Forms, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Forms.2.0.5782\lib\Xamarin.iOS10\XLabs.Forms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Forms.iOS, Version=2.0.5782.12247, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Forms.2.0.5782\lib\Xamarin.iOS10\XLabs.Forms.iOS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Ioc, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.IoC.2.0.5782\lib\portable-net45+netcore45+wp8+MonoAndroid1+MonoTouch1\XLabs.Ioc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Platform, Version=2.0.5782.12218, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Platform.2.0.5782\lib\Xamarin.iOS10\XLabs.Platform.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Platform.iOS, Version=2.0.5782.12247, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Platform.2.0.5782\lib\Xamarin.iOS10\XLabs.Platform.iOS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="XLabs.Serialization, Version=2.0.5782.15703, Culture=neutral, PublicKeyToken=d65109b36e5040e4, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\XLabs.Serialization.2.0.5782\lib\Xamarin.iOS10\XLabs.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\RadioButton\checked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\RadioButton\checked%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\RadioButton\unchecked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Images\RadioButton\unchecked%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ITunesArtwork Include="iTunesArtwork" />
+    <ITunesArtwork Include="iTunesArtwork%402x" />
+  </ItemGroup>
+  <ItemGroup>
+    <XamarinComponentReference Include="azure-messaging">
+      <Visible>False</Visible>
+      <Version>1.1.5.6</Version>
+    </XamarinComponentReference>
+    <XamarinComponentReference Include="hockeyappios">
+      <Visible>False</Visible>
+      <Version>4.1.0</Version>
+    </XamarinComponentReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Alert.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Alert%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Alert%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\calendar.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Calendarmini.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Calendarmini%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Calendarmini%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\cardBackSample.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\cardFrontSample.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Completed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Completed%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Completed%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Default%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Default-568h%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Default-667h%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Default-736h%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\drawerMenu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\drawerMenu%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\drawerMenu%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\EssentialRoadside_header.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\EssentialRoadside_header%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\GettyImages_525805669.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\GettyImages_525805669%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_access_time_white_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_account_circle_white_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_a_photo_black_48dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_a_photo_black_48dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_a_photo_black_48dp%403x..png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_add_location_white_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_back_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_cancel_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_cancel_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_cancel_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_bus_black_48dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_bus_black_48dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_bus_black_48dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_car_black_48dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_car_black_48dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_directions_car_black_48dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_edit_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_edit_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_edit_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_home_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_home_white_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_18dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_18dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_18dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_48dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_48dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_keyboard_arrow_right_black_48dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_motorcycle_black_48dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_motorcycle_black_48dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_motorcycle_black_48dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_remove_circle_outline_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_remove_circle_outline_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_remove_circle_outline_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_save_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_save_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_save_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_send_black_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_send_black_24dp%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_send_black_24dp%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_service_bottom_menu_24dp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-60%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-60%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-76.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-76%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-83.5%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small-40%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small-60.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small-60%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Icon-Small-60%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\InitializingBackgroundImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\InitializingBackgroundImage%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\launch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\launch%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ManSilhouette.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ManSilhouette%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ManSilhouette%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\noImage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pinnacleLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pinnacleLogo%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pinnacleLogoWhiteBackground.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pinnacleLogoWhiteBackground%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_profile_photo_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_add_vehicle_photo_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_inactive%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_inactive%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_benefits_inactive%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_inactive%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_inactive%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_get_help_inactive%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_inactive%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_inactive%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_home_inactive%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_inactive%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_inactive%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_more_inactive%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_inactive%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_inactive%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_bottombar_my_card_inactive%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_flat_tire_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_fuel_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_jumpstart_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_lockout_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_tow_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_services_winch_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_account_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_help_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_history_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_logout_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_sidenav_vehicles_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey_active_red.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey_active_red%401.5x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey_active_red%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_tips_grey_active_red%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Resume.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Resume%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Resume%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\star_outline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\star_selected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\success.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Unresolved.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Unresolved%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\Unresolved%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_account_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_account_white%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_account_white%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_profile_account_white.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_profile_account_white%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\pmc_profile_account_white%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\auto_list_icon%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\motorcycle_list_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\motorcycle_list_icon%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\motorcycle_list_icon%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\rv_list_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\rv_list_icon%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\rv_list_icon%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\auto_list_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\auto_list_icon%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_current_location%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_current_location.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\ic_current_location%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\icDatePicker%403x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\icDatePicker.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\icDatePicker%402x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\winch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\fluid.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\jumpstart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\lockout.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\tire.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\tow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\alertDualColor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\notificationDualColor.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets'))" />
+  </Target>
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
+  <Import Project="..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.2.0.31\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\Xamarin.Forms.targets')" />
+</Project>

@@ -1,0 +1,350 @@
+﻿@using ClientPortal.Areas.Application.Models
+@{string buildNumber = "Not Specified";
+  string dbName = "Not Specified";
+  if (System.Configuration.ConfigurationManager.AppSettings["BuildNumber"] != null)
+  {
+      buildNumber = System.Configuration.ConfigurationManager.AppSettings["BuildNumber"].ToString();
+  }
+  if (System.Configuration.ConfigurationManager.ConnectionStrings["ApplicationServices"] != null)
+  {
+      dbName = System.Configuration.ConfigurationManager.ConnectionStrings["ApplicationServices"].ConnectionString;
+      System.Data.SqlClient.SqlConnectionStringBuilder Builder = new System.Data.SqlClient.SqlConnectionStringBuilder(dbName);
+      dbName = Builder.DataSource;
+
+  }
+}
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7 oldie"><![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js ie7 oldie" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js ie8 oldie" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js ie9" lang="en"><![endif]-->
+<!--[if (gt IE 9)|(gt IEMobile 7)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>O.D.I.S. - Optimized Dispatch Information System</title>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <!-- http://davidbcalhoun.com/2010/viewport-metatag -->
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- For all browsers -->
+    <link rel="stylesheet" href="@Url.Content("~/css/reset.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/style.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/colors.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/table.css?v=1")"/>
+    <link rel="stylesheet" media="print" href="@Url.Content("~/css/print.css?v=1")"/>
+    <!-- For progressively larger displays -->
+    <link rel="stylesheet" media="only all and (min-width: 480px)" href="@Url.Content("~/css/480.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 768px)" href="@Url.Content("~/css/768.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 992px)" href="@Url.Content("~/css/992.css?v=1")"/>
+    <link rel="stylesheet" media="only all and (min-width: 1200px)" href="@Url.Content("~/css/1200.css?v=1")"/>
+    <!-- For Retina displays -->
+    <link rel="stylesheet" media="only all and (-webkit-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5)" href="@Url.Content("~/css/2x.css?v=1")"/>
+    <!-- Webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300' rel='stylesheet'
+        type='text/css'>
+    <!-- Additional styles -->
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/agenda.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/dashboard.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/form.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/modal.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/progress-slider.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/styles/switches.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/js/libs/formValidator/developr.validationEngine.css?v=1")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/slidepanel/slide.css")"/>
+    <link href="~/Content/themes/base/jquery.ui.datepicker.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/jquery.timepicker.css" rel="stylesheet" type="text/css" />
+    @*<link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />*@
+    <script src="@Url.Content("~/js/libs/jquery-1.7.2.min.js")" type="text/javascript"></script>
+    <!-- JavaScript at bottom except for Modernizr -->
+    <script src="@Url.Content("~/js/libs/modernizr.custom.js")" type="text/javascript"></script>
+    <!-- For Modern Browsers -->
+    <link rel="shortcut icon" href="@Url.Content("~/img/favicons/favicon.png")"/>
+    <!-- For everything else -->
+    <link rel="shortcut icon" href="@Url.Content("~/img/favicons/favicon.ico")"/>
+    <!-- For retina screens -->
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@Url.Content("~/img/favicons/apple-touch-icon-retina.png")"/>
+    <!-- For iPad 1-->
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@Url.Content("~/img/favicons/apple-touch-icon-ipad.png")"/>
+    <!-- For iPhone 3G, iPod Touch and Android -->
+    <link rel="apple-touch-icon-precomposed" href="@Url.Content("~/img/favicons/apple-touch-icon.png")"/>
+    <!-- iOS web-app metas -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- Startup image for web apps -->
+    <link rel="apple-touch-startup-image" href="img/splash/ipad-landscape.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" />
+    <link rel="apple-touch-startup-image" href="img/splash/ipad-portrait.png" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" />
+    <link rel="apple-touch-startup-image" href="img/splash/iphone.png" media="screen and (max-device-width: 320px)" />
+    <!-- Microsoft clear type rendering -->
+    <meta http-equiv="cleartype" content="on" />
+    <!-- IE9 Pinned Sites: http://msdn.microsoft.com/en-us/library/gg131029.aspx -->
+    <meta name="application-name" content="O.D.I.S. - Optimized Dispatch Information System" />
+    <meta name="msapplication-tooltip" content="Cross-platform admin template." />
+    <!-- These custom tasks are examples, you need to edit them to show actual pages -->
+    <!-- Google Analytics (NMC, MARTEX account - needs to be switched to NMC owned account once NMC takes over service of the application) -->
+    <!-- Kendo UI -->
+    <!-- Common Kendo UI Web CSS -->
+    <link href="~/css/kendo.common.min.css" rel="stylesheet" />
+    <!-- Default Kendo UI Web theme CSS -->
+    <link href="~/css/kendo.default.min.css" rel="stylesheet" />
+    <!-- Kendo UI Web combined JavaScript -->
+    <script src="@Url.Content("~/js/kendo.web.min.js")" type="text/javascript" language="javascript"></script>
+    <link rel="stylesheet" href="@Url.Content("~/css/web/kendo.common.min.css")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/web/kendo.rtl.min.css")"/>
+    <link rel="stylesheet" href="@Url.Content("~/css/web/kendo.default.min.css")"/>
+    <script src="@Url.Content("~/js/kendo.all.min.js")" type="text/javascript" language="javascript"></script>
+    @* <script src="@Url.Content("~/js/console.min.js")" type="text/javascript" language="javascript"></script>
+    <script src="@Url.Content("~/js/prettify.min.js")" type="text/javascript" language="javascript"></script>*@
+    <script src="@Url.Content("~/js/kendo.aspnetmvc.min.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-37416369-1']);
+        _gaq.push(['_setDomainName', 'motorcluboperations.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body class="clearfix with-menu">
+   
+    <section style="padding-left:67px;">
+        @RenderBody()
+    </section>
+    
+    <!-- Side tabs shortcuts (menu) -->
+    @Html.Partial("_ShortcutsMenu")
+    
+    <!-- JavaScript at the bottom for fast page loading -->
+    <!-- Scripts -->
+    <script src="@Url.Content("~/js/setup.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/jquery.ui.core.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/jquery.ui.widget.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/jquery.ui.tabs.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.tooltip.js")" type="text/javascript"></script>
+    <!-- Template functions -->
+    <script src="@Url.Content("~/js/developr.input.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.message.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.modal.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.navigable.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.notify.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.scroll.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.progress-slider.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.tooltip.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.confirm.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.agenda.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/developr.tabs.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/libs/formValidator/jquery.validationEngine.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/libs/formValidator/languages/jquery.validationEngine-en.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/slidePanel/slide.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/jquery-ui-1.8.11.min.js")" type="text/javascript"></script>
+    <!-- Must be loaded last -->
+    <!-- Tinycon -->
+    <script src="@Url.Content("~/js/libs/tinycon.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/CustomWindowUtil.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery.blockUI.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+    <!-- Google LibPhone scripts -->
+    <script src="~/Scripts/Closure-lib/base.js" type="text/javascript"></script>
+    <script>
+        goog.require('goog.dom');
+        goog.require('goog.json');
+        goog.require('goog.proto2.ObjectSerializer');
+        goog.require('goog.string.StringBuffer');
+    </script>
+    <script src="~/Scripts/libphonenumber/phonemetadata.pb.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/phonenumber.pb.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/metadata.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/phonenumberutil.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/asyoutypeformatter.js" type="text/javascript"></script>
+    <script src="@Url.Content("~/js/CustomJScript.js")" type="text/javascript"></script>
+    <!-- Must be loaded last -->
+    <!-- Block UI -->
+    <script language="javascript" type="text/javascript">
+        //        @*var isClickToCallEnabled = ' @DMSCallContext.IsClickToCallEnabled.ToString().ToLower()';*@
+        $(function () {
+            $('html')
+        .ajaxStart(function () {
+
+            $.blockUI({ message: '<div class="ajax-load"/>'
+                ,
+                css: { background: 'transparent', border: '0px' }
+            });
+        })
+        .ajaxStop(function () {
+
+            $.unblockUI();
+            $('html').css('cursor', 'pointer');
+
+        })
+        .ajaxError(function (err, errStatus) {
+            var errorMessage = 'An error occurred while processing the request.';
+            if (errStatus.status == 403) {
+                Handle403(errStatus);
+                return false;
+            }
+            try {
+                var json = $.parseJSON(errStatus.responseText);
+                if (json.Data == null) {
+                    errorMessage = json.ErrorMessage;
+                }
+                else {
+                    errorMessage = json.ErrorMessage + "<br/> Please contact administrator with the key [ " + json.Data + " ] for more details";
+                }
+            }
+            catch (exception) {
+                // possible error while parsing response as JSON
+            }
+            $.unblockUI();
+            $('html').css('cursor', 'pointer');
+
+            if (typeof (formWrapper) != "undefined") {
+                formWrapper.clearMessages();
+            }
+            openAlertMessage(errorMessage);
+
+        });
+        });
+
+        function Handle403(errStatus) {
+
+            openAlertMessage("Session timed out");
+            var json = JSON.parse(errStatus.responseText);
+            window.location = json.Data;
+
+        }
+    </script>
+    <script type="text/javascript" src="@Url.Content("~/js/libs/tinycon.min.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/date.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.timepicker.js")"></script>
+    <script language="javascript" type="text/javascript">
+        function GetWindowHeight() {
+            if (window.innerHeight) {
+                return window.innerHeight;
+            }
+            return document.documentElement.clientHeight;
+        }
+        function GetPopupWindowHeight() {
+            var winHeight;
+            if (window.innerHeight) {
+                winHeight = window.innerHeight;
+            }
+            winHeight = document.documentElement.clientHeight;
+
+            return winHeight - 100;
+        }
+
+        var isdirty = false;
+        function ClearDirtyFlag(container) {
+            var popupIndex = $.inArray(container, dirtyForms);
+            if (popupIndex >= 0) {
+                dirtyForms.splice(popupIndex, 1);
+            }
+        }
+        function IsPageDirty() {
+
+            var popupIndex = $.inArray("popupcontainer", dirtyForms);
+            if (popupIndex >= 0) {
+                var answer = confirm('There are some unsaved changes on the form. Click Cancel to stay on the page or click OK to discard your changes and navigate away.');
+                if (answer) {
+                    dirtyForms.splice(popupIndex, 1);
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+        // Set the following variable to false if dirty page checks are not required
+        var handleDirtyPage = true;
+        var dirtyForms = [];
+        function MarkPageAsDirty(ele) {
+            // Get the closest form and see if we already have marked it as dirty.
+            var form = $(ele).closest('.pagecontainer');
+            var formId = "pagecontainer";
+            if (form.length > 0) {
+                if ($.inArray(formId, dirtyForms) == -1) {
+                    dirtyForms.push(formId);
+                }
+            }
+            else {
+                form = $(ele).closest('.popupcontainer');
+                formId = "popupcontainer";
+                if (form.length > 0 && $.inArray(formId, dirtyForms) == -1) {
+                    dirtyForms.push(formId);
+                }
+            }
+        }
+        var phoneNumberCalled = '';
+        $(function () {
+            $("input,textarea,select").live("change", function (e) {
+
+                //KB: Stickynote should be excluded from dirty page checks
+                if ($(e.currentTarget).attr("class") != "stickyNote-editable" && handleDirtyPage) {
+                    MarkPageAsDirty(this);
+
+                }
+
+            });
+
+            // click to call - functionality.
+            $(".icon-phone").live("click", function () {
+
+                var callId = $(this).attr("id");
+                callId = callId.replace('_call', '');
+
+                phoneNumberCalled = GetPhoneNumberForDB(callId);
+
+                //                if (isClickToCallEnabled == "true") {
+
+                //                    $.ajax({
+                //                        type: 'POST',
+                //                        url: '@Url.Action("Call", "ClickToCall", new { area = "Application" })',
+                //                        traditional: true,
+                //                        data: { phoneNumber: phoneNumberCalled },
+                //                        cache: false,
+                //                        async: false,
+                //                        success: function (msg) {
+                //                            if (msg.Status == "Error") {
+                //                                openAlertMessage("Click-to-call failed. The phone number has been put in your copy/paste buffer for manual dialing.");
+                //                                // CR: 910 : Do not disable the service when there is failure while processing the call.
+                //                                //isClickToCallEnabled = false;
+                //                                return false;
+                //                            }
+
+                //                        }
+                //                    }); // end of ajax
+                //                }
+                //                else {
+                //                    openAlertMessage("Click-to-call disabled. The phone number has been put in your copy/paste buffer for manual dialing.");
+                //                }
+                return false;
+
+            });
+        });
+
+        window.onbeforeunload = confirmExit;
+        function confirmExit() {
+
+            var len = dirtyForms.length;
+            if (len > 0)
+                return "You have attempted to leave this page.  If you have made any changes to the fields without clicking the Save button, your changes will be lost.  Are you sure you want to exit this page?";
+        }
+
+    
+        
+    </script>
+</body>
+</html>

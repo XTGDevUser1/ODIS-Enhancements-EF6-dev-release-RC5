@@ -1,0 +1,92 @@
+﻿@using Martex.DMS.BLL.Model.Claims;
+@model List<ClaimValidationResult>
+@{
+       
+}
+<div class="with-padding">
+    <table class="table simple-table">
+        <tr>
+            <td colspan="3">
+                <h3>
+                    Verification Complete</h3>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Ready for Payment
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("ReadyForPayment")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("ReadyForPayment")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Exception
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Exception")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Exception")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Rejected
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Rejected")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Rejected")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                OnHold
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("OnHold")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("OnHold")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                In-Process
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("In-Process")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("In-Process")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Received
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Received")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Received")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Cancelled
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Cancelled")).Count()
+            </td>
+            <td>
+                @Model.Where(u => u.ClaimStatusName.Equals("Cancelled")).Sum(u => u.Amount).ToString("c")
+            </td>
+        </tr>
+    </table>
+</div>

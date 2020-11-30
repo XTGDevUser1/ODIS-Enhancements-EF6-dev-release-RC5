@@ -1,0 +1,28 @@
+﻿@*<h1>Coming Soon ...</h1>*@
+
+@{
+    var suffixCoachingConcernId = ViewData["CoachingConcernId"].ToString();
+
+    bool IsEnabled = true;
+
+    if (ViewBag.PageMode != null && "View".Equals(ViewBag.PageMode))
+    {
+        IsEnabled = false;
+    }
+    
+}
+
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+        @if (IsEnabled)
+        {
+            @Html.Editor("CoachingConcern_" + suffixCoachingConcernId, "DocumentList", new { entityId = @ViewData["CoachingConcernId"], entityName = "CoachingConcern", documentCategory = "CoachingConcern", sourceSystem = "BackOffice" })
+        }
+        else
+        {
+            @Html.Editor("CoachingConcern_" + suffixCoachingConcernId, "ViewDocumentList", new { entityId = @ViewData["CoachingConcernId"], entityName = "CoachingConcern", documentCategory = "CoachingConcern", sourceSystem = "BackOffice" })
+        }
+        </div>
+    </div>
+</div>

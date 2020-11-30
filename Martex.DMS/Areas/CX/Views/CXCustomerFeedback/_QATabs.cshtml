@@ -1,0 +1,345 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixCustomerFeedbackID = Convert.ToString(Model.CustomerFeedback.ID);
+    //string suffixCustomerFeedbackID = string.IsNullOrEmpty(Convert.ToString(Model.CustomerFeedback.ID)) ? "0" : Convert.ToString(Model.CustomerFeedback.ID);
+    var isDisabled = "";
+    var disabledAttribute = Model.IsRecordLocked ? "disabled" : string.Empty;
+}
+<style type="text/css">
+    .cg-searchButton {
+        width: 14px;
+        height: 14px;
+        background-image: url('/Content/img/magnifier.png') !important;
+        background-repeat: no-repeat;
+    }
+
+    .cg-autocomplete {
+        z-index: 99999;
+    }
+</style>
+<link href="~/Content/jquery.ui.combogrid.css" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/jquery.ui.combogrid-1.6.3.js" type="text/javascript"></script>
+
+<script type="text/javascript">  
+  function OnNextActionChanged(e) {    
+      var id = this.element.attr("id").split('_')[1];
+      var combo = $("#CustomerFeedbackNextActionBy_" + id).data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+          e.preventDefault();
+        }
+        else {
+          var nextActionValue = $("#CustomerFeedbackNextActionBy_" + id).data('kendoComboBox').value();
+          if (nextActionValue != undefined && nextActionValue != null && nextActionValue != '') {
+            $.ajax({
+              url: '@Url.Action("NextActionDefaultValues", "Finish", new { area = "Application" })',
+              data: { nextActionID: nextActionValue },
+              success: function (msg) {
+                if (msg.Data != undefined) {                 
+                  ReloadUsers(msg.Data.DefaultAssignedToUserID, id);
+                }
+              }
+            });
+          }
+          else {           
+            ReloadUsers('', id);
+          }
+        }
+      }
+
+  function ReloadUsers(userValue, id) {    
+        var nextActionValue = $("#CustomerFeedbackNextActionBy_" + id).data('kendoComboBox').value();
+        if (isNaN(userValue)) {
+          userValue = '';
+        }
+        $.ajax({
+          url: '@Url.Action("NextActionUsers", "Finish", new { area = "Application" })',
+          data: { nextActionID: nextActionValue },
+          success: function (msg) {
+            var assignedtoCombo = $("#CustomerFeedbackNextActionAssignedTo_" + id).data('kendoComboBox');
+            assignedtoCombo.setDataSource(msg.Data);
+            assignedtoCombo.value(userValue);
+            if (assignedtoCombo.selectedIndex == -1) {
+              assignedtoCombo.value('');
+            }
+
+            //Re Bind the Drop-Down
+          }
+        });
+      }
+
+
+    function CustomerFeedbackSource_OnChange(e) {
+        var id = this.element.attr("id").split('_')[1];
+        var combo = $("#CustomerFeedbackSource_" + id).data('kendoComboBox');
+        var comboChild = $("#CustomerFeedbackPriority_" + id).data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetProrityOnSource", "CXCustomerFeedback", new { area = "CX" })',
+                data: { SourceId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.value(msg);
+                }
+
+            });
+        }
+
+    }
+</script>
+
+<div class="columns">
+    @if (Model.CustomerFeedback.ID > 0)
+    {
+        <div class="nine-columns" style="margin-top: -50px">
+            <p class="inline-medium-label">
+                <label class="label">
+                    Feedback ID:
+                </label>
+                @Model.CustomerFeedback.ID
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Type:
+                </label>
+                @Model.FeedbackType
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    SR #:
+                </label>
+                @Model.CustomerFeedback.ServiceRequestID
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    PO #:
+                </label>
+                @Model.CustomerFeedback.PurchaseOrderNumber
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Client/Program :
+                </label>
+                @Html.Raw(Model.ClientName) / @Html.Raw(Model.ProgramName)
+            </p>
+            <p class="inline-medium-label">
+                <label class="label">
+                    Member #/Name:
+                </label>
+                @Html.Raw(Model.CustomerFeedback.MembershipNumber) / @Html.Raw(string.Format("{0} {1}", Model.CustomerFeedback.MemberFirstName, Model.CustomerFeedback.MemberLastName))
+            </p>
+        </div>
+    }
+
+    <div class="new-row twelve-columns">
+        <div id="CustomerFeedbackDetailsTab_@suffixCustomerFeedbackID" class="standard-tabs same-height">
+            <ul class="tabs">
+                <li>
+                    <a href="#CustomerFeedbackDetailsInfoTab_@suffixCustomerFeedbackID" id="TABCustomerFeedbackDetailsInfo_@suffixCustomerFeedbackID" class="@isDisabled">
+                        Info
+                    </a>
+                </li>
+                <li>
+                    <a href="#CustomerFeedbackDetailsMemberTab_@suffixCustomerFeedbackID" id="TABCustomerFeedbackDetailsMember_@suffixCustomerFeedbackID" class="@isDisabled">
+                        Member
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("_CustomerFeedback_SR", "CXCustomerFeedback", new { area = "CX" })" id="#TABCustomerFeedbackDetailsServices_@suffixCustomerFeedbackID" class="@isDisabled">
+                        SR
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("_CustomerFeedback_Activity", "CXCustomerFeedback", new { area = "CX" })" id="#TABCustomerFeedbackDetailsContract_@suffixCustomerFeedbackID" class="@isDisabled">
+                        Activity
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("_CustomerFeedback_Documents", "CXCustomerFeedback", new { area = "CX" })" id="#TABCustomerFeedbackDetailsDocument_@suffixCustomerFeedbackID" class="@isDisabled">
+                        Documents
+                    </a>
+                </li>
+              <li>
+                <a href="@Url.Action("_CustomerFeedback_GiftCard", "CXCustomerFeedback", new { area = "CX" })" id="#TABCustomerFeedbackDetailsGiftCard_@suffixCustomerFeedbackID" class="@isDisabled">
+                  Gift Card
+                </a>
+              </li>
+            </ul>
+            <div id="CustomerFeedbackDetailsInfoTab_@suffixCustomerFeedbackID">
+                @Html.Partial("_CustomerFeedback_Information", Model)
+            </div>
+            <div id="CustomerFeedbackDetailsMemberTab_@suffixCustomerFeedbackID">
+                @Html.Partial("_CustomerFeedback_Member", Model)
+            </div>
+        </div>
+    </div>
+
+    <div class="new-row nine-columns">
+    </div>
+    <div class="three-columns">
+        <button id="btnSaveCustomerFeedbackSection_@suffixCustomerFeedbackID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                type="button" onclick="SaveCustomerFeedbackInformation_('@suffixCustomerFeedbackID');" @disabledAttribute>
+            Save and Close
+        </button>
+        <button id="btnCancelCustomerFeedbackInfoSection_@suffixCustomerFeedbackID" class="button gray-gradient  float-right margin-bottom"
+                type="button" onclick="CancelCustomerFeedbackInformation_('@suffixCustomerFeedbackID');">
+            Cancel
+        </button>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        if ('@suffixCustomerFeedbackID' == '0') {
+            $('#CustomerFeedbackDetailsTab_@suffixCustomerFeedbackID').tabs({
+                ajaxOptions: {
+                    data: { id: '@suffixCustomerFeedbackID' }
+                },
+                disabled: [1, 2, 3, 4, 5, 6],
+                select: function (event, ui) {
+                    $(".formError").each(function () {
+                        $(this).remove();
+                    });
+                }
+            });
+        }
+        else {
+            $('#CustomerFeedbackDetailsTab_@suffixCustomerFeedbackID').tabs({
+                ajaxOptions: {
+                    data: { id: '@suffixCustomerFeedbackID' }
+                },
+                //disabled: [1, 2, 3, 4, 5, 6],
+                cache: false
+            });
+        }
+
+    });
+
+    function SaveCustomerFeedbackInformation_(CustomerFeedbackID) {
+
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container');
+            return false;
+        }
+
+
+        var isCustomerfeedbackInformationIsValid = true;
+        var customerFeedbackDirtyContainerName = "frmCustomerFeedbackContainerForDirtyFlag_" + CustomerFeedbackID;
+
+        if ($('#frmCustomeerFeedbackInformation_' + CustomerFeedbackID).validationEngine("validate") == false) {
+            isCustomerfeedbackInformationIsValid = false;
+        }
+
+        //Validate kendo combos
+        //Status
+        var $statusCombo = $("#CustomerFeedbackStatus_" + CustomerFeedbackID);
+        if ($.trim($statusCombo.data("kendoComboBox").value()).length == 0) {
+            ShowValidationMessage($('input[name="CustomerFeedbackStatus_' + CustomerFeedbackID + '_input"]'), "Please select a value. ");
+            isCustomerfeedbackInformationIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="CustomerFeedbackStatus_' + CustomerFeedbackID + '_input"]'));
+        }
+
+        //Source
+        if ($.trim($("#CustomerFeedbackSource_" + CustomerFeedbackID).data("kendoComboBox").value()).length == 0) {
+            ShowValidationMessage($('input[name="CustomerFeedbackSource_' + CustomerFeedbackID + '_input"]'), "Please select a value. ");
+            isCustomerfeedbackInformationIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="CustomerFeedbackSource_' + CustomerFeedbackID + '_input"]'));
+        }
+
+        //Priority
+        if ($.trim($("#CustomerFeedbackPriority_" + CustomerFeedbackID).data("kendoComboBox").value()).length == 0) {
+            ShowValidationMessage($('input[name="CustomerFeedbackPriority_' + CustomerFeedbackID + '_input"]'), "Please select a value. ");
+            isCustomerfeedbackInformationIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="CustomerFeedbackPriority_' + CustomerFeedbackID + '_input"]'));
+        }
+
+        var ReceiveDate = $("#ReceiveDate_" + CustomerFeedbackID).val();
+        if ($.trim(ReceiveDate).length == 0)
+        {
+            ShowValidationMessage($("#ReceiveDate_" + CustomerFeedbackID), "Receive Date is required. ");
+            isCustomerfeedbackInformationIsValid = false;
+
+        }
+        else {
+            HideValidationMessage($("#ReceiveDate_" + CustomerFeedbackID));
+        }
+        
+        var DescriptionofConsern = $("#DescriptionofConsern_" + CustomerFeedbackID).val();
+        if ($.trim(DescriptionofConsern).length == 0) {
+            ShowValidationMessage($("#DescriptionofConsern_" + CustomerFeedbackID), "Description of Concern is required. ");
+            isCustomerfeedbackInformationIsValid = false;
+
+        }
+        else {
+            HideValidationMessage($("#DescriptionofConsern_" + CustomerFeedbackID));
+        }
+
+
+
+
+        if (isCustomerfeedbackInformationIsValid) {
+
+            var postData = $('#frmCustomeerFeedbackInformation_' + CustomerFeedbackID).serializeArray();
+            postData.push({ name: "CustomerFeedback.CustomerFeedbackStatusID", value: GetComboValue("CustomerFeedbackStatus_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.CustomerFeedbackSourceID", value: GetComboValue("CustomerFeedbackSource_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.CustomerFeedbackPriorityID", value: GetComboValue("CustomerFeedbackPriority_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.NextActionID", value: GetComboValue("CustomerFeedbackNextActionBy_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.MemberPhoneNumber", value: GetPhoneNumberForDB('MemberPhoneNumber_' + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.WorkedByUserID", value: GetComboValue("WorkedBy_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.MemberAddressCountryID", value: GetComboValue("MemberAddressCountryCodeID_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.MemberAddressStateProvinceID", value: GetComboValue("MemberAddressStateProvinceID_" + CustomerFeedbackID) });
+            postData.push({ name: "CustomerFeedback.NextActionAssignedToUserID", value: GetComboValue("CustomerFeedbackNextActionAssignedTo_" + CustomerFeedbackID) });
+            postData.push({ name: "OldStatusId", value: $('#OldStatusId_' + CustomerFeedbackID).val() });
+
+            var memberData = $('#frmMemberInformation_' + CustomerFeedbackID).serializeArray();
+            postData = $.merge(postData, memberData);
+          
+
+            $.ajax({
+                url: '/CX/CXCustomerFeedback/SaveCustomerFeedback',
+                type: 'POST',
+                data: postData,
+                success: function (msg) {
+                    if (msg.Status = "Success") {
+                        CleanMyContainer("frmCustomerFeedbackContainerForDirtyFlag_" + CustomerFeedbackID);
+
+                        openAlertMessage('Details have been updated successfully', function () {
+                            //AddCustomerFeedbackTab(CustomerFeedbackID, tabObject);
+                            deleteGenericTab("frmCustomerFeedbackContainerForDirtyFlag_" + CustomerFeedbackID, tabObject);
+                            if ($('#GrdQACustomerFeedback').data('kendoGrid') != undefined) {
+                                $('#GrdQACustomerFeedback').data('kendoGrid').dataSource.read();
+                            }
+                        });
+                    }
+                }
+            })
+        }
+
+        return false;
+    }
+
+    function CancelCustomerFeedbackInformation_(customerFeedbackID) {
+        cancelCustomerFeedbackInformation(customerFeedbackID, tabObject);
+    }
+
+    function GetComboValue(comboName) {
+        return $('#' + comboName).data('kendoComboBox').value();
+    }
+
+    function GetComboText(comboName) {
+      return $('#' + comboName).data('kendoComboBox').text();
+    }
+</script>

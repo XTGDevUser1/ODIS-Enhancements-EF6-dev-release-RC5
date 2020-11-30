@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B1CF89D0-A59B-43A8-81A4-9D392BD3DFB5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MemberAPI.DAL</RootNamespace>
+    <AssemblyName>MemberAPI.DAL</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CheckMemberNumberResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="CustomEntities\MemberModel.cs" />
+    <Compile Include="Contracts\IMemberRepository.cs" />
+    <Compile Include="Contracts\IMessageRepository.cs" />
+    <Compile Include="Contracts\IOrganizationRepository.cs" />
+    <Compile Include="CustomEntities\RoadsideServices_Result.cs" />
+    <Compile Include="CustomEntities\ServiceQuestions.cs" />
+    <Compile Include="CustomEntities\ServiceRequestModel.cs" />
+    <Compile Include="GetDependentsResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetMemberResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GetVehicleResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="LoginResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Repositories\AptifyMemberRepository.cs" />
+    <Compile Include="Repositories\MessageRepository.cs" />
+    <Compile Include="NMCAPIMessage.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PinnacleMembershipModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PinnacleMembershipModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PinnacleMembershipModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PinnacleMembershipModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PinnacleMembershipModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegisterVerifyResult.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\CNETService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="spNMCAPI_GetDependents_Result.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="spNMCAPI_GetMember_Result.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="spNMCAPI_GetVehicle_Result.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="spNMCAPI_Login_Result.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="spNMCAPI_RegisterVerify_Result.cs">
+      <DependentUpon>PinnacleMembershipModel.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="PinnacleMembershipModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>PinnacleMembershipModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="packages.config" />
+    <None Include="PinnacleMembershipModel.edmx.diagram">
+      <DependentUpon>PinnacleMembershipModel.edmx</DependentUpon>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\CNETService\CNETService.wsdl" />
+    <None Include="Service References\CNETService\item.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CNETService\item1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CNETService\item2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PinnacleMembershipModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>PinnacleMembershipModel.edmx</DependentUpon>
+      <LastGenOutput>PinnacleMembershipModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="PinnacleMembershipModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>PinnacleMembershipModel.edmx</DependentUpon>
+      <LastGenOutput>PinnacleMembershipModel.cs</LastGenOutput>
+    </Content>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ChangeSocialClubNumberResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.CreateMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.GetMemberNumberResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.GetMemberNumbersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.MemberNumbers.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.NMCCompanySalesRepsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.NMCProcessWebApplicationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.NMCRoutingValidationResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessAddressResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessContactLogResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessDependentsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessEmailResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessInsertWebUserAccountResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessPhoneNumbersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessUpdateWebUserAccountResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.ProcessVehicleResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.RenewMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.RequestMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\MemberAPI.DAL.CNETService.UpdateMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CNETService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\CNETService\configuration.svcinfo" />
+    <None Include="Service References\CNETService\configuration91.svcinfo" />
+    <None Include="Service References\CNETService\item.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\CNETService\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

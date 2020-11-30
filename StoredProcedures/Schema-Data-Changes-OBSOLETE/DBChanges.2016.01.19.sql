@@ -1,0 +1,6 @@
+ALTER TABLE ClientUser
+ADD ForgotPasswordToken UNIQUEIDENTIFIER NULL
+
+ALTER TABLE ClientUser
+ADD ForgotPasswordDate DATETIME NULL
+

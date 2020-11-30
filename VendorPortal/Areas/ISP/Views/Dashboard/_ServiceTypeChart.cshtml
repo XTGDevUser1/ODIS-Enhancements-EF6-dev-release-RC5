@@ -1,0 +1,22 @@
+﻿@using Martex.DMS.BLL.Model.VendorPortal;
+@model VendorDashboardModel
+@using Kendo.Mvc.UI;
+<div class="with-padding">
+    @(Html.Kendo().Chart(Model.ServiceTypes)
+        .Name("ServiceType")
+                .Title(title => title
+                .Text("Types of Services")
+                .Position(ChartTitlePosition.Bottom))
+        .Legend(legend => legend
+            .Visible(false)
+        )
+        .Series(series =>
+        {
+            series.Pie("Percentage", "CategoryName");
+        })
+        .Tooltip(tooltip => tooltip
+        .Visible(true)
+        .Template("#= category # - #= kendo.format('{0:P}', percentage)#")
+        )
+    )
+</div>

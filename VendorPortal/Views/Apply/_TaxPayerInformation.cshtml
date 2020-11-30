@@ -1,0 +1,149 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+
+<h2 class="thin  margin-bottom">
+    Electronic W-9
+</h2>
+<p class="message-flat">
+    <strong>Request for Taxpayer Identification Number and Certification (W-9)</strong>
+    <br />
+    As you know, Pinnacle Motor Club will need your W-9 information for federal tax
+    reporting. Information sent from this website is encrypted and you can securely
+    provide your W-9 electronically using the form below. However, if you are an individual
+    (not a business) and prefer not to submit your SSN electronically, you can manually
+    complete a W-9 Form and fax it to <strong>800-331-1145</strong>. <a href="@Url.Content("~/ReferenceForms/FederalW9Form.pdf")" target="_blank">
+        Click here for a W-9 Form
+    </a>
+</p>
+<h3 id="h3TaxClassification">
+    Tax Classification <span class="caoptional star red">*</span>
+</h3>
+
+<p class="inline-large-label button-height small-margin-bottom">
+    <label for="Individual" class="label">
+        Individual/sole proprietor or single-member LLC
+    </label>
+    @Html.RadioButton("TaxClassification", "Individual", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height">
+    <label for="ccorp" class="label">
+        C Corporation
+    </label>
+    @Html.RadioButton("TaxClassification", "C-Corporation", new { @class = "radio" })
+</p>
+
+<p class="inline-large-label button-height ">
+    <label for="scorp" class="label">
+        S Corporation
+    </label>
+    @Html.RadioButton("TaxClassification", "S-Corporation", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height ">
+    <label for="partnership" class="label">
+        Partnership
+    </label>
+    @Html.RadioButton("TaxClassification", "Partnership", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height ">
+    <label for="trust" class="label">
+        Trust/estate
+    </label>
+    @Html.RadioButton("TaxClassification", "Trust-Estate", new { @class = "radio" })
+</p>
+
+<p class="inline-large-label button-height ">
+    <label for="llcccorp" class="label">
+        LLC - C Corporation
+    </label>
+    @Html.RadioButton("TaxClassification", "LLC-C-Corporation", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height ">
+    <label for="llcscorp" class="label">
+        LLC - S Corporation
+    </label>
+    @Html.RadioButton("TaxClassification", "LLC-S-Corporation", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height ">
+    <label for="llcpartnership" class="label">
+        LLC - Partnership
+    </label>
+    @Html.RadioButton("TaxClassification", "LLC-Partnership", new { @class = "radio" })
+</p>
+
+<p class="inline-large-label button-height ">
+    <label for="other" class="label">
+        Other
+    </label>
+    @Html.RadioButton("TaxClassification", "Other", new { @class = "radio" })
+</p>
+<p class="inline-large-label button-height otherDescription hidden">
+    <label for="otherDesc" class="label">
+        Other Description
+    </label>
+    @Html.TextAreaFor(v => v.OtherTaxPayerDescription, new { @class = "input full-width2 validate[maxSize[50]]", rows = "5", cols = "80" })
+</p>
+
+<h3>W-9 Address <span class="small-margin-left">@Html.CheckBox("IsW9DifferentThanBilling", false, new { @class = "checkbox" }) <small>Different than Billing Address</small></span></h3>
+<div id="divW9Address" class="hidden">
+    @Html.Editor("W9Address", "AddressSingle", new { IsCityRequired = true, IsZipRequired = true })
+</div>
+
+<h3>Part - I Taxpayer Identification Number (TIN)</h3>
+<p class="message-flat">
+    If this is corporation, LLC or other business entity, please provide your federal Employer Identification Number (EIN).
+    If this is an individual and not a business, please provide your Social Security Number (SSN).
+</p>
+
+<p class="inline-large-label button-height ">
+    <label for="ein" class="label">
+        Employee Identification Number (EIN)<span class="caoptional star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.EmployerIdentificationNumber, new { @class = "input full-width2" })
+</p>
+
+<p class="inline-large-label button-height ">
+    <label for="ssn" class="label">
+        Social Security Number (SSN)
+    </label>
+    @Html.TextBoxFor(v => v.SSN, new { @class = "input full-width2" })
+</p>
+<h3>Part - II Certification</h3>
+<div class="message-flat">
+    Under penalties of perjury, I certify that:
+    <br />
+    <ol>
+        <li>The number shown on this form is my correct taxpayer identification number (or I am waiting for a number to be issued to me), and </li>
+        <li>
+            I am not subject to backup withholding because : (a) I am exempt from backup withholding, or (b) I have not been notified by the Internal Revenue Service (IRS) that I am subject to backup withholding as a result of failure to report all interest or dividends, or
+            (c) the IRS has notified me that I am no longer subject to backup withholding, and
+        </li>
+        <li>I am a U.S. person (including a US resident alien).</li>
+    </ol>
+</div>
+
+<p class="inline-large-label button-height ">
+    <label for="signature" class="label">
+        Electronic Signature (type your name) <span class="caoptional star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.ElectronicSignature, new { @class = "input full-width2 validate[ maxSize[50]]" })
+</p>
+
+<script language="javascript" type="text/javascript">
+    $(function () {
+
+        $("#SSN").mask("999-99-9999");
+        $("#EmployerIdentificationNumber").mask("99-9999999");
+
+        var divW9Address = $("#divW9Address");
+
+        $('input[name="IsW9DifferentThanBilling"]').change(function (e) {
+
+            if ($(this).attr('checked')) {
+                divW9Address.removeClass("hidden");
+                divW9Address.show("slide", {}, 800, function () { /*IsFormValid(); */ });
+            }
+            else {
+                divW9Address.hide("slide", {}, 800, function () { divW9Address.addClass("hidden"); /* IsFormValid();*/ });
+            }
+        });
+    });
+</script>

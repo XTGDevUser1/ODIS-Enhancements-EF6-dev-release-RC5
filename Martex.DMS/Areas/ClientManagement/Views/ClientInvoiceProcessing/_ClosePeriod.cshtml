@@ -1,0 +1,156 @@
+﻿@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+<script type="text/javascript">
+    function GrdClientCloseInvoiceList_DataBound(e) {
+
+        e.sender.table.find('tr').each(function () {
+            var canBeClosed = $(this).find('.canBeClosed').html();
+            if (canBeClosed == "1" || canBeClosed == 1) {
+                $('#btnProcessCloseSelectedPeriods').removeClass("hidden");
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            @(Html.Kendo().Grid<ClientClosePeriodList_Result>()
+                            .Name("GrdClientCloseInvoiceList")
+                            .Columns(column =>
+                            {
+                                column.Bound(u => u.BillingScheduleID).Title("ID");
+                                column.Bound(u => u.ScheduleName).Title("Schedule Name");
+                                column.Bound(u => u.ScheduleRangeBegin).Title("Begin").Format("{0:MM/dd/yyyy}");
+                                column.Bound(u => u.ScheduleRangeEnd).Title("End").Format("{0:MM/dd/yyyy}");
+                                column.Bound(u => u.ScheduleStatus).Title("Status");
+                                column.Bound(u => u.TotalInvoiceCount).Title("Invoice Count").HtmlAttributes(new { @class = "invoiceCount" });
+                                column.Bound(u => u.PostedInvoiceCount).Title("Posted Count").HtmlAttributes(new { @class = "postedCount" });
+                                column.Bound(u => u.CanBeClosed).Title("Can Be Closed").HtmlAttributes(new { @class = "canBeClosed" });
+                            })
+        .Events(e =>
+        {
+            e.DataBound("GrdClientCloseInvoiceList_DataBound");
+        })
+        .Sortable()
+        .Scrollable()
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+        .Ajax()
+        .PageSize(1000)
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_ClosePeriodList", "ClientInvoiceProcessing", new { area = "ClientManagement" }))
+        )
+        .Resizable(resize => resize.Columns(true))
+        )
+        </div>
+        <div class="new-row twelve-columns">
+            <button class="button gray-gradient  float-left mid-margin-left margin-bottom" onclick="CloseDialogClosePeriod();"
+                type="button">
+                Cancel</button>
+            <button class="button green-gradient  float-left mid-margin-left margin-bottom hidden"
+                onclick="ProcessCloseSelectedPeriods();" type="button" id="btnProcessCloseSelectedPeriods">
+                Close Selected Period(s)</button>
+        </div>
+        <div class="align-center closePeriodStatusBar new-row twelve-columns">
+            <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                    class="statusMessage"></span>
+            </p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var $statusContainer = null;
+    var IsClosedPeriodIsInProcessing = false;
+    $(function () {
+        $statusContainer = $(".closePeriodStatusBar");
+        HideStatus($statusContainer);
+    });
+
+    function CloseDialogClosePeriod() {
+        document.dialogResult = "CANCEL";
+        invoiceShowCloseContainer.data('kendoWindow').close();
+    }
+
+    var successOkayCallBack = function () {
+        $('#GrdClientCloseInvoiceList').data('kendoGrid').dataSource.read();
+    }
+
+    var successCloseCallBack = function () {
+        CloseDialogClosePeriod();
+        $('#grdInvoices').data('kendoGrid').dataSource.read();
+    }
+
+    function ProcessCloseSelectedPeriods() {
+        if (IsClosedPeriodIsInProcessing == false) {
+            IsClosedPeriodIsInProcessing = true;
+            HideStatus($statusContainer);
+            var selectedBillingSchedules = [];
+            // Get all selected items and verify them.
+            var grid = $("#GrdClientCloseInvoiceList").data("kendoGrid");
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                IsClosedPeriodIsInProcessing = false;
+                openAlertMessage("Please select row");
+
+            }
+            else {
+                // Verify Business Logic : 
+                // Selected Row Should have posted and invoice equal
+                // can be posted should be 1
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    var scheduleID = record.BillingScheduleID;
+                    var invoiceCount = record.TotalInvoiceCount;
+                    var postedCount = record.PostedInvoiceCount;
+                    var canBePosted = record.CanBeClosed;
+
+                    if (canBePosted == "0" || canBePosted == 0) {
+                        IsClosedPeriodIsInProcessing = false;
+                        openAlertMessage("Selected row must have Can Be Closed = 1");
+                        return;
+                    }
+                    if (invoiceCount != postedCount) {
+                        IsClosedPeriodIsInProcessing = false;
+                        openAlertMessage("Selected row must have Total Count = Posted Count");
+                        return;
+                    }
+                    selectedBillingSchedules.push({ name: "scheduleID[" + i + "]", value: scheduleID });
+                }
+
+                ShowStatus("inprogress", 'Processing', $statusContainer);
+                $.ajax({
+                    url: '@Url.Action("_ProcessClosePeriodList", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                    type: 'POST',
+                    data: selectedBillingSchedules,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            IsClosedPeriodIsInProcessing = false;
+                            HideStatus($statusContainer);
+                            $.modal.confirmOKCancel('Period successfully closed', successOkayCallBack, successCloseCallBack, { confirmText: "Hello" });
+                        }
+                    },
+                    error: function (msg) {
+                        console.log("Error : " + msg.responseText);
+                        IsClosedPeriodIsInProcessing = false;
+                        var errorMessage = msg.responseText;
+                        if (msg.responseText) {
+                            var result = JSON.parse(msg.responseText);
+                            errorMessage = result.ErrorMessage;
+                        }
+                        ShowStatus("error", errorMessage, $statusContainer);
+                    }
+                });
+            }
+        }
+    }
+</script>

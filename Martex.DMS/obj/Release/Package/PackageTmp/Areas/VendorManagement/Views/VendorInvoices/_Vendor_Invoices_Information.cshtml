@@ -1,0 +1,793 @@
+﻿@model Martex.DMS.BLL.Model.VendorInvoiceInfoCommonModel
+@using Kendo.Mvc.UI;
+@using Martex.DMS.BLL.Common;
+@using Martex.DMS.DAL.DAO;
+@using Martex.DMS.DAL.Common;
+@{
+    var suffixVendorInvoiceID = 0;
+    decimal? newDecimal = decimal.Zero;
+    var invoiceStatus = "";
+    if (Model.VendorInvoiceDetails != null)
+    {
+        suffixVendorInvoiceID = Model.VendorInvoiceDetails.ID;
+        invoiceStatus = Model.VendorInvoiceDetails.VendorInvoiceStatus;
+    }
+    string manualWaitInDays = AppConfigRepository.GetValue(AppConfigConstants.MANUAL_INVOICE_WAIT_IN_DAYS);
+}
+<script language="javascript" type="text/javascript">
+
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+            $(".k-upload-selected").hide();
+        }, 500);
+        $.map(e.files, function (file) {
+            var info = file.name;
+
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    }
+    function UploadApplication(e) {
+        var allowLapsedPOs = false;
+        var allowLowerPOAmount = false;
+
+        var currentInvoiceFlags = vendorInvoiceFlags['@suffixVendorInvoiceID'];
+        if (currentInvoiceFlags != null) {
+            allowLapsedPOs = currentInvoiceFlags.AllowLapsedPOs;
+            allowLowerPOAmount = currentInvoiceFlags.AllowLowerPOAmount;
+        }
+        var formElemnt = $("#frmVendorInvoiceDetails_@suffixVendorInvoiceID");
+        var errorFound = false;
+        if (formElemnt.validationEngine('validate') == false) {
+            errorFound = true;
+        }
+        var formData = $(formElemnt).serializeArray();
+        var vendorInvoiceCombo = $("#VendorInvoiceStatusID_@suffixVendorInvoiceID").data("kendoComboBox");
+        var receiveContactCombo = $("#ReceiveContactMethodID_@suffixVendorInvoiceID").data("kendoComboBox");
+        var etaMinutesCombo = $("#ETAMinutes_@suffixVendorInvoiceID").data("kendoComboBox");
+        var invoiceDatePicker = $("#InvoiceDate_@suffixVendorInvoiceID").data("kendoDatePicker");
+        var receiveDatePicker = $("#ReceivedDate_@suffixVendorInvoiceID").data("kendoDatePicker");
+        var invoiceAmountPicker = $("#InvoiceAmount_@suffixVendorInvoiceID").data("kendoNumericTextBox");
+        var paymentAmountPicker = $("#PaymentAmount_@suffixVendorInvoiceID").data("kendoNumericTextBox");
+        var last8OfVin = $.trim($("#Last8OfVIN_@suffixVendorInvoiceID").val());
+        var paymentDifferenceReasonCombo = $("#PaymentDifferenceReason_@suffixVendorInvoiceID").data("kendoComboBox");
+
+        var ETAHours = $("#ETAHours_@suffixVendorInvoiceID").data("kendoComboBox").value();
+
+        var ETAMinutes = etaMinutesCombo.value();
+
+        formData.push({ name: "VendorInvoiceDetails.VendorInvoiceStatusID", value: vendorInvoiceCombo.value() });
+        formData.push({ name: "VendorInvoiceDetails.ReceiveContactMethodID", value: receiveContactCombo.value() });
+        formData.push({ name: "VendorInvoiceDetails.ActualETAMinutes", value: ETAMinutes });
+        formData.push({ name: "VendorInvoiceDetails.ETAHours", value: ETAHours });
+
+        formData.push({ name: "VendorInvoiceDetails.PaymentAmount", value: paymentAmountPicker.value() });
+        formData.push({ name: "VendorInvoiceDetails.InvoiceAmount", value: invoiceAmountPicker.value() });
+        formData.push({ name: "VendorInvoiceDetails.VendorInvoicePaymentDifferenceReasonCodeID", value: paymentDifferenceReasonCombo.value() });
+        formData.push({ name: "AllowLapsedPOs", value: allowLapsedPOs });
+        formData.push({ name: "AllowLowerPOAmount", value: allowLowerPOAmount });
+
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = formData.length; i < l; i++) {
+            if (nvp[formData[i].name] == null) {
+                nvp[formData[i].name] = formData[i].value;
+            }
+        }
+        e.data = nvp;
+
+    }
+
+    function UploadSuccess(e) {
+        ClearValidationMessages();
+        var $form = $("#frmSubmitInvoice");
+        $form.clearMessages();
+        var msg = e.response;
+        if (msg.Status == "Success") {
+            CleanMyContainer("frmVendorInvoiceContainerForDirtyFlag_@suffixVendorInvoiceID");
+            openAlertMessage("Data saved successfully");
+
+            //close and reopen the tab in Edit mode.
+            var vendorInvoiceDetails = msg.Data;
+            if (vendorInvoiceDetails != null) {
+                DeleteTab("@suffixVendorInvoiceID");
+                addTab(vendorInvoiceDetails.InvoiceNumber, vendorInvoiceDetails.InvoiceNumber, vendorInvoiceDetails.VendorInvoiceID, vendorInvoiceDetails.VendorID);
+            }
+            else {
+                $('#VendorInvoiceDetailsTab_@suffixVendorInvoiceID').tabs('load', 0);
+            }
+            $("#GrdVendorInvoices").data('kendoGrid').dataSource.read();
+        }
+        else if (msg.Status == "BusinessRuleFail") {
+            var errorMessage = msg.ErrorMessage;
+            var currentInvoiceFlags = vendorInvoiceFlags['@suffixVendorInvoiceID'];
+            if (currentInvoiceFlags == null) {
+                currentInvoiceFlags = new VendorInvoiceFlags();
+                vendorInvoiceFlags['@suffixVendorInvoiceID'] = currentInvoiceFlags;
+            }
+            switch (msg.ErrorMessage) {
+                case 'PO_NOT_EXISTS':
+                    errorMessage = 'PO number was not found, please try again';
+                    break;
+                case 'PO_PAID_BY_CC':
+                    errorMessage = 'PO was paid by credit card.';
+                    break;
+                case 'PO_ALREADY_PAID':
+                    errorMessage = 'PO was paid by the member';
+                    break;
+                case 'PO_NOT_ISSUED':
+                    errorMessage = 'PO number cannot be verified, please check the number and try again. If you think the PO number is valid, please contact your Vendor Rep';
+                    break;
+                case 'PO_ALREADY_INVOICED':
+                    errorMessage = 'An invoice has already been submitted for this PO';
+                    break;
+
+                case 'PO_LAPSED':
+                    errorMessage = 'Invoice is over 90 days old.  Do you want to go ahead and pay the invoice?';
+
+                    $.modal.confirmYesNo(errorMessage, function () {
+                        currentInvoiceFlags.AllowLapsedPOs = true;
+                        SubmitInvoice(sender, '@suffixVendorInvoiceID');
+                    },
+                        function () {
+
+                        });
+                    errorMessage = '';
+                    break;
+                case 'APP_CONFIG_VALUE_NOT_FOUND':
+                    errorMessage = 'Application configuration item - MaximumInvoiceAmountThreshold is not set up';
+                    break;
+                case 'AMOUNT_THRESHOLD_EXCEEDED':
+                    errorMessage = 'Invoice amount does not match the PO amount';
+                    break;
+
+                case 'LOWER_PO_AMOUNT':
+                    errorMessage = 'Pay amount is less than half of the PO amount. Do you want to go ahead and pay the invoice?'; //'Please check the invoice amount, it is much lower than the PO amount';
+
+                    $.modal.confirmYesNo(errorMessage, function () {
+                        currentInvoiceFlags.AllowLowerPOAmount = true;
+                        SubmitInvoice(sender, '@suffixVendorInvoiceID');
+                    },
+                        function () {
+
+                        });
+                    errorMessage = '';
+                    break;
+                    break;
+                case 'MISSING_BILLING_ADDRESS':
+                    errorMessage = 'Missing vendor billing address';
+                    break;
+                case 'MISSING_TAX_ID':
+                    errorMessage = 'Missing Tax ID, please go to My Account and enter your Tax ID';
+                    break;
+                default:
+                    break;
+
+            }
+            if ($.trim(errorMessage).length > 0) {
+                displayError(errorMessage, $form);
+            }
+
+        }
+        else if (msg.Status == "Error") {
+            displayError(msg.ErrorMessage, $form);
+        }
+    }
+
+    function UploadError(e) {
+        //HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details");
+    }
+
+    function UploadComplete(e) {
+        //HideLoadingIndicator();
+    }
+
+</script>
+<script language="javascript" type="text/javascript">
+
+    vendorInvoiceFlags['@suffixVendorInvoiceID'] = new VendorInvoiceFlags();
+    function OnInvoiceAmountChange(e, uniqueID, that) {
+
+        // Collect PO ID from the attributes of the verify button.
+        var $poNumber = $("#PONumber_" + uniqueID);
+        var poNumber = $poNumber.val();
+        var poId = $poNumber.attr("data-POID");
+        if ($poNumber.is(":hidden")) {
+            // We are in Edit invoice.
+            var currentForm = $(e.sender.element).closest("form");
+            var $hdnPO = currentForm.find('input[name="VendorInvoicePODetails.ID"]');
+            if ($hdnPO.length > 0) {
+                poId = $hdnPO.val();
+            }
+        }
+        var hdnPOAmount = $("#hdnPOAmount_" + poId).val();
+        var poAmount = parseFloat(isNaN(hdnPOAmount) ? 0 : hdnPOAmount);
+        var invoiceAmount = parseFloat(isNaN(that.value()) ? 0 : that.value());
+        var hdnAppConfig = $("#hdnPOInvoiceDifferenceThreshold_" + poId).val();
+        var appConfigValue = parseFloat(isNaN(hdnAppConfig) ? 0 : hdnAppConfig);
+        var matchStatusIndicator = $("#invoiceAmountStatus_" + uniqueID);
+        // Business rules.
+
+        //        if (Math.abs(invoiceAmount - poAmount) <= appConfigValue) {
+        //            $("#PaymentAmount_" + uniqueID).data("kendoNumericTextBox").value(invoiceAmount.toFixed(2));
+        //        }
+        //        else {
+        //            //ShowValidationMessage($(this), "The invoice amount must be within $"+ Math.abs( invoiceAmount - poAmount ).toFixed(2) + " of the PO Amount");
+        //            openAlertMessage("The invoice amount must be within $" + appConfigValue.toFixed(2) + " of the PO Amount");
+
+        //        }
+        // NP 10/18: Commented due to item 1921
+        //$("#PaymentAmount_" + uniqueID).data("kendoNumericTextBox").value(invoiceAmount.toFixed(2));
+
+        if (invoiceAmount == poAmount) {
+            matchStatusIndicator.text("Matches");
+        }
+        else if (Math.abs(invoiceAmount - poAmount) <= appConfigValue && (invoiceAmount - poAmount) != 0) {
+            matchStatusIndicator.text("Within Threshold");
+        }
+        else if (invoiceAmount < poAmount) {
+            matchStatusIndicator.text("Under $" + (poAmount - invoiceAmount).toFixed(2));
+        }
+        else if (invoiceAmount > poAmount) {
+            matchStatusIndicator.text("Over $" + (invoiceAmount - poAmount).toFixed(2));
+        }
+    }
+
+    function OnPaymentAmountChange(e, uniqueID, that) {
+
+        // Collect PO ID from the attributes of the verify button.
+        var $poNumber = $("#PONumber_" + uniqueID);
+        var poNumber = $poNumber.val();
+        var poId = $poNumber.attr("data-POID");
+        if ($poNumber.is(":hidden")) {
+            // We are in Edit invoice.
+            var currentForm = $(e.sender.element).closest("form");
+            var $hdnPO = currentForm.find('input[name="VendorInvoicePODetails.ID"]');
+            if ($hdnPO.length > 0) {
+                poId = $hdnPO.val();
+            }
+        }
+        var hdnPOAmount = $("#hdnPOAmount_" + poId).val();
+        var poAmount = parseFloat(isNaN(hdnPOAmount) ? 0 : hdnPOAmount);
+        var paymentAmount = parseFloat(isNaN(that.value()) ? 0 : that.value());
+        var hdnAppConfig = $("#hdnPOInvoiceDifferenceThreshold_" + poId).val();
+        var appConfigValue = parseFloat(isNaN(hdnAppConfig) ? 0 : hdnAppConfig);
+        var matchStatusIndicator = $("#paymentAmountStatus_" + uniqueID);
+        // Business rules.
+
+        //        if (Math.abs(paymentAmount - poAmount) >= appConfigValue) {
+        //            //ShowValidationMessage($(this), "The invoice amount must be within $"+ Math.abs( invoiceAmount - poAmount ).toFixed(2) + " of the PO Amount");
+        //            openAlertMessage("The payment amount must be within $" + appConfigValue.toFixed(2) + " of the PO Amount");
+        //            e.preventDefault();
+
+        //        }
+        if (paymentAmount == poAmount) {
+            matchStatusIndicator.text("Matches");
+        }
+        else if (Math.abs(paymentAmount - poAmount) <= appConfigValue && (paymentAmount - poAmount) != 0) {
+            matchStatusIndicator.text("Within Threshold");
+        }
+        else if (paymentAmount < poAmount) {
+            matchStatusIndicator.text("Under $" + Math.abs(paymentAmount - poAmount).toFixed(2));
+        }
+        else if (paymentAmount > poAmount) {
+            matchStatusIndicator.text("Over $" + (paymentAmount - poAmount).toFixed(2));
+        }
+
+    }
+
+    function ReceivedDate_Change(e, uniqueID) {
+        var $form = $("#frmVendorInvoiceDetails_" + uniqueID);
+        var hdnAppConfigManualWaitInDays = $form.find("#hdnManualWaitInDays");
+        var manualWaitInDays = null;
+        if (hdnAppConfigManualWaitInDays.length == 0) {
+            openAlertMessage("AppConfig value - ManualWaitInDays is not configured");
+        }
+        else {
+            var hdnVal = $.trim(hdnAppConfigManualWaitInDays.val());
+            if (isNaN(hdnVal)) {
+                openAlertMessage("AppConfig value - ManualWaitInDays is not valid");
+            }
+            else {
+                manualWaitInDays = parseInt(hdnVal);
+
+                var currentVal = Date.parseExact($(e.sender.element).val(), "M/d/yyyy");
+                currentVal.add(manualWaitInDays).days();
+
+                var toBePaidDate = $("#ToBePaidDate_" + uniqueID).data("kendoDatePicker");
+                toBePaidDate.value(currentVal);
+
+            }
+
+        }
+    }
+
+</script>
+<form id="frmVendorInvoiceDetails_@suffixVendorInvoiceID" action="javascript:void(0)" method="post" relatedbuttons="PlaceHolder_VendorInvoice_InfoSection_Buttons_@suffixVendorInvoiceID">
+    <div class="with-padding">
+        <fieldset class="fieldset">
+            <legend class="legend"></legend>
+            <div class="columns">
+                <div class="five-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Invoice Information</legend>
+                        <div class="columns">
+                            <div class="twelve-columns">
+                                <div class="historyboxedmin">
+                                    <div>
+                                        @Html.Hidden("hdnManualWaitInDays", manualWaitInDays)
+                                        @Html.HiddenFor(a => a.VendorInvoiceDetails.VendorID)
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="Status" class="label">
+                                                Status <span class="star">*</span>
+                                            </label>
+                                            @(Html.Kendo().ComboBoxFor(u => u.VendorInvoiceDetails.VendorInvoiceStatusID)
+                                                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorInvoiceStatus.ToString()] as IEnumerable<SelectListItem>
+                                                )
+                                                .Events(events =>
+                                                {
+                                                    events.Change("ValidateInputForKendoCombo");
+                                                })
+                                                .Filter(FilterType.StartsWith).MinLength(0)
+                                                .Suggest(true)
+                                                .HtmlAttributes(new { style = "width:35% ", id = "VendorInvoiceStatusID_" + suffixVendorInvoiceID })
+                                                .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.VendorInvoiceStatusID == null ? string.Empty : Model.VendorInvoiceDetails.VendorInvoiceStatusID.ToString())
+
+                                            )
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="InvoiceNumber" class="label">
+                                                Invoice Number <span class="star">*</span>
+                                            </label>
+                                            @Html.TextBoxFor(u => u.VendorInvoiceDetails.InvoiceNumber, new { @class = "input validate[required,maxSize[15]] full-width2", id = "InvoiceNumber_" + suffixVendorInvoiceID })
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="InvoiceAmount" class="label">
+                                                Invoice Amount <span class="star">*</span>
+                                            </label>
+                                            @(Html.Kendo().NumericTextBoxFor(a => a.VendorInvoiceDetails.InvoiceAmount)
+                                            .Name("VendorInvoiceDetails.InvoiceAmount")
+                                            .Format("{0:C}")
+                                            .Min(0)
+                                            .HtmlAttributes(new { style = "width:35%", id = "InvoiceAmount_" + suffixVendorInvoiceID })
+                                            .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.InvoiceAmount == null ? newDecimal : Model.VendorInvoiceDetails.InvoiceAmount.Value)
+                                            .Spinners(false)
+                                            .Events(events => events.Change(@<text>function(e){ return OnInvoiceAmountChange(e,'@suffixVendorInvoiceID',this);}</text>))
+                                            )
+                                            @*@Html.TextBoxFor(u => u.VendorInvoiceDetails.InvoiceAmount, "{0:N2}", new { @class = "input validate[required,maxSize[100],custom[money]] full-width", id = "InvoiceAmount_" + suffixVendorInvoiceID })*@
+                                            <span id="invoiceAmountStatus_@suffixVendorInvoiceID"></span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="InvoiceDate" class="label">
+                                                Invoice Date
+                                            </label>
+                                            @(Html.Kendo().DatePickerFor(u => u.VendorInvoiceDetails.InvoiceDate)
+                                            .HtmlAttributes(new { style = "width:35% ", id = "InvoiceDate_" + suffixVendorInvoiceID, type = "text" })
+                                            )
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="ReceiveDate" class="label">
+                                                Receive Date <span class="star">*</span>
+                                            </label>
+                                            @(Html.Kendo().DatePickerFor(u => u.VendorInvoiceDetails.ReceivedDate)
+                                            .HtmlAttributes(new { style = "width:35% ", id = "ReceivedDate_" + suffixVendorInvoiceID, type = "text" })
+                                            .Events(e => e.Change(@<text>
+                                                function(e) { return ReceivedDate_Change(e, '@suffixVendorInvoiceID');
+                                                }
+                                            </text>))
+                                            )
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="ReceiveContactMethodID" class="label">
+                                                Receive Method <span class="star">*</span>
+                                            </label>
+                                            @(Html.Kendo().ComboBoxFor(u => u.VendorInvoiceDetails.ReceiveContactMethodID)
+                                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactMethodForVendor.ToString()] as IEnumerable<SelectListItem>
+                                            )
+                                            .Events(events => events.Change(@<text>function(e){HandleVendorInvoiceReceiveMethodChange(e,'@suffixVendorInvoiceID','@manualWaitInDays');}</text>))
+                                            .Filter(FilterType.StartsWith).MinLength(0)
+                                            .Suggest(true)
+                                            .HtmlAttributes(new { style = "width:35% ", id = "ReceiveContactMethodID_" + suffixVendorInvoiceID })
+                                            .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.ReceiveContactMethodID == null ? string.Empty : Model.VendorInvoiceDetails.ReceiveContactMethodID.ToString())
+                                            )
+                                        </p>
+                                    </div>
+                                    <div class="button-height inline-label">
+                                        <label for="arrival" class="label">
+                                            How long to arrive on scene?
+                                        </label>
+                                        @{
+
+                                            int? hoursVal = null;
+                                            int? minutesVal = null;
+                                            if (Model.VendorInvoiceDetails != null)
+                                            {
+                                                if (Model.VendorInvoiceDetails.ActualETAMinutes.HasValue)
+                                                {
+                                                    hoursVal = Model.VendorInvoiceDetails.ActualETAMinutes / 60;
+                                                    minutesVal = Model.VendorInvoiceDetails.ActualETAMinutes % 60;
+                                                }
+                                            }
+                                            List<SelectListItem>
+                                                hours = new List<SelectListItem>
+                                                    ();
+                                            for (var i = 0; i <= 6; i++)
+                                            {
+                                                hours.Add(new SelectListItem() { Text = i.ToString(), Value = i.ToString() });
+                                            }
+                                            hours.Add(new SelectListItem() { Text = "Over 6", Value = "7" });
+
+                                            List<SelectListItem>
+                                                minutes = new List<SelectListItem>
+                                                    ();
+                                            for (var i = 0; i < 60; i++)
+                                            {
+                                                minutes.Add(new SelectListItem() { Text = i.ToString(), Value = i.ToString() });
+                                            }
+
+                                        }
+                                        @(Html.Kendo().ComboBox().Name("ETAHours")
+                                        .BindTo(hours)
+                                        .Placeholder("Hours")
+                                        .HighlightFirst(true)
+                                        .Suggest(true)
+                                        .Filter(FilterType.StartsWith).MinLength(0)
+                                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                        .HtmlAttributes(new { id = "ETAHours_" + suffixVendorInvoiceID, style = "width:30%" })
+                                        .Value(hoursVal.HasValue ? hoursVal.Value.ToString() : string.Empty)
+                                        )
+                                        @(Html.Kendo().ComboBox().Name("ETAMinutes")
+                                        .BindTo(minutes)
+                                        .Placeholder("Minutes")
+                                        .HighlightFirst(true)
+                                        .Suggest(true)
+                                        .Filter(FilterType.StartsWith).MinLength(0)
+                                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                        .HtmlAttributes(new { id = "ETAMinutes_" + suffixVendorInvoiceID, style = "width:30%" })
+                                        .Value(minutesVal.HasValue ? minutesVal.Value.ToString() : string.Empty)
+                                        )
+                                    </div>
+                                    <div class="clear">
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="Last8OfVIN" class="label">
+                                                Last 8 Of VIN
+                                            </label>
+                                            @Html.TextBoxFor(u => u.VendorInvoiceDetails.Last8OfVIN, new { @class = "input validate[maxSize[8]] full-width2", id = "Last8OfVIN_" + suffixVendorInvoiceID })
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="VehicleMileage" class="label">
+                                                Vehicle Mileage
+                                            </label>
+                                            @*@Html.TextBoxFor(u => u.VendorInvoiceDetails.VehicleMileage, "{0:N0}", new { @class = "input validate[custom[integer]] full-width", id = "VehicleMileage_" + suffixVendorInvoiceID })*@
+                                            @(Html.Kendo().NumericTextBoxFor(a => a.VendorInvoiceDetails.VehicleMileage)
+                                            .Format("{0:N0}")
+                                            .Min(0)
+                                            .HtmlAttributes(new { id = "VehicleMileage_" + suffixVendorInvoiceID })
+                                            .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.VehicleMileage == null ? (int?)null : Model.VendorInvoiceDetails.VehicleMileage.Value)
+                                            .Spinners(false)
+
+                                            )
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="PayAmount" class="label">
+                                                Pay Amount
+                                            </label>
+                                            @(Html.Kendo().NumericTextBoxFor(a => a.VendorInvoiceDetails.PaymentAmount)
+                                            .Name("VendorInvoiceDetails.PaymentAmount")
+                                            .Format("{0:C}")
+                                            .Min(0)
+                                            .HtmlAttributes(new { style = "width:35%", id = "PaymentAmount_" + suffixVendorInvoiceID })
+                                            .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.PaymentAmount == null ? newDecimal : Model.VendorInvoiceDetails.PaymentAmount.Value)
+                                            .Spinners(false)
+                                            .Events(events => events.Change(@<text>function(e){ return OnPaymentAmountChange(e,'@suffixVendorInvoiceID',this);}</text>))
+                                            )
+                                            <span id="paymentAmountStatus_@suffixVendorInvoiceID"></span>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="ReceiveDate" class="label">
+                                                To Be Paid Date
+                                            </label>
+                                            @(Html.Kendo().DatePickerFor(u => u.VendorInvoiceDetails.ToBePaidDate)
+                                            .HtmlAttributes(new { style = "width:35% ", id = "ToBePaidDate_" + suffixVendorInvoiceID, type = "text" })
+                                            )
+                                        </p>
+                                        @Html.HiddenFor(v => v.VendorInvoiceDetails.ID)
+                                    </div>
+                                    <div>
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="PaymentDifferenceReason" class="label">
+                                                Payment Difference Reason
+                                            </label>
+                                            @(Html.Kendo().ComboBoxFor(v => v.VendorInvoiceDetails.VendorInvoicePaymentDifferenceReasonCodeID)
+                                            .Name("PaymentDifferenceReason")
+                                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.VendorInvoicePaymentDifferenceReasonCode.ToString()] as IEnumerable<SelectListItem>
+                                                )
+                                                .Events(events =>
+                                                {
+                                                    events.Change("ValidateInputForKendoCombo");
+                                                })
+                                                .Filter(FilterType.StartsWith).MinLength(0)
+                                                .Suggest(true)
+                                                .SelectedIndex(0)
+                                                .HtmlAttributes(new { style = "width:90% ", id = "PaymentDifferenceReason_" + suffixVendorInvoiceID })
+                                                .Value(Model.VendorInvoiceDetails == null || Model.VendorInvoiceDetails.VendorInvoicePaymentDifferenceReasonCodeID == null ? string.Empty : Model.VendorInvoiceDetails.VendorInvoicePaymentDifferenceReasonCodeID.ToString())
+                                            )
+                                        </p>
+                                        @Html.HiddenFor(v => v.VendorInvoiceDetails.ID)
+                                    </div>
+                                    <div id="divCopyOfInvoice_@suffixVendorInvoiceID">
+                                        <p class="button-height inline-label small-margin-bottom">
+                                            <label for="copyOfInvoice" class="label">
+                                                Copy of Invoice
+                                            </label>
+                                            @(Html.Kendo().Upload()
+                                            .Name("attachment")
+                                            .Async(a => a
+                                            .Save("SaveVendorInvoiceInformation", "VendorInvoices", new { area = "VendorManagement" })
+                                            .AutoUpload(false)
+                                            .RemoveUrl("/Remove")
+                                            )
+                                            .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+                                            .Multiple(false)
+                                            .ShowFileList(true)
+                                            .HtmlAttributes(new { @style = "text-align:right;", id = "attachment_" + suffixVendorInvoiceID })
+                                            )
+                                            @if (Model.CopyOfVendorInvoice != null && Model.CopyOfVendorInvoice.Count > 0)
+                                            {
+                                                foreach (var copy in Model.CopyOfVendorInvoice)
+                                                {
+                                                    <div class="columns">
+                                                        <div class="nine-columns" style="margin-bottom: 2px;">
+                                                            <a href="#" id="downloadCopyOfInvoiceFile" onclick="fnVendorInvoiceDownloadCopyOfInvoice('@copy.ID','@copy.Name','@suffixVendorInvoiceID')">@copy.Name</a>
+                                                        </div>
+                                                        <div class="two-columns" style="direction:rtl; margin-bottom: 2px;">
+                                                            <a class="k-button k-button-icontext k-grid-Delete with-tooltip" onclick="fnVendorInvoiceDeleteCopyOfInvoice('@copy.ID','@EntityNames.VENDOR_INVOICE','@suffixVendorInvoiceID')" title="Remove File">
+                                                                <span class="k-icon k-delete"></span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                }
+
+                                            }
+
+
+                                            @*@if (Model.CopyOfVendorInvoice != null)
+                                                {
+                                                <a href="#" id="downloadCopyOfInvoiceFile" onclick="fnVendorInvoiceDownloadCopyOfInvoice('@Model.CopyOfVendorInvoice.ID','@Model.CopyOfVendorInvoice.Name','@suffixVendorInvoiceID')">@Model.CopyOfVendorInvoice.Name</a> <a class="k-button k-upload-button" onclick="fnVendorInvoiceDeleteCopyOfInvoice('@Model.CopyOfVendorInvoice.ID','@EntityNames.VENDOR_INVOICE','@suffixVendorInvoiceID')">Remove File</a>
+                                                <div class="hidden">
+                                                    @(Html.Kendo().Upload()
+                                                    .Name("attachment")
+                                                    .Async(a => a
+                                                    .Save("SaveVendorInvoiceInformation", "VendorInvoices", new { area = "VendorManagement" })
+                                                    .AutoUpload(false)
+                                                    .RemoveUrl("/Remove")
+                                                    )
+                                                    .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+                                                    .Multiple(false)
+                                                    .ShowFileList(true)
+                                                    .HtmlAttributes(new { @style = "text-align:right;", id = "attachment_" + suffixVendorInvoiceID })
+                                                    )
+                                                </div>
+                                                }
+                                                else
+                                                {
+                                                @(Html.Kendo().Upload()
+                                                .Name("attachment")
+                                                .Async(a => a
+                                                .Save("SaveVendorInvoiceInformation", "VendorInvoices", new { area = "VendorManagement" })
+                                                .AutoUpload(false)
+                                                .RemoveUrl("/Remove")
+                                                )
+                                                .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+                                                .Multiple(false)
+                                                .ShowFileList(true)
+                                                .HtmlAttributes(new { @style = "text-align:right;", id = "attachment_" + suffixVendorInvoiceID })
+                                                )
+                                                }*@
+                                        </p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    @if (Model.VendorInvoiceDetails != null)
+                    {
+                        //Issue 2164 fix comment below
+                        if (Model.VendorInvoiceDetails.VendorInvoiceStatus != "Paid")// || Model.VendorInvoicePODetails.POStatus != "Paid")
+                        {
+                            <h4 class="underline">
+                                Current Billing Information
+                            </h4>
+                            <div class="boxed">
+                                <div id="divVendorDetails_@suffixVendorInvoiceID">
+                                    @Html.Partial("_Vendor_Invoices_Vendor_Details", Model)
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div id="divVendorInvoiceProcessingDetails_@suffixVendorInvoiceID">
+                        @if (Model.VendorInvoiceDetails != null)
+                        {
+                            //Issue 2164 fix comment below
+                            if (Model.VendorInvoiceDetails.VendorInvoiceStatus == "Paid")//|| Model.VendorInvoicePODetails.POStatus == "Paid")
+                            {
+                                <h4 class="underline">
+                                    Processing Information
+                                </h4>
+                                <div class="boxed">
+                                    <div id="divProcessingDetails_@suffixVendorInvoiceID">
+                                        @Html.Partial("_Vendor_Invoices_Processing_Details", Model)
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="seven-columns">
+                    <h4 class="underline">
+                        PO Information
+                    </h4>
+                    <div class="boxed historyboxedmin">
+                        <div id="divPODetails_@suffixVendorInvoiceID">
+                            @Html.Partial("_Vendor_Invoices_PODetails", Model)
+                        </div>
+                    </div>
+                    <div class="message-flat">
+                        <p class=" inline-label small-margin-bottom">
+                            <label for="CreateDate" class="label">
+                                Create Date
+                            </label>
+                            @if (Model.VendorInvoicePODetails != null)
+                            {
+                                @Html.DisplayFor(a => a.VendorInvoicePODetails.CreateBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoicePODetails.CreateDate)
+
+                            }
+                        </p>
+                        <p class=" inline-label small-margin-bottom">
+                            <label for="ModifiedDate" class="label">
+                                Modified Date
+                            </label>
+                            @if (Model.VendorInvoicePODetails != null)
+                            {
+                                @Html.DisplayFor(a => a.VendorInvoicePODetails.ModifyBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoicePODetails.ModifyDate)
+                            }
+                                
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="columns">
+                <div class="six-columns">
+                    <div class="message-flat">
+                        <p class=" inline-label small-margin-bottom">
+                            <label for="Source" class="label">
+                                Source
+                            </label>
+                            @if (Model.VendorInvoiceDetails != null)
+                            {
+                                @Html.Raw("Vendor Maintenance")
+                            }
+                        </p>
+                        <p class=" inline-label small-margin-bottom">
+                            <label for="CreateDate" class="label">
+                                Create Date
+                            </label>
+                            @if (Model.VendorInvoiceDetails != null)
+                            {
+                                @Html.DisplayFor(a => a.VendorInvoiceDetails.CreateBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoiceDetails.CreateDate)
+
+                            }
+                        </p>
+                        <p class="inline-label small-margin-bottom">
+                            <label for="ModifiedDate" class="label">
+                                Modified Date
+                            </label>
+                            @if (Model.VendorInvoiceDetails != null)
+                            {
+                                @Html.DisplayFor(a => a.VendorInvoiceDetails.ModifyBy)@Html.Raw(" ") @Html.DisplayFor(a => a.VendorInvoiceDetails.ModifyDate)
+
+                            }
+
+                        </p>
+                    </div>
+                </div>
+                <div class="six-columns ">
+                    <div class="columns">
+                        <div class="ten-columns">
+                            <button id="btnCancelVendorInvoiceInfoSection_@suffixVendorInvoiceID" class="button gray-gradient  float-right margin-bottom"
+                                    type="button" onclick="CancelVendorInvoiceInfSection(this,'@suffixVendorInvoiceID');">
+                                Cancel
+                            </button>
+                        </div>
+                        <div class="two-columns hide" id="PlaceHolder_VendorInvoice_InfoSection_Buttons_@suffixVendorInvoiceID">
+                            <button id="btnSaveVendorInvoiceInfoSection_@suffixVendorInvoiceID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                                    type="button" onclick="SaveVendorInvoiceInfoSection(this,'@suffixVendorInvoiceID');">
+                                Save
+                            </button>
+                        </div>
+                        <div class="new-row  twelve-columns">
+                            <p class="message red-gradient hide" id="Error_Indicator_VendorInvoice_Info_@suffixVendorInvoiceID">
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    <form id="frmGetVendorInvoiceDocument_@suffixVendorInvoiceID" method="post" action="@Url.Action("Get", "Documents" , new { area="Common" })" target="_blank" class="hidden">
+        <input type="hidden" name="documentID" id="documentID" value="" />
+        <input type="hidden" name="documentName" id="documentName" value="" />
+        <input type="hidden" name="recordId" id="recordId" value="" />
+        <input type="hidden" name="isContentFromFile" id="isContentFromFile" value="" />
+        <input type="submit" value="submit" />
+    </form>
+
+    <script type="text/javascript" language="javascript">
+        $(function () {
+            $("#frmVendorInvoiceDetails_@suffixVendorInvoiceID").validationEngine();
+            //        $("#VendorInvoiceStatusID_@suffixVendorInvoiceID ").data("kendoComboBox").list.width(150);
+            //        $("#ReceiveContactMethodID_@suffixVendorInvoiceID ").data("kendoComboBox").list.width(100);
+            //        $("#ETAMinutes_@suffixVendorInvoiceID ").data("kendoComboBox").list.width(100);
+        });
+
+        $(document).ready(function () {
+
+            if ('@suffixVendorInvoiceID' == 0 || '@invoiceStatus' == "Paid") {
+                $("#frmVendorInvoiceDetails_@suffixVendorInvoiceID input").each(function () {
+                    //$(this).removeAttr("disabled");
+                    // $(this).attr("disabled", "disabled");
+                });
+                $("#InvoiceNumber_@suffixVendorInvoiceID").attr("disabled", "disabled");
+                $("#Last8OfVIN_@suffixVendorInvoiceID").attr("disabled", "disabled");
+
+                $("#InvoiceAmount_@suffixVendorInvoiceID").data("kendoNumericTextBox").enable(false);
+                $("#VehicleMileage_@suffixVendorInvoiceID").data("kendoNumericTextBox").enable(false);
+                $("#PaymentAmount_@suffixVendorInvoiceID").data("kendoNumericTextBox").enable(false);
+
+
+                $("#VendorInvoiceStatusID_@suffixVendorInvoiceID").data("kendoComboBox").enable(false);
+                $("#ReceiveContactMethodID_@suffixVendorInvoiceID").data("kendoComboBox").enable(false);
+                $("#PaymentDifferenceReason_@suffixVendorInvoiceID").data("kendoComboBox").enable(false);
+                $("#ETAHours_@suffixVendorInvoiceID").data("kendoComboBox").enable(false);
+                $("#ETAMinutes_@suffixVendorInvoiceID").data("kendoComboBox").enable(false);
+                $("#InvoiceDate_@suffixVendorInvoiceID").data("kendoDatePicker").enable(false);
+                $("#ReceivedDate_@suffixVendorInvoiceID").data("kendoDatePicker").enable(false);
+                $("#ToBePaidDate_@suffixVendorInvoiceID").data("kendoDatePicker").enable(false);
+                //$("#btnCancelVendorInvoiceInfoSection_@suffixVendorInvoiceID").attr("disabled", "disabled");
+            }
+            $("#frmPoNumberVerfiy_@suffixVendorInvoiceID").validationEngine();
+
+
+        });
+    </script>

@@ -1,0 +1,80 @@
+﻿<script src="@Url.Content("~/Scripts/jquery.ui.combogrid-1.6.3.js")" type="text/javascript"></script>
+@{
+    var prefixName = ViewData.TemplateInfo.HtmlFieldPrefix;
+}
+<style type="text/css">
+    .ui-icon
+    {
+        background-image: url('/Content/img/magnifier.png');
+        background-repeat: no-repeat;
+        float: left;
+        width: 14px;
+        height: 14px;
+    }
+    .autofill
+    {
+        display: block;
+        width: 100%;
+    }
+    
+    .cg-searchButton
+    {
+        padding: 0 !important;
+        vertical-align: middle !important;
+    }
+</style>
+<div class="with-padding">
+    <div>
+        <p class="button-height inline-label small-margin-bottom">
+            <label for="VendorNumber" class="label">
+                Vendor Number
+            </label>
+            <span class="autofill">
+                <input type="text" class="input validate[required,maxSize[50],minSize[1]]" id='@(ViewData.TemplateInfo.HtmlFieldPrefix + "_txtVendorNumber")' style="width: 70%" name="VendorNumber" />
+            </span>
+        </p>
+    </div>
+    <div class="clear">
+    </div>
+    <div id='@(ViewData.TemplateInfo.HtmlFieldPrefix + "_divVendorDetails")'>
+        @if (ViewData["vendorDetails"] != null)
+        {
+            @Html.Partial("_VendorDetailsList", ViewData["vendorDetails"])
+        }
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        var prefixID = "#@ViewData.TemplateInfo.HtmlFieldPrefix" + "_txtVendorNumber";
+        var autoFill = $(prefixID).combogrid({
+            url: '@Url.Action("Search", "Vendor", new { area = "Application" })',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                        { 'columnName': 'VendorName', 'width': '65', 'label': 'Vendor Name', 'align': 'left' },
+                        { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                        { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+                if (ui.item != null && ui.item.VendorID != null && ui.item.VendorID != undefined && ui.item.VendorID != '') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetVendorDetailsOfVendor", "VendorMerge", new { area = "VendorManagement" })',
+                        data: { vendorID: ui.item.VendorID, prefixName: "@ViewData.TemplateInfo.HtmlFieldPrefix" },
+                        traditional: true,
+                        cache: false,
+                        async: true,
+                        success: function (msg) {
+                            $(prefixID).val(ui.item.VendorNumber + " - " + ui.item.VendorName);
+                            $("#@ViewData.TemplateInfo.HtmlFieldPrefix" + "_divVendorDetails").html(msg);
+                            //$("#@ViewData.TemplateInfo.HtmlFieldPrefix" + "_divVendorDetails").show();
+                        }
+                    });
+                }
+                return false;
+            }
+        });
+    });
+    
+</script>

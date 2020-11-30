@@ -1,0 +1,156 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+    
+}
+<style type="text/css">
+    .customLabel
+    {
+        width: 80px;
+        display: inline-block;
+        font-weight: bold;
+    }
+</style>
+<div class="with-padding">
+    <div class="columns">
+        <div class="eight-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Basic Information</legend>
+                @Html.Partial("_BasicInformation", Model)
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Address</legend>
+                @Html.Editor("ScrollableAddress", "ScrollableAddress", new
+                        {
+                            address = new GenericAddressEntityModel()
+                            {
+                                RecordID = Model.BasicInformation.ID,
+                                EntityName = "Vendor",
+                                Height = 285
+
+                            }
+                        })
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="legend">Phone Numbers</legend>
+                @Html.Editor("ScrollablePhone", "ScrollablePhone", new
+                                {
+                                    phone = new GenericPhoneModel()
+                                    {
+                                        RecordID = Model.BasicInformation.ID,
+                                        EntityName = "Vendor",
+                                        Height = 90
+
+                                    }
+                                })
+            </fieldset>
+        </div>
+        <div class="new-row four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Quality Indicators</legend>
+                @Html.Partial("_QualityIndicators", Model)
+            </fieldset>
+        </div>
+        <div class="eight-columns">
+            <div class="columns">
+                <div class="six-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Insurance</legend>
+                        @Html.Partial("_Insurance", Model)
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Dispatch Software</legend>
+                        @Html.Partial("_DispatchSoftware", Model)
+                    </fieldset>
+                </div>
+                <div class="six-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Web Account</legend>
+                        <div id="PlaceHolder_Vendor_Info_Web_Account_@suffixVendorID">
+                            @Html.Partial("_VendorInformation_WebAccount", Model)
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend class="legend">Support</legend>
+                        <p class="small-margin-bottom">
+                            <label class="customLabel">
+                                Region</label>
+                            @if (Model.VendorRegion != null)
+                            {
+                                @Html.DisplayFor(u => u.VendorRegion.Name)
+                            }
+                        </p>
+                        <p class="small-margin-bottom">
+                            <label class="customLabel">
+                                Vendor Rep</label>
+                            @if (Model.VendorRegion != null)
+                            {
+                                @Html.DisplayFor(u => u.VendorRegion.ContactFirstName)
+                                @Html.Raw("")
+                                @Html.DisplayFor(u => u.VendorRegion.ContactLastName)
+                            }
+                        </p>
+                        <p class="small-margin-bottom small-margin-top">
+                            <label class="customLabel">
+                                Phone</label>
+                            @if (Model.VendorRegion != null)
+                            {
+                                <span class="phoneNumber">@Html.DisplayFor(u => u.VendorRegion.PhoneNumber)</span>
+                            }
+                        </p>
+                        <p class="small-margin-bottom">
+                            <label class="customLabel">
+                                Email</label>
+                            @if (Model.VendorRegion != null)
+                            {
+                                @Html.DisplayFor(u => u.VendorRegion.Email)
+                            }
+                        </p>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="new-row six-columns">
+            <div class="with-padding">
+                <p class="inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Source</label>
+                    @Html.DisplayFor(u => u.SourceSystemName)
+                </p>
+                <p class="inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Create Date</label>
+                    @Html.DisplayFor(u => u.BasicInformation.CreateBy)
+                    @Html.DisplayFor(u => u.BasicInformation.CreateDate)
+                </p>
+                <p class="inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Last Updated</label>
+                    @Html.DisplayFor(u => u.BasicInformation.ModifyBy)
+                    @Html.DisplayFor(u => u.BasicInformation.ModifyDate)
+                </p>
+            </div>
+        </div>
+        <div class="six-columns hide" id="PlaceHolder_Vendor_InfoSection_Buttons_@suffixVendorID">
+            <button id="btnSaveVendorInfoSection_@suffixVendorID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorInfoTabInformation(this,'@suffixVendorID');">
+                Save</button>
+            <button id="btnCancelVendorInfoSection_@suffixVendorID" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorInfoTabInformation('@suffixVendorID');">
+                Cancel</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $(".phoneNumber").each(function () {
+            var phoneNumber = "+" + $(this).text();
+            var formattedPhoneNumber = GetFormattedPhoneNumber(phoneNumber, null);
+            $(this).html(formattedPhoneNumber);
+        });
+    });
+</script>

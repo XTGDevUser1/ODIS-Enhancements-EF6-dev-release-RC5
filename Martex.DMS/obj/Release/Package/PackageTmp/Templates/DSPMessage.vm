@@ -1,0 +1,126 @@
+﻿<?xml version="1.0"?>
+<DDMessage Version="1.0">
+  <DDMessageHeader>
+    <HeaderVersion>$HeaderVersion</HeaderVersion>
+    <Key>$Key</Key>
+    <ContractorID>$ContractorID</ContractorID>
+    <ResponseID>$ResponseID</ResponseID>
+    <TransType>$TransType</TransType>
+    <MsgVersion>$MsgVersion</MsgVersion>
+    <ConRequired>$ConRequired</ConRequired>
+    <ResponseType>$ResponseType</ResponseType>
+  </DDMessageHeader>
+  <UserDefined>
+    <MSetRegistration Version="1.0">
+      <SubscriptionInfo>
+        <Ent>ISC</Ent>
+        <Div>California</Div>
+        <Grp>San Francisco</Grp>
+        <Sub>San Francisco, CA</Sub>
+        <UserNetworkID>228136B0-8BD3-11D0-B4EF-00A0C9138CA4</UserNetworkID >
+        <OPub>228136B0-8BD3-11D0-B4EF-00A0C9138CA4</OPub >
+        <UserID>228136B0-8BD3-11D0-B4EF-00A0C9138CA4</UserID >
+      </SubscriptionInfo>
+    </MSetRegistration>
+  </UserDefined>
+  <DSPMessageBody>
+    <AccountInfo>
+      <MemFirstName>$MemFirstName</MemFirstName >
+      <MemLastName>$MemLastName</MemLastName >
+      <CustFirstName>$CustFirstName</CustFirstName >
+      <CustLastName>$CustLastName</CustLastName >
+      <MailAddr>
+        <Addr1>$Addr1</Addr1>
+        <Addr2>$Addr2</Addr2>
+        <City>$City</City>
+        <State>$State</State>
+        <Zip>$Zip</Zip>
+        <Phone>$Phone</Phone>
+      </MailAddr>
+      <CallBackPhone>$CallBackPhone</CallBackPhone>
+      <CallFromLoc>$CallFromLoc</CallFromLoc>
+      <DriversLic>$DriversLic</DriversLic>
+      <DLState>$DLState</DLState>
+      <MemNum>$MemNum</MemNum>
+      <AvailBenefits>$AvailBenefits</AvailBenefits>
+      <BenefitLimit>$BenefitLimit</BenefitLimit>
+    </AccountInfo>
+    <JobInfo>
+      <RequiredAcknowledgeTime>$RequiredAcknowledgeTime</RequiredAcknowledgeTime>
+      <JobID>$JobID</JobID>
+      <TimeStamp>$TimeStamp</TimeStamp>
+      <MaxETA>$MaxETA</MaxETA>
+      <PrimaryTask>$PrimaryTask</PrimaryTask>
+      <SecondaryTasks>
+        <Task>$Task</Task>
+      </SecondaryTasks>
+      <JobDesc>$JobDesc</JobDesc>
+      <Priority>$Priority</Priority>
+      <HazMat>$HazMat</HazMat>
+    </JobInfo>
+    <VehicleInfo>
+      <Year>$Year</Year>
+      <Color>$Color</Color>
+      <Make>$Make</Make>
+      <Model>$Model</Model>
+      <Lic>$Lic</Lic>
+      <State>$VehicleInfoState</State>
+      <VIN>$VIN</VIN>
+      <VehicleType>$VehicleType</VehicleType>
+      <FuelType>$FuelType</FuelType>
+      <Odometer>$Odometer</Odometer>
+      <EngType>$EngType</EngType>
+      <TrailerWt>$TrailerWt</TrailerWt>
+      <TrailerCont>$TrailerCont</TrailerCont>
+      <AdditionalInfo>$AdditionalInfo</AdditionalInfo>
+    </VehicleInfo>
+    <IncAddr>
+      <TimeZone>$IncAddressTimeZone</TimeZone>
+      <Addr1>$IncAddressAddr1</Addr1>
+      <Addr2>$IncAddressAddr2</Addr2>
+      <City>$IncAddressCity</City>
+      <State>$IncAddressState</State>
+      <Zip>$IncAddressZip</Zip>
+      <CrsStr1>$CrsStr1</CrsStr1>
+      <CrsStr2>$CrsStr2</CrsStr2>
+      <CallBox>$CallBox</CallBox>
+      <Landmark>$Landmark</Landmark>
+      <MileMarker>$MileMarker</MileMarker>
+      <LocCode>$LocCode</LocCode>
+      <DriverLoc>$DriverLoc</DriverLoc>
+      <DriverETA>$DriverETA</DriverETA>
+      <SafeLoc>$SafeLoc</SafeLoc>
+      <Median>$Median</Median>
+      <RtShoulder>$RtShoulder</RtShoulder>
+      <DirTravel>$DirTravel</DirTravel>
+      <PersonsInCar>$PersonsInCar</PersonsInCar>
+      <OnOffRamp>$OnOffRamp</OnOffRamp>
+      <ExitNum>$ExitNum</ExitNum>
+      <Lat>$IncAddressLat</Lat>
+      <Lon>$IncAddressLon</Lon>
+      <GeoDatum>$IncAddressGeoDatum</GeoDatum>
+    </IncAddr>
+    <DestAddr>
+      <LocInfo>$DestAddressLocInfo</LocInfo>
+      <Addr1>$DestAddressAddr1</Addr1>
+      <Addr2>$DestAddressAddr2</Addr2>
+      <City>$DestAddressCity</City>
+      <State>$DestAddressState</State>
+      <Zip>$DestAddressZip</Zip>
+      <Phone>$DestAddressPhone</Phone>
+      <Lat>$DestAddressLat</Lat>
+      <Lon>$DestAddressLon</Lon>
+      <GeoDatum>DestAddressGeoDatum</GeoDatum>
+    </DestAddr>
+    <PaymentInfo>
+      <PONum>$PONum</PONum>
+      <QuotePrice>$QuotePrice</QuotePrice>
+      <AmntPaid>$AmntPaid</AmntPaid>
+      <PayType>$PayType</PayType>
+      <Auth>$Auth</Auth>
+      <ExpDate>$ExpDate</ExpDate>
+      <PayRef>$PayRef</PayRef>
+      <CashCall>$CashCall</CashCall>
+    </PaymentInfo>
+  </DSPMessageBody>
+</DDMessage>

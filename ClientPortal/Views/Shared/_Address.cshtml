@@ -1,0 +1,142 @@
+﻿@using Kendo.Mvc.UI;
+@using ClientPortal.ActionFilters;
+<script type="text/javascript">
+
+    var addressTypeCombo, countryCombo, stateCombo, oldStateValue;
+
+    function AddressCountry_OnChange(e) {
+        
+        var combo = e.sender;
+        //get the edited field name
+        var fieldName = e.sender.element.attr("id");
+        //find the closest row
+        var currentRow = e.sender.wrapper.closest("tr");
+        //find the grid
+        var grid = e.sender.wrapper.closest(".k-grid").data("kendoGrid");
+        //get the current row dataItem
+        var currentDataItem = grid.dataItem(currentRow);
+        //manually set the current value of the DropDownList to the field
+        currentDataItem.set(fieldName, parseInt(e.sender.value()));
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+            data: { countryId: combo.value() },
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                if (stateCombo != null) {
+                    stateCombo.setDataSource(msg);
+                    if (oldStateValue != null) {
+                        stateCombo.value(oldStateValue);
+                    }
+                }
+            }
+
+        });
+    }
+    function GrdAddress_onDataBinding(e) {
+    }
+
+    function GrdAddress_OnEdit(e) {
+        
+        addressTypeCombo = $(e.container.find("[data-role=dropdownlist]")[0]).data().kendoDropDownList;
+        countryCombo = $(e.container.find("[data-role=dropdownlist]")[1]).data().kendoDropDownList;
+        stateCombo = $(e.container.find("[data-role=dropdownlist]")[2]).data().kendoDropDownList;
+
+        oldStateValue = e.model.StateProvinceID;
+        countryCombo.bind("change", AddressCountry_OnChange);
+        countryCombo.trigger("change");
+
+    }
+    function GrdAddress_OnCancel(e) {
+        var ok = window.confirm("Newly added rows will be removed, continue?");
+        if (!ok) {
+            e.preventDefault();
+        }
+    }
+    function GrdAddress_OnSave(e) {
+        
+        
+        
+        // Set the Address type
+        if (e.model.AddressType != null) {
+            e.model.AddressType.ID = addressTypeCombo.value();
+            e.model.AddressType.Name = addressTypeCombo.text();
+        }
+        else {
+            e.model.AddressType = { ID: addressTypeCombo.value(), Name: addressTypeCombo.text() };
+        }
+
+        // Set Country 
+        if (e.model.Country != null) {
+            e.model.Country.ID = countryCombo.value();
+            e.model.Country.Name = countryCombo.text();
+        }
+        else {
+            e.model.Country = { ID: countryCombo.value(), Name: countryCombo.text() };
+        }
+
+        // Set StateProvince(1)
+        if (e.model.StateProvince1 != null) {
+            e.model.StateProvince1.ID = stateCombo.value();
+            e.model.StateProvince1.Name = stateCombo.text();
+        }
+        else {
+            e.model.StateProvince1 = { ID: stateCombo.value(), Name: stateCombo.text() };
+        }
+        
+    }
+</script>
+@(Html.Kendo().Grid<Martex.DMS.DAL.AddressEntity>()
+.Name("GrdAddress")
+.ToolBar(commands =>
+{
+    commands.Create()
+        .HtmlAttributes(new { @class = "with-tooltip" });
+})
+.DataSource(dataSource =>
+    dataSource.Ajax()
+    .Batch(true)
+    .Read("_SelectAddress", "Addresses", new { area = "Common", recordId = ViewData["entityId"], entityName = ViewData["entityName"] })
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    .Model(u => u.Id(p => p.ID))
+    .Create("_InsertAddress", "Addresses", new { area = "Common" })
+    .Update("_UpdateAddress", "Addresses", new { area = "Common" })
+    .Destroy("_DeleteAddress", "Addresses", new { area = "Common" })
+    
+    )
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.ID);
+        columns.ForeignKey(p => p.AddressTypeID, (System.Collections.IEnumerable)ViewData["AddressType"], "Value", "Text").Title("AddressType").Width(150).ClientTemplate("#= typeof(AddressType) == \"undefined\" ? '' : AddressType.Name  #");
+        columns.Bound(p => p.Line1).Width(80);
+        columns.Bound(p => p.Line2).Width(80);
+        columns.Bound(p => p.Line3).Width(80);
+        columns.Bound(p => p.City).Width(80);
+        columns.ForeignKey(p => p.CountryID, (System.Collections.IEnumerable)ViewData[StaticData.Country.ToString()], "Value", "Text").Title("Country").Width(150).ClientTemplate("#= typeof(Country) == \"undefined\" ? '' : Country.Name  #");
+        columns.ForeignKey(p => p.StateProvinceID, (System.Collections.IEnumerable)ViewData[StaticData.Address1Province.ToString()], "Value", "Text").Title("State").Width(150).ClientTemplate("#= typeof(StateProvince1) == \"undefined\" ? '' : StateProvince1.Name  #");
+
+        columns.Command(commands =>
+        {
+            commands.Edit();
+            commands.Destroy()
+                .Text("Delete")
+                .HtmlAttributes(new { @class = "with-tooltip" });
+        }).Width(80).Title("Actions");
+    })
+    .Events(events =>
+    {
+        events.DataBinding("GrdAddress_onDataBinding")
+            .Edit("GrdAddress_OnEdit")
+            .Cancel("GrdAddress_OnCancel")
+        .Save("GrdAddress_OnSave");
+    })
+    .Editable(editing => editing.Mode(Kendo.Mvc.UI.GridEditMode.InLine).CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Top))
+    .Pageable(p => { p.Enabled(false); })
+    .Sortable(p => { p.Enabled(false); })
+    .Filterable(p => { p.Enabled(false); })
+    .Scrollable()
+    .Navigatable()
+    )

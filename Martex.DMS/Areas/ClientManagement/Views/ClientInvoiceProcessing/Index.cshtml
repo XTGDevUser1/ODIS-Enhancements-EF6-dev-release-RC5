@@ -1,0 +1,313 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/ClientManagement/Views/Shared/_ClientManagementLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Client Invoice Processing</h1>
+</hgroup>
+<div class="with-padding">
+    <div id="ClientInvoiceProcessingTab" class="standard-tabs same-height" data="clientInvoiceProcessingDynamicTabs">
+        <ul class="tabs clientInvoiceProcessing">
+            <li id="tbClientInvoiceProcessingList"><a id="hypClientInvoiceProcessingSearchCriteria"
+                href="#tabs-1">Invoices</a> </li>
+        </ul>
+        <div id="tabs-1" class="clientInvoiceProcessingDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_InvoiceList", ViewData["CloseOpen"] = "OPEN")
+            </div>
+        </div>
+    </div>
+</div>
+<div id="divBillingEventDetailStatus">
+</div>
+<script type="text/javascript">
+    var tabObject = null;
+
+    $(function () {
+        tabObject = $("#ClientInvoiceProcessingTab").tabs();
+        GetSearchCriteria();
+        //        $("#btnCancelSelectedEventDetailsStatus").die('click');
+        //        $("#btnCancelSelectedEventDetailsStatus").live('click', function (e) {
+        //            selectedEventDetailsStatusWindow.data('kendoWindow').close();
+        //        });
+        //        $("#btnUpdateSelectedEventDetailsStatus").die('click');
+        //        $("#btnUpdateSelectedEventDetailsStatus").live('click', function (e) {
+        //            openAlertMessage('WP');
+        //        });
+    });
+
+    function DeleteTab(containerName) {
+        deleteGenericTab(containerName, tabObject);
+    }
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            type: 'POST',
+            data: GetClientInvoiceProcessingSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#clientInvoiceProcessingSelectedSearchCriteriaDetails').html(msg);
+                $('#grdInvoices').data('kendoGrid').dataSource.read();
+            }
+        })
+    }
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            type: 'POST',
+            data: GetClientInvoiceProcessingSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulClientInvoiceProcessingSearchCriteriaRight').html(msg);
+            }
+        })
+    }
+
+    function GetClientInvoiceProcessingSearchCriteria() {
+
+        var postData = $('#frmClientInvoiceProcessingSearchCriteria').serializeArray();
+
+        //        if ($('#BillingScheduleType').data('kendoComboBox') != undefined) {
+        //            postData.push({ name: "BillingScheduleTypeName", value: $('#BillingScheduleType').data('kendoComboBox').text() });
+        //        }
+
+        if ($('#Billing_Definition_InvoiceID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "BillingDefinitionInvoiceName", value: $('#Billing_Definition_InvoiceID').data('kendoComboBox').text() });
+        }
+
+        if ($('#SearchBillingEvent').data('kendoComboBox') != undefined) {
+            postData.push({ name: "BillingEventName", value: $('#SearchBillingEvent').data('kendoComboBox').text() });
+            postData.push({ name: "ClientIDValue", value: $('#Client_Search_ClientID').data('kendoComboBox').text() });
+        }
+
+        if ($('#ClientInvoiceProcessingViewID') != undefined) {
+            var value = parseInt($('#ClientInvoiceProcessingViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function UpdateSelectedEventsStatus(billingInvoiceLineID) {
+        // alert('Update Status');
+        $statusContainer = $("#eventsProcessingActionContainer_" + billingInvoiceLineID);
+        var grid = $("#GrdClientBillableEvents_" + billingInvoiceLineID).data("kendoGrid");
+
+        var selectedRows = grid.select();
+
+        if (selectedRows.length == 0) {
+            //ShowStatus("error", "Please select a row or rows to be updated", $statusContainer);
+            openAlertMessage("Please  select a row or rows to be updated");
+        }
+        else {
+            ShowStatus("inprogress", "Processing ...", $statusContainer);
+            var selectedEvents = [];
+            var selectedPendingEvents = [];
+            var selectedReadyEvents = [];
+            var selectedPostedEvents = [];
+            var selectedOnholdEvents = [];
+            var selectedExceptionEvents = [];
+            var selectedDeletedEvents = [];
+            var selectedExcludedEvents = [];
+            var pendingCount = 0;
+            var readyCount = 0;
+            var postedCount = 0;
+            var onholdCount = 0;
+            var exceptionCount = 0;
+            var deletedCount = 0;
+            var excludedCount = 0;
+
+            for (var i = 0, l = selectedRows.length; i < l; i++) {
+                var record = grid.dataItem($(selectedRows[i]));
+                //openAlertMessage("Selected Event ID : " + record.BillingInvoiceDetailID + " and status is :  " + record.DetailStatus);
+                selectedEvents.push({ name: "events[" + i + "]", value: record.BillingInvoiceDetailID });
+                if (record.DetailStatus == 'PENDING') {
+                    pendingCount++;
+                    selectedPendingEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'READY') {
+                    readyCount++;
+                    selectedReadyEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'POSTED') {
+                    postedCount++;
+                    selectedPostedEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'ONHOLD') {
+                    onholdCount++;
+                    selectedOnholdEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'EXCEPTION') {
+                    exceptionCount++;
+                    selectedExceptionEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'DELETED') {
+                    deletedCount++;
+                    selectedDeletedEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailStatus == 'EXCLUDED') {
+                    excludedCount++;
+                    selectedExcludedEvents.push(record.BillingInvoiceDetailID);
+                }
+            }
+            var BillingEventDetailStatuses = [];
+            BillingEventDetailStatuses.push({ name: "selectedPendingEvents", value: selectedPendingEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "pendingCount", value: pendingCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedReadyEvents", value: selectedReadyEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "readyCount", value: readyCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedPostedEvents", value: selectedPostedEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "postedCount", value: postedCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedOnholdEvents", value: selectedOnholdEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "onholdCount", value: onholdCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedExceptionEvents", value: selectedExceptionEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "exceptionCount", value: exceptionCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedDeletedEvents", value: selectedDeletedEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "deletedCount", value: deletedCount });
+
+            BillingEventDetailStatuses.push({ name: "selectedExcludedEvents", value: selectedExcludedEvents.join(',') });
+            BillingEventDetailStatuses.push({ name: "excludedCount", value: excludedCount });
+
+            BillingEventDetailStatuses.push({ name: "billingInvoiceLineID", value: billingInvoiceLineID });
+
+            $.ajax({
+                url: '@Url.Action("_BillingEventDetailStatusUpdate", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                type: 'POST',
+                data: BillingEventDetailStatuses,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    selectedEventDetailsStatusWindow = $("<div id='selectedEventDetailsStatusWindow' />").appendTo(document.body);
+                    selectedEventDetailsStatusWindow.kendoWindow({
+                        title: "Update Status",
+                        modal: true,
+                        width: 500,
+                        height: 400,
+                        deactivate: function () {
+                            this.destroy();
+                        },
+                        close: function (e) {
+                            if (IsMyContainerDirty('frmBillingEventDetailStatusUpdate')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmBillingEventDetailStatusUpdate');
+                            }
+                            HideStatus($statusContainer);
+                            return true;
+                        }
+                    });
+                    selectedEventDetailsStatusWindow.data('kendoWindow').content(msg).center().open();
+                }
+            })
+
+
+
+        }
+    }
+    function UpdateSelectedEventsDisposition(billingInvoiceLineID) {
+        //alert('Update Disposition');
+        var grid = $("#GrdClientBillableEvents_" + billingInvoiceLineID).data("kendoGrid");
+
+        var selectedRows = grid.select();
+
+        if (selectedRows.length == 0) {
+            //ShowStatus("error", "Please select a row or rows to be updated", $statusContainer);
+            openAlertMessage("Please select a row or rows to be updated");
+        }
+        else {
+            ShowStatus("inprogress", "Processing ...", $statusContainer);
+            var selectedEvents = [];
+            var selectedRefreshEvents = [];
+            var selectedLockedEvents = [];
+            var refreshCount = 0;
+            var lockedCount = 0;
+
+            for (var i = 0, l = selectedRows.length; i < l; i++) {
+                var record = grid.dataItem($(selectedRows[i]));
+                //openAlertMessage("Selected Event ID : " + record.BillingInvoiceDetailID + " and status is :  " + record.DetailDisposition);
+                selectedEvents.push({ name: "events[" + i + "]", value: record.BillingInvoiceDetailID });
+                if (record.DetailDisposition == 'REFRESH') {
+                    refreshCount++;
+                    selectedRefreshEvents.push(record.BillingInvoiceDetailID);
+                }
+                else if (record.DetailDisposition == 'LOCKED') {
+                    lockedCount++;
+                    selectedLockedEvents.push(record.BillingInvoiceDetailID);
+                }
+            }
+            var BillingEventDetailDispositions = [];
+            BillingEventDetailDispositions.push({ name: "selectedRefreshEvents", value: selectedRefreshEvents.join(',') });
+            BillingEventDetailDispositions.push({ name: "refreshCount", value: refreshCount });
+
+            BillingEventDetailDispositions.push({ name: "selectedLockedEvents", value: selectedLockedEvents.join(',') });
+            BillingEventDetailDispositions.push({ name: "lockedCount", value: lockedCount });
+
+            BillingEventDetailDispositions.push({ name: "billingInvoiceLineID", value: billingInvoiceLineID });
+
+            $.ajax({
+                url: '@Url.Action("_BillingEventDetailDispositionUpdate", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                type: 'POST',
+                data: BillingEventDetailDispositions,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    selectedEventDetailsDispositionWindow = $("<div id='selectedEventDetailsDispositionWindow' />").appendTo(document.body);
+                    selectedEventDetailsDispositionWindow.kendoWindow({
+                        title: "Update Disposition",
+                        modal: true,
+                        width: 500,
+                        height: 250,
+                        deactivate: function () {
+                            this.destroy();
+                        },
+                        close: function (e) {
+                            if (IsMyContainerDirty('frmBillingEventDetailDispositionUpdate')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmBillingEventDetailDispositionUpdate');
+                            }
+                            HideStatus($statusContainer);
+                            return true;
+                        }
+                    });
+                    selectedEventDetailsDispositionWindow.data('kendoWindow').content(msg).center().open();
+                }
+            })
+        }
+    }
+</script>

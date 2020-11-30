@@ -1,0 +1,18 @@
+﻿@using Martex.DMS.DAL;
+@model List<NotificationHistory_Result>
+<div class="scrollable white-bg with-small-padding" id="notificationHistory">
+    <ul class="message-menu">
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var item in Model)
+            {
+            <li>
+                <label class="label">
+                    <small>@item.CreateDate.Value.ToString("MM/dd/yyyy hh:mm tt")</small>
+                    <br />
+                    <strong>@item.MessageText</strong></label>
+            </li>
+            }
+        }
+    </ul>
+</div>

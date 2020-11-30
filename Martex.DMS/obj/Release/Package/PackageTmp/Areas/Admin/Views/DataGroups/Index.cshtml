@@ -1,0 +1,173 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.DataGroupList>
+@{
+    ViewBag.Title = "Index";
+    Layout = "";}
+
+<script type="text/javascript">
+    function onDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+    }
+
+    $("#GrdDataGroups").delegate("tbody>tr", "dblclick", function () {
+        $(this).find('.k-grid-Edit').click();
+    });
+
+
+
+
+    function ManageDataGroups(e) {
+        var mode = "view";
+        var title = "DataGroup Maintenance";
+
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            if (e.data.commandName == 'View') {
+                GetManageDataGroups(recordID, "view", 'DataGroup ID: ' + recordID);
+            }
+            else if (e.data.commandName == 'Edit') {
+                GetManageDataGroups(recordID, "edit", 'DataGroup ID: ' + recordID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteDataGroup(recordID);
+            }
+        }
+        else {
+            GetManageDataGroups(recordID, 'add', 'New DataGroup Record');
+        }
+
+        return false;
+    }
+    function DeleteDataGroup(recordID) {
+        $.modal.confirm('Are you sure you want to delete this dataGroup?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Delete", "DataGroups")',
+                traditional: true,
+                cache: false,
+                data: { selectedDataGroupId: recordID },
+                async: false,
+                success: function (msg) {
+                    $('#GrdDataGroups').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function GetManageDataGroups(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Get", "DataGroups")',
+            traditional: true,
+            data: { selectedDataGroupId: recordID, mode: mode },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                dataGroupDetailWindow = $("<div id='dataGroupDetailWindow' />").appendTo(document.body);
+                dataGroupDetailWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-DataGroupRegistration').validationEngine('hideAll'); // to hide the validation message of the popup 
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-DataGroupRegistration')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-DataGroupRegistration');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                dataGroupDetailWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+</script>
+<form method="post" action="" id="form-DataGroup">
+<div class="with-padding">
+    <!--start of tabs-->
+    <div class="standard-tabs margin-bottom" id="add-tabs">
+        <div class="tabs-content">
+            <div id="tab-dataGroup" class="with-padding">
+                @(Html.Kendo().Grid(Model)
+                .Name("GrdDataGroups")
+                .Columns(column =>
+                {
+                    column.Bound(u => u.ID).Sortable(false).Filterable(false).Width(50);
+                    column.Bound(u => u.DataGroupName);
+                    column.Bound(u => u.Description);
+                    column.Bound(u => u.Programs);
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageDataGroups").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                        command.Custom("Edit").Click("ManageDataGroups").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" }); ;
+                        command.Custom("Delete").Click("ManageDataGroups").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" }); ;
+                    })
+                    .Width(150)
+                    .Title("Action(s)");
+                })
+                .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageDataGroups(null)' ><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Data Group</label></a>"))
+                .Events(e =>
+                {
+                    e.DataBound("onDataBound");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Extra(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("List", "DataGroups"))
+                    .Model(u => u.Id(p => p.ID))
+
+                )
+                .Resizable(resize => resize.Columns(true))
+
+            )
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var dataGroupDetailWindow;
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>
+</form>

@@ -1,0 +1,145 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@using Martex.DMS.Areas.Application.Models;
+@using Kendo.Mvc.UI;
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+    bool isHagerty = false;    
+}
+
+@if (!isHagerty)
+{
+    <div class="four-columns float-left large-margin-left">
+        <fieldset class="fieldset">
+            <legend class="legend">Warranty Information</legend>
+            <div class="with-small-padding">
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="DateofPurchase" class="label">
+                            Date of Purchase</label>
+                        @if (Model.PurchaseDate.HasValue)
+                        {
+                            <span class="input"><span class="icon-calendar"></span>@Html.TextBox("PurchaseDate", Model.PurchaseDate.Value.ToString("MM/dd/yyyy"), new { @class = "validate[funcCall[CheckDate]] input-unstyled datepicker", id = "PurchaseDate_" + suffixMembershipID })</span>
+                        }
+                        else
+                        {
+                            <span class="input"><span class="icon-calendar"></span>@Html.TextBoxFor(v => v.PurchaseDate, new { @class = "validate[funcCall[CheckDate]] input-unstyled datepicker", id = "PurchaseDate_" + suffixMembershipID })</span>
+                        }
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="WarrantyStart" class="label">
+                            Warranty Start</label>
+                        @if (Model.WarrantyStartDate.HasValue)
+                        { 
+                            <span class="input"><span class="icon-calendar"></span>@Html.TextBox("WarrantyStartDate", Model.WarrantyStartDate.Value.ToString("MM/dd/yyyy"), new { @class = "validate[funcCall[CheckDate]] input-unstyled datepicker", id = "WarrantyStartDate_" + suffixMembershipID })</span>
+                        }
+                        else
+                        {
+                            <span class="input"><span class="icon-calendar"></span>@Html.TextBoxFor(v => v.WarrantyStartDate, null, new { @class = "validate[funcCall[CheckDate]] input-unstyled datepicker", id = "WarrantyStartDate_" + suffixMembershipID })</span>
+                        }
+                    </p>
+                </div>
+                <p class="button-height inline-label">
+                    <label for="FirstOwner" class="label">
+                        First Owner</label>
+                    @if (Model.IsFirstOwner.HasValue)
+                    { 
+                        @Html.RadioButton("rdFirstOwner_" + suffixMembershipID, "1", Model.IsFirstOwner.Value, new { @class = "radio small-margin-right" })
+                        <text> Yes &nbsp;</text>
+                        @Html.RadioButton("rdFirstOwner_" + suffixMembershipID, "0", !Model.IsFirstOwner.Value, new { @class = "radio small-margin-right" })
+                        <text> No</text>
+                    }
+                    else
+                    { 
+                        @Html.RadioButton("rdFirstOwner_" + suffixMembershipID, "1", false, new { @class = "radio small-margin-right" })
+                        <text> Yes &nbsp;</text>
+                        @Html.RadioButton("rdFirstOwner_" + suffixMembershipID, "0", false, new { @class = "radio small-margin-right" })
+                        <text> No</text>
+                    }
+                </p>
+                <div>
+                    <h5 class="underline">
+                        Mileage</h5>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Begin" class="label">
+                            Begin</label>
+                        @Html.TextBoxFor(v => v.StartMileage, new { @class = "validate[custom[integer] maxSize[10]]  input full-width2", id = "StartMileage_" + suffixMembershipID })
+                    </p>
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Current" class="label">
+                        Current</label>
+                    @Html.TextBoxFor(v => v.CurrentMileage, null, new { @class = "validate[custom[integer] maxSize[10]]  input warranty full-width2", id = "CurrentMileage_" + suffixMembershipID })
+                    @*&nbsp;*@
+                    @( Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.MileageUOM.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("MileageUOM")
+                                   .Suggest(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                    .HtmlAttributes(new { id = "MileageUOM_" + suffixMembershipID })
+                                   .SelectedIndex(0)
+                                   .Events(events =>
+                                                    {
+                                                        events.Change("ValidateInputForKendoCombo");
+                                                 })
+                                   .HighlightFirst(true)
+                                   .Value(Model.MileageUOM)
+                                            )
+                </div>
+                <div>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="End" class="label">
+                            End</label>
+                        @Html.TextBoxFor(v => v.EndMileage, new { @class = "validate[custom[integer] maxSize[10]]  input full-width2", id = "EndMileage_" + suffixMembershipID })
+                        &nbsp; <span id="warrantyInfo_@suffixMembershipID">In warranty</span>
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+}
+<script type="text/javascript">
+    function WarrentMessage(uniqueID) {
+        var endMilwageValue = $("#EndMileage_" + uniqueID).val();
+        var currentMileageValue = $("#CurrentMileage_" + uniqueID).val();
+
+        if (currentMileageValue != undefined) {
+
+            if (parseFloat(currentMileageValue.replace(/,/g, '')) > parseFloat(endMilwageValue.replace(/,/g, ''))) {
+                $("#warrantyInfo_" + uniqueID).html("Out of warranty");
+            }
+            else {
+                $("#warrantyInfo_" + uniqueID).html("In warranty");
+            }
+        }
+    }
+    $(function () {
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+        WarrentMessage('@suffixMembershipID');
+        $("#EndMileage_@suffixMembershipID").change(function () {
+            WarrentMessage('@suffixMembershipID');
+        });
+
+        $('.warranty').change(function () {
+            var uniqueId = $(this).attr("ID");
+            var that = $(this);
+            $(".basicMileage").each(function () {
+                if ($(this).attr("ID") == uniqueId) {
+                    $(this).val(that.val());
+                    WarrentMessage(uniqueId);
+                }
+            });
+        });
+
+//        $('.warranty').change(function () {
+//            $('.basicMileage').val($(this).val());
+//            WarrentMessage();
+//        });
+        // var WarrantyStartDate = $("#WarrantyStartDate").val();
+    });
+</script>

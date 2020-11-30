@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/CNET.BusinessService" />
+  <xs:element name="RenewMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETRenewalPayment" nillable="true" type="q1:RenewalPayment" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+        <xs:element minOccurs="0" name="CommitToDB" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RenewMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RenewMembershipResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETMembership" nillable="true" type="q2:Membership" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETMembershipType" type="q3:EnumMembershipType" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+        <xs:element minOccurs="0" name="CommitToDB" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CreateMembershipResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCProcessWebApplication">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="sApplicationID" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sErrorDescription" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sNMCMembershipNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCProcessWebApplicationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="NMCProcessWebApplicationResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="sErrorDescription" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="sNMCMembershipNumber" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETMembership" nillable="true" type="q4:Membership" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UpdateMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="UpdateMembershipResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETMembershipType" type="q5:EnumMembershipType" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RequestMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RequestMembershipResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="RequestID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessContactLog">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Description" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Comments" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="SaleChannelName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessContactLogResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessContactLogResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessAddress">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETAddress" nillable="true" type="q6:Address" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessAddressResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessAddressResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessDependents">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="Dependents" nillable="true" type="q7:ArrayOfMemberDependent" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessDependentsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessDependentsResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessVehicle">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="CNETVehicleInformation" nillable="true" type="q8:VehicleInformation" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessVehicleResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessVehicleResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessEmail">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="EmailAddress" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Primary" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessEmailResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessEmailResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeSocialClubNumber">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="AffiliateID" type="xs:int" />
+        <xs:element minOccurs="0" name="SocialClubNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangeSocialClubNumberResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ChangeSocialClubNumberResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessPhoneNumbers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="PhoneNumbers" nillable="true" type="q9:ArrayOfPhoneNumber" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessPhoneNumbersResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessPhoneNumbersResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMemberNumbers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="NumOfMemberNumbers" type="xs:int" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMemberNumbersResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="GetMemberNumbersResult" nillable="true" type="q10:ArrayOfMemberNumbers" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMemberNumber">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetMemberNumberResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetMemberNumberResult" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessInsertWebUserAccount">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MemberNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="UserName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Source" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessInsertWebUserAccountResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessInsertWebUserAccountResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessUpdateWebUserAccount">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="MemberNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Password" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="Token" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessUpdateWebUserAccountResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessUpdateWebUserAccountResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCBankInfoValidtion">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ABA" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="accountNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="MembershipNo" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCBankInfoValidtionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="NMCBankInfoValidtionResult" nillable="true" type="q11:NMCRoutingValidationResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCCompanySaleRepsList">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CompanyID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="NMCCompanySaleRepsListResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/CNET.BusinessService" minOccurs="0" name="NMCCompanySaleRepsListResult" nillable="true" type="q12:ArrayOfNMCCompanySalesRepsResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -1,0 +1,382 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    var suffixMembershipID = ViewData["MembershipID"].ToString();
+    string gridName = "GrdMembershipActivity_" + suffixMembershipID;
+}
+<script type="text/javascript">
+    function unescapeHTML(escapedHTML) {
+        return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace('&lt;br/&gt;', '<br/>');
+    }
+    function UpdateTags() {
+        setTimeout(function () {
+            $('.QuestionAnswer_RP').each(function () {
+                $(this).html(unescapeHTML($(this).html()));
+            });
+        }, 1000);
+
+    }
+    function GetMembershipActivitySearchParams(e, suffixMembershipID) {
+
+        var filterValue = new Array();
+        $('input[name="rbstatus_@suffixMembershipID"]:checked').each(function () {
+            filterValue.push($(this).val());
+        });
+        var params = {
+            filterColumnName: "Type",
+            filterColumnValue: filterValue.join()
+        };
+        CleanMyContainer('frmMemberContainerForDirtyFlag_' + suffixMembershipID);
+        return params;
+    }
+</script>
+<style type="text/css">
+    .activity-details
+    {
+        padding: .8em .6em;
+        display: inline-block;
+    }
+    .activity-details
+    {
+        display: block;
+    }
+    .activity-details:after
+    {
+        clear: both;
+    }
+    .activity-details dl, .activity-details dt, .activity-details dd
+    {
+        margin: 0;
+        padding: 0;
+    }
+    latitude
+    {
+        margin: 0;
+        padding: 2px;
+    }
+    longitude
+    {
+        margin: 0;
+        padding: 2px;
+    }
+    
+    firstname
+    {
+        padding: 2px;
+    }
+    lastname
+    {
+        padding: 2px;
+    }
+    CallbackNumber
+    {
+        padding: 2px;
+    }
+    VehicleType
+    {
+        padding: 2px;
+    }
+    VehicleYear
+    {
+        padding: 2px;
+    }
+    VehicleMake
+    {
+        padding: 2px;
+    }
+    VehicleModel
+    {
+        padding: 2px;
+    }
+    VehicleColor
+    {
+        padding: 2px;
+    }
+    Comments
+    {
+        padding: 2px;
+    }
+    .activity-details img, .activity-details h3, .activity-details dl, .commands
+    {
+        float: left;
+        clear: none;
+        margin: 0 14px 0 0;
+    }
+    .activity-details h3, .activity-details dl
+    {
+        min-height: 100px;
+        border-width: 0 1px 0 0;
+        background-color: transparent;
+        color: inherit;
+    }
+    .activity-details h3
+    {
+        width: 90px;
+        padding: 0;
+        font-size: 1.5em;
+        padding-right: 20px;
+        text-shadow: none;
+    }
+    .activity-details dt
+    {
+        font-weight: bold;
+    }
+    .field-validation-error
+    {
+        position: absolute;
+        display: block;
+    }
+    * html .field-validation-error
+    {
+        position: relative;
+    }
+    * + html .field-validation-error
+    {
+        position: relative;
+    }
+    .field-validation-error span
+    {
+        position: absolute;
+        white-space: nowrap;
+        color: red;
+        padding: 17px 5px 3px;
+        background: transparent url('<%= Url.Content("~/Content/Common/validation-error-message.png") %>') no-repeat 0 0;
+    }
+    /* in-form editing */.t-edit-form-container
+    {
+        width: 350px;
+        margin: 1em;
+    }
+    .t-edit-form-container .editor-label, .t-edit-form-container .editor-field
+    {
+        padding-bottom: 1em;
+        float: left;
+    }
+    .t-edit-form-container .editor-label
+    {
+        width: 30%;
+        text-align: right;
+        padding-right: 3%;
+        clear: left;
+    }
+    .t-edit-form-container .editor-field
+    {
+        width: 60%;
+    }
+    
+    .rightSide
+    {
+        font-weight: bold;
+    }
+</style>
+<script type="text/javascript">
+    function GrdMembershipActivity_OnRequestComplete(e) {
+
+        UpdateTags();
+        var rowCount = e.sender.dataSource.total();
+        var isFHT = false;
+        $('input[name="rbstatus_@suffixMembershipID"]:checked').each(function () {
+            if ($(this).val() == "FHT") {
+                isFHT = true;
+            }
+        });
+
+        if (isFHT && rowCount == 0) {
+            $(".spMemberActivitycommentcount_@suffixMembershipID").html("0");
+            $(".spMembershipActivityContactLogcount_@suffixMembershipID").html("0");
+            $(".spMembershipActivityEventLogcount_@suffixMembershipID").html("0");
+        }
+        if (rowCount > 0) {
+            var item = e.sender.dataSource.data()[0];
+            $(".spMembershipActivitycommentcount_@suffixMembershipID").html(item.commentCount);
+            $(".spMembershipActivityContactLogcount_@suffixMembershipID").html(item.ContactLogCount);
+            $(".spMembershipActivityEventLogcount_@suffixMembershipID").html(item.EventLogCount);
+        }
+
+    }
+</script>
+<div class="with-padding">
+    <div class="with-padding">
+        <div class="t-toolbar t-grid-toolbar t-grid-top">
+            <div class="float-left">
+                <span class="button-group">
+                    <button id="AddCommentinMembershipActivity_@suffixMembershipID" class="button green-gradient glossy float-right mid-margin-left margin-bottom"
+                    type="button" onclick="openAddMembershipActivityCommentWindow(this,@suffixMembershipID)">
+                        <span class="k-icon k-add"></span>Add Comment</button></span>
+                @Html.Partial("_Help", "These comments are for internal use only. Please record any important information about the member activity you have just performed. ")
+                <span class="button-group">
+                    <button id="AddContactinMembershipInvoiceActivity_@suffixMembershipID" class="button orange-gradient glossy float-right mid-margin-left margin-bottom"
+                    type="button" onclick="openAddMembershipActivityContactWindow(this,@suffixMembershipID)">
+                        <span class="k-icon k-add"></span>Add Contact</button></span>
+            </div>
+            <div class="float-right">
+                <p class="button-height">
+                    <span class="button-group">
+                        <label for="display-Comment-@suffixMembershipID" class="button compact green-active">
+                            <span class="count blue-bg spMembershipActivitycommentcount_@suffixMembershipID" id="spanMembershipActivityCommentCount_@suffixMembershipID ">
+                                0</span>
+                            <input type="checkbox" name="rbstatus_@suffixMembershipID" id="display-Comment-@suffixMembershipID" value="Comment" gridID="@gridName" class="rbStatus"/>
+                            Comments
+                        </label>
+                        <label for="display-ContactLog-@suffixMembershipID" class="button compact green-active">
+                            <span class="count blue-bg spMembershipActivityContactLogcount_@suffixMembershipID"id="spanMembershipActivityContactLogCount_@suffixMembershipID ">
+                                0</span>
+                            <input type="checkbox" name="rbstatus_@suffixMembershipID" id="display-ContactLog-@suffixMembershipID" value="Contact Log" gridID="@gridName" class="rbStatus"/>
+                            Contacts
+                        </label>
+                        <label for="display-EventLog-@suffixMembershipID" class="button compact green-active">
+                            <span class="count blue-bg spMembershipActivityEventLogcount_@suffixMembershipID"id="spanMembershipActivityEventLogCount_@suffixMembershipID ">
+                                0</span>
+                            <input type="checkbox" name="rbstatus_@suffixMembershipID" id="display-EventLog-@suffixMembershipID" value="Event Log" gridID="@gridName" class="rbStatus"/>
+                            Events
+                        </label>
+                    </span>
+                </p>
+            </div>
+            <div class="clear">
+                &nbsp;</div>
+        </div>
+        <div class="clear">
+        </div>
+        <div id="divAddMembershipActivityContact_@suffixMembershipID" style="display:none">
+        </div>
+        <div class="clear">
+        </div>
+        <div id="divAddMembershipActivityComment_@suffixMembershipID" style="display:none">
+            <form id="formAddMembershipActivityComment_@suffixMembershipID" action="javascript:void(0)" method="post">
+            <fieldset class="fieldset">
+                <legend class="legend"></legend>
+                <div>
+                    <div class="inline-label mid-margin-bottom">
+                        <label for="CommentType" class="label">
+                            Comment Type<span class="spanstar"> *</span></label>
+                        @(Html.Kendo().ComboBox()
+                            .Name("CommentType_" + suffixMembershipID)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .SelectedIndex(0)
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .HtmlAttributes(new { style = "width:50%;" })
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CommentType.ToString()] as IEnumerable<SelectListItem>)
+                    )
+                    </div>
+                    @Html.TextArea("Comments_" + suffixMembershipID, new { @class = "validate[required] input full-width2", rows = "5", cols = "30", style = "width : 100%" })
+                    <div>
+                        <button id="btnSaveMembershipActivityComments_@suffixMembershipID" class="button green-gradient float-right" type="button" onclick="saveAddMembershipActivityComments(this,@suffixMembershipID)">
+                            Save
+                        </button>
+                        <button id="btnCancelMembershipActivityComments_@suffixMembershipID" class="button white-gradient float-right" type="button" onclick="closeAddMembershipActivityCommentWindow(this,@suffixMembershipID)">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+            </form>
+        </div>
+        @(Html.Kendo()
+        .Grid<Martex.DMS.DAL.MembershipManagementActivityList_Result>()
+        .Name(gridName)
+        .EnableCustomBinding(true)
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetMembershipActivityList", "Member", new { membershipID = suffixMembershipID })
+            .Data(@<text>function(e){return GetMembershipActivitySearchParams(e, '@suffixMembershipID');}</text>))
+            .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+        )
+        .Columns(columns =>
+        {
+            columns.Bound(a => a.Type).Title("Activity");
+        })
+        .Events(events =>
+        {
+            events.DataBound("GrdMembershipActivity_OnRequestComplete");
+        })
+        .ClientRowTemplate(
+    "<tr>" +
+        "<td>" +
+            "#if(Type == \"Event Log\"){ #" +
+                "<div class='activity-details'>" +
+                    "<h3 class='mid-margin-top'><span class='icon-calendar icon-size4 anthracite'></span></h3>" +
+                    "<div style='float:left;min-width:50%;max-width:50%;word-wrap:break-word;padding-right:5px;'>" +
+                        "#if(Description != null){##=Description##}#<br/>#if(Comments != null){##=Comments##}#" +
+                    "</div>" +
+                    "<div style='float:left;min-width:30%;'>" +
+                        "#=FormattedCreateDate#<br/>#=CreateBy#(#=RoleName#-#=OrganizationName#)" +
+                    "</div></div>" +
+            "#}" +
+            "else if(Type == \"Comment\")" +
+            "{#" +
+                "<div class='activity-details'>" +
+                    "<h3 class='mid-margin-top'><span class='icon-speech icon-size4 anthracite '></span></h3>" +
+                    "<div style='float:left;min-width:50%;max-width:50%;word-wrap:break-word;padding-right:5px;'>" +
+                        "#=Type#<br/>#=Name#<br/>#=Description#" +
+                    "</div>" +
+                "<div style='float:left;min-width:30%;'>" +
+                    "#=FormattedCreateDate# <br/> #=CreateBy#(#=RoleName#-#=OrganizationName#)" +
+                "</div></div>" +
+            "#}" +
+            "else if(Type == \"Contact Log\")" +
+            "{#" +
+                "<div class='activity-details'>" +
+                    "<h3 class='mid-margin-top'><span class='icon-card icon-size4 '></span> </h3>" +
+                    "<div style='float:left;min-width:50%;max-width:50%;word-wrap:break-word;padding-right:5px;'>" +
+                    "#if(ContactMethodClassName != null) {# <span class='#=ContactMethodClassName#'></span> #}#" +
+                    "#if(Description != null){##=Description# <br/>#}#" +
+                    "#if(Company != null){##=Company#<br/>#}#" +
+                    "#if(TalkedTo != null){##=TalkedTo#<br/>#}#" +
+                    "#if(PhoneNumber != null){##=PhoneNumber#<br/>#}#" +
+                    "#if(Comments != null){##=Comments#<br/>#}#" +
+                    "&nbsp;#if(QuestionAnswer != null){#<div class='QuestionAnswer_RP'>#=QuestionAnswer#</div>#}#" +
+                "</div>" +
+                "<div style='float:left;min-width:30%;'>" +
+                    "#=FormattedCreateDate# <br/> #=CreateBy#(#=RoleName#-#=OrganizationName#)" +
+                    "<br/><strong>Reason:</strong><br/>#=ContactReason#" +
+                    "<br/><strong>Actions:</strong><br/>#=ContactAction#" +
+                "</div></div>" +
+            "#}#</td></tr>"
+        )
+        .Pageable()
+        .Scrollable()
+        )
+    </div>
+</div>
+<script type="text/javascript">
+    function LogActivity() {
+        var retVal = false;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateActivityStatus", "Activity", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                retVal = true;
+            }
+        });
+        return retVal;
+    }
+    // See if this is rendered in SR popup and turn off setting tab status 
+    if (typeof isInSRPopup == "undefined" || !isInSRPopup) {
+        fnSaveTab = LogActivity;
+    }
+    $(function () {
+        UpdateTags();
+        var gridContentHeight = GetWindowHeight()
+                            - ($("#menu-horizontal").height() +
+                            $(".k-toolbar").height() +
+                            $(".k-grid-header").height()
+                            + $(".k-grid-bottom").height() +
+                            $(".footer").height()
+                            + 200);
+        $('#@gridName' + ">.k-grid-content").css("height", gridContentHeight + "px");
+        $('input[name="rbstatus_@suffixMembershipID"]').click(function (e) {
+            var gridName = $(this).attr("gridID");
+            $("#@gridName").data('kendoGrid').dataSource.read();
+            UpdateTags();
+            CleanMyContainer('frmMemberContainerForDirtyFlag_@suffixMembershipID');
+        });
+        $("#formAddMembershipActivityComment_@suffixMembershipID").validationEngine();
+    }); 
+</script>

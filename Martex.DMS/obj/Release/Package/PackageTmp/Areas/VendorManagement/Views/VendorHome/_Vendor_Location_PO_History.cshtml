@@ -1,0 +1,87 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    var suffixVendorLocationID = Model.ToString();
+}
+<script type="text/javascript" language="javascript">
+    function VendorLocationPOSearchCriteria() {
+        return { VendorLocationId: '@suffixVendorLocationID' };
+    }
+    function GrdVendorLocationPO_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        //$(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+    }
+</script>
+<div class="with-padding">
+    @(Html.Kendo().Grid<VendorLocationPOList_Result>()
+    .Name("GrdVendorPO_" + suffixVendorLocationID)
+    .Columns(column =>
+    {
+        column.Bound(a => a.ServiceRequestID).Title("Request#").Width(100);
+        column.Bound(a => a.PurchaseOrderNumber).Title("PO#").Width(100);
+        column.Bound(a => a.PurchaseOrderID).Title("POID").Hidden();
+        column.Bound(a => a.IssueDate).Title("Issue Date").Format("{0:MM/dd/yyyy}").Width(100);
+        column.Bound(a => a.PurchaseOrderAmount).Title("PO Amt").Width(100).Format("{0:c}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "poAmount" });
+        column.Bound(a => a.Status).Title("PO Status").Width(100);
+        column.Bound(a => a.Service).Title("Service").Width(100);
+        column.Bound(a => a.CreateBy).Title("User").Width(100);
+        column.Bound(a => a.PurchaseOrderPayStatusCodeDesc).Title("Pay Status Code").Width(100).HtmlAttributes(new { @style = "text-align:left;" });
+        column.Bound(a => a.MemberName).Title("Member Name").Width(100);
+        column.Bound(a => a.MemberNumber).Title("Member Number").Width(100);
+        column.Bound(a => a.Address).Title("Vendor Loc").Width(200);
+        column.Bound(a => a.InvoiceNumber).Title("Inv #").Width(100);
+        column.Bound(a => a.InvoiceDate).Title("Inv Date").Width(100).Format("{0:MM/dd/yyyy}");
+        column.Bound(a => a.InvoiceAmount).Title("Inv Amt").Width(100).Format("{0:c}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "invAmount" });
+        column.Bound(a => a.InvoiceStatus).Title("Inv Status").Width(100);
+        column.Bound(a => a.InvoiceReceivedDate).Title("Rcv Date").Width(100).Format("{0:MM/dd/yyyy}");
+        column.Bound(a => a.InvoiceReceiveMethod).Title("Rcv Method").Width(100);
+        column.Bound(a => a.InvoiceToBePaidDate).Title("ToBePaid").Width(100).Format("{0:MM/dd/yyyy}");
+        column.Bound(a => a.PaymentNumber).Title("Payment #");
+        column.Bound(a => a.PaidDate).Title("Pay Date").Width(100).Format("{0:MM/dd/yyyy}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;" });
+        column.Bound(a => a.PaymentAmount).Title("Pay Amt").Width(100).Format("{0:c}").HeaderHtmlAttributes(new { @style = "text-align:right;" }).HtmlAttributes(new { @style = "text-align:right;", @class = "payAmount" });
+        column.Bound(a => a.CheckClearedDate).Title("Cleared").Width(100).Format("{0:MM/dd/yyyy}");
+        column.Command(command =>
+        {
+            command.Custom("View").Click(@<text>function(e){ ManageVendorVendorPO(e,'@suffixVendorLocationID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+            //command.Custom("Edit").Click(@<text>function(e){ ManageVendorLocationVendorPO(e,'@suffixVendorLocationID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+        }).Width(100).HtmlAttributes(new { @class = "actions" })
+        .Title("Action(s)");
+    })
+    .Events(e =>
+    {
+        e.DataBound("GrdVendorLocationPO_OnDataBound");
+    })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_GetVendorLocationPO", "VendorHome").Data("VendorLocationPOSearchCriteria"))
+        .Model(u => u.Id(p => p.ID))
+        .PageSize(10)
+    )
+    .Resizable(resize => resize.Columns(true))
+)
+</div>
+<script type="text/javascript">
+    var suffixVendorID = '@suffixVendorLocationID';
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        300
+                                        );
+        $("#GrdVendorPO_@suffixVendorLocationID>.k-grid-content").css("height", gridContentHeight + "px");
+        HandleDblClickOnGrid($("#GrdVendorPO_@suffixVendorLocationID"), '.k-grid-View');
+    });    
+</script>

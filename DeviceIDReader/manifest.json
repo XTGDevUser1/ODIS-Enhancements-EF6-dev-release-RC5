@@ -1,0 +1,9 @@
+﻿{
+  "name": "com.martex.deviceidreader",
+  "description": "DeviceIDReader",
+  "path": "C:\\ODIS\\DeviceIDReader.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://knldjmfmopnpolahpmmgbagdohdnhkik/"
+  ]
+}

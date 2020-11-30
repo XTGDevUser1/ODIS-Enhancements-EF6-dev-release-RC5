@@ -1,0 +1,57 @@
+﻿@using Kendo.Mvc.UI;
+@model int
+@{
+    string suffixMemberID = Model.ToString();
+    string suffixMemberShipID = ViewData["MembershipID"].ToString();
+}
+<div class="with-padding">
+    <div id="MemberManagementMemberTabs_@suffixMemberID" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li>
+                <a href="@Url.Action("_Member_Info", "Member", new { area = "MemberManagement" })" id="#MemberInfoTab_@suffixMemberID">
+                    Info
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Member_Vehicles", "Member", new { area = "MemberManagement" })" id="#MemberVehicleTab_@suffixMemberID">
+                    Vehicles
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Member_SRHistory", "Member", new { area = "MemberManagement" })" id="#MemberSRHistoryTab_@suffixMemberID">
+                    SR History
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_MemberClaimList", "Member", new { area = "MemberManagement" })" id="#MemberClaimsTab_@suffixMemberID">
+                    Claims History
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Member_ActivityHistory", "Member", new { area = "MemberManagement" })" id="#MemberActivityHistoryTab_@suffixMemberID">
+                    Activity History
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Action("_Member_Products", "Member", new { area = "MemberManagement" })" id="#MemberProductsTab_@suffixMemberID">
+                    Products
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#MemberManagementMemberTabs_@suffixMemberID').tabs({
+            ajaxOptions: {
+                data: { memberID: '@suffixMemberID', memberShipID: '@suffixMemberShipID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+</script>

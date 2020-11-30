@@ -1,0 +1,71 @@
+﻿@model Martex.DMS.DAL.Program
+@{
+    string identifier = Model.ID.ToString();
+    int programID = Model.ID;
+    string pageMode = ViewData["mode"].ToString();
+    Layout = "";
+}
+<div class="with-padding">
+    <div class="columns">
+        <div class="new-row twelve-columns">
+            <div style="display: inline-block; vertical-align: top;">
+                @programID 
+                @Html.Raw("-")
+                @Model.Description
+            </div>
+            <div style="display: inline-block; vertical-align: top; float: right;">
+                <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('@identifier');">
+                    X</a>
+            </div>
+        </div>
+        <div class="new-row twelve-columns">
+            <form action="javascript:void(0);" data="false" id="frmProgramDetailsContainerForDirtyFlag_@identifier">
+            <div id="ProgramManagementDetailsTab_@identifier" class="standard-tabs same-height">
+                <ul class="tabs">
+                    <li><a href="@Url.Action("_ProgramInformation", "ProgramManagement", new { area = "Admin" })" id="#ProgramDetailsInfoTab_@identifier">
+                        Program Info</a></li>
+                    <li><a href="@Url.Action("_ProgramConfiguration", "ProgramManagement", new { area = "Admin" })" id="#ProgramConfigurationTab_@identifier">
+                        Program Configuration</a></li>
+                    <li><a href="@Url.Action("_ProgramVehicleTypes", "ProgramManagement", new { area = "Admin" })" id="#ProgramVehicleTypesTab_@identifier">
+                        Vehicle Types</a></li>
+                    <li><a href="@Url.Action("_ProgramServiceCategories", "ProgramManagement", new { area = "Admin" })" id="#ProgramServiceCategoriesTab_@identifier">
+                        Service Categories</a></li>
+                    <li><a href="@Url.Action("_ProgramServices", "ProgramManagement", new { area = "Admin" })" id="#ProgramServicesTab_@identifier">
+                        Services</a></li>
+                    <li><a href="@Url.Action("_ProgramRules", "ProgramManagement", new { area = "Admin" })" id="#ProgramRulesTab_@identifier">
+                        Service Event Limit</a></li>
+                    <li><a href="@Url.Action("_ProgramPhoneSystemConfiguration", "ProgramManagement", new { area = "Admin" })" id="#ProgramPhoneSystemConfigurationTab_@identifier">
+                        Phone System Configuration</a></li>
+                    <li><a href="@Url.Action("_ProgramDataItem", "ProgramManagement", new { area = "Admin" })" id="#ProgramDataItemTab_@identifier">
+                        Data Item</a></li>
+                </ul>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#ProgramManagementDetailsTab_@identifier').tabs({
+            ajaxOptions: { data: { programID: '@programID', pageMode: '@pageMode' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+    var fnbuttonHandler = function (sender) {
+        var cloestForm = $(sender).closest('form');
+        if (cloestForm != undefined) {
+            var formName = cloestForm.attr("id");
+            var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+            if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                $(buttonPlaceHolder).show();
+            }
+        }
+    }
+    WatchMyContainer("frmProgramDetailsContainerForDirtyFlag_@identifier", null, fnbuttonHandler);
+</script>

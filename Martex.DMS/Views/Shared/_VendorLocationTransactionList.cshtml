@@ -1,0 +1,48 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.VendorLocationTransactionList_Result>
+@{
+    var vendorLocationID = ViewData["vendorLocationID"];
+
+    var prefixName = ViewData.TemplateInfo.HtmlFieldPrefix;
+    if (string.IsNullOrEmpty(ViewData.TemplateInfo.HtmlFieldPrefix))
+    {
+        prefixName = ViewData["prefixName"].ToString();
+    }
+
+}
+<script type="text/javascript" language="javascript">
+    function GetVendorParams(e, vendorLocationID,prefixName) {
+        return { vendorLocationID: vendorLocationID, prefixName: prefixName }
+    }
+
+</script>
+@(Html.Kendo().Grid(Model)
+.Name(prefixName + "_GrdVendorLocationTransaction")
+.Columns(column =>
+{
+    column.Bound(a => a.ID).Title("ID").Width(50);
+    column.Bound(a => a.Type).Title("Type");
+    column.Bound(a => a.Number).Title("Number");
+    column.Bound(a => a.Date).Format("{0:MM/dd/yyyy}").Title("Date");
+    column.Bound(a => a.Status).Title("Status");
+})
+.Pageable()
+.Sortable()
+.Scrollable()
+.Pageable(pager => pager
+.Refresh(true)
+.PageSizes(new int[] { 10, 20, 50, 100 })
+)
+.Selectable(select => select.Mode(GridSelectionMode.Single))
+.DataSource(datasource => datasource
+    .Ajax()
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    .Read(read => read.Action("_GetVendorLocationTransactionList", "VendorMerge")
+        .Data(@<text>function(e){return GetVendorParams(e,'@vendorLocationID','@prefixName');}</text>))
+    .Model(u => u.Id(p => p.ID))
+    .PageSize(10)
+    .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+    )
+.Resizable(resize => resize.Columns(true))
+.EnableCustomBinding(true)
+)

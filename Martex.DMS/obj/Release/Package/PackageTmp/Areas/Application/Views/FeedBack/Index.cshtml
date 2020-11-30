@@ -1,0 +1,264 @@
+﻿@model Martex.DMS.DAL.Feedback
+@using Kendo.Mvc.UI
+@{
+    ViewBag.Title = "Martex :: Dispatch Management System";
+    //Layout = "~/Views/Shared/_ContentMaster.cshtml";
+    Layout = "";
+}
+<script language="javascript" type="text/javascript">
+
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+        }, 500);
+        $.map(e.files, function (file) {
+            var info = file.name;
+
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    }
+    function UploadApplication(e) {
+
+        var postData = $("#form-Feedback").serializeArray();
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = postData.length; i < l; i++) {
+            if (nvp[postData[i].name] == null) {
+                nvp[postData[i].name] = postData[i].value;
+            }
+        }
+        e.data = nvp;
+
+    }
+
+    function UploadSuccess(e) {
+        ClearValidationMessages();
+        document.dialogResult = "OK";
+        feedbackWindow.data('kendoWindow').close();
+        openAlertMessage("Feedback recorded successfully.");
+    }
+
+    function UploadError(e) {
+        //HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details");
+    }
+
+    function UploadComplete(e) {
+        //HideLoadingIndicator();
+    }
+
+</script>
+<link href="@Url.Content("~/Content/CustomCSS.css")" rel="stylesheet" type="text/css" />
+@using (Html.BeginForm("Save", "Feedback", FormMethod.Post, new { id = "form-Feedback", enctype = "multipart/form-data" }))
+{
+@*<form id="form-Feedback" enctype="multipart/form-data">*@
+    <div class="columns">
+        <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+            <h2 class="thin">
+                Leave us your feedback</h2>
+            <fieldset class="fieldset">
+                <legend class="legend">Feedback</legend>
+                <div>
+                    <p>@Html.Raw("Your feedback is very important to us. Please use this form to let us know if you find any problems or have any suggestions or ideas about how to make things better!")
+                    </p>
+                    <p>@Html.Label("Required fields are marked")
+                        <span class="spanstar">*</span>
+                    </p>
+                    
+                    <p class="inline-label">
+                        <label for="Name" class="label">
+                            Name<span class="spanstar">*</span></label>
+                        @Html.TextBoxFor(a => a.Name, new { @id = "FeedBackName", @class = "validate[required,maxSize[50]], input full-width2", maxlength = 50 })
+                        @Html.HiddenFor(a => a.CapturedScreenShot)
+                    </p>
+                    <p class="inline-label margin-bottom  mid-margin-top">
+                        <label for="Phone" class="label">
+                            Phone<span class="spanstar">*</span></label>
+                        @Html.Editor("FeedbackCallbackNumber", "Phone", new { entityName = "Member", CallType = "Member" })
+                        @Html.HiddenFor(a => a.PhoneNumber)
+                        <!-- These are the values that would get submitted to and used by the controller -->
+                        @Html.HiddenFor(a => a.PhoneTypeID)
+                    </p>
+                    <p class="inline-label">
+                        <label for="Email" class="label">
+                            Email<span class="spanstar">*</span></label>
+                        @Html.TextBoxFor(a => a.Email, new { @class = "validate[required,,custom[email],maxSize[50]], input full-width2", @id = "FeedBackEmail", maxlength = 50 })
+                    </p>
+                    <div class="inline-label mid-margin-bottom">
+                        <label for="Subject" class="label">
+                            Subject<span class="spanstar">*</span></label>
+                        @(Html.Kendo().ComboBox()
+                    .Name("FeedbackTypeID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.FeedbackTypes.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.FeedbackTypeID != 0 ? Model.FeedbackTypeID.ToString() : ""))
+                    .SelectedIndex(0)
+                    )
+                    </div>
+                    <div class="inline-label mid-margin-bottom">
+                        <label for="Priority" class="label">
+                            Priority<span class="spanstar">*</span></label>
+                        @(Html.Kendo().ComboBox()
+                    .Name("Priority")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Priorities.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model.Priority != null ? Model.Priority.ToString() : ""))
+                    .SelectedIndex(0)
+                    )
+                    </div>
+                    <p class="inline-label">
+                        <label for="Comments" class="label full-width">
+                            <strong>Comments / Description<span class="spanstar">*</span></strong></label></p>
+                    <p>
+                        <label for="Description" class="label">
+                            Please provide as much detail as possible so that we can properly address your feedback,
+                            thanks!</label>
+                        @Html.TextAreaFor(a => a.Comments, new { @id = "FeedBackComments", @class = "validate[required] input full-width2", rows = "5", cols = "30", style = "width : 100%" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="Comments" class="label">
+                            <strong>Attach a file</strong></label></p>
+                    <p>
+                        @Html.Raw("Please provide a screen shot or any supporting documentation that will help explain/show what problem you are having.")
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="FileDocument" class="label">
+                            <strong>Attach a file</strong></label>
+                        @(Html.Kendo().Upload()
+                    .Name("attachment")
+                        .Async(a => a
+                            .Save("Save", "Feedback", new { area = "Application" })
+                            .AutoUpload(false)
+                            .RemoveUrl("/Remove")
+
+
+            )
+            .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+            .Multiple(false)
+            .ShowFileList(true)
+            .HtmlAttributes(new { @style = "text-align:right;" })
+        )
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="FileDocument" class="label">
+                            &nbsp;
+                        </label>
+                        <small>Upload file size should be less than 10MB.</small>
+                    </p>
+                    @*<div class="button-height">
+                    <span class="input file" style="line-height: 30px;"><span class="file-text"></span><span
+                        class="button compact">Select file</span>
+                        <input type="file" name="attachment" id="attachment" /><br clear="all" />
+                    </span>
+                </div>*@
+                    <div>
+                        <button id="btnSendODISFeedback" class="button green-gradient float-right" type="button">
+                            Send Feedback
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+@*</form>*@
+}
+<script type="text/javascript">
+
+
+    $(function () {
+        $('#form-Feedback').validationEngine();
+
+         WatchMyContainer('form-Feedback', null, null);
+        //document.dialogResult = null;
+
+        $('#btnSendODISFeedback').click(function () {
+            var errorfound = false;
+            if ($('#form-Feedback').validationEngine('validate') == false) {
+                errorfound = true;
+            }
+            if ($("#FeedbackTypeID").data("kendoComboBox").value() == "") {
+                ShowValidationMessage($('input[name="FeedbackTypeID_input"]'), "This field is required");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="FeedbackTypeID_input"]'));
+            }
+            if ($("#Priority").data("kendoComboBox").value() == "") {
+                ShowValidationMessage($('input[name="Priority_input"]'), "This field is required");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($('input[name="Priority_input"]'));
+            }
+
+            $("#PhoneNumber").val(GetPhoneNumberForDB("FeedbackCallbackNumber"));
+            $("#PhoneTypeID").val($("#FeedbackCallbackNumber_ddlPhoneType").val());
+            if ($("#PhoneNumber").val() == "") {
+                ShowValidationMessage($("#FeedbackCallbackNumber_txtPhoneNumber"), "Phone number is required. Check the format.");
+                errorfound = true;
+            }
+            else {
+                HideValidationMessage($("#PhoneNumber_txtPhoneNumber"));
+            }
+            if (errorfound == true) {
+                return false;
+            }
+
+
+//            $.blockUI({ message: '<div class="ajax-load"></div>'
+//                            ,
+//                css: { background: 'transparent', border: '0px' }
+//            });
+            if ($(".k-upload-selected").length > 0) {
+                console.log("File uploaded so going via Kendo Upload");
+                $(".k-upload-selected").click();
+            }
+            else {
+                console.log("No file uploaded so posting via normal AJAX");
+                var postData = $("#form-Feedback").serializeArray();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Save", "Feedback", new { area = "Application" })',
+                    traditional: true,
+                    data: postData,
+                    cache: false,
+                    async: true,
+                    global: true,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            CleanMyContainer("form-Feedback");
+
+                            HideValidationMessage($('input[name="attachment"]'));
+                            document.dialogResult = "OK";
+                            feedbackWindow.data('kendoWindow').close();
+                            openAlertMessage("Feedback recorded successfully.");
+                        }
+                        else if ((msg.Status == "Error" || msg.Status == "BusinessRuleFail") && msg.ErrorDetail != null) {
+                            openAlertMessage(msg.ErrorDetail);
+                        }
+                    }
+                });
+            }
+            return false;
+        });
+        //        var notificationMsg = '@ViewData["FeedbackStatus"]';
+
+        //        if (notificationMsg != '') {
+
+        //            $.modal.confirmFeedback(notificationMsg, function () {
+        //                location = "/Application/Feedback";
+        //            }, function () {
+        //                location = "/Home/Index";
+        //            });
+        //        }
+    });
+</script>

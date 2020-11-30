@@ -1,0 +1,174 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+@using VendorPortal.Models
+@{
+    RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as RegisterUserModel;
+    if (userProfile == null)
+    {
+        Response.Redirect("~/Account/Login");
+        return;
+    }
+}
+<!-- Sidebar/drop-down menu -->
+<section id="menu" role="complementary">
+    <!-- This wrapper is used by several responsive layouts -->
+    <div id="menu-content">
+        <header>
+            Username: @userProfile.UserName
+        </header>
+        <div id="profile">
+            @*<img src="@Url.Content("~/Content/img/odis-user.png")" width="48" height="60" alt="User name" class="user-icon">*@
+            <span class="name">@userProfile.FirstName @userProfile.LastName </span><span>@DateTime.Now.ToString("MM/dd/yyyy")</span>
+        </div>
+        <ul id="access" class="children-tooltip">
+            <li data-intro='@Html.Partial("_FeedbackIntro")' data-step='8' data-position='left'>
+                <a href="@Url.Action("Index", "Feedback", new { area = "ISP" })" title="Feedback">
+                    <span class="icon-mail"></span>
+                </a>
+            </li>
+            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_MYPROFILE) == AccessType.ReadWrite)
+            {
+
+                <li data-intro='@Html.Partial("_MyProfileIntro")' data-step='9' data-position='left'>
+                    <a href="@Url.Action("UserProfile", "Account", new { area = "ISP" })" title="My Profile">
+                        <span class="icon-user"></span>
+                    </a>
+                </li>
+            }
+            @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_IMPERSONATE) == AccessType.ReadWrite)
+            {
+                <li id="liImpersonate">
+                    <a href="#" title="Impersonate">
+                        <span class="icon-user"></span>
+                    </a>
+                </li>
+            }
+            @*<li><a id="btnStickyNoteBasic" href="javascript:void(0);" title="Clipboard"><span class="icon-paperclip"></span></a></li>*@
+            <li data-intro='@Html.Partial("_LogoutIntro")' data-step='10' data-position='left'>
+                <a href="@Url.Action("LogOff", "Account", new { area = "" })" title="Logout">
+                    <span class="icon-down-round"></span>
+                </a>
+            </li>
+        </ul>
+        @(Html.Kendo().PanelBar()
+        .Name("panelbarVendorHelp")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Items(panelbar =>
+        {
+            panelbar.Add().Text("Help").Content(
+                @<div class="with-padding small-margin-right">
+                    @Html.Raw("<div style='text-align:center'><h3>Loading ...</h3></div>")
+                </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+            panelbar.Add().Text("Quick Links").Content(
+                @<div class="with-padding small-margin-right" style="text-align: left">
+                    <b>
+                        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_ISP_MYPROFILE) == AccessType.ReadWrite)
+                        {
+                            <a href="@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })">Submit Invoice</a> <br />
+                            <a href="@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorLocationServiceAreasTab" })">Update Zip Codes</a><br />
+                            <a href="@Url.Action("Index", "ACH", new { area = "ISP" })">Update Direct Deposit</a><br />
+                            <a href="@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorDetailsDocumentsTab" })">Upload Insurance Certificate</a><br />
+                            <a href="@Url.Action("MyAccount", "Account", new { area = "ISP", defaulttabtoload = "VendorDetailsDocumentsTab" })">Upload Documents</a> <br />
+                            <div id="divSPATerms">
+                                <a id="lnkSPATerms" href="#" target="_blank">View Service Provider Agreement</a><br />
+                            </div>
+                            <div id="divRatesForPreview">
+                                <a href="@Url.Content("~/ISP/VendorRates/GetRatesForPreview")" target="_blank">View Rate Schedule</a><br />
+                            </div>
+                            @*<a href="@Url.Content("~/ISP/Dashboard/ViewServiceProviderAgreement")" target="_blank">View Service Provider Agreement</a><br />*@
+
+                        }
+                        <a href="@Url.Action("Index", "Feedback", new { area = "ISP" })">Feedback</a>
+                    </b>
+                </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelQuickLinks" });
+            panelbar.Add().Text("Vendor Representative").Content(
+                @<div class="with-padding small-margin-right" style="text-align: left">
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionContactFirstName))
+                    {
+                        <b>@Html.Raw(@userProfile.VendorRegionContactFirstName)@Html.Raw(" ")@Html.Raw(@userProfile.VendorRegionContactLastName)</b>
+                        <br />
+                    }
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionName))
+                    {
+                        @Html.Raw(@userProfile.VendorRegionName)
+                        <br />
+                    }
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionEmail))
+                    {
+                        @Html.Raw(@userProfile.VendorRegionEmail)
+                        <br />
+                    }
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionPhoneNumber))
+                    {
+                        @Html.Raw("Dir : ")@Html.Editor("RightSidePanelPhoneNumber", "Phone", new { Value = @userProfile.VendorRegionPhoneNumber, ShowPhoneType = false, ReadOnly = true, ShowCallIcon = false }) <br />
+                    }
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionOfficeNumber))
+                    {
+                        @Html.Raw("Ofc : ")@Html.Editor("RightSidePanelOfficeNumber", "Phone", new { Value = @userProfile.VendorRegionOfficeNumber, ShowPhoneType = false, ReadOnly = true, ShowCallIcon = false }) <br />
+                    }
+                    @if (!string.IsNullOrEmpty(userProfile.VendorRegionFaxNumber))
+                    {
+                        @Html.Raw("Fax : ")@Html.Editor("RightSidePanelFaxPhoneNumber", "Phone", new { Value = @userProfile.VendorRegionFaxNumber, ShowPhoneType = false, ReadOnly = true, ShowCallIcon = false })
+
+
+                    }
+                        </div>
+           ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelVendorRepDetails" });
+        }
+        ))
+    </div>
+    <!-- End content wrapper -->
+</section>
+<script type="text/javascript">
+    $("#liImpersonate").click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Impersonate", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                winPostLoginPrompt = $("<div id='winPostLoginPrompt' />").appendTo(document.body);
+                winPostLoginPrompt.kendoWindow({
+                    title: "Impersonate ISP",
+                    //actions: ["Maximize"],
+                    modal: true,
+                    width: 320,
+                    height: 260,
+                    resizable: false,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                winPostLoginPrompt.data("kendoWindow").content(msg).center().open();
+            }
+        });
+    });
+
+    $(function () {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetLatestContractAndTAForVendor", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Data!=null && msg.Data.ContractID != null && msg.Data.VendorTermsAgreementFileName != null) {
+                    $("#lnkSPATerms").attr("href", "/ReferenceForms/" + msg.Data.VendorTermsAgreementFileName);
+                }
+                else {
+                    $("#divSPATerms").html('');
+                }
+                if (msg.Data != null && msg.Data.ContractRateScheduleID == null) {
+                    $("#divRatesForPreview").html('');
+                }
+            }
+        });
+    });
+</script>

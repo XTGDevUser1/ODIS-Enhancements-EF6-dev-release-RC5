@@ -1,0 +1,330 @@
+﻿@using Martex.DMS.DAL
+@model List<Martex.DMS.DAL.ServiceRequest_Result>
+@{
+    ServiceRequest_Result summary = null;
+    if (Model.Count > 0)
+    {
+        summary = Model[0];
+    }
+    var isFromStartCall = ((bool?)ViewBag.FromStartCall).GetValueOrDefault();
+    bool memberEligibleApllies = (bool)ViewData["MemberEligibilityApplies"];
+}
+<link href="@Url.Content("~/Content/CustomStyle.css")" rel="stylesheet" type="text/css" />
+@if (summary != null)
+{   
+    <form method="post" action="" id="form-Queue">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="four-columns">
+                <div class="">
+                    <p class="inline-label">
+                        <label class="label" for="Case">
+                            <strong>Case:</strong></label>
+                        @Html.DisplayFor(a => summary.Case)
+                        @Html.Hidden("hdnAssignedTo", ViewData["AssignedTo"])
+                        @Html.Hidden("hdnAssignedToID", ViewData["AssignedToID"])
+                        @Html.Hidden("hdnCaseId", summary.Case)
+                        @Html.Hidden("hdnRequestNumber", summary.RequestNumber)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Request">
+                            <strong>Request:</strong></label>
+                        @Html.DisplayFor(a => summary.RequestNumber)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="ClosedLoop">
+                            <strong>Closed Loop:</strong></label>
+                        @Html.DisplayFor(a => summary.ClosedLoop)
+                    </p>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="">
+                    <p class="inline-label">
+                        <label class="label" for="Status">
+                            <strong>Status:</strong></label>
+                        @Html.DisplayFor(a => summary.Status)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Created">
+                            <strong>Created:</strong></label>
+                        @Html.DisplayFor(a => summary.CreateDate) &nbsp; @Html.DisplayFor(a => summary.CreateBy)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Modified">
+                            <strong>Modified:</strong></label>
+                        @Html.DisplayFor(a => summary.ModifyDate) &nbsp; @Html.DisplayFor(a => summary.ModifyBy)
+                    </p>
+                </div>
+            </div>
+            <div class="four-columns">
+                <div class="">
+                    <p class="inline-label">
+                        <label class="label" for="ElapsedTime">
+                            <strong>Elapsed Time:</strong></label>
+                        @Html.DisplayFor(a => summary.FormattedElapsedTime)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Submitted">
+                            <strong>Submitted:</strong></label>
+                        @Html.DisplayFor(a => summary.Submitted)
+                    </p>
+                    <p class="inline-label">
+                        <label class="label" for="Dispatched">
+                            <strong>Dispatched:</strong></label>
+                        @Html.DisplayFor(a => summary.Dispatched)
+                    </p>
+                </div>
+            </div>
+            <div class="new-row twelve-columns">
+            </div>
+            <div class="three-columns">
+                <div class="boxed historyboxedmin">
+                    <h3 class="underline thin">
+                        Member</h3>
+                    <p>
+                        <strong class="blue">
+                            @Html.DisplayFor(a => summary.Member)</strong>
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.ContactPhoneNumber)</p>
+                    <p>@Html.DisplayFor(a => summary.Client)</p>
+                    <p>@Html.DisplayFor(a => summary.ProgramName)</p>
+                    <p>
+                        ID: @Html.DisplayFor(a => summary.MembershipNumber)</p>
+                    @if (memberEligibleApllies)
+                    {
+                        <p>@Html.DisplayFor(a => summary.MemberStatus)</p>
+                    }
+                    <p>@Html.DisplayFor(a => summary.Line1)
+                        <br />
+                        @Html.DisplayFor(a => summary.Line2)
+                        <br />
+                        @Html.DisplayFor(a => summary.Line3)
+                        <br />
+                        @Html.DisplayFor(a => summary.City),
+                        @Html.DisplayFor(a => summary.StateProvince)
+                        @Html.DisplayFor(a => summary.PostalCode)</p>
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="boxed historyboxedmin">
+                    <h3 class="underline thin">
+                        Vehicle</h3>
+                    <p>@Html.DisplayFor(a => summary.VehicleYear) @Html.DisplayFor(a => summary.VehicleMake)</p>
+                    <p>@Html.DisplayFor(a => summary.VehicleModel)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleType) @Html.DisplayFor(a => summary.VehicleCategory)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleColor)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.License)
+                    </p>
+                    <p>@Html.DisplayFor(a => summary.VehicleDescription)
+                    </p>
+                    @if (summary.RVType != null)
+                    {
+                        <p>@Html.DisplayFor(a => summary.RVType)
+                        </p>
+                        <p>@Html.DisplayFor(a => summary.VehicleEngine)
+                        </p>
+                        <p>@Html.DisplayFor(a => summary.VehicleTransmission)
+                        </p>
+                        <p>
+                            @Html.DisplayFor(a => summary.VehicleChassis)</p>
+                    }
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="boxed historyboxedmin">
+                    <h3 class="underline thin">
+                        Service</h3>
+                    <p>
+                    </p>
+                    @if (summary.IsPossibleTow != null && summary.IsPossibleTow.Value)
+                    {
+                        <label for="PossibleTow" class="label">@Html.Label("Possible Tow")</label>
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(a => summary.ServiceCategory)
+                    }
+                    <p>
+                    </p>
+                    <h3 class="underline thin">
+                        Location:</h3>
+                    <p>
+                    </p>@Html.DisplayFor(a => summary.ServiceLocationAddress)
+                    @if (!string.IsNullOrEmpty(summary.ServiceLocationDescription))
+                    {
+                        @Html.DisplayFor(a => summary.ServiceLocationDescription)  <br />
+                    }
+                    @Html.DisplayFor(a => summary.ServiceLocationCity)
+                    ,
+                    @Html.DisplayFor(a => summary.ServiceLocationStateProvince)
+                    ,
+                    @Html.DisplayFor(a => summary.ServiceLocationPostalCode)
+                    <br />
+                    @Html.DisplayFor(a => summary.ServiceLocationCountryCode)
+                    <p>
+                    </p>
+                    <h3 class="underline thin">
+                        Destination:</h3>
+                    @Html.DisplayFor(a => summary.DestinationAddress)
+                    <br />
+                    @if (!string.IsNullOrEmpty(summary.DestinationDescription))
+                    {
+                        @Html.DisplayFor(a => summary.DestinationDescription)  <br />
+                    }
+                    @Html.DisplayFor(a => summary.DestinationCity)
+                    <br />
+                    @Html.DisplayFor(a => summary.DestinationStateProvince)
+                    <br />
+                    @Html.DisplayFor(a => summary.DestinationPostalCode)
+                    <br />
+                    @Html.DisplayFor(a => summary.DestinationCountryCode)
+                </div>
+            </div>
+            <div class="three-columns">
+                <div class="boxed historyboxedmin">
+                    <h3 class="underline thin">
+                        Service Provider</h3>
+                    @foreach (ServiceRequest_Result vendorDetail in Model)
+                    {
+                        @Html.DisplayFor(a => vendorDetail.VendorName) @Html.DisplayFor(a => vendorDetail.VendorPhoneNumber)
+                        <br />
+                        if (vendorDetail.DispatchTime != null)
+                        {
+                        <label for="VendorDispatch">
+                            Dispatched:
+                        </label>@Html.DisplayFor(a => vendorDetail.DispatchTime)<br />
+                        }
+                        if (vendorDetail.ServiceAmount != null)
+                        {
+                        <label for="ServiceAmount">
+                            Service Amount:
+                        </label>@Html.DisplayFor(a => vendorDetail.ServiceAmount)
+                        }
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationLine1)
+                        <br />
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationLine2)
+                        <br />
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationLine3)
+                        <br />
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationCity)
+                
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationStateProvince)
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationPostalCode)
+                        <br />
+                        @Html.DisplayFor(a => vendorDetail.VendorLocationCountryCode)
+                    }
+                    <br />
+                </div>
+            </div>
+            <div class="new-row twelve-columns">
+                <p class="inline-label" style="float: right;">
+                    @if (((bool?)ViewBag.IsEditRequired).GetValueOrDefault())
+                    { 
+                        <button id="btnQueueOpenForEdit" class="button green-gradient glossy small-margin-right noPrint"
+                            type="button">
+                            Open For Edit
+                        </button>
+                    }
+                    <button id="btnQueuePrint" class="button green-gradient glossy small-margin-right noPrint"
+                        type="button">
+                        Print
+                    </button>
+                    <button id="btnQueueClose" class="button green-gradient glossy small-margin-right noPrint"
+                        type="button">
+                        Close
+                    </button>
+                </p>
+            </div>
+        </div>
+    </div>
+    </form>
+}
+<script language="javascript" type="text/javascript">
+    var queueEditWindow = null;
+    $(document).ready(function () {
+        setTimeout(function () {
+            var win = queueDetailWindow.data('tWindow');
+            var assignedTo = $("#hdnAssignedTo").val();
+            var title = "<span class='float-left'>Service Request</span>";
+            if ($.trim(assignedTo).length > 0) {
+                title = "<span class='float-left'>Service Request</span><span class='float-right large-margin-right icon-lock'> currently being worked by : " + $("#hdnAssignedTo").val() + "</span>";
+            }
+            $(win.element).find(".t-window-title").html(title);
+        }, 1500);
+        $('#btnQueueClose').die('click');
+        $('#btnQueueClose').live('click', function (e) {
+            queueDetailWindow.data('tWindow').close();
+        });
+        $('#btnQueueOpenForEdit').die('click');
+        $('#btnQueueOpenForEdit').live('click', function (e) {
+            var assignedToName = $('#hdnAssignedTo').val();
+            var assignedToID = $('#hdnAssignedToID').val();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Edit", "Queue")',
+                traditional: true,
+                data: { assignTo: assignedToName, assignToID: assignedToID, caseId: $('#hdnCaseId').val(), serRequest: $('#hdnRequestNumber').val(), isFromStartCall: '@isFromStartCall' },
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status && msg.Status == "Success") {
+                        if ('@isFromStartCall' == 'True') {
+                            $('ul.tabs > li.disabled').removeClass("disabled");
+                            $("#RequestTabs").tabs("option", "disabled", []);
+                            $("#tbStart").addClass("disabled");
+                            queueDetailWindow.data('tWindow').close();
+                            $('#hypMemberDetails').click();
+                        }
+                        else {
+                            window.location = "/Application/Request?id=Queue";
+                        }
+                    }
+                    else {
+                        queueEditWindow = $("<div id='queueEditWindow' />").appendTo(document.body);
+                        queueEditWindow.kendoWindow({
+                            title: "Access Restricted",
+                            modal: true,
+                            width: 600,
+                            height: 500,
+                            deactivate: function () {
+                                this.destroy();
+                            },
+                            close: function (e) {
+                                HideValidationMessage($("#srComments_" + $('#hdnRequestNumber').val()));
+                                if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                    document.dialogResult = null;
+
+                                    var formName = 'form-AcessControl_' + $('#hdnRequestNumber').val();
+
+                                    if (IsMyContainerDirty(formName)) {
+                                        var prompt = PromptForDirtyFlag();
+                                        if (!prompt) {
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                        CleanMyContainer(formName);
+                                    }
+                                }
+                                return true;
+                            }
+                        });
+                        queueEditWindow.data('kendoWindow').content(msg).center().open();
+                    }
+                }
+            }); // end of ajax
+        });
+    });
+
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('#btnQueuePrint').click(function () {
+            $(".t-window").print();
+
+        });
+    });
+</script>

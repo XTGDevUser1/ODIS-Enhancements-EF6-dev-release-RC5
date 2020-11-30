@@ -1,0 +1,26 @@
+{
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDcBHwzDvyBQ6bDppkIs9MP4ksKqCMyXQ/A52JivHZKh4YO/9vJsT3oaYhSpDCE9RPocOEQvwsHsFReW2nUEc6OLLyoCFFxIb7KkLGsmfakkut/fFdNJYh0xOTbSN8YvLWcqph09XAY2Y/f0AL7vfO1cuCqtkMt8hFrBGWxDdf9CQIDAQAB",
+  "name": "ODIS Click-To-Call Device Information Reader",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "ODIS Click-To-Call Device Information Reader",
+  "app": {
+    "launch": {
+      "local_path": "main.html"
+    }
+  },
+  "icons": {
+    "128": "ODISLogo.png"
+  },
+  "permissions": [
+    "nativeMessaging", 
+	"tabs",	
+	"http://odis/",
+	"http://odis.test.motorcluboperations.com/",
+	"http://odis.motorcluboperations.com/"
+  ],
+  "background": {
+    "scripts": ["main.js"],
+    "persistent": false
+  }
+}

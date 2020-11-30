@@ -1,0 +1,431 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Pinnacle.Membership.DAO.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="NMCAPIMessages">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrganizationID" Type="int" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="MessageText" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <Function Name="spNMCAPI_CheckMemberNumber" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pMemberNumber" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_CheckUsername" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pUsername" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_GetDependents" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pMemberNumber" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_GetMember" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pMemberNumber" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_GetVehicle" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pMembershipNumber" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_Login" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="pOrganizationID" Type="int" Mode="In" />
+          <Parameter Name="pUsername" Type="nvarchar" Mode="In" />
+          <Parameter Name="pPassword" Type="nvarchar" Mode="In" />
+        </Function>
+        <Function Name="spNMCAPI_RegisterVerify" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="OrganizationID" Type="int" Mode="In" />
+          <Parameter Name="MemberNumber" Type="nvarchar" Mode="In" />
+          <Parameter Name="LastName" Type="nvarchar" Mode="In" />
+          <Parameter Name="FirstName" Type="nvarchar" Mode="In" />
+        </Function>
+        <EntityContainer Name="PinnacleMembershipDAOStoreContainer">
+          <EntitySet Name="NMCAPIMessages" EntityType="Self.NMCAPIMessages" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Pinnacle.Membership.DAO" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="APTIFYEntities" annotation:LazyLoadingEnabled="true" >
+          <FunctionImport Name="spNMCAPI_CheckUsername" ReturnType="Collection(Int32)" >
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pUsername" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spNMCAPI_Login" ReturnType="Collection(Pinnacle.Membership.DAO.LoginResult)">
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pUsername" Mode="In" Type="String" />
+            <Parameter Name="pPassword" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spNMCAPI_RegisterVerify" ReturnType="Collection(Pinnacle.Membership.DAO.RegisterVerifyResult)">
+            <Parameter Name="OrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="MemberNumber" Mode="In" Type="String" />
+            <Parameter Name="LastName" Mode="In" Type="String" />
+            <Parameter Name="FirstName" Mode="In" Type="String" />
+          </FunctionImport>
+          <EntitySet Name="NMCAPIMessages" EntityType="Pinnacle.Membership.DAO.NMCAPIMessage" />
+          <FunctionImport Name="spNMCAPI_CheckMemberNumber" ReturnType="Collection(Pinnacle.Membership.DAO.CheckMemberNumberResult)">
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pMemberNumber" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spNMCAPI_GetMember" ReturnType="Collection(Pinnacle.Membership.DAO.GetMemberResult)">
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pMemberNumber" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spNMCAPI_GetVehicle" ReturnType="Collection(Pinnacle.Membership.DAO.GetVehicleResult)">
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pMembershipNumber" Mode="In" Type="String" />
+          </FunctionImport>
+          <FunctionImport Name="spNMCAPI_GetDependents" ReturnType="Collection(Pinnacle.Membership.DAO.GetDependentsResult)">
+            <Parameter Name="pOrganizationID" Mode="In" Type="Int32" />
+            <Parameter Name="pMemberNumber" Mode="In" Type="String" />
+          </FunctionImport>
+        </EntityContainer>
+        <ComplexType Name="spNMCAPI_Login_Result">
+          <Property Type="Int32" Name="PersonID" Nullable="true" />
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+        </ComplexType>
+        <ComplexType Name="spNMCAPI_RegisterVerify_Result">
+          <Property Type="Int32" Name="PersonID" Nullable="false" />
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="PostalCode" Nullable="true" MaxLength="25" />
+          <Property Type="Int32" Name="IsWebAccountExists" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="LoginResult">
+          <Property Type="Int32" Name="PersonID" Nullable="true" />
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="Int32" Name="PlanID" Nullable="true" />
+          <Property Type="String" Name="PlanName" Nullable="true" MaxLength="50" />
+          <Property Type="DateTime" Name="MemberSinceDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="CurrentSubscriptionStartDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="CurrentSubscriptionExpirationDate" Nullable="true" Precision="23" />
+          <Property Type="String" Name="MemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="ProductCode" Nullable="true" MaxLength="50" />
+          <Property Type="Int32" Name="IsActive" Nullable="false" />
+          <Property Type="Int32" Name="MasterPersonID" Nullable="true" />
+          <Property Type="String" Name="MasterMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="MembershipNumber" Nullable="true" MaxLength="11" />
+          <Property Type="Int32" Name="ProgramID" Nullable="true" />
+          <Property Type="Int32" Name="MasterMember" Nullable="false" />
+        </ComplexType>
+        <ComplexType Name="RegisterVerifyResult">
+          <Property Type="Int32" Name="PersonID" Nullable="false" />
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="PostalCode" Nullable="true" MaxLength="25" />
+          <Property Type="Int32" Name="IsWebAccountExists" Nullable="false" />
+        </ComplexType>
+        <EntityType Name="NMCAPIMessage">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrganizationID" Type="Int32" Nullable="false" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="MessageText" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <ComplexType Name="CheckMemberNumberResult">
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="Email1" Nullable="true" MaxLength="100" />
+          <Property Type="Int32" Name="IsWebAccountExists" Nullable="false" />
+          <Property Type="String" Name="Username" Nullable="true" MaxLength="100" />
+        </ComplexType>
+        <ComplexType Name="spNMCAPI_GetMember_Result">
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="Int32" Name="IsPrimary" Nullable="false" />
+          <Property Type="Int32" Name="PlanID" Nullable="true" />
+          <Property Type="String" Name="PlanName" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="MiddleName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="Suffix" Nullable="true" MaxLength="10" />
+          <Property Type="String" Name="AddressLine1" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="AddressLine2" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="StateProvince" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="PostalCode" Nullable="true" MaxLength="25" />
+          <Property Type="String" Name="CountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="HomePhoneTypeCode" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="HomePhoneCountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="HomePhoneAreaCode" Nullable="true" MaxLength="5" />
+          <Property Type="String" Name="HomePhone" Nullable="true" MaxLength="15" />
+          <Property Type="String" Name="CellPhoneTypeCode" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="CellPhoneCountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="CellPhoneAreaCode" Nullable="true" MaxLength="5" />
+          <Property Type="String" Name="CellPhone" Nullable="true" MaxLength="15" />
+          <Property Type="String" Name="Email1" Nullable="true" MaxLength="100" />
+          <Property Type="DateTime" Name="EffectiveDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="ExpirationDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MemberSinceDate" Nullable="true" Precision="23" />
+        </ComplexType>
+        <ComplexType Name="spNMCAPI_GetVehicle_Result">
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="VehicleType" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Year" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="Make" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="MakeOther" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Model" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="ModelOther" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="VIN" Nullable="true" MaxLength="17" />
+          <Property Type="String" Name="RVType" Nullable="true" MaxLength="1" />
+          <Property Type="String" Name="Transmission" Nullable="true" MaxLength="24" />
+          <Property Type="String" Name="EngineManufacturer" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Engine" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Chassis" Nullable="true" MaxLength="15" />
+          <Property Type="Int32" Name="Length" Nullable="true" />
+          <Property Type="Decimal" Name="GrossWeight" Nullable="true" Precision="28" Scale="4" />
+          <Property Type="String" Name="Color" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="LicenseState" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="LicenseNumber" Nullable="true" MaxLength="20" />
+          <Property Type="Binary" Name="Photo" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="spNMCAPI_GetDependents_Result">
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="DateTime" Name="Birthday" Nullable="false" Precision="23" />
+        </ComplexType>
+        <ComplexType Name="GetDependentsResult">
+          <Property Type="String" Name="NMCMemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="DateTime" Name="Birthday" Nullable="false" Precision="23" />
+        </ComplexType>
+        <ComplexType Name="GetVehicleResult">
+          <Property Type="Int32" Name="PersonID" Nullable="false" />
+          <Property Type="String" Name="VehicleType" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Year" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="Make" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="MakeOther" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Model" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="ModelOther" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="VIN" Nullable="true" MaxLength="17" />
+          <Property Type="String" Name="RVType" Nullable="true" MaxLength="1" />
+          <Property Type="String" Name="Transmission" Nullable="true" MaxLength="24" />
+          <Property Type="String" Name="EngineManufacturer" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Engine" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="Chassis" Nullable="true" MaxLength="15" />
+          <Property Type="Int32" Name="Length" Nullable="true" />
+          <Property Type="Decimal" Name="GrossWeight" Nullable="true" Precision="28" Scale="4" />
+          <Property Type="String" Name="Color" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="LicenseState" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="LicenseNumber" Nullable="true" MaxLength="20" />
+          <Property Type="Binary" Name="Photo" Nullable="true" />
+        </ComplexType>
+        <ComplexType Name="GetMemberResult">
+          <Property Type="Int32" Name="ID" Nullable="false" />
+          <Property Type="String" Name="MemberNumber" Nullable="true" MaxLength="30" />
+          <Property Type="Int32" Name="IsPrimary" Nullable="false" />
+          <Property Type="Int32" Name="PlanID" Nullable="true" />
+          <Property Type="String" Name="PlanName" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="ProductCode" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="FirstName" Nullable="false" MaxLength="20" />
+          <Property Type="String" Name="MiddleName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="LastName" Nullable="true" MaxLength="20" />
+          <Property Type="String" Name="Suffix" Nullable="true" MaxLength="10" />
+          <Property Type="DateTime" Name="BirthDay" Nullable="false" Precision="23" />
+          <Property Type="Int32" Name="HomeAddressID" Nullable="true" />
+          <Property Type="String" Name="AddressLine1" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="AddressLine2" Nullable="true" MaxLength="100" />
+          <Property Type="String" Name="City" Nullable="true" MaxLength="50" />
+          <Property Type="String" Name="StateProvince" Nullable="true" MaxLength="30" />
+          <Property Type="String" Name="PostalCode" Nullable="true" MaxLength="25" />
+          <Property Type="String" Name="CountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="Int32" Name="HomePhoneID" Nullable="true" />
+          <Property Type="String" Name="HomePhoneTypeCode" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="HomePhoneCountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="HomePhoneAreaCode" Nullable="true" MaxLength="5" />
+          <Property Type="String" Name="HomePhone" Nullable="true" MaxLength="15" />
+          <Property Type="Int32" Name="CellPhoneID" Nullable="true" />
+          <Property Type="String" Name="CellPhoneTypeCode" Nullable="true" MaxLength="4" />
+          <Property Type="String" Name="CellPhoneCountryCode" Nullable="true" MaxLength="2" />
+          <Property Type="String" Name="CellPhoneAreaCode" Nullable="true" MaxLength="5" />
+          <Property Type="String" Name="CellPhone" Nullable="true" MaxLength="15" />
+          <Property Type="String" Name="Email1" Nullable="true" MaxLength="100" />
+          <Property Type="DateTime" Name="EffectiveDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="ExpirationDate" Nullable="true" Precision="23" />
+          <Property Type="DateTime" Name="MemberSinceDate" Nullable="true" Precision="23" />
+          <Property Type="Boolean" Name="MailExclude" Nullable="false" />
+          <Property Type="Boolean" Name="FaxExclude" Nullable="false" />
+          <Property Type="Boolean" Name="EmailExclude" Nullable="false" />
+          <Property Type="Boolean" Name="DirExclude" Nullable="false" />
+          <Property Type="Boolean" Name="NMCInvoiceExclude" Nullable="false" />
+          <Property Type="Boolean" Name="NMCPhoneExclude" Nullable="false" />
+        </ComplexType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="PinnacleMembershipDAOStoreContainer" CdmEntityContainer="APTIFYEntities" >
+          <FunctionImportMapping FunctionImportName="spNMCAPI_CheckUsername" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_CheckUsername" />
+          <FunctionImportMapping FunctionImportName="spNMCAPI_Login" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_Login">
+          <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.LoginResult">
+                <ScalarProperty Name="PersonID" ColumnName="PersonID" />
+                <ScalarProperty Name="NMCMemberNumber" ColumnName="NMCMemberNumber" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="PlanID" ColumnName="PlanID" />
+                <ScalarProperty Name="PlanName" ColumnName="PlanName" />
+                <ScalarProperty Name="MemberSinceDate" ColumnName="MemberSinceDate" />
+                <ScalarProperty Name="CurrentSubscriptionStartDate" ColumnName="CurrentSubscriptionStartDate" />
+                <ScalarProperty Name="CurrentSubscriptionExpirationDate" ColumnName="CurrentSubscriptionExpirationDate" />
+                <ScalarProperty Name="MemberNumber" ColumnName="MemberNumber" />
+                <ScalarProperty Name="ProductCode" ColumnName="ProductCode" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="MasterPersonID" ColumnName="MasterPersonID" />
+                <ScalarProperty Name="MasterMemberNumber" ColumnName="MasterMemberNumber" />
+                <ScalarProperty Name="MembershipNumber" ColumnName="MembershipNumber" />
+                <ScalarProperty Name="ProgramID" ColumnName="ProgramID" />
+                <ScalarProperty Name="MasterMember" ColumnName="MasterMember" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spNMCAPI_RegisterVerify" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_RegisterVerify">
+          <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.RegisterVerifyResult">
+                <ScalarProperty Name="PersonID" ColumnName="PersonID" />
+                <ScalarProperty Name="NMCMemberNumber" ColumnName="NMCMemberNumber" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="PostalCode" ColumnName="PostalCode" />
+                <ScalarProperty Name="IsWebAccountExists" ColumnName="IsWebAccountExists" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <EntitySetMapping Name="NMCAPIMessages">
+            <EntityTypeMapping TypeName="Pinnacle.Membership.DAO.NMCAPIMessage">
+              <MappingFragment StoreEntitySet="NMCAPIMessages">
+                <ScalarProperty Name="MessageText" ColumnName="MessageText" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="OrganizationID" ColumnName="OrganizationID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <FunctionImportMapping FunctionImportName="spNMCAPI_CheckMemberNumber" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_CheckMemberNumber">
+          <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.CheckMemberNumberResult">
+                <ScalarProperty Name="NMCMemberNumber" ColumnName="NMCMemberNumber" />
+                <ScalarProperty Name="Email1" ColumnName="Email1" />
+                <ScalarProperty Name="IsWebAccountExists" ColumnName="IsWebAccountExists" />
+                <ScalarProperty Name="Username" ColumnName="Username" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spNMCAPI_GetMember" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_GetMember">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.GetMemberResult">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="MemberNumber" ColumnName="MemberNumber" />
+                <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
+                <ScalarProperty Name="PlanID" ColumnName="PlanID" />
+                <ScalarProperty Name="PlanName" ColumnName="PlanName" />
+                <ScalarProperty Name="ProductCode" ColumnName="ProductCode" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="MiddleName" ColumnName="MiddleName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="Suffix" ColumnName="Suffix" />
+                <ScalarProperty Name="BirthDay" ColumnName="BirthDay" />
+                <ScalarProperty Name="HomeAddressID" ColumnName="HomeAddressID" />
+                <ScalarProperty Name="AddressLine1" ColumnName="AddressLine1" />
+                <ScalarProperty Name="AddressLine2" ColumnName="AddressLine2" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="StateProvince" ColumnName="StateProvince" />
+                <ScalarProperty Name="PostalCode" ColumnName="PostalCode" />
+                <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+                <ScalarProperty Name="HomePhoneID" ColumnName="HomePhoneID" />
+                <ScalarProperty Name="HomePhoneTypeCode" ColumnName="HomePhoneTypeCode" />
+                <ScalarProperty Name="HomePhoneCountryCode" ColumnName="HomePhoneCountryCode" />
+                <ScalarProperty Name="HomePhoneAreaCode" ColumnName="HomePhoneAreaCode" />
+                <ScalarProperty Name="HomePhone" ColumnName="HomePhone" />
+                <ScalarProperty Name="CellPhoneID" ColumnName="CellPhoneID" />
+                <ScalarProperty Name="CellPhoneTypeCode" ColumnName="CellPhoneTypeCode" />
+                <ScalarProperty Name="CellPhoneCountryCode" ColumnName="CellPhoneCountryCode" />
+                <ScalarProperty Name="CellPhoneAreaCode" ColumnName="CellPhoneAreaCode" />
+                <ScalarProperty Name="CellPhone" ColumnName="CellPhone" />
+                <ScalarProperty Name="Email1" ColumnName="Email1" />
+                <ScalarProperty Name="EffectiveDate" ColumnName="EffectiveDate" />
+                <ScalarProperty Name="ExpirationDate" ColumnName="ExpirationDate" />
+                <ScalarProperty Name="MemberSinceDate" ColumnName="MemberSinceDate" />
+                <ScalarProperty Name="MailExclude" ColumnName="MailExclude" />
+                <ScalarProperty Name="FaxExclude" ColumnName="FaxExclude" />
+                <ScalarProperty Name="EmailExclude" ColumnName="EmailExclude" />
+                <ScalarProperty Name="DirExclude" ColumnName="DirExclude" />
+                <ScalarProperty Name="NMCInvoiceExclude" ColumnName="NMCInvoiceExclude" />
+                <ScalarProperty Name="NMCPhoneExclude" ColumnName="NMCPhoneExclude" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spNMCAPI_GetVehicle" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_GetVehicle">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.GetVehicleResult">
+                <ScalarProperty Name="PersonID" ColumnName="PersonID" />
+                <ScalarProperty Name="VehicleType" ColumnName="VehicleType" />
+                <ScalarProperty Name="Year" ColumnName="Year" />
+                <ScalarProperty Name="Make" ColumnName="Make" />
+                <ScalarProperty Name="MakeOther" ColumnName="MakeOther" />
+                <ScalarProperty Name="Model" ColumnName="Model" />
+                <ScalarProperty Name="ModelOther" ColumnName="ModelOther" />
+                <ScalarProperty Name="VIN" ColumnName="VIN" />
+                <ScalarProperty Name="RVType" ColumnName="RVType" />
+                <ScalarProperty Name="Transmission" ColumnName="Transmission" />
+                <ScalarProperty Name="EngineManufacturer" ColumnName="EngineManufacturer" />
+                <ScalarProperty Name="Engine" ColumnName="Engine" />
+                <ScalarProperty Name="Chassis" ColumnName="Chassis" />
+                <ScalarProperty Name="Length" ColumnName="Length" />
+                <ScalarProperty Name="GrossWeight" ColumnName="GrossWeight" />
+                <ScalarProperty Name="Color" ColumnName="Color" />
+                <ScalarProperty Name="LicenseState" ColumnName="LicenseState" />
+                <ScalarProperty Name="LicenseNumber" ColumnName="LicenseNumber" />
+                <ScalarProperty Name="Photo" ColumnName="Photo" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="spNMCAPI_GetDependents" FunctionName="Pinnacle.Membership.DAO.Store.spNMCAPI_GetDependents">
+          <ResultMapping>
+              <ComplexTypeMapping TypeName="Pinnacle.Membership.DAO.GetDependentsResult">
+                <ScalarProperty Name="NMCMemberNumber" ColumnName="NMCMemberNumber" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="Birthday" ColumnName="Birthday" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

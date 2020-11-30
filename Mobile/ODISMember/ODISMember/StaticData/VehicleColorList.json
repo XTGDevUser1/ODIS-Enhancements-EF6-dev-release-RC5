@@ -1,0 +1,46 @@
+[
+    {
+      "key": "Black",
+      "value": "#000000"
+    },
+    {
+      "key": "Blue",
+      "value": "#0404B4"
+    },
+    {
+      "key": "Brown",
+      "value": "#573200"
+    },
+    {
+      "key": "Gold",
+      "value": "#AEB404"
+    },
+    {
+      "key": "Green",
+      "value": "#0B610B"
+    },
+    {
+      "key": "Grey",
+      "value": "#8c8c8c"
+    },
+    {
+      "key": "Red",
+      "value": "#DF0101"
+    },
+    {
+      "key": "Silver",
+      "value": "#D2D2D2"
+    },
+    {
+      "key": "Tan",
+      "value": "#F5DA81"
+    },
+    {
+      "key": "White",
+      "value": "#FFFFFF"
+    },
+    {
+      "key": "Yellow",
+      "value": "#FFFF00"
+    }
+  ]

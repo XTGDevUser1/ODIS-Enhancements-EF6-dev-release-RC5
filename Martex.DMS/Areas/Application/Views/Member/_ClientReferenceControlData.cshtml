@@ -1,0 +1,16 @@
+﻿@model Martex.DMS.DAL.Entities.MemberModel
+@if (Model.ClientReferenceControlData != null)
+{
+    string clsName = "validate[maxSize[50]], input full-width";
+    <p class="inline-label">
+        <label for="ClientReferenceNumber" class="label">
+            @Html.DisplayFor(m => m.ClientReferenceControlData.Label)
+            @if (Model.ClientReferenceControlData.IsRequired)
+            {
+                <span class="spanstar">*</span>
+                clsName = "validate[required,maxSize[50]], input full-width";
+            }
+        </label>
+        @Html.TextBoxFor(m => m.ClientReferenceNumber, new { @class = clsName })
+    </p>
+}

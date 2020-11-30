@@ -1,0 +1,824 @@
+﻿@model Martex.DMS.DAL.Entities.HistorySearchCriteria
+@using Martex.DMS.DAL.Entities
+@using Martex.DMS.ActionFilters
+@using Kendo.Mvc.UI
+@{
+    Layout = "";
+    int i = 0;
+}
+
+<script type="text/javascript">
+    function NameSectionType_Change(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        LoadNameSectionTypes(value);
+
+    }
+    function DateSectionPresetOnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        DatePresetOnChange(value);
+    }
+    function DatePresetOnChange(value) {
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker");
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker");
+        var endDate = new Date();
+        var startDate = new Date();
+        if (value == 1) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 7);
+            startPicker.value(startDate)
+        }
+        else if (value == 2) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 30);
+            startPicker.value(startDate)
+        }
+        else if (value == 3) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 90);
+            startPicker.value(startDate)
+        }
+        else {
+            endPicker.value('');
+            startPicker.value('')
+        }
+        LoadSearchCriteria();
+    }
+    function VehicleMakeOnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        vehicleMakeChange(value);
+    }
+    function vehicleMakeChange(value) {
+        if (value == "Remove") {
+            $('#VehicleMake').data('kendoComboBox').value('');
+        }
+        $('#divOtherVehicleModel').hide();
+        $('#VehicleMakeOther').val('');
+        $('#VehicleModelOther').val('');
+        $('#VehicleModel').data('kendoComboBox').value('');
+        if (value == "Other") {
+            $('#divOtherVehicleMake').show();
+            return false;
+
+        }
+        else {
+            $('#divOtherVehicleMake').hide();
+        }
+        LoadSearchCriteria();
+    }
+    function VehicleModelOnChange(e) {
+        $('#VehicleModelOther').val('');
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        vehicleModelChange(value);
+    }
+    function vehicleModelChange(value) {
+        if (value == "Other") {
+            $('#divOtherVehicleModel').show();
+            return false;
+        }
+        else {
+            $('#divOtherVehicleModel').hide();
+        }
+        LoadSearchCriteria();
+    }
+    function LoadNameSectionTypes(value) {
+        if (value == '' || value == "select") {
+            $('#NameSectionTypeISP').val('');
+            $('#NameSectionTypeUser').data('kendoComboBox').value('');
+            $('#NameSectionTypeMemberFirstName').val('');
+            $('#NameSectionTypeMemberLastName').val('');
+
+            $('#divNameSectionValueISP').hide();
+            $('#divNameSectionValueUser').hide();
+            $('#divNameSectionValueMember').hide();
+        }
+        else if (value == 1) {
+            $('#NameSectionTypeUser').data('kendoComboBox').value('');
+            $('#NameSectionTypeMemberFirstName').val('');
+            $('#NameSectionTypeMemberLastName').val('');
+
+            $('#divNameSectionValueISP').show();
+            $('#divNameSectionValueUser').hide();
+            $('#divNameSectionValueMember').hide();
+        }
+        else if (value == 3) {
+            $('#NameSectionTypeISP').val('');
+            $('#NameSectionTypeMemberFirstName').val('');
+            $('#NameSectionTypeMemberLastName').val('');
+
+            $('#divNameSectionValueISP').hide();
+            $('#divNameSectionValueUser').show();
+            $('#divNameSectionValueMember').hide();
+        }
+        else if (value == 2) {
+            $('#NameSectionTypeISP').val('');
+            $('#NameSectionTypeUser').data('kendoComboBox').value('');
+
+            $('#divNameSectionValueISP').hide();
+            $('#divNameSectionValueUser').hide();
+            $('#divNameSectionValueMember').show();
+        }
+        LoadSearchCriteria();
+    }
+
+    function filterYears() {
+        var VehicleTypeValue = $("#VehicleType").data('kendoComboBox').value();
+        if (VehicleTypeValue == null) {
+            VehicleTypeValue = 0;
+        }
+        return {
+            vehicleType: VehicleTypeValue
+        };
+    }
+
+    function filterMake() {
+        return {
+            vehicleType: $("#VehicleType").data('kendoComboBox').value(),
+            //vehicleYear: $("#VehicleYear").data('kendoComboBox').value()
+        };
+    }
+
+    function filterModel() {
+        return {
+            vehicleType: $("#VehicleType").data('kendoComboBox').value(),
+            make: $("#VehicleMake").data('kendoComboBox').value()
+        };
+    }
+    // When in a panel we have single item it's required to remove orange bar when it's collapsed
+    function fnPanelCollapse(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+    }
+
+    function StartDateChange() {
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+        LoadSearchCriteria();
+    }
+
+    function EndDateChange() {
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker"),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+        LoadSearchCriteria();
+    }
+
+    function ClientID_Change() {
+        $("#ProgramID").data("kendoMultiSelect").dataSource.read();
+        $('#ProgramID').data("kendoMultiSelect").value([]);
+        LoadSearchCriteria();
+    }
+
+    function fnClientList() {
+        var value = $("#ClientID").data("kendoMultiSelect").value();
+        return {
+            id: value.toString()
+        };
+    }
+
+    function ProgramID_Change() {
+        LoadSearchCriteria();
+    }
+</script>
+<script type='text/javascript' language='javascript'>
+
+    $(function () {
+        $('#frmHistorySearchCriteria input[type="text"]').change(function () {
+
+            var startDatePicker = $("#DateSectionFromDate").data("kendoDatePicker").value();
+            var endDatePicker = $("#DateSectionToDate").data("kendoDatePicker").value();
+
+            if (startDatePicker == null) {
+                $("#DateSectionFromDate").data("kendoDatePicker").value('');
+            }
+            if (endDatePicker == null) {
+                $("#DateSectionToDate").data("kendoDatePicker").value('');
+            }
+
+            LoadSearchCriteria();
+            var fieldName = $(this).attr('name');
+            if (fieldName != undefined &&
+                fieldName != "IDSectionType_input" &&
+                fieldName != "VehicleType_input" &&
+                fieldName != "VehicleYear_input" &&
+                fieldName != "VehicleMake_input" &&
+                fieldName != "IDSectionType" &&
+                fieldName != "VehicleType" &&
+                fieldName != "VehicleYear" &&
+                fieldName != "VehicleMake") {
+            }
+
+        });
+        $('#frmHistorySearchCriteria input[type="checkbox"]').change(function () {
+            LoadSearchCriteria();
+        });
+    });
+    function GetData() {
+        var postData = $('#frmHistorySearchCriteria').serializeArray();
+        postData.push({ name: "IDSectionTypeValue", value: $('#IDSectionType').data('kendoComboBox').text() });
+        postData.push({ name: "DateSectionPresetValue", value: $('#DateSectionPreset').data('kendoComboBox').text() });
+        postData.push({ name: "NameSectionTypeValue", value: $('#NameSectionType').data('kendoComboBox').text() });
+        postData.push({ name: "NameSectionFilterValue", value: $('#NameSectionFilter').data('kendoComboBox').text() });
+        postData.push({ name: "VehicleTypeValue", value: $('#VehicleType').data('kendoComboBox').text() });
+
+        if ($('#VehicleYear').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VehicleYear", value: $('#VehicleYear').data('kendoComboBox').text() });
+        }
+
+        if ($('#VehicleMake').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VehicleMake", value: $('#VehicleMake').data('kendoComboBox').text() });
+        }
+
+        if ($('#VehicleModel').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VehicleModel", value: $('#VehicleModel').data('kendoComboBox').text() });
+        }
+        return postData;
+    }
+    function LoadSearchCriteriaPanel() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetSelectedSearchCriteria", "History", new { area = "Application" })',
+            data: GetData(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#ulHistorySearchCriteria').html(msg);
+            }
+        });
+    }
+    
+</script>
+<li>
+    <form id="frmHistorySearchCriteria">
+    @Html.HiddenFor(u => u.GroupedPanelID, new { id = "GroupedPanelID" })
+    @Html.HiddenFor(u => u.GroupedPanelName, new { id = "GroupedPanelName" })
+    @Html.HiddenFor(u => u.GroupedPanelDateRange, new { id = "GroupedPanelDateRange" })
+    @Html.HiddenFor(u => u.GroupedPanelClient, new { id = "GroupedPanelClient" })
+    @Html.HiddenFor(u => u.GroupedPanelServiceRequestStatus, new { id = "GroupedPanelServiceRequestStatus" })
+    @Html.HiddenFor(u => u.GroupedPanelServiceType, new { id = "GroupedPanelServiceType" })
+    @Html.HiddenFor(u => u.GroupedPanelSpecial, new { id = "GroupedPanelSpecial" })
+    @Html.HiddenFor(u => u.GroupedPanelVehicle, new { id = "GroupedPanelVehicle" })
+    @Html.HiddenFor(u => u.GroupedPanelPaymentType, new { id = "GroupedPanelPaymentType" })
+    @Html.HiddenFor(u => u.GroupedPanelPurchaseOrderStatus, new { id = "GroupedPanelPurchaseOrderStatus" })
+    <div>
+        @(Html.Kendo().PanelBar()
+        .Name("panelIndividualSelectedCriteria")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+        .Items(panelbar =>
+        {
+            panelbar.Add().Text("ID").LinkHtmlAttributes(new { id = "GroupedPanelID" }).Expanded(Model.GroupedPanelID).HtmlAttributes(new { id = "Panel_ID" })
+                   .Content(@<div class="with-padding">
+                       <div class="button-height inline-label small-margin-bottom">
+                           <label for="Type" class="label">
+                               Type</label>
+                           @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[StaticData.HistorySearchCriteriaIDSectionType.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("IDSectionType")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                           .Value(Model.IDSectionType == null ? string.Empty : Model.IDSectionType.Value.ToString()).Suggest(true)
+                            )
+                       </div>
+                       <p class="inline-label">
+                           <label for="ID" class="label">
+                               ID</label>
+                           @Html.TextBoxFor(u => u.IDSectionID, new { @class = "input full-width" })
+                       </p>
+                   </div>
+                );
+
+            panelbar.Add().Text("Name").LinkHtmlAttributes(new { id = "GroupedPanelName" }).Expanded(Model.GroupedPanelName).HtmlAttributes(new { id = "Panel_Name" })
+                .Content(@<div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Type" class="label">
+                            Type</label>
+                        @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.HistorySearchCriteriaNameSectionType.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("NameSectionType")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                           .Events(events => events.Change("NameSectionType_Change"))
+                                           .Value(Model.NameSectionType == null ? string.Empty : Model.NameSectionType.Value.ToString()).Suggest(true)
+                            )
+                    </div>
+                    @{
+                        string styleISPFields = "display:none";
+                        string styleMemberFields = "display:none";
+                        string styleUserFields = "display:none";
+
+                        if (Model.NameSectionType != null)
+                        {
+                            var nsType = Model.NameSectionType;
+                            switch (nsType.Value)
+                            {
+                                case 1: //  ISP
+                                    styleISPFields = "display:block";
+                                    break;
+                                case 2: // Member
+                                    styleMemberFields = "display:block";
+                                    break;
+                                case 3: // User
+                                    styleUserFields = "display:block";
+                                    break;
+                            }
+                        }
+                    }
+                    <div id="divNameSectionValueISP" style="@styleISPFields">
+                        <p class="inline-label">
+                            <label for="NameSectionTypeISP" class="label">
+                                Name</label>
+                            @Html.TextBoxFor(u => u.NameSectionTypeISP, new { @class = "input full-width" })
+                        </p>
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom" style="@styleUserFields"
+                        id="divNameSectionValueUser">
+                        <label for="NameSectionTypeValue" class="label">
+                            Name
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.HistorySearchCriteriaNameSectionUser.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("NameSectionTypeUser")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                           .Value(Model.NameSectionTypeUser == null ? string.Empty : Model.NameSectionTypeUser.ToString()).Suggest(true)
+                            )
+                    </div>
+                    <div id="divNameSectionValueMember" style="@styleMemberFields">
+                        <p class="inline-label">
+                            <label for="NameSectionTypeMemberFirstName" class="label">
+                                First Name</label>
+                            @Html.TextBoxFor(u => u.NameSectionTypeMemberFirstName, new { @class = "input full-width" })
+                        </p>
+                        <p class="inline-label">
+                            <label for="NameSectionTypeMemberLastName" class="label">
+                                Last Name</label>
+                            @Html.TextBoxFor(u => u.NameSectionTypeMemberLastName, new { @class = "input full-width" })
+                        </p>
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="NameSectionTypeValue" class="label">
+                            Filter Type
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.HistorySearchCriteriaNameFilterType.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("NameSectionFilter")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                           .Value(Model.NameSectionFilter == null ? string.Empty : Model.NameSectionFilter.Value.ToString()).Suggest(true)
+                            )
+                    </div>
+                </div>
+                );
+
+            panelbar.Add().Text("Date Range").LinkHtmlAttributes(new { id = "GroupedPanelDateRange" }).Expanded(Model.GroupedPanelDateRange).HtmlAttributes(new { id = "Panel_DateRange" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label small-margin-right">
+                       <label for="NameSectionTypeMemberLastName" class="label">
+                           From</label>
+                       @(Html.Kendo().DatePicker()
+                                   .Name("DateSectionFromDate")
+                                   .Events(e => e.Change("StartDateChange"))
+                               .HtmlAttributes(new { style = "width:120px", type = "text" })
+                              )
+                   </div>
+                   <div class="clear">
+                   </div>
+                   <div class="button-height inline-label small-margin-left">
+                       <label for="DateSectionToDate" class="label">
+                           To</label>
+                       @(Html.Kendo().DatePicker()
+                                          .Name("DateSectionToDate")
+                                          .Events(e => e.Change("EndDateChange"))
+                               .HtmlAttributes(new { style = "width:120px", type = "text" })
+                             )
+                   </div>
+                   @*</div>*@
+                   <div class="clear">
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label for="DateSectionPreset" class="label">
+                           Preset
+                       </label>
+                       @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.HistorySearchCriteriaDatePreset.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("DateSectionPreset")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events =>
+                                   {
+                                       events.Change("DateSectionPresetOnChange");
+                                       //events.Change("ComboOnChange");
+                                   })
+                                           .Value(Model.DateSectionPreset == null ? string.Empty : Model.DateSectionPreset.Value.ToString()).Suggest(true)
+                            )
+                   </div>
+               </div>
+                );
+
+            panelbar.Add().Text("Client").LinkHtmlAttributes(new { id = "GroupedPanelClient" }).Expanded(Model.GroupedPanelClient).HtmlAttributes(new { id = "Panel_Client" })
+                .Content(@<div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="ClientID" class="label">
+                            Client
+                        </label>
+                        @(Html.Kendo().MultiSelect()
+                                          .Name("ClientID")
+                                          .Placeholder("Select Client")
+                                          .BindTo(ViewData[StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                                          .DataTextField("Text")
+                                          .DataValueField("Value")
+                                          .Events(e =>
+                                          {
+                                              e.Change("ClientID_Change");
+                                          })
+                                          .Value(Model.ClientIDValuesForCombo)
+                                          )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="ProgramID" class="label">
+                            Program
+                        </label>
+                        @(Html.Kendo().MultiSelect()
+                              .Name("ProgramID")
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+                              .Placeholder("Select programs")
+                                       .Events(e =>
+                                       {
+                                           e.Change("ProgramID_Change");
+                                       })
+                              .DataSource(source =>
+                              {
+                                  source.Read(read =>
+                                  {
+                                      read.Action("GetPrograms", "History").Data("fnClientList");
+                                  })
+                                  .ServerFiltering(true);
+                              })
+                              .Value(Model.ProgramIDValuesForCombo)
+                        )
+                    </div>
+                </div>
+                );
+
+            panelbar.Add().Text("Service Request Status").LinkHtmlAttributes(new { id = "GroupedPanelServiceRequestStatus" }).Expanded(Model.GroupedPanelServiceRequestStatus).HtmlAttributes(new { id = "Panel_ServiceRequestStatus" })
+                .Content(@<div class="with-padding">
+                    @if (Model.ServiceRequestStatus != null && Model.ServiceRequestStatus.Count > 0)
+                    {
+                        for (i = 0; i < Model.ServiceRequestStatus.Count; i++)
+                        {
+                        <div class="with-small-padding">
+                            <div>
+                                @Html.Hidden("ServiceRequestStatus[" + i.ToString() + "].Name", @Model.ServiceRequestStatus[i].Name)
+                                @Html.Hidden("ServiceRequestStatus[" + i.ToString() + "].ID", @Model.ServiceRequestStatus[i].ID)
+                                @Html.CheckBox("ServiceRequestStatus[" + i.ToString() + "].Selected", @Model.ServiceRequestStatus[i].Selected, new { @class = "checkbox" })
+                                @Model.ServiceRequestStatus[i].Name
+                            </div>
+                        </div>
+                        }
+                    }
+                </div>
+                );
+
+            panelbar.Add().Text("Service Type").LinkHtmlAttributes(new { id = "GroupedPanelServiceType" }).Expanded(Model.GroupedPanelServiceType).HtmlAttributes(new { id = "Panel_ServiceType" })
+                 .Content(@<div class="with-padding">
+                     @if (Model.ServiceType != null && Model.ServiceType.Count > 0)
+                     {
+                         for (i = 0; i < Model.ServiceType.Count; i++)
+                         {
+                         <div class="with-small-padding">
+                             <div>
+                                 @Html.Hidden("ServiceType[" + i.ToString() + "].Name", @Model.ServiceType[i].Name)
+                                 @Html.Hidden("ServiceType[" + i.ToString() + "].ID", @Model.ServiceType[i].ID)
+                                 @Html.CheckBox("ServiceType[" + i.ToString() + "].Selected", @Model.ServiceType[i].Selected, new { @class = "checkbox" })
+                                 @Model.ServiceType[i].Name
+                             </div>
+                         </div>
+                         }
+                     }
+                 </div>
+                );
+
+            panelbar.Add().Text("Special").LinkHtmlAttributes(new { id = "GroupedPanelSpecial" }).Expanded(Model.GroupedPanelSpecial).HtmlAttributes(new { id = "Panel_Special" })
+                .Content(@<div class="with-padding">
+                    @if (Model.SpecialList != null && Model.SpecialList.Count > 0)
+                    {
+                        for (i = 0; i < Model.SpecialList.Count; i++)
+                        {
+                        <div class="with-small-padding">
+                            <div>
+                                @Html.Hidden("SpecialList[" + i.ToString() + "].Name", @Model.SpecialList[i].Name)
+                                @Html.Hidden("SpecialList[" + i.ToString() + "].ID", @Model.SpecialList[i].ID)
+                                @Html.CheckBox("SpecialList[" + i.ToString() + "].Selected", @Model.SpecialList[i].Selected, new { @class = "checkbox" })
+                                @Model.SpecialList[i].Name
+                            </div>
+                        </div>
+                        }
+                    }
+                </div>
+                );
+
+            panelbar.Add().Text("Vehicle").LinkHtmlAttributes(new { id = "GroupedPanelVehicle" }).Expanded(Model.GroupedPanelVehicle).HtmlAttributes(new { id = "Panel_Vehicle" })
+                .Content(@<div class="with-padding">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="VehicleTypeName" class="label">
+                            Vehicle Type
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                                   .BindTo(ViewData[StaticData.HistorySearchCriteriaVehicleType.ToString()] as IEnumerable<SelectListItem>)
+                                   .Name("VehicleType")
+                                   .SelectedIndex(0)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                           .Value(Model.VehicleType == null ? string.Empty : Model.VehicleType.Value.ToString()).Suggest(true)
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="VehicleTypeName" class="label">
+                            Year
+                        </label>
+                        @(Html.Kendo().ComboBoxFor(m => m.VehicleYear)
+                                   .HighlightFirst(true)
+                                   .Filter(FilterType.StartsWith).MinLength(0)
+                                   .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                   .Placeholder("Select Year")
+                                   .DataTextField("Text")
+                                   .DataValueField("Value")
+                                   .DataSource(source =>
+                                   {
+                                       source.Read(read =>
+                                       {
+                                           read.Action("GetYears", "History")
+                                           .Data("filterYears");
+                                       })
+                                       .ServerFiltering(true);
+                                   })
+                                  //.Enable(false)
+                                  //.AutoBind(false)
+                                          //.CascadeFrom("VehicleType")
+                                          .Suggest(true)
+                            )
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="VehicleMake" class="label">
+                            Make
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                        .Name("VehicleMake")
+                        .HighlightFirst(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("VehicleMakeOnChange"))
+                        .Placeholder("Select Make")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetMake", "History")
+                                    .Data("filterMake");
+                            })
+                            .ServerFiltering(true);
+                        })
+                        .Enable(false)
+                        .AutoBind(false)
+                        .CascadeFrom("VehicleType")
+                                .Value(Model.VehicleMake).Suggest(true)
+                        )
+                    </div>
+                    @{
+                        string styleVehicleMake = "display:none";
+
+                        if (Model.VehicleMake != null)
+                        {
+                            var vehicleMake = Model.VehicleMake;
+                            if (vehicleMake == "Other")
+                            {
+                                styleVehicleMake = "display:block";
+
+                            }
+                        }
+                    }
+                    <div id="divOtherVehicleMake" style="@styleVehicleMake">
+                        <p class="inline-label">
+                            <label for="OtherVehicleMake" class="label">
+                                If Other Make
+                            </label>
+                            @Html.TextBoxFor(u => u.VehicleMakeOther, new { @class = "input full-width" })
+                        </p>
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="VehicleMake" class="label">
+                            Model
+                        </label>
+                        @(Html.Kendo().ComboBox()
+                        .Name("VehicleModel")
+                        .HighlightFirst(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("VehicleModelOnChange"))
+                        .Placeholder("Select Model")
+                        .DataTextField("Text")
+                        .DataValueField("Value")
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetModelForVehicle", "History")
+                                    .Data("filterModel");
+                            })
+                            .ServerFiltering(true);
+                        })
+                        .Enable(false)
+                        .AutoBind(false)
+                        .CascadeFrom("VehicleMake")
+                                .Value(Model.VehicleModel).Suggest(true)
+                        )
+                    </div>
+                    @{
+                        string styleVehicleModel = "display:none";
+
+                        if (Model.VehicleModel != null)
+                        {
+                            var vehicleModel = Model.VehicleModel;
+                            if (vehicleModel == "Other")
+                            {
+                                styleVehicleModel = "display:block";
+
+                            }
+                        }
+                    }
+                    <div id="divOtherVehicleModel" style="@styleVehicleModel">
+                        <p class="inline-label">
+                            <label for="OtherVehicleModel" class="label">
+                                If Other Model
+                            </label>
+                            @Html.TextBoxFor(u => u.VehicleModelOther, new { @class = "input full-width" })
+                        </p>
+                    </div>
+                </div>
+                );
+
+            panelbar.Add().Text("Payment Type").LinkHtmlAttributes(new { id = "GroupedPanelPaymentType" }).Expanded(Model.GroupedPanelPaymentType).HtmlAttributes(new { id = "Panel_PaymentType" })
+                .Content(@<div class="with-padding">
+                    @if (Model.PaymentType != null && Model.PaymentType.Count > 0)
+                    {
+                        for (i = 0; i < Model.PaymentType.Count; i++)
+                        {
+                        <div class="with-small-padding">
+                            <div>
+                                @Html.Hidden("PaymentType[" + i.ToString() + "].Name", @Model.PaymentType[i].Name)
+                                @Html.Hidden("PaymentType[" + i.ToString() + "].ID", @Model.PaymentType[i].ID)
+                                @Html.CheckBox("PaymentType[" + i.ToString() + "].Selected", @Model.PaymentType[i].Selected, new { @class = "checkbox" })
+                                @Model.PaymentType[i].Name
+                            </div>
+                        </div>
+                        }
+                    }
+                </div>
+                );
+
+            panelbar.Add().Text("Purchase Order Status").LinkHtmlAttributes(new { id = "GroupedPanelPurchaseOrderStatus" }).Expanded(Model.GroupedPanelPurchaseOrderStatus).HtmlAttributes(new { id = "Panel_PurchaseOrderStatus" })
+                .Content(@<div class="with-padding">
+                    @if (Model.PurchaseOrderStatus != null && Model.PurchaseOrderStatus.Count > 0)
+                    {
+                        for (i = 0; i < Model.PurchaseOrderStatus.Count; i++)
+                        {
+                        <div class="with-small-padding">
+                            <div>
+                                @Html.Hidden("PurchaseOrderStatus[" + i.ToString() + "].Name", @Model.PurchaseOrderStatus[i].Name)
+                                @Html.Hidden("PurchaseOrderStatus[" + i.ToString() + "].ID", @Model.PurchaseOrderStatus[i].ID)
+                                @Html.CheckBox("PurchaseOrderStatus[" + i.ToString() + "].Selected", @Model.PurchaseOrderStatus[i].Selected, new { @class = "checkbox" })
+                                @Model.PurchaseOrderStatus[i].Name
+                            </div>
+                        </div>
+                        }
+                    }
+                </div>
+                );
+                 panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="PerformSearch(this);">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+        })
+                        )
+    </div>
+    </form>
+</li>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            var vehcicelYear = "@Model.VehicleYear";
+            if (vehcicelYear != '' && vehcicelYear != undefined && vehcicelYear != null) {
+                $('#VehicleYear').data('kendoComboBox').text(vehcicelYear);
+            }
+            var vehcicelMake = "@Model.VehicleMake";
+            if (vehcicelMake != '' && vehcicelMake != undefined && vehcicelMake != null) {
+                $('#VehicleMake').data('kendoComboBox').text(vehcicelMake);
+            }
+            var vehcicelModel = "@Model.VehicleModel";
+            if (vehcicelModel != '' && vehcicelModel != undefined && vehcicelModel != null) {
+                $('#VehicleModel').data('kendoComboBox').text(vehcicelModel);
+            }
+      
+        }, 1000);
+    });
+</script>
+<script type="text/javascript">
+    function ReLoadList() {
+
+        var element = $('#dynamicSelectionItems p');
+        if (element.length > 0) {
+            // Validation for Name Section Type        
+            var NameSection = $("#NameSectionType").data("kendoComboBox").value();
+            var filterType = $("#NameSectionFilter").data("kendoComboBox").value();
+            if (NameSection > 0 && filterType == "") {
+                ShowValidationMessage($('input[name="NameSectionFilter_input"]'), "Please select Filter Type");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input[name="NameSectionFilter_input"]'));
+            }
+            // Validation for Date 
+            var fromDate = $("#DateSectionFromDate").data("kendoDatePicker").value();
+            var toDate = $("#DateSectionToDate").data("kendoDatePicker").value();
+            if (toDate != null && fromDate == null) {
+                ShowValidationMessage($('#DateSectionFromDate'), "Please enter from date");
+                $('#DateSectionFromDate').focus();
+                return false;
+            }
+            else {
+                HideValidationMessage($('#DateSectionFromDate'));
+            }
+            if ($('#tabs-2').length > 0) {
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("SearchRecords", "History", new { area = "Application" })',
+                    data: GetData(),
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        if (msg.Data && msg.Data == "0") {
+                            $('#GrdHistoryList').data('kendoGrid').dataSource.read();
+                        }
+                        else {
+                            LoadListTab(msg);
+                            var data = GetData();
+                            LoadSearchCriteriaRight(data);
+                        }
+                    }
+                });
+            }
+
+        }
+        else {
+            if ($('#tabs-2').length > 0) {
+                $('#GrdHistoryList').data('kendoGrid').dataSource.data([]);
+            }
+        }
+    }
+</script>

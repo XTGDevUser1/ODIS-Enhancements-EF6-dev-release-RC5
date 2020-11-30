@@ -1,0 +1,48 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model List<VendorServiceRatings_Result>
+@{
+    string suffixVendorID = ViewData["VendorID"].ToString();
+}
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            @if (Model != null && Model.Count > 0)
+            {
+                @(Html.Kendo().Chart(Model)
+            .Name("VendorServiceRateChart_" + suffixVendorID)
+            .Title("Service Ratings Chart")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .Theme("Bootstrap")
+            .Series(series => series.Bar(s => s.Rating).Name("Services Rating")
+                    .Labels(labels => labels
+                    .Position(ChartBarLabelsPosition.InsideEnd)
+                    .Visible(true))
+            )
+           .CategoryAxis(ca => ca.Categories(x => x.Name).Name("Services").Labels(true).Visible(true))
+           .ValueAxis(axis => axis.Numeric()
+           .Labels(labels => labels.Format("{0:N2}"))
+           .Max(100)
+           .AxisCrossingValue(0)
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Template("#= series.name # - #= category #: #= value #").Color("#FFFFFF")
+        )
+        .HtmlAttributes(new { style = "min-height:300px;height:650px;" })
+        )
+            }
+            else
+            {
+                <div class="with-padding">
+                    <center>
+                        <h2>
+                            No Data to display.</h2>
+                    </center>
+                </div>
+            }
+        </div>
+    </div>
+</div>

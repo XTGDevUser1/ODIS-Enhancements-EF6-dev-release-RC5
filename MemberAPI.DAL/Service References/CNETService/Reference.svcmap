@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="260f55f1-79e1-459b-852f-88c62436b083" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="CNETService.wsdl" MetadataType="Wsdl" ID="84dfdfe5-40d7-4f85-93e3-42e09a96d652" SourceId="1" SourceUrl="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?wsdl" />
+    <MetadataFile FileName="item.disco" MetadataType="Disco" ID="7fd8485e-1b7e-4a7c-ba2f-ccbd7dce32ea" SourceId="1" SourceUrl="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?disco" />
+    <MetadataFile FileName="item.xsd" MetadataType="Schema" ID="fb9caf68-db15-4f24-a32d-096cad138539" SourceId="1" SourceUrl="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd0" />
+    <MetadataFile FileName="item1.xsd" MetadataType="Schema" ID="a13bc0a0-9f22-4e8b-b802-809acc82badf" SourceId="1" SourceUrl="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd1" />
+    <MetadataFile FileName="item2.xsd" MetadataType="Schema" ID="682ddb65-b14b-4173-851a-158fcac327ed" SourceId="1" SourceUrl="http://tacoma.nmcdallas.nmca.com:8731/CNET.BusinessService/CNETService/?xsd=xsd2" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

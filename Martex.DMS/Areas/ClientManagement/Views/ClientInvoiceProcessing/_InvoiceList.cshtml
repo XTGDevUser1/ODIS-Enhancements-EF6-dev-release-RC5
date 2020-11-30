@@ -1,0 +1,895 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@using Martex.DMS.ActionFilters;
+@using Martex.DMS.Areas.Application.Models;
+@{
+    string gridName = "grdInvoices";
+    string mode = ViewData["CloseOpen"] != null ? ViewData["CloseOpen"].ToString() : string.Empty;
+}
+<script type="text/javascript">
+    function InvoiceGridDetailExpand(e) {
+        $(".invoiceDetailsTabs").tabs();
+    }
+    function HandleBillingDefinitionInvoiceLines() {
+        var combo = $("#SearchBillingEvent").data('kendoComboBox');
+        var selectedLines = [];
+        $("#chkBillingDefinitionInvoiceLines input:checked").each(function (e) {
+            selectedLines.push($(this).attr("recorID"));
+        });
+        var stringLineID = selectedLines.join(',');
+
+        $.ajax({
+            url: '@Url.Action("GetBillingEvents", "ReferenceData", new { area = "Common" })',
+            data: { lineID: stringLineID },
+            success: function (msg) {
+                combo.setDataSource(msg);
+                combo.select(0);
+                SetFocusOnField("SearchBillingEvent");
+            }
+        })
+    }
+
+    function grdInvoices_OnDataBound(e) {
+        $(".k-grid-Refresh").addClass("with-tooltip").html("<span class='k-icon k-i-refresh'/>");
+        $(".k-grid-Post").addClass("with-tooltip").html("<span class='k-icon k-i-tick'/>");
+        e.sender.table.find('tr').each(function () {
+            var $InvoiceStatus = $(this).find('.invoiceStatus');
+            var invoiceStatus = $InvoiceStatus.html()
+            if (invoiceStatus == "Invoiced" || invoiceStatus == "Posted" || invoiceStatus == "INVOICED" || invoiceStatus == "POSTED") {
+                $(this).find(".k-grid-Refresh").addClass("hidden");
+            }
+            if (invoiceStatus != "READY" && invoiceStatus != "Ready") {
+                $(this).find(".k-grid-Post").addClass("hidden");
+            }
+
+        });
+        var selectAllLabel = $('label[for="display-Select"]');
+        selectAllLabel.removeClass("active");
+        var chkSelectAll = selectAllLabel.find("input");
+        chkSelectAll.removeAttr("checked");
+    }
+
+
+    function HandleEdits($btn, vendorInvoiceID) {
+        $btn.click(function (e) {
+            if (IsMyContainerDirty('div_BillingInvoiceLinesList_' + vendorInvoiceID)) {
+                var allowEdit = confirm("There are pending changes in the grid. Click Cancel to stay on the row or OK to discard your changes");
+                if (!allowEdit) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+    }
+
+    function gridBillingInvoiceLines_onDataBound(e, vendorInvoiceID) {
+        var grid = e.sender;
+        //        $(e.sender.element).find(".k-grid-edit").each(function () {
+        //            HandleEdits($(this, vendorInvoiceID));
+        //        });
+        e.sender.table.find('tr').each(function () {
+            var $LineCost = $(this).find('.lineCost');
+
+            if ($LineCost == null || $LineCost == undefined || $LineCost == "0") {
+                $LineCost.html("");
+            }
+            else {
+                if (parseFloat($LineCost.html()) > 0) {
+
+                    $LineCost.html("$" + parseFloat($LineCost.html()).toFixed(2));
+                }
+                else {
+                    $LineCost.html("");
+                }
+            }
+        });
+        $("#tooltips").html("");
+        $(".k-grid-add").addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add an Invoice Line</label>").attr("title", "Add an Invoice Line");
+        $(".k-grid-Events").addClass("with-tooltip").html("<span class='k-icon k-i-note'/>").attr("title", "Events");
+        $(".k-grid-edit").addClass("with-tooltip hidden").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+    }
+
+    function gridBillingInvoiceLines_OnEdit(e, invoiceID) {
+        $("#tooltips").html("");
+
+        // Product
+        //var $combo = $(e.container.find("[data-role=combobox]")[0]).data().kendoComboBox;
+
+        /* Set the width of the dropdown containers */
+        //        if ($combo != undefined && $combo != null) {
+        //            $combo.list.width(250);
+        //        }
+        // Set width on textboxes
+        // Avoid onchange
+        e.container.find("input").each(function () {
+            var tb = $(this);
+            if (!tb.hasClass("k-input")) {
+                tb.addClass("input full-width");
+                if (tb.parent("td").hasClass("invoiceLineStatus")) {
+                    tb.attr("readonly", "readonly");
+                    tb.parent("td").addClass("disabled", "disabled");
+                    if (tb.val() == "") {
+                        tb.val("READY");
+                    }
+                }
+            }
+            //tb.change(function (e) { e.stopPropagation(); });
+        });
+
+        var btnUpdate = $(e.container.find(".k-grid-update"));
+        var btnCancel = $(e.container.find(".k-grid-cancel"));
+        btnUpdate.removeAttr("disabled", "disabled");
+        btnUpdate.addClass("with-tooltip green-active2 active").html('<span class="k-icon k-update"/>').css("min-width", "26px");
+        btnCancel.addClass("with-tooltip red-active2 active").html('<span class="k-icon k-cancel"/>').css("min-width", "26px");
+
+        btnCancel.click(function () {
+            $("#gridBillingInvoiceLines_" + invoiceID).data('kendoGrid').dataSource.read();
+        });
+    }
+
+    function ManageInvoiceLines(e, billingDefinitionInvoiceID, that, invoiceDescription) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = that.dataItem($(e.currentTarget).closest("tr")).ID;
+            var billingDefinitionInvoiceLineID = that.dataItem($(e.currentTarget).closest("tr")).BillingDefinitionInvoiceLineID;
+            var invoiceLineDescription = that.dataItem($(e.currentTarget).closest("tr")).Description;
+            //invoiceID = 1;
+            if (e.data.commandName == 'Events') {
+
+                addTab("Event-" + recordID, recordID, invoiceDescription, invoiceLineDescription);
+            }
+        }
+    }
+
+    function ClientBillingViewSource(entityName, recordID) {
+    }
+
+    function addTab(tabTitle, recordID, invoiceDescription, invoiceLineDescription) {
+
+        var tabTooltipContent = invoiceDescription + " - " + invoiceLineDescription;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ClientBillableEventProcessingList", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            traditional: true,
+            data: { billingInvoiceLineID: recordID, invoiceDescription: invoiceDescription, invoiceLineDescription: invoiceLineDescription,mode:'@mode' },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                addGenericTab(tabTitle, 'clientInvoiceProcessingDynamicTabs', 'ClientInvoiceProcessingTab', tabObject, msg, tabTooltipContent);
+            }
+        });
+
+    }
+    function ManageInvoices(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var scheduleTypeID = this.dataItem($(e.currentTarget).closest("tr")).BillingScheduleTypeID;
+            var scheduleDateTypeID = this.dataItem($(e.currentTarget).closest("tr")).ScheduleDateTypeID;
+            var scheduleRangeTypeID = this.dataItem($(e.currentTarget).closest("tr")).ScheduleRangeTypeID;
+            var billingDefinitionInvoiceID = this.dataItem($(e.currentTarget).closest("tr")).BillingDefinitionInvoiceID;
+            var $statusContainer = $(".invoiceActionsContainer");
+            HideStatus($statusContainer);
+            if (e.data.commandName == 'Refresh') {
+                //ShowStatus("inprogress", "Processing ...", $statusContainer);
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("_RefreshBillingInvoice", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                    //traditional: true,
+                    data: { invoiceID: recordID, scheduleTypeID: scheduleTypeID, scheduleDateTypeID: scheduleDateTypeID, scheduleRangeTypeID: scheduleRangeTypeID, billingDefinitionInvoiceID: billingDefinitionInvoiceID },
+                    cache: false,
+                    async: true,
+                    gloabal: true,
+                    success: function (msg) {
+                        //ShowStatus("success", "Refreshed Successfully", $statusContainer);
+                        openAlertMessage("Refreshed Successfully");
+                        $("#grdInvoices").data('kendoGrid').dataSource.read();
+                    }
+                });
+            }
+            else if (e.data.commandName == 'Post') {
+
+            }
+        }
+    }
+
+    function gridBillingInvoiceLines_RequestEnd(e, invoiceID) {
+        if (e.type == "create") {
+            openAlertMessage("Record Inserted Successfully", function (e) {
+                $("#gridBillingInvoiceLines_" + invoiceID).data('kendoGrid').dataSource.read();
+            });
+        }
+        else {
+            if (e.type == "update") {
+                openAlertMessage("Record Updated Successfully");
+            }
+            else if (e.type == "destroy") {
+                openAlertMessage("Record Deleted Successfully");
+            }
+        }
+    }
+
+    function ClientInvoiceProcessingSearchCriteria(e) {
+        if ($("#frmClientInvoiceProcessingSearchCriteria").length > 0) {
+            var newArray = [];
+
+            var clientInvoiceProcessingCriteria = {};
+
+            $("#frmClientInvoiceProcessingSearchCriteria").find("#chkBillingDefinitionInvoiceLines input:checkbox").each(function (index) {
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "BillingDefinitionInvoiceLine[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClientInvoiceProcessingSearchCriteria").find("#chkInvoiceStatus input:checkbox").each(function (index) {
+
+                newArray.push({ name: "InvoiceStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "InvoiceStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "InvoiceStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClientInvoiceProcessingSearchCriteria").find("#chkLineStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "LineStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "LineStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "LineStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            if ($('#Client_Search_ClientID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ClientID", value: $('#Client_Search_ClientID').data('kendoComboBox').value() });
+            }
+            if ($('#Billing_Definition_InvoiceID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "BillingDefinitionInvoiceID", value: $('#Billing_Definition_InvoiceID').data('kendoComboBox').value() });
+            }
+
+            newArray.push({ name: "ScheduleDateFrom", value: $('#ScheduleDateFrom').val() });
+            newArray.push({ name: "ScheduleDateTo", value: $('#ScheduleDateTo').val() });
+
+            newArray.push({ name: "Status", value: '@mode' });
+
+            for (var i = 0; i < newArray.length; ++i) {
+                clientInvoiceProcessingCriteria[newArray[i].name] = newArray[i].value;
+            }
+
+
+            return clientInvoiceProcessingCriteria;
+        }
+        else {
+            var newArray = [];
+            var clientInvoiceProcessingCriteria = {};
+            newArray.push({ name: "Status", value: '@mode' });
+            for (var i = 0; i < newArray.length; ++i) {
+                clientInvoiceProcessingCriteria[newArray[i].name] = newArray[i].value;
+            }
+            return clientInvoiceProcessingCriteria;
+        }
+    }
+</script>
+<div class="float-left">
+    <p class="button-height">
+        <span class="button-group">
+            <label for="display-Select" class="button compact green-active">
+                <input type="checkbox" name="chkSelectAll" id="display-Select" value="Select" gridID="@gridName"/>
+                Select All
+            </label>
+        </span>
+    </p>
+</div>
+<div class="clear">
+</div>
+@(Html.Kendo().Grid<BillingManageInvoicesList_Result>()
+.Name("grdInvoices")
+.Columns(column =>
+{
+    column.Bound(u => u.ID).Title("ID").Hidden();
+    column.Bound(u => u.CanAddLines).Hidden();
+    column.Bound(u => u.BillingDefinitionInvoiceID).Hidden();
+    column.Bound(u => u.BillingScheduleTypeID).Hidden();
+    column.Bound(u => u.ScheduleDateTypeID).Hidden();
+    column.Bound(u => u.ScheduleRangeTypeID).Hidden();
+    column.Bound(u => u.ClientName).Title("Client Name").Width(100);
+    column.Bound(u => u.InvoiceDescription).Title("Invoice Description").Width(200);
+    column.Bound(u => u.BillingScheduleType).Title("Schedule Type").Width(100);
+    column.Bound(u => u.ScheduleDate).Title("Schedule Date").Width(100).Format("{0:MM/dd/yy}");
+    column.Bound(u => u.ScheduleRangeBegin).Title("Begin").Width(100).Format("{0:MM/dd/yy}");
+    column.Bound(u => u.ScheduleRangeEnd).Title("End").Width(100).Format("{0:MM/dd/yy}");
+    column.Bound(u => u.InvoiceNumber).Title("Invoice #").Width(100);
+    column.Bound(u => u.InvoiceDate).Title("Invoice Date").Width(100).Format("{0:MM/dd/yy}");
+    column.Bound(u => u.InvoiceStatus).Title("Invoice Status").Width(100).HtmlAttributes(new { @class = "invoiceStatus" }); ;
+    column.Bound(u => u.TotalDetailCount).Title("Total Detail Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.TotalDetailAmount).Title("Total Detail Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ReadyToBillCount).Title("Ready-to-Bill Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ReadyToBillAmount).Title("Ready-to-Bill Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.PendingCount).Title("Pending Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.PendingAmount).Title("Pending Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ExceptionCount).Title("Exception Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ExceptionAmount).Title("Exception Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ExcludedCount).Title("Excluded Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.ExcludedAmount).Title("Excluded Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.OnHoldCount).Title("OnHold Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.OnHoldAmount).Title("OnHold Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.PostedCount).Title("Posted Count").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Bound(u => u.PostedAmount).Title("Posted Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+    column.Command(command =>
+    {
+        command.Custom("Refresh").Click("ManageInvoices").HtmlAttributes(new { style = "min-width:auto;", title = "Refresh", @class = "invoiceRefresh" });
+        command.Custom("Post").Click("ManageInvoices").HtmlAttributes(new { style = "min-width:auto;", title = "Post" });
+    }).Width(100)
+    .Title("Action(s)");
+})
+.Pageable()
+.Sortable()
+.Scrollable()
+.Pageable(pager => pager
+    .Refresh(true)
+    .PageSizes(new int[] { 50, 100, 200, 500 })
+)
+.Selectable(select => select.Mode(GridSelectionMode.Multiple))
+.DataSource(datasource => datasource
+    .Ajax()
+    .PageSize(50)
+    .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_GetClientInvoiceProcessingList", "ClientInvoiceProcessing", new { area = "ClientManagement" })
+        .Data(@<text>function(e){return ClientInvoiceProcessingSearchCriteria()}</text>)
+        )
+    )
+    .Events(e =>
+    {
+        e.DetailExpand("InvoiceGridDetailExpand");
+        e.DataBound("grdInvoices_OnDataBound");
+    })
+    .ClientDetailTemplateId("templateInvoiceLines")
+    .Resizable(resize => resize.Columns(true))
+    )
+<div class="clear">
+</div>
+<br />
+@if (mode.ToLower() == "open")
+{
+    <div class="align-center invoiceActionsContainer">
+        <p class="message">
+            <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                class="statusMessage"></span>
+        </p>
+        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.CLIENT_BUTTON_CLOSEPERIOD) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite)
+        {
+            <button class="button green-gradient  float-left mid-margin-left margin-bottom" onclick="ShowClosePeriod();"
+                type="button">
+                Close Period</button>
+        }
+        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.CLIENT_BUTTON_OPENPERIOD) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite)
+        {
+            <button class="button green-gradient  float-left mid-margin-left margin-bottom" onclick="ShowOpenPeriod();"
+                type="button">
+                Open Period</button>
+        }
+        @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_POST_INVOICES) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite)
+        {
+            <button id="btnPostAllInvoices" class="button blue-gradient  float-right mid-margin-right  margin-bottom"
+                type="button">
+                Post Selected</button>
+        }
+    </div>
+}
+<div class="clear">
+</div>
+<script id="LineNumTemplate" type="text/kendo-tmpl">
+Line #
+</script>
+<script id="templateInvoiceLines" type="text/kendo-tmpl">
+<div id="ClientInvoiceDetailsProcessingTab_#=ID#" class="standard-tabs same-height invoiceDetailsTabs" style="max-width: 37%;">
+    <ul class="tabs clientInvoiceProcessing">
+        <li id="tbClientInvoiceProcessingList"><a id="hypClientInvoiceProcessingSearchCriteria" href="\#ctabs_#=ID#-1">Lines</a> </li>
+        <li id="tbClientInvoiceProcessingDetails"><a id="hypClientInvoiceProcessingDetails" href="\#ctabs_#=ID#-2">Details</a> </li>
+    </ul>
+    <div id="ctabs_#=ID#-1">
+        <div class="with-padding" id="div_BillingInvoiceLinesList_#=ID#">
+        
+        #if(CanAddLines)
+                {#
+            @(Html.Kendo().Grid<BillingInvoiceLinesList_Result>()
+            .Name("gridBillingInvoiceLines_#=ID#")
+            .ToolBar(commands =>
+            {
+                //if (mode.ToLower() == "open")
+                
+                    commands.Create();
+               
+            })
+            .Columns(columns =>
+            {
+                //columns.ForeignKey(o => o.ProductID, (System.Collections.IEnumerable)ViewData[StaticData.POProductsForClientInvoice.ToString()], "Value", "Text").Title("Product").Width("100px");
+                columns.Bound(o => o.Sequence).Width(100).EditorTemplateName("KendoNumericPicker").Title("Line \\#");
+                columns.Bound(o => o.Description).Title("Description").Width(100);
+                //columns.Bound(o => o.Comment).Title("Comment").Width(100);
+                columns.Bound(o => o.LineQuantity).Title("Qty").Width(100).EditorTemplateName("KendoNumericPicker");
+                columns.Bound(o => o.LineCost).Title("Cost").Width(100).HtmlAttributes(new { @style = "text-align:right;", @class = "lineCost" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).EditorTemplateName("KendoMoneyPicker");
+                columns.Bound(o => o.LineAmount).Title("Amount").Width(100).Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).EditorTemplateName("KendoMoneyPicker");
+                columns.Bound(o => o.BillingInvoiceLineStatus).Title("Line Status").Width(100).HtmlAttributes(new { @class = "invoiceLineStatus" });
+                //columns.ForeignKey(o => o.InvoiceLineStatusID, (System.Collections.IEnumerable)ViewData[StaticData.BillingInvoiceLineStatus.ToString()], "Value", "Text").Title("Line Status").Width(100);
+                columns.Command(commands =>
+                {
+                    commands.Custom("Events").Click(@<text>function(e){ManageInvoiceLines(e,"#=BillingDefinitionInvoiceID#",this,"#=InvoiceDescription#")}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Events" });
+                    if (mode.ToLower() == "open")
+                    {
+                        commands.Destroy().HtmlAttributes(new { style = "min-width:26px;" });
+                        commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+                    }
+                }).Title("Action(s)").Width(100);
+            })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Model(model => model.Id(p => p.ID))
+                .Read(read => read.Action("_GetClientInvoiceLinesList", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" })
+                .Data(@<text>function(e){return ClientInvoiceProcessingSearchCriteria()}</text>))
+                .Create(insert => insert.Action("_InsertClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Destroy(del => del.Action("_DeleteClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Update(upd => upd.Action("_UpdateClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Events(events => events
+                    .Error("KendoGridErrorHandler")
+                    .RequestEnd(@<text>function(e){gridBillingInvoiceLines_RequestEnd(e,"#=ID#")}</text>)
+                )
+            )
+            .Events(events => events
+                .Edit(@<text>function(e){gridBillingInvoiceLines_OnEdit(e,"#=ID#")}</text>)
+                .DataBound(@<text>function(e){gridBillingInvoiceLines_onDataBound(e,"#=ID#")}</text>)
+            )
+            .Editable(editing => editing.CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom).Mode(Kendo.Mvc.UI.GridEditMode.InLine))
+            .Resizable(resize => resize.Columns(true))
+            .Pageable(pager =>
+            {
+                pager.Refresh(true);
+                pager.Info(false);
+                pager.Numeric(false);
+                pager.PageSizes(false);
+                pager.PreviousNext(false);
+            })
+            .Scrollable(scr => scr.Height(200))
+            .ToClientTemplate()
+            )
+            #}
+             else
+            {#
+            @(Html.Kendo().Grid<BillingInvoiceLinesList_Result>()
+            .Name("gridBillingInvoiceLines_#=ID#")
+            
+            .Columns(columns =>
+            {
+                //columns.ForeignKey(o => o.ProductID, (System.Collections.IEnumerable)ViewData[StaticData.POProductsForClientInvoice.ToString()], "Value", "Text").Title("Product").Width("100px");
+                columns.Bound(o => o.Sequence).Width(100).EditorTemplateName("KendoNumericPicker").Title("Line \\#");
+                columns.Bound(o => o.Description).Title("Description").Width(100);
+                //columns.Bound(o => o.Comment).Title("Comment").Width(100);
+                columns.Bound(o => o.LineQuantity).Title("Qty").Width(100).EditorTemplateName("KendoNumericPicker");
+                columns.Bound(o => o.LineCost).Title("Cost").Width(100).HtmlAttributes(new { @style = "text-align:right;", @class = "lineCost" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).EditorTemplateName("KendoMoneyPicker");
+                columns.Bound(o => o.LineAmount).Title("Amount").Width(100).Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).EditorTemplateName("KendoMoneyPicker");
+                columns.Bound(o => o.BillingInvoiceLineStatus).Title("Line Status").Width(100).HtmlAttributes(new { @class = "invoiceLineStatus" });
+                //columns.ForeignKey(o => o.InvoiceLineStatusID, (System.Collections.IEnumerable)ViewData[StaticData.BillingInvoiceLineStatus.ToString()], "Value", "Text").Title("Line Status").Width(100);
+                columns.Command(commands =>
+                {
+                    commands.Custom("Events").Click(@<text>function(e){ManageInvoiceLines(e,"#=BillingDefinitionInvoiceID#",this,"#=InvoiceDescription#")}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Events" });
+                    if (mode.ToLower() == "open")
+                    {
+                        commands.Destroy().HtmlAttributes(new { style = "min-width:26px;" });
+                        commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+                    }
+                }).Title("Action(s)").Width(100);
+            })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Model(model => model.Id(p => p.ID))
+                .Read(read => read.Action("_GetClientInvoiceLinesList", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" })
+                .Data(@<text>function(e){return ClientInvoiceProcessingSearchCriteria()}</text>))
+                .Create(insert => insert.Action("_InsertClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Destroy(del => del.Action("_DeleteClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Update(upd => upd.Action("_UpdateClientInvoiceLines", "ClientInvoiceProcessing", new { area = "ClientManagement", billingInvoiceID = "#=ID#" }))
+                .Events(events => events
+                    .Error("KendoGridErrorHandler")
+                    .RequestEnd(@<text>function(e){gridBillingInvoiceLines_RequestEnd(e,"#=ID#")}</text>)
+                )
+            )
+            .Events(events => events
+                .Edit(@<text>function(e){gridBillingInvoiceLines_OnEdit(e,"#=ID#")}</text>)
+                .DataBound(@<text>function(e){gridBillingInvoiceLines_onDataBound(e,"#=ID#")}</text>)
+            )
+            .Editable(editing => editing.CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom).Mode(Kendo.Mvc.UI.GridEditMode.InLine))
+            .Resizable(resize => resize.Columns(true))
+            .Pageable(pager =>
+            {
+                pager.Refresh(true);
+                pager.Info(false);
+                pager.Numeric(false);
+                pager.PageSizes(false);
+                pager.PreviousNext(false);
+            })
+            .Scrollable(scr => scr.Height(200))
+            .ToClientTemplate()
+                  )
+            #}#
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div id="ctabs_#=ID#-2">
+        <div class="columns scrollable">
+            <div class="twelve-columns invoice-details ">
+                <div class="six-columns">
+                    <ul>
+                        <li><label>Invoice Name:</label>#=InvoiceName == null ? '' : InvoiceName #</li>
+                        <li><label>Invoice Description:</label>#=InvoiceDescription == null ? '' : InvoiceDescription #</li>
+                        <li><label>Client Name:</label>#=ClientName == null ? '' : ClientName #</li>
+                        <li><label>Billing Schedule:</label>#=BillingSchedule == null ? '' : BillingSchedule #</li>
+                        <li><label>Schedule Date:</label>#=ScheduleDate == null ? '' : ScheduleDate.toString('MM/dd/yyyy') #</li>
+                        <li><label>Schedule Begin Date:</label>#=ScheduleRangeBegin == null ? '' : ScheduleRangeBegin.toString('MM/dd/yyyy') #</li>
+                        <li><label>Schedule End Date:</label>#=ScheduleRangeEnd == null ? '' : ScheduleRangeEnd.toString('MM/dd/yyyy') #</li>
+                    </ul>
+                </div>
+                <div class="six-columns">
+                    <ul>
+                        <li><label>Invoice Number:</label>#=InvoiceNumber == null ? '' : InvoiceNumber #</li>
+                        <li><label>Invoice Date:</label>#=InvoiceDate == null ? '' : InvoiceDate.toString('MM/dd/yyyy') #</li>
+                        <li><label>PO Number:</label>#=PONumber == null ? '' : PONumber #</li>
+                    </ul>
+                </div>
+                <ul>
+                    <li><label >Acctg Sys Number:</label>#=AccountingSystemCustomerNumber== null ? '' : AccountingSystemCustomerNumber#</li>
+                    <li><label >Acctg Sys Address:</label>#=AccountingSystemAddressCode== null ? '' : AccountingSystemAddressCode#</li>
+                </ul>
+            </div>       
+        </div>
+    </div>
+</div> 
+ 
+</script>
+<style scoped="scoped">
+    .k-detail-cell .k-tabstrip .k-content
+    {
+        padding: 0.2em;
+    }
+    .invoice-details ul
+    {
+        list-style: none;
+        font-style: italic;
+        margin: 15px;
+        padding: 0;
+    }
+    .invoice-details ul li
+    {
+        margin: 0;
+        line-height: 1.7em;
+    }
+    
+    .invoice-details label
+    {
+        display: inline-block;
+        width: 150px;
+        padding-right: 10px;
+        text-align: right;
+        font-style: normal;
+        font-weight: bold;
+    }
+</style>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        var $statusContainer = $(".invoiceActionsContainer");
+
+        $('input[name="chkSelectAll"]').change(function (e) {
+
+            var gridName = $(this).attr("gridID");
+            var grid = $("#@gridName").data('kendoGrid');
+            if ($(this).is(":checked")) {
+                // grid.select("tr");
+                grid.tbody.children('tr').addClass('k-state-selected');
+            }
+            else {
+                //grid.clearSelection();
+                grid.tbody.children('tr').removeClass('k-state-selected');
+            }
+        });
+
+        HideStatus($statusContainer);
+
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#grdInvoices>.k-grid-content").css("height", gridContentHeight + "px");
+
+        var isPostInProgress = false;
+
+        function GetSummaryDetailsAsHTML(summary, selectedInvoices) {
+            var summaryDetails = "<p>Verification Complete</p>";
+            summaryDetails += '<table class="table simple-table">';
+            if (summary.length > 0) {
+                summaryDetails += "<tr>";
+                summaryDetails += "<td>Invoice Name</td>";
+                summaryDetails += "<td>Exception</td>";
+                summaryDetails += "</tr>";
+
+                for (var i = 0, l = summary.length; i < l; i++) {
+                    summaryDetails += "<tr>";
+                    summaryDetails += "<td>" + summary[i].InvoiceName + "</td>";
+                    summaryDetails += "<td>" + summary[i].ExceptionMessage + "</td>";
+                    summaryDetails += "</tr>";
+                }
+            }
+            else {
+                summaryDetails += "<tr>";
+                summaryDetails += "<td>Invoices ready to be posted</td>";
+                summaryDetails += "<td>" + selectedInvoices.length + "</td>";
+                summaryDetails += "</tr>";
+            }
+            summaryDetails += '</table>';
+
+            return summaryDetails;
+        }
+
+        var invoicesProcessedSoFar = [];
+
+        function IncrementPostCounts(invoiceID, selectedInvoices, etlExecutionLogID, billedbatchID, unbilledBatchID) {
+
+            invoicesProcessedSoFar.push(invoiceID);
+            var statusMessage = "Processing ... [ Invoices Processed : " + invoicesProcessedSoFar.length + " ]";
+            console.log(statusMessage);
+            ShowStatus("inprogress", statusMessage, $statusContainer);
+
+            // Start the next steps when invoicesProcessedSoFar.length == invoicesReadyForPayment.length
+            if (invoicesProcessedSoFar.length == selectedInvoices.length) {
+                statusMessage = "Invoices created in staging, Creating export file ...";
+                console.log(statusMessage);
+                ShowStatus("success", statusMessage, $statusContainer);
+                var formData = [];
+
+                formData.push({ name: "etlExecutionLogID", value: etlExecutionLogID });
+                formData.push({ name: "billedbatchID", value: billedbatchID });
+                formData.push({ name: "unbilledBatchID", value: unbilledBatchID });
+
+                for (var k = 0, l = invoicesProcessedSoFar.length; k < l; k++) {
+                    formData.push({ name: "invoices[" + k + "]", value: invoicesProcessedSoFar[k] });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CreateExportFiles", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            HideStatus($statusContainer);
+                            var summary = "<p>Post invoices has completed</p>";
+                            summary += "<p>Billed BatchId : " + billedbatchID + "</p>";
+                            summary += "<p>Unbilled BatchId : " + unbilledBatchID + "</p>";
+                            summary += "<p>Posted Count : " + msg.Data.Paid + "</p>";
+                            summary += "<p>Amount : $" + msg.Data.PaidAmount.toFixed(2) + "</p>";
+
+                            openAlertMessage(summary);
+                            $("#grdInvoices").data('kendoGrid').dataSource.read();
+
+
+                        }
+                    },
+                    error: function (err, errStatus) {
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+        }
+
+        function ProcessPost(selectedInvoices) {
+            if (selectedInvoices.length > 0) {
+
+                ShowStatus("inprogress", "Setting up the prerequisites", $statusContainer);
+                var etlExecutionLogID = 0;
+                var billedBatchID = 0;
+                var unbilledBatchID = 0;
+                var timestamp = null;
+                setTimeout(function () {
+                    // Generate ETL ID.
+                    $.ajax({
+                        url: '@Url.Action("GetETLExecutionLogID", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                        type: 'POST',
+                        cache: false,
+                        async: false,
+                        global: false,
+                        success: function (msg) {
+                            if (msg.Status == "Success") {
+                                var ids = msg.Data;
+                                etlExecutionLogID = ids.ETLExecutionLogID;
+                                billedbatchID = ids.BilledBatchID;
+                                unbilledBatchID = ids.UnbilledBatchID;
+                                var date = new Date(parseInt(ids.CurrentDate.substr(6)));
+                                timestamp = date.toString("MM/dd/yyyy HH:mm:ss");
+                                console.log("ETL ID = " + etlExecutionLogID + ", Billed Batch ID = " + billedbatchID + " Unbilled Batch ID = " + unbilledBatchID + " , Timestamp = " + timestamp);
+
+                                // Process each invoice that is readyforpayment
+                                invoicesProcessedSoFar.splice(0, invoicesProcessedSoFar.length);
+
+                                for (var p = 0, l = selectedInvoices.length; p < l; p++) {
+                                    var invoiceID = selectedInvoices[p].value;
+
+
+                                    console.log("Processing invoice ID : " + invoiceID);
+                                    $.ajax({
+                                        url: '@Url.Action("PostInvoice", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                                        type: 'POST',
+                                        data: { invoiceID: invoiceID, billedbatchID: billedbatchID, unbilledBatchID: unbilledBatchID, batchTimeStamp: timestamp },
+                                        cache: false,
+                                        async: true,
+                                        global: false,
+                                        success: function (msg) {
+                                            if (msg.Status == "Success") {
+                                                IncrementPostCounts(msg.Data.InvoiceID, selectedInvoices, etlExecutionLogID, billedbatchID, unbilledBatchID);
+                                            }
+                                        },
+                                        error: function (err, errStatus) {
+                                            HandleAjaxErrors("error", err);
+                                            HideStatus($statusContainer);
+                                        }
+                                    });
+
+                                }
+                            }
+                            else {
+                                ShowStatus("error", "Unable to get ETL Execution LogID", $statusContainer);
+                            }
+                        },
+                        error: function (err, errStatus) {
+                            HandleAjaxErrors("error", err);
+                            HideStatus($statusContainer);
+                        }
+                    });
+
+                }, 200);
+
+
+            }
+            else {
+                HideStatus($statusContainer);
+            }
+        }
+
+        $("#btnPostAllInvoices").click(function (e) {
+
+            // Get all selected items and verify them.
+            var grid = $("#grdInvoices").data("kendoGrid");
+
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select invoices to post");
+            }
+            else {
+                ShowStatus("inprogress", "Processing ...", $statusContainer);
+                var selectedInvoices = [];
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    //openAlertMessage("Selected Invoice ID : " + record.ID + " of Vendor # " + record.VendorNumber);
+                    selectedInvoices.push({ name: "invoices[" + i + "]", value: record.ID });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("_Verify", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+                    type: 'POST',
+                    data: selectedInvoices,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+
+                        if (msg.Status == "Success") {
+                            var summaryData = msg.Data;
+                            var summaryDetails = GetSummaryDetailsAsHTML(msg.Data, selectedInvoices);
+
+                            if (summaryData.length > 0) {
+                                $.modal.VerificationResults(summaryDetails, function () {
+                                    //openAlertMessage("Work Exceptions clicked");
+                                    //RefreshGridWith("Exception");
+
+                                }, function () {
+                                    //openAlertMessage("OK clicked");
+                                    // Just refresh the grid.
+
+                                    //                                    if ($(event.srcElement).text() != "Close") {
+                                    //                                        RefreshGridWith('');
+                                    //                                    }
+                                });
+                                setTimeout(function () {
+                                    $(".modal-content").css("max-width", "300px");
+                                }, 500);
+                            }
+                            else {
+                                $.modal.VerificationResultsForPayment(summaryDetails, function () {
+                                    //openAlertMessage("Work Exceptions clicked");
+                                    //RefreshGridWith("Exception");
+
+                                }, function () {
+                                    //openAlertMessage("OK clicked");
+                                    // Process payments.
+                                    if ($(event.srcElement).text() != "Close") {
+                                        setTimeout(function () { ProcessPost(selectedInvoices); }, 300);
+                                    }
+                                });
+
+                                setTimeout(function () {
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }, 500);
+                            }
+
+                            HideStatus($statusContainer);
+                        }
+                        else {
+                            ShowStatus("error", msg.ErrorMessage, $statusContainer);
+                        }
+
+                    },
+                    error: function (err, errStatus) {
+
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+
+            return false;
+
+        });
+    });
+</script>
+<script type="text/javascript">
+    var invoiceShowCloseContainer = null;
+    function ShowClosePeriod() {
+        var windowTitle = "Close Period";
+        $.ajax({
+            url: '@Url.Action("_ClosePeriod", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            cache: false,
+            async: true,
+            success: function (msg) {
+                invoiceShowCloseContainer = $("<div id='invoiceShowCloseContainer' />").appendTo(document.body);
+                invoiceShowCloseContainer.kendoWindow({
+                    title: windowTitle,
+                    modal: true,
+                    width: 1020,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                invoiceShowCloseContainer.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    function ShowOpenPeriod() {
+        var windowTitle = "Open Period";
+        $.ajax({
+            url: '@Url.Action("_OpenPeriod", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            cache: false,
+            async: true,
+            success: function (msg) {
+                invoiceShowCloseContainer = $("<div id='invoiceShowCloseContainer' />").appendTo(document.body);
+                invoiceShowCloseContainer.kendoWindow({
+                    title: windowTitle,
+                    modal: true,
+                    width: 1020,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                invoiceShowCloseContainer.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>

@@ -1,0 +1,129 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@model List<DiagnosticCodes_Result>
+<script language="javascript" type="text/javascript">
+<!--
+    function CodeTypes_OnChange(e) {
+        var combobox = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combobox)) {
+            e.preventDefault();
+        }
+        else {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetDiagnosticCodes", "Claim", new { area = "Claims" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { claimID: $("#hdnClaimID").val(), vehicleTypeID: $("#hdnVehicleTypeID").val(), codeType: combobox.value() },
+                success: function (msg) {
+                    $("#divCodes").html(msg);
+                    // Clear off all the values in the primary dropdown and add the selected checkboxes.
+                    var primaryCodesCombo = $("#PrimaryCodes").data("kendoComboBox");
+                    primaryCodesCombo.setDataSource([]);
+                    var newItems = [{ Value: "", Text: "Select"}];
+                    $(".vdcode :checked").each(function () {
+                        
+                        newItems.push({ "Value": $(this).val(), "Text": $(this).attr("name") });
+                    });
+                    primaryCodesCombo.setDataSource(newItems);
+                }
+            });
+        }
+
+    }
+//-->
+</script>
+<form id="frmCodes" action="javascript:void(0)" method="post">
+<div class="with-padding popupcontainer">
+    <div class="columns">
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="WhichCodeTypes" class="label">
+                Which code types ?</label>
+            @(Html.Kendo().ComboBox()
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CodeTypes.ToString()] as IEnumerable<SelectListItem>)
+                                .Name("CodeTypes")
+                                .Suggest(true)
+                                .Enable((bool)ViewData["EnableCodeTypes"])
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("CodeTypes_OnChange");
+                                })
+                                .SelectedIndex(0)
+                            )
+        </div>
+        <div class="button-height inline-label small-margin-bottom">
+            <label for="PrimaryCode" class="label">
+                Select Primary Code</label>
+            @(Html.Kendo().ComboBox()
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PrimaryCodes.ToString()] as IEnumerable<SelectListItem>)
+                                .Name("PrimaryCodes")
+                                .SelectedIndex(0)
+                            )
+        </div>
+        @Html.Hidden("hdnClaimID", ViewData["ClaimID"])
+        @Html.Hidden("hdnVehicleTypeID", ViewData["VehicleTypeID"])
+        <div class="button-height inline-label small-margin-bottom">
+            <button id="btnSubmitCodes" class="button green-gradient glossy float-right mid-margin-left small-margin-bottom"
+                type="button">
+                Save</button>
+            <button id="btnCancelCodes" class="button gray-gradient glossy float-right small-margin-bottom"
+                type="button">
+                Cancel</button>
+        </div>
+    </div>
+    <div class="full-width scrollable" id="divCodes">
+        @Html.Partial("_DiagnosticCodeCheckboxes", Model)
+    </div>
+</div>
+</form>
+<script language="javascript" type="text/javascript">
+<!--
+    $(function () {
+        WatchMyContainer("frmCodes");
+        $("#btnSubmitCodes").click(function () {
+
+            var primaryCombo = $("#PrimaryCodes").data("kendoComboBox");
+            if (primaryCombo.value() == "") {
+                ShowValidationMessage($('input[name="PrimaryCodes_input"]'), "Please select an item");
+                return false;
+            }
+            else {
+                HideValidationMessage($('input[name="PrimaryCodes_input"]'));
+            }
+
+            var selectedCodes = [];
+            $(".vdcode :checked").each(function () {
+                selectedCodes.push($(this).val());
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveDiagnosticCodes", "Claim", new { area = "Claims" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { claimID: $("#hdnClaimID").val(), selectedCodes: selectedCodes.toString(), codeType: $("#CodeTypes").data("kendoComboBox").value(), primaryCode: primaryCombo.value() },
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        document.dialogResult = "OK";
+                        dCodesWin.data('kendoWindow').close();
+                    }
+                }
+            });
+
+
+        });
+
+        $("#btnCancelCodes").click(function () {
+            document.dialogResult = "CANCEL";
+            dCodesWin.data('kendoWindow').close();
+        });
+
+        $("#divCodes").height(GetPopupWindowHeight() - 100);
+    });
+//-->
+</script>

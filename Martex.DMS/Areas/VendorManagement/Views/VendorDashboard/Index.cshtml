@@ -1,0 +1,115 @@
+﻿@model Martex.DMS.DAL.Entities.PortletModel
+@using Martex.DMS.DAL
+@{
+    Layout = "~/Areas/VendorManagement/Views/Shared/_VendorLayout.cshtml";
+}
+
+<script language="javascript" type="text/javascript">
+    var sortables = [];
+</script>
+
+<hgroup id="main-title" class="thin">
+    <h1>Vendor Dashboard</h1>
+</hgroup>
+<div class="with-padding">
+    @*foreach (var section in Model.Sections)
+    {
+        string sectionID = "Section_" + section.ID;
+        string isDraggable = section.AllowDragDrop.ToString().ToLower();
+
+        <script language="javascript" type="text/javascript">
+            sortables.push({ SectionID: '@sectionID', AllowDraggable: '@isDraggable' });
+        </script>
+
+        <div class="columns with-padding" id="@sectionID">
+            @foreach (var col in section.PortletColumns)
+            {
+                string columnClass = "column2 sortable " + col.ColumnSizeClass;
+                List<DashboardPortlets_Result> items = Model.Portlets.Where(u => u.PortletSectionID == section.ID && u.ColumnPosition == col.DisplayOrder - 1).OrderBy(u => u.RowPosition).ToList();
+                <div class="@columnClass">
+                    @foreach (var item in items)
+                    {
+                        if (IsReadWrite(item.FriendlyName) && item.IsActive)
+                        {
+                            @Html.Action(@item.TargetAction, @item.TargetController, new { id = item.PortletID })
+                        }
+                    }
+                    <!-- empty sortable portlet required for each columns! -->
+                    <div class="portlet portlet-sortable-empty">
+                    </div>
+                </div>
+            }
+        </div>
+    }*@
+</div>
+
+@functions
+{
+    private bool IsReadWrite(string securableName)
+    {
+        return true;
+    }
+
+}
+
+<script type="text/javascript">
+    $(function () {
+        for (var i = 0, l = sortables.length; i < l; i++) {
+            if (sortables[i].AllowDraggable == "true") {
+                $("#" + sortables[i].SectionID).sortable({
+                    connectWith: ".portlet",
+                    items: ".portlet",
+                    dropOnEmpty: false,
+                    opacity: 0.8,
+                    cloneHelperSize: true,
+                    placeholder: 'portlet-sortable-placeholder',
+                    forcePlaceholderSize: true,
+                    tolerance: "pointer",
+                    helper: "clone",
+                    tolerance: "pointer",
+                    forcePlaceholderSize: !0,
+                    helper: "clone",
+                    cancel: ".portlet-sortable-empty",
+                    revert: 250, // animation in milliseconds
+                    update: function (b, c) {
+                        if (c.item.prev().hasClass("portlet-sortable-empty")) {
+                            c.item.prev().before(c.item);
+                        }
+                        var index = 0;
+                        var $section = $(this);
+                        var cols = $section.find(".column2");
+                        var arr = [];
+                        for (var k = 0, kl = cols.length; k < kl; k++) {
+                            var portlets = $(cols[k]).find(".portlet");
+                            for (j = 0, jl = portlets.length; j < jl; j++) {
+                                var $portlet = $(portlets[j]);
+                                if (!$portlet.hasClass("portlet-sortable-empty")) {
+                                    arr.push({ name: '[' + index + '].ColPosition', value: k });
+                                    arr.push({ name: '[' + index + '].RowPosition', value: j });
+                                    arr.push({ name: '[' + index + '].PortletID', value: $portlet.attr("id") });
+                                }
+                                else {
+                                    arr.push({ name: '[' + index + '].ColPosition', value: k });
+                                    arr.push({ name: '[' + index + '].RowPosition', value: j });
+                                    arr.push({ name: '[' + index + '].PortletID', value: 0 });
+                                }
+                                index++;
+                            }
+
+                        }
+                        console.log(arr);
+                        $.ajax({
+                            url: '/VendorManagement/VendorDashboard/SaveDashBoardPositions',
+                            data: arr,
+                            type: 'POST',
+                            success: function (msg) {
+                            }
+                        });
+                    },
+                    receive: function (event, ui) {
+                    }
+                });
+            }
+        }
+    });
+</script>

@@ -1,0 +1,436 @@
+﻿@model Martex.DMS.DAL.CoachingConcern
+@using Kendo.Mvc.UI
+@{
+    Layout = "";
+
+    bool IsEnabled = true;
+
+    if (ViewBag.PageMode != null && "View".Equals(ViewBag.PageMode))
+    {
+        IsEnabled = false;
+    }
+}
+<script type="text/javascript">
+    function ConcernTypeID_Combo_OnChange(e) {
+
+        var combo = $("#ConcernTypeID").data('kendoComboBox');
+        var concerns = $("#ConcernID").data('kendoComboBox');
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetConcerns", "ReferenceData", new { area = "Common" })',
+            data: { concernTypeID: combo.value() },
+            success: function (msg) {
+                concerns.setDataSource(msg);
+                concerns.select(0);
+                SetFocusOnField("ConcernID");
+            }
+
+        });
+    }
+
+    function fnUser_Combo_OnChange(e) {
+
+        var agentUserNameCombo = $("#AgentUserName").data('kendoComboBox');
+
+        if (!IsUserInputValidForChangeOnKendoCombo(agentUserNameCombo)) {
+            e.preventDefault();
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetUserManager", "ReferenceData", new { area = "Common" })',
+            data: { userName: agentUserNameCombo.value() },
+            success: function (msg) {
+                $('#TeamManager_Details').val(msg.Data.ManagerName);
+            }
+        });
+    }
+</script>
+<form id="frmCoachingConcernDetails">
+@Html.HiddenFor(u => u.ID)
+<div class="with-padding">
+    <div id="QACoachingConcernDetailsTabs" class="standard-tabs same-height" data="QACoachingConcernDetailsTabs">
+        <ul class="tabs">
+            <li><a href="#tabs-1" class="icon-list">Coaching Concern Details</a></li>
+            @if (Model.ID > 0)
+            {
+                <li><a href="@Url.Action("Documents", "CXCoachingConcern", new { area = "CX", id = Model.ID, mode = ViewBag.PageMode })" class="icon-list">
+                    Documents</a></li>
+            }
+        </ul>
+        <div id="tabs-1" class="QACoachingConcernDetailsTabs">
+            <div class="with-padding">
+                <div class="columns">
+                    <div class="new-row six-columns">
+                        <div>
+                            <label class="label-no-inline" style="margin-left: 1px; width: 120px;">
+                                User <span class="spanstar">*</span></label>
+                            @(Html.Kendo().ComboBoxFor(u => u.AgentUserName)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.UsersAgentTech.ToString()] as IEnumerable<SelectListItem>)
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                                  .Events(events => events.Change("fnUser_Combo_OnChange"))
+                          .HtmlAttributes(new { style = "width:57%;" })
+                          .Value(Model.AgentUserName)
+                          .Enable(IsEnabled))
+                        </div>
+                        <br />
+                        <p class="inline-label">
+                            <label class="label">
+                                Team Manager</label>
+                            @Html.TextBoxFor(u => Model.TeamManager, new { @class = "input full-width2", @error_required = "Please type team manager.", @readonly = true, id = "TeamManager_Details" })
+                        </p>
+                        <div>
+                            <label class="label-no-inline" style="margin-left: 1px; width: 120px;">
+                                Concern Type <span class="spanstar">*</span></label>
+                            @(Html.Kendo().ComboBoxFor(u => u.ConcernTypeID)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ConcernType.ToString()] as IEnumerable<SelectListItem>)
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                          .Events(events => events.Change("ConcernTypeID_Combo_OnChange"))
+                          .Value(!Model.ConcernTypeID.HasValue ? string.Empty : Model.ConcernTypeID.GetValueOrDefault().ToString())
+                          .HtmlAttributes(new { style = "width:57%;" })
+                          .Enable(IsEnabled))
+                        </div>
+                        <br />
+                        <div>
+                            <label class="label-no-inline" style="margin-left: 1px; width: 120px;">
+                                Concern <span class="spanstar">*</span></label>
+                            @(Html.Kendo().ComboBoxFor(u => u.ConcernID)
+                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Concern.ToString()] as IEnumerable<SelectListItem>)
+                          .Suggest(true)
+                          .HighlightFirst(true)
+                          .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                          .Events(events => events.Change("ValidateInputForKendoCombo"))
+                          .Value(!Model.ConcernID.HasValue ? string.Empty : Model.ConcernID.GetValueOrDefault().ToString())
+                          .HtmlAttributes(new { style = "width:57%;" })
+                          .Enable(IsEnabled))
+                        </div>
+                        <br />
+                        <p class="inline-label">
+                            <label class="label">
+                                Call Recording ID</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.TextBoxFor(u => Model.CallRecordingID, new { @class = "validate[custom[integer],min[1]], input full-width2", @maxlength = 9 })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => Model.CallRecordingID, new { @class = "input full-width2", @readonly = true })
+                            }
+                        </p>
+                        <p class="inline-label">
+                            <label class="label">
+                                Request Number</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.TextBoxFor(u => Model.ServiceRequestID, new { @class = "validate[custom[integer],min[1]], input full-width2", @maxlength = 9 })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => Model.ServiceRequestID, new { @class = "input full-width2", @readonly = true })
+                            }
+                        </p>
+                        <p class="inline-label">
+                            <label class="label">
+                                PO Number</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.TextBoxFor(u => Model.PurchaseOrderID, new { @class = "validate[custom[integer],min[1]], input full-width2", @maxlength = 9 })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => Model.PurchaseOrderID, new { @class = "input full-width2", @readonly = true })
+                            }
+                        </p>
+                        <p class="inline-label">
+                            <label class="label">
+                                Notes <span class="spanstar">*</span></label>
+                            @if (IsEnabled)
+                            {
+                                @Html.TextAreaFor(u => Model.Notes, new { @class = "validate[required], input full-width2" })
+                            }
+                            else
+                            {
+                                @Html.TextAreaFor(u => Model.Notes, new { @class = "validate[required], input full-width2", @readonly = true })
+                            }
+                        </p>
+                    </div>
+                    <div class="six-columns">
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Appealed
+                            </label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("IsAppealed", Model.IsAppealed.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("IsAppealed", Model.IsAppealed.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Appealed Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.AppealedDate).Format("MM/dd/yyyy").Enable(IsEnabled)
+                        </p>
+                        <hr />
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Internal Appealed</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("IsInternalAppeal", Model.IsInternalAppeal.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("IsInternalAppeal", Model.IsInternalAppeal.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Internal Appealed Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.InternalAppealDate).Format("MM/dd/yyyy").Enable(IsEnabled)
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Appeal Approved</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("AppealApproved", Model.AppealApproved.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("AppealApproved", Model.AppealApproved.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                        <hr />
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Coached</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("IsCoached", Model.IsCoached.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("IsCoached", Model.IsCoached.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Coached Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.CoachedDate).Format("MM/dd/yyyy").Enable(IsEnabled)
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Pending Date</label>
+                            @Html.Kendo().DatePickerFor(u => u.PendingDate).Format("MM/dd/yyyy").Enable(IsEnabled)
+                        </p>
+                        <hr />
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Severe Quality Violation</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("SevereQualityViolation", Model.SevereQualityViolation.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("SevereQualityViolation", Model.SevereQualityViolation.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                        <p class="inline-medium-label">
+                            <label class="label">
+                                Zero Tolerance Violation</label>
+                            @if (IsEnabled)
+                            {
+                                @Html.CheckBox("ZeroToleranceViolation", Model.ZeroToleranceViolation.GetValueOrDefault(), new { @class = "checkbox" })
+                            }
+                            else
+                            {
+                                @Html.CheckBox("ZeroToleranceViolation", Model.ZeroToleranceViolation.GetValueOrDefault(), new { @class = "checkbox", disabled = "disabled", @readonly = "readonly" })
+                            }
+                        </p>
+                    </div>
+                    <div class="new-row twelve-columns">
+                        @if (Model.ID > 0)
+                        {
+                            <p class="inline-label">
+                                <label for="LastUpdated" class="label">
+                                    Create:</label>
+                                @Html.DisplayFor(u => Model.CreateBy) &nbsp;
+                                @Html.DisplayFor(u => Model.CreateDate)
+                            </p>
+                            <p class="inline-label">
+                                <label for="LastUpdated" class="label">
+                                    Updated:</label>
+                                @Html.DisplayFor(u => Model.ModifyBy) &nbsp;
+                                @Html.DisplayFor(u => Model.ModifyDate)
+                            </p>
+                        }
+                    </div>
+                    <div class="new-row twelve-columns">
+                        <div class="field-block button-height">
+                            @if (IsEnabled)
+                            {
+                                <button id="btnSaveCoachingConcernDetails" class="button green-gradient glossy float-right mid-margin-left"
+                                    type="button">
+                                    Save
+                                </button>
+                            }
+                            <button id="btnCancelCoachingConcernDetails" class="button gray-gradient glossy  float-right"
+                                type="button">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+
+        $('#frmCoachingConcernDetails').validationEngine();
+        CleanMyContainer('frmCoachingConcernDetails');
+        WatchMyContainer('frmCoachingConcernDetails');
+
+        $('#btnSaveCoachingConcernDetails').click(function () {
+
+            var IsFormValid = true;
+
+            if ($("#AgentUserName").data('kendoComboBox').value() == "") {
+                ShowValidationMessage($('input[name="AgentUserName_input"]'), "Please select user name");
+                IsFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="AgentUserName_input"]'));
+            }
+
+            if ($("#ConcernTypeID").data('kendoComboBox').value() == "") {
+                ShowValidationMessage($('input[name="ConcernTypeID_input"]'), "Please select Concern Type");
+                IsFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="ConcernTypeID_input"]'));
+            }
+
+            if ($("#ConcernID").data('kendoComboBox').value() == "") {
+                ShowValidationMessage($('input[name="ConcernID_input"]'), "Please select Concern");
+                IsFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="ConcernID_input"]'));
+            }
+
+            if ($("#frmCoachingConcernDetails").validationEngine('validate') == false) {
+                IsFormValid = false;
+            }
+
+
+            var appealDate = $('#AppealedDate').val();
+            if ($.trim(appealDate).length > 0) {
+                var test = Date.parseExact(appealDate, "MM/dd/yyyy");
+                if (!test) {
+                    IsFormValid = false;
+                    ShowValidationMessage($("input[name='AppealedDate']"), "Appealed Date is not valid");
+                }
+            }
+            else if ($('#IsAppealed').is(":checked")) {
+                IsFormValid = false;
+                ShowValidationMessage($("input[name='AppealedDate']"), "Appealed Date is required");
+            }
+            else {
+                HideValidationMessage($("input[name='AppealedDate']"));
+            }
+
+
+            var internalAppealDate = $('#InternalAppealDate').val();
+            if ($.trim(internalAppealDate).length > 0) {
+                var test = Date.parseExact(internalAppealDate, "MM/dd/yyyy");
+                if (!test) {
+                    IsFormValid = false;
+                    ShowValidationMessage($("input[name='InternalAppealDate']"), "Internal Appealed Date is not valid");
+                }
+            }
+            else if ($('#IsInternalAppeal').is(":checked")) {
+                IsFormValid = false;
+                ShowValidationMessage($("input[name='InternalAppealDate']"), "Internal Appealed Date is required");
+            }
+            else {
+                HideValidationMessage($("input[name='InternalAppealDate']"));
+            }
+
+
+            var coachDate = $('#CoachedDate').val();
+            if ($.trim(coachDate).length > 0) {
+                var test = Date.parseExact(coachDate, "MM/dd/yyyy");
+                if (!test) {
+                    IsFormValid = false;
+                    ShowValidationMessage($("input[name='CoachedDate']"), "Coach Date is not valid");
+                }
+            }
+            else if ($('#IsCoached').is(":checked")) {
+                IsFormValid = false;
+                ShowValidationMessage($("input[name='CoachedDate']"), "Coach Date is required");
+            }
+            else {
+                HideValidationMessage($("input[name='CoachedDate']"));
+            }
+
+            var pendingDate = $('#PendingDate').val();
+            if ($.trim(pendingDate).length > 0) {
+                var test = Date.parseExact(pendingDate, "MM/dd/yyyy");
+                if (!test) {
+                    IsFormValid = false;
+                    ShowValidationMessage($("input[name='PendingDate']"), "Pending Date is not valid");
+                }
+            }
+            else {
+                HideValidationMessage($("input[name='PendingDate']"));
+            }
+
+
+            if (IsFormValid) {
+                $.ajax({
+                    url: '@Url.Action("SaveDetails", "CXCoachingConcern", new { area = "CX" })',
+                    type: 'POST',
+                    data: $("#frmCoachingConcernDetails").serializeArray(),
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            CleanMyContainer('frmCoachingConcernDetails');
+                            openAlertMessage('Record Updated Successfully');
+                            coachingConcernWindow.data('kendoWindow').close();
+                            $('#GrdCoachingConcern').data('kendoGrid').dataSource.read();
+                        }
+                    }
+                });
+            }
+            return false;
+        });
+
+        $('#btnCancelCoachingConcernDetails').click(function () {
+            $('#frmCoachingConcernDetails').validationEngine('hideAll');
+            document.dialogResult = "CANCEL";
+            coachingConcernWindow.data('kendoWindow').close();
+            return false;
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        $('#QACoachingConcernDetailsTabs').tabs();
+        $("#AgentUserName").data("kendoComboBox").list.width(250);
+        $("#ConcernTypeID").data("kendoComboBox").list.width(250);
+        $("#ConcernID").data("kendoComboBox").list.width(250);
+    });
+</script>

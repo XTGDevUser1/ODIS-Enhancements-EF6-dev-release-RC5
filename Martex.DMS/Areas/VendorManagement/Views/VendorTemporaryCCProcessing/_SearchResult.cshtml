@@ -1,0 +1,776 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using models = Martex.DMS.Areas.Application.Models
+@using Martex.DMS.DAL.Entities;
+@model Martex.DMS.DAL.Entities.TemporaryCC.TemporaryCCSearchCriteria
+@{
+    string gridName = "GrdCCProcessingList";
+}
+
+<script type="text/javascript" language="javascript">
+
+    function ManageCCProcessing(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var poID = this.dataItem($(e.currentTarget).closest("tr")).POId;
+            var poNumber = this.dataItem($(e.currentTarget).closest("tr")).PONumber;
+            var tempCCNumber = this.dataItem($(e.currentTarget).closest("tr")).TempCC;
+            var matchStatusofCC = this.dataItem($(e.currentTarget).closest("tr")).CCMatchStatus;
+
+            if (e.data.commandName == 'Edit') {
+                if (matchStatusofCC == "Posted" || matchStatusofCC == "POSTED") {
+                    openAlertMessage("The selected credit card can't be edited as it's match status is POSTED");
+                }
+                else {
+                    LoadCCCardDetails(recordID, tempCCNumber);
+                }
+            }
+            else if (e.data.commandName == 'ViewPO') {
+                if (poID == null) {
+                    openAlertMessage("PO ID for the selected record is null. It should be greater than 1 in order to edit the PO.");
+                }
+                else {
+                    AddPOTab(poID, poNumber, 'view');
+                }
+            }
+        }
+    }
+
+    function ManageCCProcessing_Databound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-ViewPO").addClass("with-tooltip").html("<span class='k-icon k-i-clock'/>");
+
+        var rowCount = e.sender.dataSource.total();
+        if (rowCount == 0) {
+            try {
+                $("#StatusCounter_Unmatched").html("0");
+                $("#StatusCounter_Exception").html("0");
+                $("#StatusCounter_Matched").html("0");
+                $("#StatusCounter_Posted").html("0");
+                $("#StatusCounter_Cancelled").html("0");
+            } catch (e) {
+
+            }
+        }
+        if (rowCount > 0) {
+            try {
+                var item = e.sender.dataSource.data()[0];
+                $("#StatusCounter_Unmatched").html(item.UnMatchedCount);
+                $("#StatusCounter_Exception").html(item.ExceptionCount);
+                $("#StatusCounter_Matched").html(item.MatchedCount);
+                $("#StatusCounter_Posted").html(item.PostedCount);
+                $("#StatusCounter_Cancelled").html(item.CancellledCount);
+
+            } catch (e) {
+            }
+        }
+        var grid = e.sender;
+        e.sender.table.find('tr').each(function () {
+            var $CCMatchStatus = $(this).find('.CCMatchStatus');
+            var $MatchStatusException = $(this).find('.matchStatusException');
+            var $CCNoteColumn = $(this).find('.ccNote');
+            var note = $(this).find('.ccNote').html();
+
+            if ($CCMatchStatus.html() == "Exception") {
+
+                $CCMatchStatus.addClass("red redalert tpComments with-tooltip");
+                var exceptions = $MatchStatusException.html().split(',');
+                //                var toolTipContent = "<ul>";
+                //                for (var e = 0, l = exceptions.length; e < l; e++) {
+                //                    toolTipContent += "<li>" + exceptions[e] + "</li>";
+                //                }
+                //                toolTipContent += "</ul>";
+
+                $CCMatchStatus.attr('title', exceptions);
+            }
+            else if ($CCMatchStatus.html() == "Posted") {
+                $(this).find(".k-grid-Edit").addClass("hidden");
+            }
+
+            $CCNoteColumn.addClass(" with-tooltip");
+            if (note != null && note != "") {
+                $CCNoteColumn.html("<span class='k-icon k-i-note'/>");
+                //var noteTooltip = "<ul><li>" + note + "</li></ul>";
+                $CCNoteColumn.attr('title', note);
+            }
+            else {
+                $CCNoteColumn.html("");
+            }
+        });
+
+        AdjustTooltipDimensions();
+
+        var end = null;
+        var start = null;
+        if ($('#PODateTo').data('kendoDatePicker') != undefined) {
+            end = $("#PODateTo").data('kendoDatePicker').value();
+        }
+        if ($('#PODateFrom').data('kendoDatePicker') != undefined) {
+            start = $("#PODateFrom").data('kendoDatePicker').value();
+        }
+        if (start != null && end != null) {
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start != null) {
+            end = Date.now();
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (end != null) {
+            end = Date.now();
+            $("#spanTimePeriod").html('Start to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start == null && end == null) {
+            end = Date.now();
+            $("#spanTimePeriod").html('Start to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+
+        // reset select all button 
+        var selectAllLabel = $('label[for="display-Select"]');
+        selectAllLabel.removeClass("active");
+        var chkSelectAll = selectAllLabel.find("input");
+        chkSelectAll.removeAttr("checked");
+        $("#selectUnselectAll").html('Select All');
+    }
+
+    function TemporaryCCProcessingSearchCriteria() {
+
+        if ($("#frmVendorTemporaryCCProcessingSearchCriteria").length > 0) {
+            var newArray = [];
+            if ($('#LookUpTypeName').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "LookUpTypeName", value: $('#LookUpTypeName').data('kendoComboBox').value() });
+            }
+            //newArray.push({ name: "LookUpTypeValue", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#LookUpTypeValue").val() });
+            newArray.push({ name: "LookUpTypeIDValue", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#LookUpTypeIDValue").val() });
+
+            $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#pnlCCMatchStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "CCMatchStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "CCMatchStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "CCMatchStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#pnlPOPayStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "POPayStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "POPayStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "POPayStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#pnlExceptionTypes input:checkbox").each(function (index) {
+                newArray.push({ name: "ExceptionType[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ExceptionType[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "ExceptionType[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+
+            if ($('#PODateFrom').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "PODateFrom", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#PODateFrom').val() });
+            }
+
+            if ($('#PODateTo').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "PODateTo", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#PODateTo').val() });
+            }
+
+            if ($('#IssueDateFrom').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "IssueDateFrom", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#IssueDateFrom').val() });
+            }
+
+            if ($('#IssueDateTo').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "IssueDateTo", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#IssueDateTo').val() });
+            }
+
+            if ($('#ChargedDateFrom').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "ChargedDateFrom", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#ChargedDateFrom').val() });
+            }
+
+            if ($('#ChargedDateTo').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "ChargedDateTo", value: $("#frmVendorTemporaryCCProcessingSearchCriteria").find('#ChargedDateTo').val() });
+            }
+
+            if ($('#PostingBatchID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "PostingBatchID", value: $('#PostingBatchID').data('kendoComboBox').value() });
+            }
+
+            if ($('#ClientID').data('kendoComboBox') != undefined) {
+              newArray.push({ name: "ClientID", value: $('#ClientID').data('kendoComboBox').value() });
+            }
+
+            newArray.push({ name: "ChargedAmountFrom", value: $('#ChargedAmountFrom').val() });
+            newArray.push({ name: "ChargedAmountTo", value: $('#ChargedAmountTo').val() });
+
+            //            var filterValue = new Array();
+            //            $('input[name="rbstatus"]:checked').each(function () {
+            //                filterValue.push($(this).val());
+            //            });
+
+            var temporaryCCProcessingCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                temporaryCCProcessingCriteria[newArray[i].name] = newArray[i].value;
+            return temporaryCCProcessingCriteria;
+        }
+    }
+
+</script>
+<div class="with-padding">
+    <div class="float-left">
+        <p class="button-height">
+            <span class="button-group">
+                <label for="display-Select" class="button compact green-active">
+                    <input type="checkbox" name="chkSelectAll" id="display-Select" value="Select" gridID="@gridName"/>
+                    <span id="selectUnselectAll">Select All</span>
+                </label>
+            </span>
+        </p>
+    </div>
+    <div class="float-right">
+        <p class="button-height filterButtons" id="CCMatchStatusFilterTopButtons">
+            <span class="button-group">
+                @foreach (CheckBoxLookUp temp in Model.CCMatchStatus)
+                {
+                    <label for="display-@temp.ID" class="button compact green-active">
+                        <span class="count blue-bg" id="StatusCounter_@temp.Name.Replace(" ", string.Empty)">
+                            0</span>
+                        <input type="checkbox" name="rbccMatchStatus" class="rbStatus" id="display-@temp.ID" value="@temp.ID"/>
+                        @temp.Name
+                    </label>
+                }
+            </span>
+        </p>
+    </div>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding" id="div_CCProcessingList">
+    <div class="tabs-content">
+        @(Html.Kendo().Grid<VendorCCProcessingList_Result>()
+        .Name("GrdCCProcessingList")
+        .Columns(column =>
+        {
+            column.Bound(u => u.ID).Hidden().Title("ID");
+            column.Bound(u => u.POId).Hidden().Title("POID");
+            column.Bound(u => u.CreditCardIssueNumber).Title("CC Purchase ID").Width(150);
+            column.Bound(u => u.TempCC).Title("Temp CC#").Width(200);
+            column.Bound(u => u.CCIssueDate).Title("CC Issue Date").Width(150).Format("{0:MM/dd/yyyy}");
+            column.Bound(u => u.LastChargedDate).Title("CC Charge Date").Width(150).Format("{0:MM/dd/yyyy}");
+            column.Bound(u => u.CCApprove).Title("CC Approve").Width(100).Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.CCCharge).Title("CC Charge").Width(100).Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.CCIssueStatus).Title("CC Issue Status").Width(150);
+            column.Bound(u => u.ReferenceVendorNumber).Title("Ref Vendor#").Width(150);
+            column.Bound(u => u.CCRefPO).Title("CC Ref PO#").Width(150);
+            column.Bound(u => u.CCMatchStatus).Title("CC Match Status").Width(150).HtmlAttributes(new { @class = "CCMatchStatus" });
+            column.Bound(u => u.ExceptionMessage).Hidden().Title("Match Status Exception").HtmlAttributes(new { @class = "matchStatusException" });
+            column.Bound(u => u.PONumber).Title("PO #").Width(100);
+            column.Bound(u => u.VendorNumber).Title("Vendor#").Width(100);
+            column.Bound(u => u.PODate).Format("{0:MM/dd/yyyy}").Title("PO Date").Width(100);
+            column.Bound(u => u.PurchaseOrderStatus).Title("PO Status").Width(150);
+            column.Bound(u => u.POPayStatus).Title("PO Pay Status").Width(150);
+            column.Bound(u => u.POCC).Title("PO CC #").Width(200);
+            column.Bound(u => u.POAmount).Title("PO Amount").Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            //column.Bound(u => u.InvoiceAmount).Title("Inv Amount").Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.Note).Title("Note").HtmlAttributes(new { @class = "ccNote" }).Width(40);
+            column.Command(command =>
+            {
+                command.Custom("Edit").Click("ManageCCProcessing").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                command.Custom("ViewPO").Click("ManageCCProcessing").HtmlAttributes(new { style = "min-width:auto;", title = "View PO" });
+            })
+            .Width(100)
+            .Title("Action(s)");
+        })
+        .Events(e =>
+        {
+            e.DataBound("ManageCCProcessing_Databound");
+        })
+        .Sortable()
+        .Reorderable(reordable=>reordable
+                    .Columns(true)
+                    )
+        .Scrollable()
+                //.Filterable(filterable => filterable
+                //    .Extra(false)
+                //)
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(1000)
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetCCProcessingList", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })
+            .Data(@<text>function(e){return TemporaryCCProcessingSearchCriteria()}</text>)
+
+        )
+        )
+        .ClientDetailTemplateId("templateTemporaryCCDetails")
+        .Resizable(resize => resize.Columns(true))
+        )
+        <div class="align-center ccProcessingActionsContainer">
+            <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                    class="statusMessage"></span>
+            </p>
+              @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_IMPORT_CCFILE) == models.AccessType.ReadWrite)
+              {
+            <button onclick="ImportCCFile();" type="button" class="button gray-gradient glossy small-margin-top">
+                Import CC File</button>
+              }
+            @*<button id="btnRefreshCC" type="button" class="button green-gradient glossy small-margin-top">
+                Refresh</button>*@
+                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_TEMPCC_MATCH) == models.AccessType.ReadWrite)
+                {
+        <button id="btnMatchVerify" type="button" class="button orange-gradient glossy small-margin-top">
+            Match</button>
+                }
+                 @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_TEMPCC_POST) == models.AccessType.ReadWrite)
+                 {
+            <button id="btnPostCC" type="button" class="button green-gradient glossy small-margin-top">
+                Post</button>
+                 }
+        </div>
+        <div class="with-padding">
+            <p>
+                <label for="TimePeriod" class="float-right">
+                    Time Period : <strong><span id="spanTimePeriod"></span></strong>
+                </label>
+            </p>
+        </div>
+    </div>
+</div>
+<script id="templateTemporaryCCDetails" type="text/kendo-tmpl">
+@(Html.Kendo().Grid<VendorCCProcessingDetailList_Result>()
+    .Name("GrdCCProcessingListDetails_#=ID#")
+    .Columns(columns =>
+    {
+        columns.Bound(o => o.TransactionDate).Title("Date").Format("{0:MM/dd/yyyy}");
+        columns.Bound(o => o.TransactionBy).Title("User");
+        columns.Bound(o => o.TransactionType).Title("Action");
+        columns.Bound(o => o.RequestedAmount).Title("Requested").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(o => o.ApprovedAmount).Title("Approved").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(o => o.ChargeAmount).Title("Charge").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(o => o.ChargeDescription).Title("Charge Description");
+
+    })
+    .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_GetCCProcessingDetailsList", "VendorTemporaryCCProcessing", new { area = "VendorManagement", temporaryCCID = "#=ID#" }))
+
+    )
+    .HtmlAttributes(new { @style = "width: 45%;" })
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .Pageable()
+        //.Sortable()
+        //.Scrollable()
+        //.Filterable(filterable => filterable
+        //    .Extra(false)
+        //)
+    .Resizable(resize => resize.Columns(true))
+    .ToClientTemplate()
+    ) 
+</script>
+<script type="text/javascript" language="javascript">
+    function RefreshGridWith(status) {
+
+        if (status != '') {
+            if ($('#btnSearchCriteriaClearAll') != null && $('#btnSearchCriteriaClearAll').length > 0) {
+                $('#btnSearchCriteriaClearAll').click();
+            }
+            var statusLabel = $('label[for="display-' + status + '"]');
+
+            var filterButtons = $(".filterButtons");
+            var labels = filterButtons.find("label");
+
+            labels.each(function () {
+                $(this).removeClass("active");
+                var chk = $(this).find("input");
+                chk.removeAttr("checked");
+            });
+
+            ResetCheckBoxesInSearchCriteria();
+
+            if (statusLabel.length > 0) {
+                statusLabel.addClass("active");
+                statusLabel.find("input").attr("checked", "checked");
+
+                CheckABoxInSearchCriteria(status);
+            }
+        }
+
+        $("#GrdCCProcessingList").data('kendoGrid').dataSource.read();
+
+    }
+    function ResetCheckBoxesInSearchCriteria() {
+        $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#pnlCCMatchStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+
+            $(this).prop("checked", false);
+            $(this).parent().removeClass("checked");
+
+        });
+
+    }
+    function CheckABoxInSearchCriteria(status) {
+        $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#pnlCCMatchStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+            if (recordName == status) {
+                $(this).prop("checked", true);
+                $(this).parent().addClass("checked");
+            }
+        });
+
+    }
+    function GetSummaryDetailsAsHTML(summaryData) {
+
+        var summaryDetails = "<p>Match Complete</p>";
+        summaryDetails += '<table class="table simple-table">';
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Match</td>"
+        summaryDetails += "<td>" + summaryData.Matched + "</td>";
+        summaryDetails += "<td>$" + summaryData.MatchedAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Exception</td>"
+        summaryDetails += "<td>" + summaryData.Exception + "</td>";
+        summaryDetails += "<td>$" + summaryData.ExceptionAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Cancelled</td>"
+        summaryDetails += "<td>" + summaryData.Cancelled + "</td>";
+        summaryDetails += "<td>$" + summaryData.CancelledAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Posted</td>"
+        summaryDetails += "<td>" + summaryData.Posted + "</td>";
+        summaryDetails += "<td>$" + summaryData.PostedAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "</table>";
+
+        return summaryDetails;
+    }
+
+    var invoicesProcessedSoFar = [];
+    var $statusContainer;
+
+    function IncrementPaidCounts(invoiceID, invoicesReadyForPayment, batchID) {
+        invoicesProcessedSoFar.push(invoiceID);
+        var statusMessage = "Processing ... [ Temporary CC Processed : " + invoicesProcessedSoFar.length + " ]";
+        console.log(statusMessage);
+        ShowStatus("inprogress", statusMessage, $statusContainer);
+
+        // Start the next steps when invoicesProcessedSoFar.length == invoicesReadyForPayment.length
+        if (invoicesProcessedSoFar.length == invoicesReadyForPayment.length) {
+            statusMessage = "Temporary CC selected records posted in staging";
+            console.log(statusMessage);
+            ShowStatus("success", statusMessage, $statusContainer);
+            var formData = [];
+
+            formData.push({ name: "batchID", value: batchID });
+
+            for (var k = 0, l = invoicesProcessedSoFar.length; k < l; k++) {
+                formData.push({ name: "invoices[" + k + "]", value: invoicesProcessedSoFar[k] });
+            }
+
+            $.ajax({
+                url: '@Url.Action("UpdateBatchDetails", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                type: 'POST',
+                data: formData,
+                cache: false,
+                async: true,
+                global: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        HideStatus($statusContainer);
+                        var summary = "<p>Temporary CC Post completed</p>";
+                        summary += "<p>BatchId : " + batchID + "</p>";
+                        summary += "<p>Invoices : " + msg.Data.Posted + "</p>";
+                        summary += "<p>Amount : $" + msg.Data.PostedAmount.toFixed(2) + "</p>";
+
+                        openAlertMessage(summary);
+                        RefreshGridWith("Posted");
+                    }
+                },
+                error: function (err, errStatus) {
+                    HandleAjaxErrors("error", err);
+                    HideStatus($statusContainer);
+                }
+            });
+
+        }
+    }
+
+    function ProcessPost(summaryData) {
+        if (summaryData.VendorccPosted.length > 0) {
+            ShowStatus("inprogress", "Setting up the prerequisites", $statusContainer);
+            //ShowStatus("inprogress", "Processing ...", $statusContainer);
+            var invoicesReadyForPayment = summaryData.VendorccPosted;
+            var etlExecutionLogID = 0;
+            var batchID = 0;
+            var timestamp = null;
+            setTimeout(function () {
+                // Generate ETL ID.
+                $.ajax({
+                    url: '@Url.Action("GetETLExecutionLogID", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    cache: false,
+                    async: false,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            var ids = msg.Data;
+                            batchID = ids.BatchID;
+                            var date = new Date(parseInt(ids.CurrentDate.substr(6)));
+                            timestamp = date.toString("MM/dd/yyyy HH:mm:ss");
+                            console.log("Batch ID = " + batchID + ", Timestamp = " + timestamp);
+
+                            // Process each invoice that is readyforpayment
+                            invoicesProcessedSoFar.splice(0, invoicesProcessedSoFar.length);
+
+                            for (var p = 0, l = invoicesReadyForPayment.length; p < l; p++) {
+                                var invoiceID = invoicesReadyForPayment[p];
+                                console.log("Processing invoice ID : " + invoiceID);
+                                $.ajax({
+                                    url: '@Url.Action("ProcessTempCCPost", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                                    type: 'POST',
+                                    data: { invoiceID: invoiceID, batchID: batchID, batchTimeStamp: timestamp },
+                                    cache: false,
+                                    async: true,
+                                    global: false,
+                                    success: function (msg) {
+                                        if (msg.Status == "Success") {
+                                            IncrementPaidCounts(msg.Data.InvoiceID, invoicesReadyForPayment, batchID);
+                                        }
+                                    },
+                                    error: function (err, errStatus) {
+                                        HandleAjaxErrors("error", err);
+                                        HideStatus($statusContainer);
+                                    }
+                                });
+
+                            }
+                        }
+                        else {
+                            ShowStatus("error", "Unable to get ETL Execution LogID", $statusContainer);
+                        }
+                    },
+                    error: function (err, errStatus) {
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+
+            }, 200);
+        }
+        else {
+            HideStatus($statusContainer);
+        }
+
+        // Process invoices
+    }
+
+    $(function () {
+        $statusContainer = $(".ccProcessingActionsContainer");
+
+        HideStatus($statusContainer);
+
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        350
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdCCProcessingList").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-Edit').click();
+        });
+
+        $("#btnPostCC").click(function (e) {
+
+            var grid = $("#GrdCCProcessingList").data("kendoGrid");
+
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select temporary credit card records to post.");
+            }
+            else {
+
+                ShowStatus("inprogress", "Processing ...", $statusContainer);
+                var selectedInvoices = [];
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    //openAlertMessage("Selected Invoice ID : " + record.ID + " of Vendor # " + record.VendorNumber);
+                    selectedInvoices.push({ name: "invoices[" + i + "]", value: record.ID });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("VerifyBeforePay", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    data: selectedInvoices,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+
+                        if (msg.Status == "Success") {
+                            var summaryData = msg.Data;
+                            var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+
+                            $.modal.VerificationResultsForTempccPost(summaryDetails, function () {
+                                //openAlertMessage("Work Exceptions clicked");
+
+                                RefreshGridWith("Exception");
+
+                            }, function () {
+                                //openAlertMessage("OK clicked");
+                                // Just refresh the grid.
+                                if ($(event.srcElement).text() != "Close") {
+
+                                    setTimeout(function () { ProcessPost(msg.Data); }, 300);
+                                }
+                                else {
+                                    RefreshGridWith('');
+                                }
+
+                            });
+
+                            setTimeout(function () {
+                                if (msg.Data.Exception == 0) {
+
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }
+                                if (msg.Data.Matched == 0) {
+
+                                    $("#modals .postTempCC").attr("disabled", "disabled").addClass("disabled");
+                                }
+                            }, 500);
+
+                        }
+                        HideStatus($statusContainer);
+                    },
+                    error: function (err, errStatus) {
+
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+
+            return false;
+        });
+
+        $("#btnMatchVerify").click(function (e) {
+
+            var grid = $("#GrdCCProcessingList").data("kendoGrid");
+
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select temporary credit card records to verify");
+            }
+            else {
+
+                ShowStatus("inprogress", "Processing ...", $statusContainer);
+                var selectedInvoices = [];
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    //openAlertMessage("Selected Invoice ID : " + record.ID + " of Vendor # " + record.VendorNumber);
+                    selectedInvoices.push({ name: "invoices[" + i + "]", value: record.ID });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Verify", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    data: selectedInvoices,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+
+                        if (msg.Status == "Success") {
+
+                            var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+
+                            $.modal.VerificationResults(summaryDetails, function () {
+                                //openAlertMessage("Work Exceptions clicked");
+
+                                RefreshGridWith("Exception");
+
+                            }, function () {
+                                //openAlertMessage("OK clicked");
+                                // Just refresh the grid.
+                                RefreshGridWith('');
+
+                            });
+
+                            setTimeout(function () {
+                                if (msg.Data.Exception == 0) {
+
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }
+                            }, 500);
+                        }
+                        HideStatus($statusContainer);
+                    },
+                    error: function (err, errStatus) {
+
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+
+            return false;
+        });
+
+        $('input[name="rbccMatchStatus"]').click(function (e) {
+            var ccMatchStatusID = $(this).attr('value');
+            var IsMatchStatusSelected = $(this).is(" :checked");
+            $("#frmVendorTemporaryCCProcessingSearchCriteria").find("#ChkMatchStatus input:checkbox").each(function (index) {
+                var recordID = $(this).attr('recorID');
+                if (recordID != undefined && ccMatchStatusID != undefined && IsMatchStatusSelected != undefined) {
+                    if (recordID == ccMatchStatusID) {
+                        if (IsMatchStatusSelected) {
+                            $(this).prop("checked", true);
+                            $(this).parent().addClass("checked");
+                        }
+                        else {
+                            $(this).prop("checked", false);
+                            $(this).parent().removeClass("checked");
+                        }
+                        GetSelectedCriteria();
+                        $('#GrdCCProcessingList').data('kendoGrid').dataSource.read();
+                    }
+                }
+            });
+        });
+
+        $('input[name="chkSelectAll"]').change(function (e) {
+
+            var gridName = $(this).attr("gridID");
+            var grid = $("#@gridName").data('kendoGrid');
+            if ($(this).is(":checked")) {
+                $("#selectUnselectAll").html('Unselect All');
+                grid.select("tr");
+            }
+            else {
+                grid.clearSelection();
+                $("#selectUnselectAll").html('Select All');
+            }
+        });
+    });
+</script>

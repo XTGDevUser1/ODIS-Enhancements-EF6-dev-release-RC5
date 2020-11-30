@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/DigitalDispatch/Views/Shared/_DigitalDipatchLayout.cshtml";
+}
+@model Martex.DMS.BLL.Model.DigitalDispatch.ACKModel
+<form id="formACK">
+
+    <div class="columns">
+        <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+
+            <fieldset class="fieldset">
+                <legend class="legend">ACK</legend>
+                <div>
+                    <h4>Message Header</h4>
+                    <p class="inline-label">
+                        <label for="HeaderVersion" class="label">
+                            Header Version
+                        </label>
+                        @Html.TextBoxFor(a => a.HeaderVersion, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="Key" class="label">
+                            Key
+                        </label>
+                        @Html.TextBoxFor(a => a.Key, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ContractorID" class="label">
+                            Contractor ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ContractorID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseID" class="label">
+                            Response ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="TransType" class="label">
+                            Trans Type
+                        </label>
+                        @Html.TextBoxFor(a => a.TransType, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MsgVersion" class="label">
+                            Msg Version
+                        </label>
+                        @Html.TextBoxFor(a => a.MsgVersion, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ConRequired" class="label">
+                            Con Required
+                        </label>
+                        @Html.TextBoxFor(a => a.ConRequired, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseType" class="label">
+                            Response Type
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseType, new { @class = "input full-width2" })
+                    </p>
+                    <h4>ACK Message</h4>
+                    <p class="inline-label">
+                        <label for="TriggerType" class="label">
+                            Trigger Type
+                        </label>
+                        @Html.TextBoxFor(a => a.TriggerType, new { @class = "input full-width2" })
+                    </p>
+                    <div>
+                        <button id="btnSubmitACk" class="button green-gradient float-right" type="button">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</form>
+<div class="columns" id="divAckResponse">
+    <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+        <p class="inline-label">
+            <label class="label">
+                Response
+            </label>
+            @Html.TextArea("AckResponseMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+
+        <p class="inline-label">
+            <label class="label">
+                Request
+            </label>
+            @Html.TextArea("AckRequestMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btnSubmitACk").click(function () {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitACK", "ACK", new { area = "DigitalDispatch" })',
+            data: $("#formACK").serializeArray(),
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#AckResponseMessage").html(msg.Data.Response);
+                $("#AckRequestMessage").html(msg.Data.Request);
+                $("#divAckResponse").show();
+            }
+
+        });
+       
+    });
+    $(function () {
+        $("#divAckResponse").hide();
+    });
+</script>

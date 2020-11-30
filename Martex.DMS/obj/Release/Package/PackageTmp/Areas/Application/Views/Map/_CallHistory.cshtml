@@ -1,0 +1,146 @@
+﻿@model List<Martex.DMS.DAL.MapCallHistory_Result>
+@if (Model != null && Model.Count > 0)
+{
+    <div class="previousCalls scrollable" style="height: 450px;">
+        <p class="title">
+            Call History</p>
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            string[] questionList = null;
+            string[] answer = null;
+
+            if (Model[i].Question != null && Model[i].Answer != null)
+            {
+                questionList = Model[i].Question.Split('|');
+                answer = Model[i].Answer.Split('|');
+            }
+            <div class="callLogEntry" style="width: 100%; float: left; display: inline-table;
+                margin-bottom: 10px; margin-top: 5px;">
+                <div class="callLogDetails" style="width: 50%; float: left;">
+                    <ul style="list-style-type: none; margin-left: 5px;">
+                        <li>@Model[i].ContactCategory</li>
+                        <li class="business-name">@Model[i].CompanyName</li>
+                        <li>
+                            @Html.Hidden(@Model[i].VendorLocationID + @i.ToString(), string.Empty, new { @class = "vendor-location", data = @Model[i].VendorLocationID })
+                            @Html.Hidden(@Model[i].CompanyName + @i.ToString(), string.Empty, new { @class = "business-name", data = @Model[i].CompanyName })
+                            @if (!string.IsNullOrEmpty(Model[i].PhoneNumber))
+                            {
+                                @Html.Editor("PhoneNumber" + i.ToString() + "_History", "Phone", new { Value = Model[i].PhoneNumber, ReadOnly = true, customClassName = "callHistory", CallType = "Vendor" })
+                            }
+                        </li>
+                        <li>@Model[i].TalkedTo</li>
+                        <li>@Model[i].Comments</li>
+                    </ul>
+                </div>
+                <div style="width: 48%; float: left;">
+                    <ul style="list-style-type: none; margin-left: 5px; margin-right: 5px;">
+                        <li>@Model[i].CreateDate</li>
+                        <li>@Model[i].CreateBy</li>
+                        <li>Reason :
+                            <br />
+                            @Model[i].Reason</li>
+                        <li>Action(s):<br />
+                            @Model[i].ASAction</li>
+                    </ul>
+                </div>
+                <div class="clear">
+                </div>
+                @if (questionList != null)
+                {
+                    for (int iQuestion = 0; iQuestion < @questionList.Length; iQuestion++)
+                    { 
+                    <ul style="list-style-type: none; margin-left: 5px; margin-right: 5px;">
+                        <li>@questionList[iQuestion]
+                            :
+                            @try
+                            {
+                                <span>@answer[iQuestion]</span>
+                               
+                            }
+                            catch
+                            {
+
+                            }
+                        </li>
+                    </ul>
+                    }
+                    if (i != Model.Count - 1)
+                    {
+                    <hr />
+                    }
+                }
+            </div>
+           
+        }
+    </div> 
+}
+else
+{
+    <div class="previousCalls scrollable">
+        <p class="title">
+            Call History</p>
+        <div>
+            <strong>No calls to display</strong>
+        </div>
+    </div>
+}
+<div class="clear">
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.callHistory').click(function () {
+            enrouteMiles = null;
+            var phoneNumber = $(this).attr("data");
+            var businessName = $(this).parent().prev().attr("data")
+            var vLocationID = $(this).parent().prev().prev().attr("data")
+            businessCalled = businessName;
+            if (vLocationID.length > 0) {
+                vendorLocationID = vLocationID;
+            }
+            else {
+                vendorLocationID = null;
+            }
+            phoneNumberCalled = phoneNumber;
+            // Launch the call log window
+           winCallLog  = $("<div id='winCallLog ' />").appendTo(document.body);    
+                document.dialogResult = null;
+                winCallLog .kendoWindow({
+                    title: "Call Log",
+                    content : "@Url.Action("_CallLog", "Map", new { area = "Application" })",
+                    modal: true,
+                    width: 850, // CR: 1262
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        document.dialogResult = null;
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $(".formError").each(function () {
+                            $(this).remove();
+                        });
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmCallLog')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmCallLog');
+                            }
+                        }
+                        
+                        if(document.dialogResult == "OK")
+                        {   
+                            CleanMyContainer("frmCallLog");
+                            document.dialogResult = null;
+                        }
+                        return true;
+                    }
+                });
+                winCallLog.data('kendoWindow').center().open();
+            
+
+        });
+    });
+</script>

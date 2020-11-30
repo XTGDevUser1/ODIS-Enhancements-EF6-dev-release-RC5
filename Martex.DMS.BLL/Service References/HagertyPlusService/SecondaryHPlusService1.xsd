@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Hagerty.Common.Types.DataContracts.HPlus" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="https://moservices.hagerty.com/B2B/SecondaryHPlusService?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="ServiceMembershipResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="HPlusMemberInformation" nillable="true" type="tns:ArrayOfHPlusMembershipInformation" />
+      <xs:element minOccurs="0" name="ServiceResponseCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceResponseMessage" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ServiceMembershipResponse" nillable="true" type="tns:ServiceMembershipResponse" />
+  <xs:complexType name="ArrayOfHPlusMembershipInformation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HPlusMembershipInformation" nillable="true" type="tns:HPlusMembershipInformation" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHPlusMembershipInformation" nillable="true" type="tns:ArrayOfHPlusMembershipInformation" />
+  <xs:complexType name="HPlusMembershipInformation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AllVehiclesNotDisplayed" type="xs:boolean" />
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="AutoPolicyNumber" nillable="true" type="q1:ArrayOfstring" />
+      <xs:element minOccurs="0" name="CountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CustomerNumber" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CustomerPhone" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CustomerType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="HPNMembershipKey" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="HPlusActiveIndicator" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="HPlusEffectiveDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="HPlusExpirationDate" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="HouseholdDriverInformation" nillable="true" type="tns:ArrayOfHouseholdDrivers" />
+      <xs:element minOccurs="0" name="OrganizationCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OverrideNameOnCard" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PlanType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PrimaryInsuredInformation" nillable="true" type="tns:PrimaryInsured" />
+      <xs:element minOccurs="0" name="SearchResultCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SearchResultMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VehicleInformation" nillable="true" type="tns:ArrayOfPolicyVehicles" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HPlusMembershipInformation" nillable="true" type="tns:HPlusMembershipInformation" />
+  <xs:complexType name="ArrayOfHouseholdDrivers">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HouseholdDrivers" nillable="true" type="tns:HouseholdDrivers" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHouseholdDrivers" nillable="true" type="tns:ArrayOfHouseholdDrivers" />
+  <xs:complexType name="HouseholdDrivers">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DriverName" nillable="true" type="tns:CustomerName" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HouseholdDrivers" nillable="true" type="tns:HouseholdDrivers" />
+  <xs:complexType name="CustomerName">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FirstName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="MiddleName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NamePrefix" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NameSuffix" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CustomerName" nillable="true" type="tns:CustomerName" />
+  <xs:complexType name="PrimaryInsured">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DateOfBirth" type="xs:dateTime" />
+      <xs:element minOccurs="0" name="PrimaryInsuredAddress" nillable="true" type="tns:CustomerAddress" />
+      <xs:element minOccurs="0" name="PrimaryInsuredName" nillable="true" type="tns:CustomerName" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PrimaryInsured" nillable="true" type="tns:PrimaryInsured" />
+  <xs:complexType name="CustomerAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AddressLine1" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="AddressLine2" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="City" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PostalCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="State" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CustomerAddress" nillable="true" type="tns:CustomerAddress" />
+  <xs:complexType name="ArrayOfPolicyVehicles">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="PolicyVehicles" nillable="true" type="tns:PolicyVehicles" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPolicyVehicles" nillable="true" type="tns:ArrayOfPolicyVehicles" />
+  <xs:complexType name="PolicyVehicles">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BodyStyle" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Make" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Model" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PolicyID" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="VehicleType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Year" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="PolicyVehicles" nillable="true" type="tns:PolicyVehicles" />
+  <xs:complexType name="ServiceEventResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ServiceEventResultCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceEventResultMessage" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceResponseCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceResponseMessage" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ServiceEventResponse" nillable="true" type="tns:ServiceEventResponse" />
+  <xs:complexType name="ServiceMembershipPlanResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="HPlusMembershipPlanInformation" nillable="true" type="tns:ArrayOfHPlusMembershipPlanInformation" />
+      <xs:element minOccurs="0" name="ServiceResponseCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ServiceResponseMessage" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ServiceMembershipPlanResponse" nillable="true" type="tns:ServiceMembershipPlanResponse" />
+  <xs:complexType name="ArrayOfHPlusMembershipPlanInformation">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="HPlusMembershipPlanInformation" nillable="true" type="tns:HPlusMembershipPlanInformation" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfHPlusMembershipPlanInformation" nillable="true" type="tns:ArrayOfHPlusMembershipPlanInformation" />
+  <xs:complexType name="HPlusMembershipPlanInformation">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Count" type="xs:int" />
+      <xs:element minOccurs="0" name="CountryCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="OrganizationCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PlanType" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SearchResultCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SearchResultMessage" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="HPlusMembershipPlanInformation" nillable="true" type="tns:HPlusMembershipPlanInformation" />
+</xs:schema>

@@ -1,0 +1,46 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_DISPATCH) == AccessType.ReadWrite)
+    {
+        <li id="_Home"><a href="@Url.Action("Index", "Home", new { area = "" })" class="shortcut-stats" title="Dashboard" data="Home">
+            Home</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_DISPATCH_REQUEST) == AccessType.ReadWrite)
+    {
+        <li id="Application_Request"><a href="@Url.Action("Index", "Request", new { area = "Application" })" class="shortcut-dashboard" title="Request" data="Request">
+            Request</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_DISPATCH_QUEUE) == AccessType.ReadWrite)
+    {
+        <li id="Application_Queue"><a href="@Url.Action("Index", "Queue", new { area = "Application" })" class="shortcut-contacts" title="Queue" data="Queue">
+            Queue</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_DISPATCH_HISTORY) == AccessType.ReadWrite)
+    {
+        <li id="Application_History"><a href="@Url.Action("Index", "History", new { area = "Application" })" class="shortcut-agenda" title="History" data="History">History</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_DISPATCH_ADMIN) == AccessType.ReadWrite)
+    {
+        <li id="UserMaintenance"><a href="@Url.Action("Index", "UserMaintenance", new { area = "Application" })" class="shortcut-settings" title="User Maintenance" data="UserMaintenance">
+            User Maintenance</a></li>
+    }
+</ul>
+<script type="text/javascript">
+    var currentController = '@ViewContext.RouteData.Values["controller"]';
+    var area = '@ViewContext.RouteData.DataTokens["area"]';
+    var currentTab = area + "_" + currentController;
+    $(function () {
+        
+        $('#shortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('#shortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

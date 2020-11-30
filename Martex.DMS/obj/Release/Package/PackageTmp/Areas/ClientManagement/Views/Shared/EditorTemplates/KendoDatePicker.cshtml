@@ -1,0 +1,17 @@
+﻿@model DateTime?
+
+@using Kendo.Mvc.UI;
+
+@{
+    bool disabled = false;
+
+    if (ViewData["Disabled"] != null && (bool)ViewData["Disabled"])
+    {
+        disabled = true;
+    }
+}
+@(
+ Html.Kendo().DatePickerFor(m => m).Enable(!disabled)
+     
+        
+)

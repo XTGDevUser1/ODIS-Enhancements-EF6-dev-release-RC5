@@ -1,0 +1,265 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+@{
+    RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as RegisterUserModel;
+    if (userProfile == null)
+    {
+        Response.Redirect("~/Account/LogOn");
+        return;
+    }
+    string controllerName = ViewContext.RouteData.Values["Controller"] == null ? string.Empty : ViewContext.RouteData.Values["Controller"].ToString();
+    string areaName = ViewContext.RouteData.DataTokens["area"] == null ? string.Empty : ViewContext.RouteData.DataTokens["area"].ToString();
+}
+<!-- Sidebar/drop-down menu -->
+<section id="menu" role="complementary">
+    <!-- This wrapper is used by several responsive layouts -->
+    <div id="menu-content">
+        <header>
+				@userProfile.UserName (@userProfile.OrganizationName)
+           </header>
+        <div id="profile">
+            <img src="@Url.Content("~/Content/img/odis-user.png")" width="48" height="60" alt="User name" class="user-icon">
+            <span class="name">@userProfile.FirstName @userProfile.LastName </span><span>@DateTime.Now.ToString("MM/dd/yyyy")</span>
+        </div>
+        <ul id="access" class="children-tooltip">
+            @*//href="@Url.Action("Index", "Feedback", new { area = "Application" })"*@
+            <li ><a id="ccpLink" title="CCP" onclick="OpenCCPWindow()"><span class="icon-phone-no-call"></span></a></li>
+            <li id="liFeedback"><a title="Feedback"><span class="icon-mail"></span></a></li>
+            <li><a href="#" data-tooltip-options='{"classes":["anthracite-gradient"],"position":"bottom"}'
+                id="aUserDetails"><span class="icon-user"></span></a></li>
+            <li><a id="btnStickyNoteBasic" href="javascript:void(0);" title="Clipboard"><span
+                class="icon-paperclip"></span></a></li>
+            <li><a href="@Url.Action("LogOff", "Account", new { area = "" })" title="Logout"><span
+                class="icon-down-round"></span></a></li>
+        </ul>
+        <ul class="unstyled-list" id="ulMemberSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulVendorSearchCriteria">
+        </ul>
+        <ul class="unstyled-list" id="ulClaimSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulEventViewerSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulQACoachingConcernSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulClientBillableEventProcessingSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulClientInvoiceProcessingSearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulHistorySearchCriteria">
+        </ul>
+        <ul class="unstyled-list" id="ulHistorySearchCriteriaRight">
+        </ul>
+        <ul class="unstyled-list" id="ulQueueSearchCriteria">
+        </ul>
+        <ul class="unstyled-list" id="ulACESPaymentSearchFilterSection">
+        </ul>
+        <ul class="unstyled-list" id="ulVendorTemporarayCCProcessingSearchCriteria">
+        </ul>
+        <ul class="unstyled-list" id="ulAdminProgramManagementSearchCriteria">
+        </ul>
+        <ul class="unstyled-list" id="ulQACustomerFeedbackCriteria"></ul>
+        <ul class="unstyled-list" id="ulCXCustomerFeedbackSurveyCriteria"></ul>
+        <ul class="unstyled-list">
+            @(Html.Kendo().PanelBar()
+                .Name("panelBarCallSummary")
+                .Items(panelbar =>
+                {
+                    if (ViewData[Martex.DMS.ActionFilters.ControlConstants.ShowCallTimer.ToString()] != null)
+                    {
+                        panelbar.Add().Text("Call timer").Expanded(true).Content(@<div class="timer with-padding">
+                        </div>);
+                    }
+                    if (ViewContext.RouteData.Values["Controller"] != null && ViewContext.RouteData.Values["Controller"].ToString().Equals("Request"))
+                    {
+                        panelbar.Add().HtmlAttributes(new { id = "liCallSummaryPanel" }).Text("Call Summary").Expanded(true).Content(@<div class="message-menu"
+                            id="ulCallSummary">
+                        </div>);
+                        panelbar.Add().Text("Program Information").Expanded(true).Content(@<div id="liProgramInfo">
+                        </div>);
+
+                    }
+                    if (ViewContext.RouteData.Values["Controller"] != null && (controllerName == "Request" || controllerName == "Queue" || controllerName == "History" || controllerName == "Home" || controllerName == "VendorDashboard" || controllerName == "VendorHome"))
+                    {
+                        panelbar.Add().Text("Notifications").Expanded(true).Content(@<div id="liNotificationPlaceHolder">
+                            @Html.Partial("_Notification")
+                        </div>);
+                    }
+
+
+                })
+                                       )
+        </ul>
+        @using(Html.BeginForm("ScreenShot", "Home", FormMethod.Post, new { @id = "frmScreenShot" }))
+{
+
+@Html.Hidden("capturedShot")
+
+
+}
+    </div>
+    <!-- End content wrapper -->
+</section>
+<!-- End sidebar/drop-down menu -->
+<script type="text/javascript" language="javascript">
+    var panelbar = null;
+    var feedbackWindow;
+    $(function () {
+
+        GetCallSummary();
+        GetMemberProductsDetails();
+        GetUserDetails();
+
+        $("#liFeedback").click(function (e) {
+            var panelbar = $("#panelBarCallSummary").data("kendoPanelBar");
+            
+            if (panelbar != null && '@ViewContext.RouteData.Values["Controller"]' != null && '@ViewContext.RouteData.Values["Controller"].ToString()' == "Request") {
+                panelbar.collapse($("li", panelbar.element));
+                setTimeout(function () {
+                    panelbar.expand($("#liCallSummaryPanel"));
+                    setTimeout(function () {
+                        $('#menu').scrollTop($('#menu').height());
+                        openFeedBackPopUpWindow();
+                    }, 300);
+
+                }, 300);
+
+            }
+            else {
+                openFeedBackPopUpWindow();
+            }
+        });
+    });
+
+    function openFeedBackPopUpWindow() {
+        $('body').html2canvas({
+            onrendered: function (canvas) {
+                //Set hidden field's value to image data (base-64 string)
+                $('#capturedShot').val(canvas.toDataURL("image/png"));
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Index", "Feedback", new { area = "Application" })',
+                    data: { capturedImage: $('#capturedShot').val() },
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        feedbackWindow = $("<div id='feedbackWindow' />").appendTo(document.body);
+                        feedbackWindow.kendoWindow({
+                            title: "User Feedback",
+                            modal: true,
+                            width: 1050,
+                            height: GetPopupWindowHeight(),
+                            deactivate: function () {
+                                CleanMyContainer('form-Feedback');
+                                this.destroy();
+                            },
+                            close: function (e) {
+                                $('#form-Feedback').validationEngine('hideAll'); // to hide the validation message of the popup 
+                                if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                    document.dialogResult = null;
+                                    if (IsMyContainerDirty('form-Feedback')) {
+                                        var prompt = PromptForDirtyFlag();
+                                        if (!prompt) {
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                        CleanMyContainer('form-Feedback');
+                                    }
+                                }
+                                return true;
+                            }
+                        });
+                        feedbackWindow.data('kendoWindow').content(msg).center().open();
+                    }
+                });
+            }
+        });
+    }
+
+    function GetCallSummary() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetCallSummary", "Request", new { Area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            global:false,
+            success: function (msg) {
+                $('#ulCallSummary').html(msg);
+            }
+
+        });
+    }
+
+    function GetMemberProductsDetails() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_MemberProductsUsingCategory", "Member", new { Area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            global:false,
+            success: function (msg) {
+                $('#DivMemberProductsUsingCategoryInProgramInfo').html(msg);
+            }
+
+        });
+    }
+
+    function AdjustStylingOnProgramInfoSection() {
+        var programInfoSection = $("#liProgramInfo");
+        var ul = programInfoSection.find("ul");
+        ul.attr("class", "message-menu");
+        ul.find(".absolute-right").each(function () {
+            $(this).removeClass("absolute-right");
+        });
+    }
+    function PopulateRightPanelWithProgramInfo(id) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetProgramInformationDuringCall", "ProgramMaintenance", new { area = "Admin" })',
+            traditional: true,
+            data: { programId: id },
+            cache: false,
+            async: true,
+            /*global: false,*/
+            success: function (msg) {
+                $("#liProgramInfo").html(msg);
+                AdjustStylingOnProgramInfoSection();
+                $("#liProgramInfo").show("highlight", { color: "#FFBB2B" }, 300, null);
+
+            }
+        });  // end of ajax
+
+        setTimeout(function () {
+            GetMemberProductsDetails();
+        }, 500);
+    }
+
+    function GetUserDetails() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetUserDetails", "Account", new { Area = "" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#aUserDetails').attr("title", msg);
+            }
+
+        });
+    }  
+
+    function OpenCCPWindow() {
+        let openConnect = window.open("", "AmazonConnectWindow");
+        if (openConnect.location.href === 'about:blank') {
+            var url = '@Url.Action("", "AmazonConnect", new { Area = "Application" })';
+            openConnect.location.href = url;
+        }
+    }
+</script>
+<script src="~/Scripts/html2canvas.js" type="text/javascript"></script>
+<script src="~/Scripts/jquery.plugin.html2canvas.js" type="text/javascript"></script>

@@ -1,0 +1,79 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@model int
+@{
+    string memberID = Model.ToString();
+}
+<script type="text/javascript">
+    function MemberProducts_Databound(e) {
+
+        var table = e.sender.table;
+        FormatPhoneNumber(table, 7);
+
+        var grid = $("#GrdMemberProducts_@memberID").data("kendoGrid");
+        var data = grid.dataSource.view();
+        $.each(data, function (i, row) {
+            var $statusColumn = $('tr[data-uid="' + row.uid + '"]').find(".status");
+            var $endDateColumn = $('tr[data-uid="' + row.uid + '"]').find(".endDate");
+            var $phoneNumberColumn = $('tr[data-uid="' + row.uid + '"]').find(".phoneNumber");
+
+            var $helpTextColumn = $('tr[data-uid="' + row.uid + '"]').find(".helpText");
+
+            if ($statusColumn.html() == 'Active') {
+                $statusColumn.html('<small class="tag green-bg">Active</small>');
+            }
+            else {
+                $statusColumn.html('<small class="tag red-bg">Inactive</small>');
+                $endDateColumn.css("color", '#ff0a0a');
+            }
+            var helpText = $helpTextColumn.html();
+            var phoneNumberValue = $phoneNumberColumn.html();
+            var memberHelp = '<span class="tpComments with-tooltip" title="' + helpText + '"><i class="icon-info-round"/></span>';
+            $phoneNumberColumn.html(phoneNumberValue + ' ' + memberHelp);
+
+        });
+        AdjustTooltipDimensions();
+    }
+</script>
+<div class="with-padding">
+    <div class="new-row">
+        <div class="twelve-columns">
+            @(Html.Kendo().Grid<MemberProducts_Result>()
+                .Name("GrdMemberProducts_" + memberID)
+                .Columns(column =>
+                {
+                    column.Bound(c => c.HelpText).Hidden().HtmlAttributes(new { @class = "helpText" });
+                    column.Bound(c => c.Product).Title("Product").HtmlAttributes(new { @class = "product" });
+                    column.Bound(c => c.StartDate).Format("{0:MM/dd/yyyy}").Title("Start Date");
+                    column.Bound(c => c.EndDate).Format("{0:MM/dd/yyyy}").Title("End Date").HtmlAttributes(new { @class = "endDate" });
+                    column.Bound(c => c.Status).Title("Status").HtmlAttributes(new { @class = "status" });
+                    column.Bound(c => c.Provider).Title("Provider").HtmlAttributes(new { @class = "provider" });
+                    column.Bound(c => c.VIN).Title("VIN");
+                    column.Bound(c => c.ContractNumber).Title("Contract #");
+                    column.Bound(c => c.PhoneNumber).Title("Phone Number").HtmlAttributes(new { @class = "phoneNumber" });
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                .Enabled(false)
+                )
+                .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Events(e =>
+                {
+                    e.DataBound("MemberProducts_Databound");
+                })
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("_MemberProductsList", "Member", new { area = "Application" }).Data(@<text>function(){return{memberID : '@memberID'};}</text>))
+                           )
+                           .Resizable(resize => resize.Columns(true)))
+        </div>
+    </div>
+</div>

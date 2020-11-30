@@ -1,0 +1,237 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.Entities.MemberShipInfoDetails
+@{
+    string suffixMemberShipID = Model.MembershipID.ToString();
+}
+<form id="frmMembershipInfoSection_@suffixMemberShipID" method="post" action="javascript:void(0)" relatedButtons="PlaceHolder_MemberShip_Info_Buttons_@suffixMemberShipID">
+@Html.HiddenFor(u => u.MembershipID, new { id = "MembershipID_" + suffixMemberShipID })
+@Html.HiddenFor(u => u.MasterMemberID, new { id = "MasterMemberID_" + suffixMemberShipID })
+<div class="with-padding">
+    <div class="columns">
+        <div class="twelve-columns">
+            <div class="columns">
+                <div class="eight-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Basic Information</legend>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="Client" class="label" style="color: gray;">
+                                Client
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(u => u.ClientID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change(@<text>function(e){Combo_HandleProgramForClient_Membership_Info(e,'@suffixMemberShipID')}</text>))
+                            .HtmlAttributes(new { style = "width:90%;", id = "ClientID_" + suffixMemberShipID, @readonly = "readonly" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ClientID.HasValue ? Model.ClientID.Value.ToString() : string.Empty)
+                            )
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="Program" class="label">
+                                Program<span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBox()
+                            .Name("ProgramID_" + suffixMemberShipID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "ProgramID_" + suffixMemberShipID, @readonly = "readonly" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ProgramID.HasValue ? Model.ProgramID.Value.ToString() : string.Empty)
+                            )
+                        </div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="MembershipNumber" class="label">
+                                Membership Number</label>
+                            @Html.TextBoxFor(u => u.MemberShipNumber, new { @class = "input", maxLength = "25", id = "MemberShipNumber_" + suffixMemberShipID })
+                        </p>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="Status" class="label">
+                                Status<span class="spanstar">*</span>
+                            </label>
+                            @if (!Model.IsMemberExpired)
+                            {
+                                <small class="tag green-bg">Active</small>
+                            }
+                            else
+                            {
+                                <small class="tag red-bg">Inactive</small>
+                            }
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="Prefix" class="label">
+                                Prefix
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(u => u.PrefixID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "PrefixID_" + suffixMemberShipID })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Prefix.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.PrefixID.HasValue ? Model.PrefixID.Value.ToString() : string.Empty)
+                            )
+                        </div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="FirstName" class="label">
+                                First Name<span class="spanstar">*</span></label>
+                            @Html.TextBoxFor(u => u.FirstName, new { @class = "input full-width validate[required]", maxLength = "50", id = "FirstName_" + suffixMemberShipID })
+                        </p>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="MiddleName" class="label">
+                                Middle Name</label>
+                            @Html.TextBoxFor(u => u.MiddleName, new { @class = "input full-width", maxLength = "50", id = "MiddleName_" + suffixMemberShipID })
+                        </p>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="LastName" class="label">
+                                Last Name<span class="spanstar">*</span></label>
+                            @Html.TextBoxFor(u => u.LastName, new { @class = "input full-width validate[required]", maxLength = "50", id = "LastName_" + suffixMemberShipID })
+                        </p>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="Suffix" class="label">
+                                Suffix
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(u => u.SuffixID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "SuffixID_" + suffixMemberShipID })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Suffix.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.SuffixID.HasValue ? Model.SuffixID.Value.ToString() : string.Empty)
+                            )
+                        </div>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="Email" class="label">
+                                Email</label>
+                            @Html.TextBoxFor(u => u.Email, new { @class = "input full-width validate[custom[email]]", maxLength = "255", id = "Email_" + suffixMemberShipID })
+                        </p>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ClientReference" class="label">
+                                Client Reference #</label>
+                            @Html.TextBoxFor(u => u.ClientReference, new { @class = "input full-width", maxLength = "255", id = "ClientReference_" + suffixMemberShipID })
+                        </p>
+                        <p class="button-height inline-label small-margin-bottom">
+                            <label for="ClientProduct" class="label">
+                                Client Product</label>
+                            @Html.TextBoxFor(u => u.MemberReferenceProgram, new { @class = "input full-width", maxLength = "255", id = "ClientProduct_" + suffixMemberShipID, @disabled = "disabled" })
+                        </p>
+                        @*<p class="button-height inline-label small-margin-bottom">
+                            <label for="IsDeliveryDriver" class="label" style="color: Red;">
+                                Delivery Driver (TBD)</label>
+                            @Html.CheckBox("IsDeliveryDriver", Model.IsDeliveryDriver, new { @class = "checkbox full-width", id = "IsDeliveryDriver_" + suffixMemberShipID })
+                        </p>*@
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="EffectiveDate" class="label">
+                                Effective Date
+                            </label>
+                            @(Html.Kendo().DatePickerFor(u => u.EffectiveDate)
+                                                          .HtmlAttributes(new { style = "width:45%;", id = "EffectiveDate_" + suffixMemberShipID, type = "text" })
+                            )
+                        </div>
+                        <div class="button-height inline-label small-margin-bottom">
+                            <label for="ExpirationDate" class="label">
+                                Expiration Date
+                            </label>
+                            @(Html.Kendo().DatePickerFor(u => u.ExpirationDate)
+                                                          .HtmlAttributes(new { style = "width:45%;", id = "ExpirationDate_" + suffixMemberShipID, type = "text" })
+                            )
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="four-columns">
+                    <div class="columns">
+                        <div class="twelve-columns">
+                            <fieldset class="fieldset">
+                                <legend class="legend">Addresses</legend>
+                                @Html.Editor("ScrollableAddress", "ScrollableAddress", new
+                                {
+                                    address = new Martex.DMS.DAL.Entities.GenericAddressEntityModel()
+                                    {
+                                        RecordID = Model.MembershipID,
+                                        EntityName = "Membership",
+                                        Height = 310
+
+                                    }
+                                })
+                            </fieldset>
+                        </div>
+                        <div class="new-row twelve-columns">
+                            <fieldset class="fieldset">
+                                <legend class="legend">Phone Numbers</legend>
+                                @Html.Editor("ScrollablePhone", "ScrollablePhone", new
+                                {
+                                    phone = new Martex.DMS.DAL.Entities.GenericPhoneModel()
+                                    {
+                                        RecordID = Model.MembershipID,
+                                        EntityName = "Membership",
+                                        Height = 90
+
+                                    }
+                                })
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="new-row eight-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Membership Note</legend><small>This text will be seen by the Agent
+                    during the dispatching process</small>
+                @Html.TextAreaFor(u => u.MemberNote, new { @class = "input full-width", maxLength = "2000", id = "MemberNote_" + suffixMemberShipID, style = "min-height:125px;" })
+            </fieldset>
+        </div>
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Exclude Vendors</legend>
+                @Html.Editor("ExcludedVendors", "ExcludedVendors", new
+                {
+                   excludedVendors = new Martex.DMS.DAL.Entities.ExcludedVendorExtended()
+                   {
+                                   MemberShipID = Model.MembershipID,
+                                   Height = 100
+                   }
+                })
+            </fieldset>
+        </div>
+        <div class="new-row six-columns">
+            <div class="with-padding">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Source</label>
+                    @Html.DisplayFor(u => u.SourceSystemName)
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Create Date</label>
+                    @Html.DisplayFor(u => u.CreatedBy)
+                    @Html.DisplayFor(u => u.CreatedOn)
+                </p>
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="Source" class="label">
+                        Last Updated</label>
+                    @Html.DisplayFor(u => u.ModifiedBy)
+                    @Html.DisplayFor(u => u.ModifiedOn)
+                </p>
+            </div>
+        </div>
+        <div class="six-columns">
+            <div class="with-padding hide" id="PlaceHolder_MemberShip_Info_Buttons_@suffixMemberShipID">
+                <button id="btnSaveMembershipInformation_@suffixMemberShipID" class="button green-gradient float-right mid-margin-left margin-bottom" type="button"
+                    onclick="SaveMembershipInfoSection('@suffixMemberShipID');">
+                    Save</button>
+                <button id="btnCancelMembershipInfoSection_@suffixMemberShipID" class="button gray-gradient float-right margin-bottom" type="button" onclick="CancelMembershipInfoSection('@suffixMemberShipID');">
+                    Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmMembershipInfoSection_@suffixMemberShipID').validationEngine();
+    });
+</script>

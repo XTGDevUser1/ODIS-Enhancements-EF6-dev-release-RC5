@@ -1,0 +1,164 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.QAConcernTypeList_Result>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/CX/Views/Shared/_CXLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Concern Type Maintenance
+    </h1>
+    <h2>@DateTime.Now.ToString("MM/dd/yyyy")</h2>
+</hgroup>
+<script language="javascript" type="text/javascript">
+
+    function onDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+    }
+
+    function ManageRecord(e) {
+
+        var mode = "view";
+        var title = "Add New Concern Type";
+        if (e != null) {
+            e.preventDefault();
+
+            var concernTypeId = this.dataItem($(e.currentTarget).closest("tr")).ID; // Replace ID with your data key for the row.
+
+            if (e.data.commandName == 'View') {
+                CRURecord(concernTypeId, 'view', 'View Concern Type : ' + concernTypeId);
+            }
+            else if (e.data.commandName == 'Edit') {
+                CRURecord(concernTypeId, 'edit', 'Update Concern Type : ' + concernTypeId);
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteRecord(concernTypeId);
+            }
+        }
+        else {
+            CRURecord(concernTypeId, 'add', title);
+        }
+        return false;
+    }
+    function CRURecord(concernTypeId, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetConcernType", "CXConcernTypeMaintenance", new { area = "CX" })',
+            traditional: true,
+            data: { concernTypeId: concernTypeId, mode: mode },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                concernTypeWindow = $("<div id='concernTypeWindow' />").appendTo(document.body);
+                concernTypeWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 450,
+                    height: 300,
+                    deactivate: function () {
+                        CleanMyContainer('frmConcernType');
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#frmConcernType').validationEngine('hideAll'); // to hide the validation message of the popup 
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmConcernType')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmConcernType');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                concernTypeWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+    function DeleteRecord(concernTypeId) {
+        $.modal.confirm('Are you sure you want to delete this Concern Type?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DeleteConcernType", "CXConcernTypeMaintenance", new { area = "CX" })',
+                traditional: true,
+                cache: false,
+                data: { concernTypeId: concernTypeId },
+                async: false,
+                success: function (msg) {
+                    $('#grdQAConcernType').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+                }
+            });
+        }, function () {
+        });
+    }
+
+</script>
+<form method="post" action="" id="form-grdQAConcernType">
+<div class="with-padding">
+    @(Html.Kendo().Grid(Model)
+        .Name("grdQAConcernType")
+        .Columns(columns =>
+        {
+            columns.Bound(a => a.ID).Title("ID");
+            columns.Bound(a => a.Name).Title("Name");
+            columns.Bound(a => a.Description).Title("Description");
+            columns.Bound(a => a.IsActive).Title("IsActive").ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' ></input>").Title("Active"); ;
+            //columns.Bound(a => a.Sequence).Title("Sequence");
+            columns.Command(command =>
+            {
+                command.Custom("View").Click("ManageRecord").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                command.Custom("Edit").Click("ManageRecord").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                command.Custom("Delete").Click("ManageRecord").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+            }).Width(150)
+              .Title("Action(s)");
+        })
+        .ToolBar(toolBar => toolBar.Template("<a style='min-width:auto;', title='Add Concern Type' class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageRecord(null)'><span class='k-icon k-add'></span> Add Concern Type</a>"))
+        .Events(e =>
+        {
+            e.DataBound("onDataBound");
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        .Filterable(filterable => filterable.Extra(false))
+        .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_ConcernTypeList", "CXConcernTypeMaintenance", new { area = "CX" }))
+            .Model(u => u.Id(p => p.ID))
+            .PageSize(10)
+            .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows.Value : 0)
+        )
+        .Resizable(resize => resize.Columns(true))
+        .EnableCustomBinding(true)
+    )
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#grdQAConcernType"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+
+    var concernTypeWindow;
+</script>
+</form>

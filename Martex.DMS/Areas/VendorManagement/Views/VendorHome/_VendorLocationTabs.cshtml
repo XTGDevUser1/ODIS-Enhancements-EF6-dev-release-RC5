@@ -1,0 +1,42 @@
+﻿@model Martex.DMS.Areas.VendorManagement.Models.VendorDetailsModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.BasicInformation.ID.ToString();
+    string suffixVendorLocationID = Model.VendorLocationID.ToString();
+}
+<div class="with-padding">
+    <div id="VendorLocationDetails_@suffixVendorLocationID" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li><a href="@Url.Action("_Vendor_Location_Info", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsInfoTab_@suffixVendorLocationID">
+                Info</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Service", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsServiceAreasTab_@suffixVendorLocationID">
+                Service Areas</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Service_Repairs", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsServicesTab_@suffixVendorLocationID">
+                Services</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Rates", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsRatesTab_@suffixVendorLocationID">
+                Rates</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_ServiceRating", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationServiceRateTab_@suffixVendorLocationID">Svc Ratings</a></li>
+           @* <li><a href="@Url.Action("_Vendor_Location_Equipment", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsEquipmentTab_@suffixVendorLocationID">
+                Equipment</a></li>*@
+            <li><a href="@Url.Action("_Vendor_Location_PO_History", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsPOHistoryTab_@suffixVendorLocationID">
+                PO History</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Activity", "VendorHome", new { area = "VendorManagement" })" id="#VendorLocationDetailsActivityHistoryTab_@suffixVendorLocationID">
+                Activity History </a></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        $('#VendorLocationDetails_@suffixVendorLocationID').tabs({
+            ajaxOptions: { data: { vendorID: '@suffixVendorID', vendorLocationID: '@suffixVendorLocationID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,161 @@
+﻿@using VendorPortal.ActionFilters;
+@using Martex.DMS.BLL.Model.VendorPortal
+@using Kendo.Mvc.UI;
+@model VendorAccountModel
+@{
+    ViewBag.Title = "MyAccount";
+    Layout = "~/Views/Shared/_ContentMaster-vendor.cshtml";
+    string suffixVendorID = Model.VendorDetails.ID.ToString();
+    int selectedTab = (ViewData["IsDocumentsTabSelected"] != null) ? 5 : 0;
+
+    string selectLocationsServiceAreasTab = (ViewData["IsLocationsServiceAreasTabSelected"] != null) ? "true" : "false";
+}
+@*<script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0" type="text/javascript"></script>*@
+<script src="//www.bing.com/api/maps/mapcontrol" type="text/javascript"></script>
+<style type="text/css">
+    .hide {
+        display: none;
+    }
+</style>
+<hgroup id="main-title" class="thin">
+    <h1>Vendor Account</h1>
+</hgroup>
+<div class="with-padding">
+    <div style="min-height: 25px; margin: 5px;">
+        <div style="display: inline-block;">
+            <h4>@Html.Raw("Use this dropdown to switch between your billing information and your dispatch location information")</h4>
+        </div>
+    </div>
+    @Html.Hidden("selectLocationsServiceAreasTab", selectLocationsServiceAreasTab)
+    <div style="min-height: 25px; margin: 10px;margin-left: 0px;">
+        @(Html.Kendo().ComboBox()
+                      .Name("VendorLocationID" + suffixVendorID)
+                      .BindTo(ViewData[StaticData.LocationList.ToString()] as IEnumerable<SelectListItem>)
+                      .SelectedIndex(0)
+                      .HighlightFirst(true)
+                      .Filter(FilterType.StartsWith).MinLength(0)
+                      .Events(events => events.Change(@<text>function(e){ HandleVendorLocationDropDown(e,'@suffixVendorID');}</text>))
+                                                                                        .Value(Model.VendorLocationID.ToString())
+                                                                                        .HtmlAttributes(new { id = "VendorLocationID" + suffixVendorID, style = "width:80%;" })
+        )
+        @Html.Hidden("VendorLocationIDPreviousValue_" + suffixVendorID, Model.VendorLocationID)
+    </div>
+    <div id="frmVendorContainerForDirtyFlag_@suffixVendorID">
+        <div id="VendorContainer_@suffixVendorID">
+            @Html.Partial("_VendorTabs", Model)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    
+    $(function () {
+
+        if (typeof (Microsoft) != "undefined") {
+            //KS: Load the new BING Theme
+            //Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', { callback: themesModuleLoaded });
+        }
+        else {
+            openAlertMessage("We are experiencing issues while loading BING API, therefore the Map functions might not work as expected.");
+        }
+        LoadHelpText("_AccountHelp");
+        var fnbuttonHandler = function (sender) {
+
+            var cloestForm = $(sender).closest('form');
+            if (cloestForm != undefined) {
+                var formName = cloestForm.attr("id");
+
+                var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+                if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                    $(buttonPlaceHolder).show();
+                }
+            }
+        }
+        WatchMyContainer("frmVendorContainerForDirtyFlag_@suffixVendorID", null, fnbuttonHandler);
+        var tabObject = $('#VendorDetailsTab_@suffixVendorID').tabs();
+        tabObject.tabs('select', '@selectedTab');
+
+        var selectLocationsServiceAreasTab = $("#selectLocationsServiceAreasTab").val();
+
+        if (selectLocationsServiceAreasTab == "true") {
+            var combobox = $("#VendorLocationID" + '@suffixVendorID').data('kendoComboBox');
+            if (combobox.dataSource.data().length > 1) {
+                combobox.select(1);
+                combobox.trigger("change");
+            }
+            else {
+                openAlertMessage("Please add some locations to enter the zip code areas that you service.");
+                $("#selectLocationsServiceAreasTab").val('');
+            }
+        }
+    });
+
+    function HandleVendorLocationDropDown(e, suffixVendorID) {
+        var oldSelectionElement = $('#VendorLocationIDPreviousValue_' + suffixVendorID);
+        var oldSelectionElementValue = oldSelectionElement.val();
+        var oldSelectionElementText = GetTextFromComboBoxByItsValue(oldSelectionElementValue, e);
+        var combo = e.sender;
+        //var comboDataSource = combo.datasource.view();
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes for " + oldSelectionElementText + " have not been saved; if you continue you will lose your changes.Click Confirm to continue and lose your changes or click Cancel to stay on this location"
+            $.modal.confirm(message, function () {
+                var comboValue = combo.value();
+                oldSelectionElement.val(comboValue);
+                SwitchBetweenVendorORVendorLocation(suffixVendorID, comboValue);
+
+            }, function () {
+                combo.value(oldSelectionElementValue);
+            });
+        }
+        else {
+            var comboValue = combo.value();
+            oldSelectionElement.val(comboValue);
+            SwitchBetweenVendorORVendorLocation(suffixVendorID, comboValue);
+        }
+
+    }
+
+    function GetTextFromComboBoxByItsValue(value, e) {
+        var comboReference = e.sender;
+        var comboText = "";
+        var datasource = comboReference.dataSource._data;
+        for (i = 0; i < datasource.length; i++) {
+            if (datasource[i].Value == value) {
+                comboText = "<strong>" + datasource[i].Text + "</strong>";
+            }
+        }
+
+        return comboText;
+    }
+
+    function SwitchBetweenVendorORVendorLocation(vendorID, locationValue) {
+
+        //Clear Dirty Flag
+        CleanMyContainer('frmVendorContainerForDirtyFlag_' + vendorID);
+
+        // IF Location Value is 0 means Load Vendor Tab
+        // ELSE Load Vendor Location Tabs
+
+        if (locationValue == "0" || locationValue == undefined || locationValue == null || locationValue == 0) {
+            $.ajax({
+                url: '@Url.Action("_VendorTabs", "Account", new { area = "ISP" })',
+                data: { vendorID: vendorID },
+                success: function (msg) {
+                    $('#VendorContainer_' + vendorID).html(msg);
+                }
+            });
+        }
+        else if (locationValue != "0") {
+            $.ajax({
+                url: '@Url.Action("_VendorLocationTabs", "Account", new { area = "ISP" })',
+                data: { vendorID: vendorID, vendorLocationID: locationValue },
+                success: function (msg) {
+                    $('#VendorContainer_' + vendorID).html(msg);
+                }
+            });
+        }
+    }
+</script>

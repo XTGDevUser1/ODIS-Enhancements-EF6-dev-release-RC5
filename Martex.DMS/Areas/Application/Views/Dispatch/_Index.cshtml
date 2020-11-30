@@ -1,0 +1,518 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.Common
+@using Martex.DMS.Areas.Application.Models
+@using System.Text
+@using Martex.DMS.DAL
+@model List<Martex.DMS.DAL.ISPs_Result>
+@{
+    var errors = ViewData[StringConstants.REQUIRED_FIELDS_FOR_DISPATCH] as List<string>;
+    var hasPermissions = (bool)ViewData[StringConstants.SHOW_OPTIONS];
+    var errorsCount = errors.Count;
+    string errorMessage = string.Empty;
+    if (errors != null && errorsCount > 0)
+    {
+        StringBuilder sb = new StringBuilder("Unable to provide the ISP list. The following fields are missing:  <ul>");
+        errors.ForEach(x =>
+        {
+            sb.AppendFormat("<li>{0}</li>", x);
+        });
+        sb.Append("</ul>");
+
+        errorMessage = sb.ToString();
+    }
+
+    //var estimateProcessing = DMSCallContext.AllowEstimateProcessing;
+    //if(estimateProcessing)
+    //{
+    //    if(DMSCallContext.ServiceEstimateFee==null || DMSCallContext.ServiceEstimateFee==0)
+    //    {
+    //        errorMessage = "Must provide customer an estimate before selecting an ISP.";    
+    //    }
+    //}
+
+    List<Product> productOptions = ViewData[StringConstants.PRODUCT_OPTIONS] as List<Product>;
+}
+<script language="javascript" type="text/javascript">
+    var isCallMade = @DMSCallContext.IsCallMadeToVendor.ToString().ToLower(); //false;
+    var isVendorDone = false;
+    function From_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+    
+    function Radius_OnChange(e) {
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+    }
+
+    function TrackCallToVendor()
+    {
+        var phNumber = null;
+        var phType = null;
+        if(typeof phoneNumber != "undefined")
+        {
+            phNumber = phoneNumber;
+        }
+        if(typeof phoneType != "undefined")
+        {
+            phType = phoneType;
+        }
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("TrackCallToVendor", "Dispatch", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                data : {isCallMade : isCallMade, phoneNumber : phNumber, phoneType : phType},
+                success: function (msg) {
+                    retVal = true;
+                }
+            });   // end of ajax.
+    }
+
+</script>
+@Html.Partial("_ServiceRequestExceptions", ViewData)
+<div class="with-padding">
+    <div class="columns">
+        <div class="three-columns">
+            <div>
+                <h3 class="underline">
+                    Vendor List @Html.Partial("_Help", "Vendor icons help")</h3>
+                <span class="float-right DispatchOptions">
+                    @if (errorsCount == 0 && (DMSCallContext.IsAllowedToSeeISPNotCalled || DMSCallContext.IsDispatchThresholdReached) && (ViewData["DispatchNA"] == null || !(bool)ViewData["DispatchNA"]))
+                    {
+                        <button id="btnOptions" class="button compact " type="button">
+                            Show Options
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="btnOptions" class="button compact" type="button" disabled="disabled">
+                            Show Options
+                        </button>
+                    }
+                </span>
+                <div class="clear">
+                </div>
+                @if (errorsCount == 0)
+                {
+                    <div id="divOptions" class="small-margin-top">
+                        <fieldset class="fieldset">
+                            <legend class="legend">Options </legend>
+                            <div class="with-small-padding">
+                                <form id="frmOptions" action="javascript:void(0);" method="post">
+                                <div class="button-height inline-label small-margin-bottom">
+                                    <label for="From" class="label">
+                                        From
+                                    </label>
+                                    @{
+                    var fromLocations = new List<SelectListItem>();
+                    fromLocations.Add(new SelectListItem() { Text = "Location", Value = "Location" });
+                    fromLocations.Add(new SelectListItem() { Text = "Destination", Value = "Destination" });
+                                    }
+                                    @(Html.Kendo().ComboBox()
+                                    .BindTo(fromLocations)
+                                    .Name("From")
+                                    .Suggest(true)
+                                    .Filter(FilterType.StartsWith).MinLength(0)
+                                    .HighlightFirst(true)
+                                    .Events(events =>
+                                    {
+                                        events.Change("From_OnChange");
+                                    })
+                                    .SelectedIndex(0)
+                                    )
+                                </div>
+                                <div class="button-height inline-label small-margin-bottom">
+                                    <label for="Radius" class="label">
+                                        Radius
+                                    </label>
+                                    @{
+                    var radius = new List<SelectListItem>();
+                    radius.Add(new SelectListItem() { Text = "50 miles", Value = "50" });
+                    radius.Add(new SelectListItem() { Text = "75 miles", Value = "75" });
+                    radius.Add(new SelectListItem() { Text = "100 miles", Value = "100" });
+                    radius.Add(new SelectListItem() { Text = "200 miles", Value = "200" });
+                    //CR : 1199 - Added 500 to the list
+                    radius.Add(new SelectListItem() { Text = "500 miles", Value = "500" });
+                                    }
+                                    @(Html.Kendo().ComboBox()
+                                    .BindTo(radius)
+                                    .Name("Radius")
+                                    .Suggest(true)
+                                    .Filter(FilterType.StartsWith).MinLength(0)
+                                    .HighlightFirst(true)
+                                    .Events(events =>
+                                    {
+                                        events.Change("Radius_OnChange");
+                                    })
+                                    .Value(ViewData[Martex.DMS.BLL.Common.AppConfigConstants.SEARCH_RADIUS_MILES].ToString())
+                                    .SelectedIndex(0)
+                                    )
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="showCalled" class="label">
+                                            Show Called</label>
+                                        @Html.CheckBox("ShowCalled", true, new { @id = "ShowCalled", @class = "checkbox" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="showNotCalled" class="label">
+                                            Show Not Called</label>
+                                        @Html.CheckBox("ShowNotCalled", hasPermissions, new { @id = "ShowNotCalled", @class = "checkbox" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="button-height inline-label small-margin-bottom">
+                                        <label for="showDoNotUse" class="label">
+                                            Show Do Not Use</label>
+                                        @Html.CheckBox("ShowDoNotUse", new { @id = "ShowDoNotUse", @class = "checkbox" })
+                                    </p>
+                                </div>
+                                <div>
+                                    <fieldset class="fieldset">
+                                        <legend class="legend">Products</legend>
+                                        @foreach (var p in productOptions)
+                                        {
+                                            <p class="button-height small-margin-bottom">
+                                                @Html.Label(p.Name) @Html.CheckBox("p_" + p.ID, new { @id = "p_" + p.ID, @class = "checkbox productoption" })
+                                            </p>
+                                        }
+                                    </fieldset>
+                                </div>
+                                <div>
+                                    <button id="btnApplyOptions" class="button compact" type="button">
+                                        Apply
+                                    </button>
+                                </div>
+                                </form>
+                            </div>
+                        </fieldset>
+                    </div>
+                }
+                <div class="clear">
+                </div>
+                <!-- Vendor list -->
+                <div id="divVendorList" class="with-small-padding vendor scrollable">
+                    @if (errorsCount == 0)
+                    {
+                        @Html.Partial("_VendorList", ViewData["VendorList"] as List<ISPs_Result>)
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="nine-columns scrollable">
+            <div class="">
+                <h3 class="underline">
+                    Vendor Information
+                </h3>
+                <div id="divVendorInfo" class="boxed left-border white-bg">
+                    @if (errorsCount == 0 && Model.Count > 0 && DMSCallContext.VendorIndexInList >= 0)
+                    {
+                        @Html.Partial("_VendorInfo", Model[DMSCallContext.VendorIndexInList])
+                    }
+                </div>
+            </div>
+            <div class="clear">
+            </div>
+            @if (errorsCount == 0)
+            {
+                string disabled = (DMSCallContext.IsAllowedToSeeISPNotCalled || DMSCallContext.IsDispatchThresholdReached) && (ViewData["DispatchNA"] == null || !(bool)ViewData["DispatchNA"]) ? string.Empty : "disabled";
+                <div class="full-width align-center margin-top wrapped emboss grey-bg">
+                    <button id="btnAddVendor" class="button  orange-gradient align-middle @disabled" type="button">
+                        Add Vendor
+                    </button>
+                    <button id="btnNextVendor" class="button  blue-gradient float-right @disabled" type="button">
+                        Next
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script language="javascript" type="text/javascript">
+    var currentSelectedRecordfromVendor=null;
+    var currentSelectedRecordfromVendorLocationID=null;
+    var currentVendorIndex = '@DMSCallContext.VendorIndexInList';
+    var errorsDueToRequiredAttributes = '@Html.Raw(errorMessage)';
+    var winAddVendor = null;
+    var isPrivileged  = @((DMSCallContext.IsAllowedToSeeISPNotCalled || DMSCallContext.IsDispatchThresholdReached).ToString().ToLower());
+    
+    var rejectVendorOnDispatch = @ViewData[StringConstants.REJECT_VENDOR_ON_DISPATCH].ToString().ToLower();
+    
+    function LeaveDispatchTab()
+    {
+        var retVal = false;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LeaveTab", "Dispatch", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                retVal = true;
+                StyleTabAfterValidation("dispatch", false);
+            }
+        });   // end of ajax.
+
+        return retVal;
+    }
+
+    fnSaveTab = LeaveDispatchTab;
+
+    function RefreshVendorList(updateCallStatus) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetVendorList", "Dispatch", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#divVendorList").html(msg);
+                $("#divVendorList").show("highlight", null, 1500, null);
+                if(updateCallStatus){
+                    isCallMade = false;
+                    isVendorDone = false;
+                    TrackCallToVendor();
+                }
+            }
+        });   // end of ajax.
+    }
+    function GetNextVendor()
+    {
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("NextVendor", "Dispatch", new { area = "Application" })',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    data: { currentIndex: currentVendorIndex },
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            RefreshVendorInfo(true);
+                            if(msg.OperationType == "ISP_LIST_REFRESHED")
+                            {
+                                RefreshVendorList(true);
+                            }
+                        }
+                        else {
+                            openAlertMessage(msg.ErrorMessage);
+                            if (msg.Data == "NoRecords" || msg.Data == "OverThreshold") {
+                                $("#btnOptions").removeAttr("disabled");
+                                $("#btnOptions").removeClass("disabled");
+                                $("#btnAddVendor").removeAttr("disabled");
+                                $("#btnAddVendor").removeClass("disabled");
+                            }
+                        }
+                    }
+                });  // end of ajax.
+    }
+    function RefreshVendorInfo(updateCallStatus) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetVendorInfo", "Dispatch", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+
+            success: function (msg) {
+                $("#divVendorInfo").html(msg);
+                $("#divVendorInfo").show("highlight", null, 1500, null);
+                if(updateCallStatus){
+                    isCallMade = false;
+                    isVendorDone = false;
+                    TrackCallToVendor();
+                }
+            }
+        });  // end of ajax.
+    }
+
+    $(function () {
+        $("#divOptions").hide();
+
+        if ($.trim(errorsDueToRequiredAttributes).length > 0) {
+            openAlertMessage(errorsDueToRequiredAttributes);
+        }
+
+        $('#btnOptions').toggle(function () {
+            
+            $("#divOptions").show();
+            $(this).text("Hide Options");
+        }
+        ,
+        function () {
+            $("#divOptions").hide();
+            $(this).text("Show Options");
+        });
+
+
+        $("#btnNextVendor").click(function () {
+        
+            if(typeof currentVendorCallStatus == "undefined" || currentVendorCallStatus == null || currentVendorCallStatus.length == 0)
+            {
+                return false;
+            }
+            var canGetNextVendor = true;
+            if(isPrivileged && isCallMade && !isVendorDone)
+            {   
+                openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                canGetNextVendor = false;         
+            }
+            else if(!isPrivileged)
+            {
+                // If the current vendor is not called, then make the user call the vendor.
+                // If the current vendor is called and a call is made again, then don't let the user get the next vendor.
+                if( ( currentVendorCallStatus == "NotCalled" && (!isCallMade || !isVendorDone)) ||
+                    ( currentVendorCallStatus != "NotCalled" && (isCallMade && !isVendorDone))
+                    )
+                {
+                    openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                    canGetNextVendor = false;
+                }
+                
+            }
+            if(canGetNextVendor) {
+                GetNextVendor();
+            }
+        });
+
+        
+
+        $("#btnAddVendor").click(function (e) {
+
+            var canGetNextVendor = true;
+            if(isPrivileged && isCallMade && !isVendorDone)
+            {   
+                openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                canGetNextVendor = false;         
+            }
+            else if(!isPrivileged)
+            {
+                // If the current vendor is not called, then make the user call the vendor.
+                // If the current vendor is called and a call is made again, then don't let the user get the next vendor.
+                if( ( currentVendorCallStatus == "NotCalled" && (!isCallMade || !isVendorDone)) ||
+                    ( currentVendorCallStatus != "NotCalled" && (isCallMade && !isVendorDone))
+                    )
+                {
+                    openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                    canGetNextVendor = false;
+                }
+                
+            }
+            if(canGetNextVendor)
+            {
+            winAddVendor = $("<div id='winAddVendor' />").appendTo(document.body);
+                document.dialogResult = null;
+                winAddVendor.kendoWindow({
+                        title: "Add Vendor",
+                        content : '@Url.Action("AddVendor", "Dispatch", new { area = "Application" })',
+                        modal: true,
+                        width: 1020,                      
+                        height:820,
+                        deactivate: function () {                        
+                            this.destroy();
+                        },
+                        close: function (e) {
+                        
+                            $("#frmAddVendor").validationEngine("hideAll");
+                            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                document.dialogResult = null;
+
+                                if (IsMyContainerDirty('frmAddVendor')) {
+                                    var prompt = PromptForDirtyFlag();
+                                    if (!prompt) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                    CleanMyContainer('frmAddVendor');
+                                }
+                            }
+                            else if(document.dialogResult == "OK"){ // Add vendor is successful, enable the GotoPO and Reject buttons. This is done by setting the callmade flag to true.
+                                CleanMyContainer("frmAddVendor");
+                                isCallMade = true;
+                                isVendorDone = false;
+                                
+                                TrackCallToVendor();
+                                // Call refresh vendor info.
+                                RefreshVendorList(false);
+                                RefreshVendorInfo(false);
+                            }
+                            isdirty = false;
+                            
+                            return true;
+                        }
+                    });
+                winAddVendor.data('kendoWindow').center().open();
+            }
+        });
+
+        $("#btnApplyOptions").click(function () {
+            var canGetNextVendor = true;
+            if(isPrivileged && isCallMade && !isVendorDone)
+            {   
+                openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                canGetNextVendor = false;         
+            }
+            else if(!isPrivileged) // This case might not be possible practically as apply options get enabled only for privileged user.
+            {
+                // If the current vendor is not called, then make the user call the vendor.
+                // If the current vendor is called and a call is made again, then don't let the user get the next vendor.
+                if( ( currentVendorCallStatus == "NotCalled" && (!isCallMade || !isVendorDone)) ||
+                    ( currentVendorCallStatus != "NotCalled" && (isCallMade && !isVendorDone))
+                    )
+                {
+                    openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                    canGetNextVendor = false;
+                }
+                
+            }
+            if(canGetNextVendor)
+            {
+            
+                var postData = $("#frmOptions").serializeArray();
+                var productOptions = [];
+                $(".productoption").each(function(){
+                    var cb = $(this).find('input[type="checkbox"]');
+                    if(cb.is(":checked"))
+                    {
+                        var poId = cb.attr("id").replace("p_","");
+                        productOptions.push(poId);
+                    }
+                });
+
+                postData.push({ "name" : "ProductOptions", "value" : productOptions.sort().toString()});
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ApplyFilters", "Dispatch", new { area = "Application" })',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    data: postData,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            // Refresh vendor list
+                            RefreshVendorList(true);
+                            // Refresh vendor info
+                            RefreshVendorInfo(true);
+                            $('#btnOptions').click(); // Toggle options button
+                        }
+                    }
+                }); // end of ajax.
+            }
+
+
+        });
+
+    });
+</script>

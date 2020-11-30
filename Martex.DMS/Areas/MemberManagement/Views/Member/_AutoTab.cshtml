@@ -1,0 +1,50 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<form name="frm_AutoTab_@suffixMembershipID" id="frm_AutoTab_@suffixMembershipID" relatedButtons="PlaceHolder_Membership_Vehicle_Trailer_Auto_Buttons_@suffixMembershipID" action="javascript:void(0);">
+@Html.Partial("_BasicInformation", Model)
+@*@if ((bool)ViewBag.ShowCommercialVehicle)
+{ 
+@Html.Partial("_AutoSpecifications", Model)
+}*@
+@Html.Partial("_WarrantyInformation", Model)
+<div class="clear"></div>
+<div class="full-width hide" id="PlaceHolder_Membership_Vehicle_Trailer_Auto_Buttons_@suffixMembershipID">
+    <button id="btnSaveMembershipAutoVehicleInformation_@suffixMembershipID" class="button green-gradient float-right mid-margin-left margin-bottom" type="button">
+        Save</button>
+    <button id="btnCancelMembershipAutoVehicleInformation_@suffixMembershipID" class="button gray-gradient float-right margin-bottom" type="button" onclick="MembershipVehicleCancelButton('@suffixMembershipID');">
+        Cancel</button>
+</div>
+</form>
+<script type="text/javascript">
+
+    function SaveAuto(uniqueID) {
+        
+        return SaveForm('frm_AutoTab_' + uniqueID, "Auto");
+    }
+
+
+    $(function () {
+        $("#frm_AutoTab_@suffixMembershipID").validationEngine();
+
+        $("#btnSaveMembershipAutoVehicleInformation_@suffixMembershipID").click(function (e) {
+            e.preventDefault();
+            
+            var uniqueID = '@suffixMembershipID';
+            SaveAuto(uniqueID);
+
+            return false;
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+
+        $(".datepicker").datepicker({
+            defaultDate: "+1w",
+            changeMonth: true,
+            numberOfMonths: 1
+        });
+    });
+</script>

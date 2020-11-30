@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+        xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+        Style="{StaticResource BaseContentPage}"
+        VerticalOptions="FillAndExpand"
+        x:Class="ODISMember.Vehicles">
+  <StackLayout BackgroundColor="{x:Static Resource:ColorResources.VehiclesListBackgroundColor}" >
+    <controls:ExtendedLabel x:Name="lblNoRecords" Style="{StaticResource SubHeaderLabelStyle}" Text="No records found" HorizontalOptions="CenterAndExpand" IsVisible="false" />
+    <ListView x:Name="listVehicle" HasUnevenRows="true" CachingStrategy="RecycleElement"/>
+    <StackLayout IsVisible="False" BackgroundColor="Black" Opacity="0.8" Padding="0,10,0,10" x:Name="stackVehicleSync">
+      <controls:ExtendedLabel Text="We are syncing.. Please wait.." Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Center" VerticalOptions="Center" TextColor="White"/>
+    </StackLayout>
+  </StackLayout>
+</ContentView>

@@ -1,0 +1,471 @@
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\app.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Common
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\EmailService
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\list1.txt
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Martex.DMS.BLL.csproj
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Martex.DMS.BLL.csproj.vspscc
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\packages.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.Core.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.Core.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.Core.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.S3.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.S3.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\AWSSDK.S3.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\EntityFramework.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\EntityFramework.SqlServer.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\EntityFramework.SqlServer.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\EntityFramework.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\log4net.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.BLL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.BLL.dll.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.BLL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.DAL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.DAL.dll.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Martex.DMS.DAL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.AspNet.SignalR.Client.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.AspNet.SignalR.Client.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.Azure.NotificationHubs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.Azure.NotificationHubs.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.WindowsAzure.Configuration.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Microsoft.WindowsAzure.Configuration.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Newtonsoft.Json.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Newtonsoft.Json.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\NVelocity.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\NVelocity.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\NVelocity.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\NVelocityTemplateEngine.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Select.Html.dep
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Select.HtmlToPdf.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Select.HtmlToPdf.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Net.Http.Extensions.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Net.Http.Extensions.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Net.Http.Primitives.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Net.Http.Primitives.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Web.Mvc.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\System.Web.Mvc.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Twilio.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Debug\Twilio.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.Core.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.Core.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.Core.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.S3.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.S3.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\AWSSDK.S3.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\EntityFramework.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\EntityFramework.SqlServer.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\EntityFramework.SqlServer.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\EntityFramework.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\log4net.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.BLL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.BLL.dll.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.BLL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.DAL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.DAL.dll.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Martex.DMS.DAL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.AspNet.SignalR.Client.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.AspNet.SignalR.Client.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.Azure.NotificationHubs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.Azure.NotificationHubs.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.WindowsAzure.Configuration.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Microsoft.WindowsAzure.Configuration.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Newtonsoft.Json.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Newtonsoft.Json.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\NVelocity.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\NVelocity.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\NVelocity.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\NVelocityTemplateEngine.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Select.Html.dep
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Select.HtmlToPdf.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Select.HtmlToPdf.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Net.Http.Extensions.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Net.Http.Extensions.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Net.Http.Primitives.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Net.Http.Primitives.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Web.Mvc.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\System.Web.Mvc.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Twilio.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\bin\Release\Twilio.xml
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Common\AmazonS3.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Common\AppConfigConstants.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Common\EntityExtensions.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators\AbstractServiceRequestDataValidator.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators\FinishDataValidator.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators\IServiceRequestDataValidator.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators\MemberDataValidator.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\DataValidators\ServiceDataValidator.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\EmailService\EmailService.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ActivityFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\AddressFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\API
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CallFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CallLogFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CaseFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CasePhoneLocationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ClaimsFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ClickToCallFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Client
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ClientRepMaintenanceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ClientsFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ClosedLoopFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CommentFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CommunicationServiceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ContactLogActionFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ContactLogFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\CustomerFeedbackFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DashBoardFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DataGroupFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DBAuditFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DesktopNotificationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DeviceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DigitalDispatch
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DispatchFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DispatchProcessingServiceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DocumentFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EmergencyAssistanceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EstimateFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventLoggerFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventNotificationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventProcessors
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventSource.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\FeedbackFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\FinishFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Impersonation.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\INotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MapFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MapOptionsFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagementFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberMergeFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MobileCallForServiceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MobileStaticDataVersionFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\NotifierFactory.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\OrganizationsFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\PaymentFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\PhoneFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\PhoneSystemConfigurationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\POFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ProgramMaintenanceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ProgramManagementFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\QAFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\QueueFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\RouteFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\ServiceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\UsersFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VehicleFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorApplicationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoiceFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagementFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorMergeFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortalFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorTemporaryCCHistoryFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorTemporaryCCProcessingFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorTemporaryCC_Verify_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorUserFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\API\MemberAPIFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\API\ServiceRequestAPIFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\ClaimInformationFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claims_ACES_Payments_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claim_Activity_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claim_Facade_Base.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claim_Payemnt_Runs_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claim_Vehicle_Service_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Claim\Claim_Verify_Pay_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Client\ClientInvoices_Verify_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Client\Client_CloseOpenPeriods.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Client\Client_EventBillableProcessing_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\Client\Client_InvoiceProcessing_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\DigitalDispatch\DigitalDispatchFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventProcessors\DefaultEventProcessor.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventProcessors\IEventProcessor.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\EventProcessors\SendSurveyEventProcessor.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Member
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\MemberBase
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Member\MemberInfoFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Member\Member_Activity_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Member\Member_Claim_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Member\Member_SR_History_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\MemberBase\MemberManagementBaseFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership\Membership_Activity_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership\Membership_InfoFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership\Membership_Members_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership\Membership_SRHistory_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\MemberManagement\Membership\Membership_Vehicles_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoices_Verify_Pay_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoice_Activity_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoice_Batch_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoice_Details_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoice_Info_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorInvoice\VendorInvoice_List_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\Vendor
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorBase
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorLocation
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\Vendor\Vendor_Claims.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\Vendor\Vendor_Contract.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\Vendor\Vendor_Info_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\Vendor\Vendor_Rates_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorBase\VendorManagement_Base.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorLocation\VendorLocation_Info_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorLocation\VendorLocation_ServiceAreas_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorLocation\VendorLocation_ServicesAndRates_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorManagement\VendorLocation\VendorLocation_Services_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\MessageFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\PostLoginFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\ServiceRatings_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\TransitionVerifyFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\VendorPortalAccountFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\VendorPortalACHFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\VendorPortalDashboardFacade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Facade\VendorPortal\Vendor_Portal_Invoive_Facade.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\API
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ApplyCashClaimsModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\BingDataContracts
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\Claims
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ClickToCallModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ClientRepDetails.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\Clients
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\CloseLoopSearchCriteria.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DispatchDashBoardModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DocumentModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\EstimateModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\FinishModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\FinishReasonsActionsModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\GetLocationRequestResult.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\GoToPOModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\HubNotification.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\MemberManagementCommonModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\MemberMergeDetails.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\MemberSearchCriteria.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\PaymentInformation.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ProfileImageModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\RejectVendorModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ServiceCallLogModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ServiceModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\ServiceTechModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\TempCCPModels
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorApplicationModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorCommonModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorInfo.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorInvoiceInfoCommonModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorLocationModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorRatesAgreementModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorServiceAreaModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\API\APISearchMemberModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\API\APISearchSRModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\API\ClosedLoopRequest.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\BingDataContracts\DataContracts.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\Claims\ClaimInput.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\Clients\BillingDetailMaintenanceModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\Clients\BillingEventDetailStatus.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\ACKModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\CNLModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\DigitalDispatchHeaderModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\DSIModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\DSPModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\DSRModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\ERRModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\INQModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\RETModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\RSLModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\RSPModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\DigitalDispatch\UPDModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\TempCCPModels\VirtualPlus.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal\PostLoginPromptModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal\VendorAccountModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal\VendorDashboardModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal\VendorInvoiceModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Model\VendorPortal\VendorLocationAccountModel.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\AmazonConnectNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\DesktopNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\EmailNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\FaxNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\IVRNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\MobileNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\SMSNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Notifiers\TwilioFaxNotifier.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\.NETFramework,Version=v4.5.2.AssemblyAttributes.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.csproj.App.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.csproj.CopyComplete
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.csproj.CoreCompileInputs.cache
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.csproj.FileListAbsolute.txt
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.csprojAssemblyReference.cache
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\Martex.DMS.BLL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TemporaryGeneratedFile_036C0B5B-1481-4323-8D20-8F5ADCB23D92.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TemporaryGeneratedFile_5937a670-0e60-4077-877b-f7221da3dda1.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TemporaryGeneratedFile_E7A71F73-0F8D-4B9B-B56E-8E70B10BC5D3.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.BINGGeocodeService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.BINGServices.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.DigitalDispatchAPI.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.Hagerty.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.HagertyPlusService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.PSAPNearestUS.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.PSAP_LookupUS.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.TechnoCom.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.TowBookServiceReference.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.WebDialerService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Debug\TempPE\Service References.WSCreditCardService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\.NETFramework,Version=v4.5.2.AssemblyAttributes.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.csproj.App.config
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.csproj.CopyComplete
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.csproj.CoreCompileInputs.cache
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.csproj.FileListAbsolute.txt
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.csprojAssemblyReference.cache
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\Martex.DMS.BLL.pdb
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.BINGGeocodeService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.BINGServices.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.DigitalDispatchAPI.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.Hagerty.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.HagertyPlusService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.PSAPNearestUS.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.PSAP_LookupUS.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.TechnoCom.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.TowBookServiceReference.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.WebDialerService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\obj\Release\TempPE\Service References.WSCreditCardService.Reference.cs.dll
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties\AssemblyInfo.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties\DataSources
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties\Settings.Designer.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties\Settings.settings
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Properties\DataSources\System.Xml.XmlNode.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\Arrays.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\common.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\contracts.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\contracts.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\geocode.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\geocode.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\Martex.DMS.BLL.BINGGeocodeService.GeocodeResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGGeocodeService\service.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\common.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\contracts.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\contracts.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\Martex.DMS.BLL.BINGServices.MajorRoutesResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\Martex.DMS.BLL.BINGServices.RouteResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\route.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\route.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\BINGServices\service.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI\pinnacle.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\DigitalDispatchAPI\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\Martex.DMS.BLL.Hagerty.ResponseData.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService.disco
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService1.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService2.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\NMCService3.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\Hagerty\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceEventResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceMembershipPlanResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceMembershipResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\NMCHPlusService.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\SecondaryHPlusService.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\SecondaryHPlusService1.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\SecondaryHPlusService2.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\HagertyPlusService\SecondaryHPlusService3.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\EOLS_PSAP_Nearest_US.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\Martex.DMS.BLL.PSAPNearestUS.OutputRow.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAPNearestUS\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\EOLS_PSAPLookupUS.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\Martex.DMS.BLL.PSAP_LookupUS.OutputRow.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\PSAP_LookupUS\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\LocationRequest.disco
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\LocationRequest.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.GetSMSDeliveryNotificationResult1.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.GetSMSMobileOriginatedResult1.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.SendSMSMessageResult1.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TechnoCom\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\TowbookRequestHandler.disco
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\TowbookRequestHandler.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\TowbookRequestHandler.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\TowBookServiceReference\TowbookRequestHandler1.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.CallResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.ConfigResponseDetail.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.GetConfigResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\Reference.svcmap
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WebDialerService\wd70.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\configuration.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\configuration91.svcinfo
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService.disco
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService1.disco
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService1.wsdl
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService1.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService2.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService3.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService4.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService41.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService42.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\CreditCardService43.xsd
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\Martex.DMS.BLL.WSCreditCardService.ProcessorResponse.datasource
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\Reference.cs
+E:\ODIS_RC5\ODIS-Enhancements-EF6-dev-release-RC5\Martex.DMS.BLL\Service References\WSCreditCardService\Reference.svcmap

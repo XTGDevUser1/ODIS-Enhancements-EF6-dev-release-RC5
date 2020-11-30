@@ -1,0 +1,80 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@model int
+@{
+    string memberID = Model.ToString();
+}
+<script type="text/javascript">
+    function GrdMemberClaims_ViewMemberClaimDetails(e) {
+        if (e != null) {
+            e.preventDefault();
+            if (e.data.commandName == 'View') {
+                openAlertMessage('Functionality is yet to determine');
+            }
+        }
+    }
+
+    function MemberClaims_Databound(e) {
+        //$(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+    }
+
+    $(function () {
+//        $("#GrdMemberClaims_" + '@memberID').delegate("tbody>tr", "dblclick", function () {
+//            $(this).find('.k-grid-View').click();
+//        });
+
+    });
+</script>
+ <div class="new-row">
+        <div class="full-width with-padding" id="div_ClaimsManagementList">
+
+        
+         @(Html.Kendo().Grid<Member_Claims_Result>()
+                                  .Name("GrdMemberClaims_" + memberID)
+                .Columns(column =>
+                {
+                    column.Bound(c => c.ClaimType).Title("Claim Type").Width(100);
+                    column.Bound(c => c.ClaimID).Title("Claim #").Width(100);
+                    column.Bound(c => c.ClaimDate).Format("{0:MM/dd/yyyy}").Title("Date").Width(100);
+                    column.Bound(c => c.AmountApproved).Title("App Amt").Format("{0:C}").Width(100);
+                    column.Bound(c => c.Payeee).Title("Payee").Width(100);
+                    column.Bound(c => c.ClaimStatus).Title("Status").Width(100);
+                    column.Bound(c => c.CheckNumber).Title("Check #").Width(100);
+                    column.Bound(c => c.PaymentDate).Title("Pay Date").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(c => c.PaymentAmount).Title("Pay Amt").Format("{0:C}").Width(100);
+                    column.Bound(c => c.CheckClearedDate).Title("Cleared Date").Format("{0:C}").Width(100);
+                    //column.Command(command =>
+                    //{
+                    //    command.Custom("View").Click("GrdMemberClaims_ViewMemberClaimDetails").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                    //})
+                    //.Width(100)
+                    //.Title("Action(s)");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                .Enabled(false)
+                )
+                .Pageable(pager => pager
+                .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Events(e =>
+                {
+                    e.DataBound("MemberClaims_Databound");
+                })
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("_MemberClaimsRead", "Member", new { area = "Application" }).Data(@<text>function(){return {memberID : '@memberID'};}</text>))
+               )
+                .Resizable(resize => resize.Columns(true))
+
+                )
+
+</div>
+</div>
+

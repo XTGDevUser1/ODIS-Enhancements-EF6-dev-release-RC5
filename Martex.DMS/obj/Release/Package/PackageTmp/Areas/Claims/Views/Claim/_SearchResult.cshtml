@@ -1,0 +1,785 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@using Martex.DMS.DAL.Entities;
+@using Martex.DMS.DAL.Entities.Claims;
+@using model = Martex.DMS.Areas.Application.Models;
+@using models = Martex.DMS.Areas.Application.Models;
+@model ClaimSearchCriteria
+@{
+    bool canTagReadyForPayment = model.DMSSecurityProvider.GetAccessType(model.DMSSecurityProviderFriendlyName.CLAIMS_BUTTON_TAGREADYFORPAYMENT) == models.AccessType.ReadWrite;
+    bool canPayClaims = model.DMSSecurityProvider.GetAccessType(model.DMSSecurityProviderFriendlyName.CLAIMS_BUTTON_PAY_CLAIMS) == models.AccessType.ReadWrite;
+    string gridName = "GrdClaims";
+}
+<script type="text/javascript">
+
+    function ManageClaim(e) {
+
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ClaimID;
+            var claimACESSubmitDate = this.dataItem($(e.currentTarget).closest("tr")).ACESSubmitDate;
+            var claimStatus = this.dataItem($(e.currentTarget).closest("tr")).ClaimStatus;
+            if (e.data.commandName == 'Edit') {
+                AddClaimTab(recordID, tabObject)
+            }
+            else if (e.data.commandName == 'Delete') {
+                if (claimStatus == "Paid") {
+                    openAlertMessage("Claim has been paid and cannot be deleted");
+
+                }
+                else if (claimACESSubmitDate != null) {
+                    openAlertMessage("Claim has been submitted to ACES and cannot be deleted");
+                }
+                else {
+                    DeleteClaim(recordID);
+                }
+            }
+        }
+        else {
+            //AddVendorInformation();
+            //LoadClaimInformation('Add', null, 'In process ...');
+            AddClaimTab(null, tabObject)
+        }
+    }
+    function ManageClaim_Databound(e) {
+
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+        var rowCount = e.sender.dataSource.total();
+
+        if (rowCount == 0) {
+            try {
+                $("#StatusCounter_AuthorizationIssued").html("0");
+                $("#StatusCounter_In-Process").html("0");
+                $("#StatusCounter_Cancelled").html("0");
+                $("#StatusCounter_Approved").html("0");
+                $("#StatusCounter_Denied").html("0");
+                $("#StatusCounter_ReadyForPayment").html("0");
+                $("#StatusCounter_Paid").html("0");
+                $("#StatusCounter_Exception").html("0");
+
+            } catch (e) {
+
+            }
+        }
+        if (rowCount > 0) {
+            try {
+                var item = e.sender.dataSource.data()[0];
+                $("#StatusCounter_AuthorizationIssued").html(item.AuthorizationCount);
+                $("#StatusCounter_In-Process").html(item.InProcessCount);
+                $("#StatusCounter_Cancelled").html(item.CancelledCount);
+                $("#StatusCounter_Approved").html(item.ApprovedCount);
+                $("#StatusCounter_Denied").html(item.DeniedCount);
+                $("#StatusCounter_ReadyForPayment").html(item.ReadyForPaymentCount);
+                $("#StatusCounter_Paid").html(item.PaidCount);
+                $("#StatusCounter_Exception").html(item.ExceptionCount);
+            } catch (e) {
+
+            }
+        }
+
+        var grid = e.sender;
+        e.sender.table.find('tr').each(function () {
+            var $ClaimStatus = $(this).find('.claimStatus');
+            var $ClaimException = $(this).find('.claimException');
+            if ($ClaimStatus.html() == "Exception") {
+                $ClaimStatus.addClass("red redalert tpComments with-tooltip");
+                var exceptions = $ClaimException.html().split(',');
+                var toolTipContent = "<ul>";
+                for (var e = 0, l = exceptions.length; e < l; e++) {
+                    toolTipContent += "<li>" + exceptions[e] + "</li>";
+                }
+                toolTipContent += "</ul>";
+                $ClaimStatus.attr('title', toolTipContent);
+            }
+        });
+
+        AdjustTooltipDimensions();
+
+        var end = $("#selectedCriteriaClaimDateTo").html();
+        var start = $("#selectedCriteriaClaimDateFrom").html();
+        if (start != null && end != null) {
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+
+        // reset select all button 
+        var selectAllLabel = $('label[for="display-Select"]');
+        selectAllLabel.removeClass("active");
+        var chkSelectAll = selectAllLabel.find("input");
+        chkSelectAll.removeAttr("checked");
+    }
+
+    function ClaimGridSearchCriteria() {
+        if ($("#frmClaimSearchCriteria").length > 0) {
+
+            var newArray = [];
+            if ($('#LookUpTypeName').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "LookUpTypeName", value: $('#LookUpTypeName').data('kendoComboBox').value() });
+                newArray.push({ name: "LookUpTypeValue", value: $('#LookUpTypeValue').val() });
+            }
+
+            if ($('#NameTypeName').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "NameTypeName", value: $('#NameTypeName').data('kendoComboBox').value() });
+                newArray.push({ name: "NameTypeValue", value: $('#NameTypeValue').val() });
+                newArray.push({ name: "NameOperatorValue", value: $('#NameOperatorValue').data('kendoComboBox').value() });
+                newArray.push({ name: "NameOperator", value: $('#NameOperatorValue').data('kendoComboBox').text() });
+            }
+
+            $("#frmClaimSearchCriteria").find("#ChkSearchClaimTypes input:checkbox").each(function (index) {
+                newArray.push({ name: "ClaimTypes[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ClaimTypes[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "ClaimTypes[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClaimSearchCriteria").find("#ChkSearchACESClaimTypes input:checkbox").each(function (index) {
+                newArray.push({ name: "ACESStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ACESStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "ACESStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+
+            $("#frmClaimSearchCriteria").find("#ChkSearchClaimStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "ClaimStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ClaimStatus[" + index + "].ID", value: $(this).attr('recordID') });
+                newArray.push({ name: "ClaimStatus[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmClaimSearchCriteria").find("#ChkSearchClaimCategory input:checkbox").each(function (index) {
+                newArray.push({ name: "ClaimCategory[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ClaimCategory[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "ClaimCategory[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            if ($('#Claim_Search_ClientID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ClientID", value: $('#Claim_Search_ClientID').data('kendoComboBox').value() });
+                newArray.push({ name: "ClientIDValue", value: $('#Claim_Search_ClientID').data('kendoComboBox').text() });
+            }
+            if ($('#Claim_Search_ProgramID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ProgramID", value: $('#Claim_Search_ProgramID').data('kendoComboBox').value() });
+                newArray.push({ name: "ProgramIDValue", value: $('#Claim_Search_ProgramID').data('kendoComboBox').text() });
+            }
+
+            if ($('#ExportBatchID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ExportBatchID", value: $('#ExportBatchID').data('kendoComboBox').value() });
+                newArray.push({ name: "ExportBatchName", value: $('#ExportBatchID').data('kendoComboBox').text() });
+            }
+
+            newArray.push({ name: "ClaimDateFrom", value: $('#ClaimDateFrom').val() });
+            newArray.push({ name: "ClaimDateTo", value: $('#ClaimDateTo').val() });
+
+
+            newArray.push({ name: "ACESClearedFromDate", value: $('#ACESClearedFromDate').val() });
+            newArray.push({ name: "ACESClearedToDate", value: $('#ACESClearedToDate').val() });
+
+            newArray.push({ name: "ACESSubmitFromDate", value: $('#ACESSubmitFromDate').val() });
+            newArray.push({ name: "ACESSubmitToDate", value: $('#ACESSubmitToDate').val() });
+
+            newArray.push({ name: "ClaimAmountStart", value: $('#ClaimAmountStart').val() });
+            newArray.push({ name: "ClaimAmountEnd", value: $('#ClaimAmountEnd').val() });
+
+            newArray.push({ name: "CheckNumber", value: $('#CheckNumber').val() });
+            newArray.push({ name: "CheckFromDate", value: $('#CheckFromDate').val() });
+            newArray.push({ name: "CheckToDate", value: $('#CheckToDate').val() });
+
+            newArray.push({ name: "ReceivedFromDate", value: $('#ReceivedFromDate').val() });
+            newArray.push({ name: "ReceivedToDate", value: $('#ReceivedToDate').val() });
+
+            if ($("#Preset").data("kendoNumericTextBox") != undefined) {
+                newArray.push({ name: "Preset", value: $("#Preset").data("kendoNumericTextBox").value() });
+            }
+
+            var claimCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                claimCriteria[newArray[i].name] = newArray[i].value;
+            return claimCriteria;
+        }
+    }
+</script>
+<div class="columns">
+    <div class="twelve-columns">
+        <div class="with-padding">
+            <div class="float-left">
+                <p class="button-height">
+                    <span class="button-group">
+                        <label for="display-Select" class="button compact green-active">
+                            <input type="checkbox" name="chkSelectAll" id="display-Select" value="Select" gridID="@gridName"/>
+                            Select All
+                        </label>
+                    </span>
+                </p>
+            </div>
+            <div class="float-right">
+                <p class="button-height filterButtons" id="ClaimFilterTopButtons">
+                    <span class="button-group">
+                        @foreach (CheckBoxLookUp temp in Model.ClaimStatus)
+                        {
+                            <label for="display-@temp.ID" class="button compact green-active">
+                                <span class="count blue-bg" id="StatusCounter_@temp.Name.Replace(" ", string.Empty)">
+                                    0</span>
+                                <input type="checkbox" name="rbstatusClaim" class="rbStatus" id="display-@temp.ID" value="@temp.ID"/>
+                                @temp.Name
+                            </label>
+                        }
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="new-row twelve-columns">
+        <div class="small-margin-top" id="div_ClaimsManagementList">
+            <div class="tabs-content">
+                @(Html.Kendo().Grid<ClaimsList_Result>()
+                .Name("GrdClaims")
+                .Columns(column =>
+                {
+                    column.Bound(c => c.ClaimID).Title("Claim#").Width(100);
+                    column.Bound(c => c.ReceivedDate).Format("{0:MM/dd/yyyy}").Title("Received Date").Width(100);
+                    column.Bound(c => c.ClaimDate).Format("{0:MM/dd/yyyy}").Title("Claim Date").Width(100);
+                    column.Bound(c => c.AmountApproved).Title("App Amt").Format("{0:C}").Width(100);
+                    column.Bound(c => c.ACESFeeAmount).Title("Fee").Format("{0:C}").Width(100);
+                    column.Bound(c => c.ClaimType).Title("Claim Type").Width(100);
+                    column.Bound(c => c.ProgramName).Title("Program").Width(100);
+                    column.Bound(c => c.MembershipNumber).Title("Membership#").Width(100);
+
+                    column.Bound(c => c.Payeee).Title("Payeee").Width(100);
+                    column.Bound(c => c.ClaimStatus).Title("Status").HtmlAttributes(new { @class = "claimStatus" }).Width(100);
+                    column.Bound(u => u.ClaimExceptionDetails).Hidden().Title("Claim Exception").HtmlAttributes(new { @class = "claimException" });
+                    column.Bound(c => c.NextAction).Title("Next Action").Width(100);
+                    column.Bound(c => c.AssignedTo).Title("Assigned To").Width(100);
+                    column.Bound(c => c.NextActionScheduledDate).Title("Schd Date").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(c => c.ACESSubmitDate).Title("ACES Submit").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(c => c.ACESStatus).Title("ACES Status").Width(100);
+                    column.Bound(c => c.ACESClearedDate).Title("ACES Cleared").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(c => c.CheckNumber).Title("Check #").Width(100);
+                    column.Bound(c => c.PaymentDate).Title("Pay Date").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(c => c.PaymentAmount).Title("Pay Amt").Format("{0:C}").Width(100);
+                    column.Bound(c => c.BatchID).Title("Batch ID").Width(100);
+                    column.Command(command =>
+                    {
+                        command.Custom("Edit").Click("ManageClaim").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                        command.Custom("Delete").Click("ManageClaim").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                    })
+                    .Width(100)
+                    .Title("Action(s)");
+                })
+                .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add Claim' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' onclick='ManageClaim(null)'><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Claim</label></a>"))
+                        .Events(e =>
+                        {
+                            e.DataBound("ManageClaim_Databound");
+                        })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                                    .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .PageSize(1000)
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("ClaimSearch", "Claim").Data("ClaimGridSearchCriteria"))
+               )
+                .Resizable(resize => resize.Columns(true))
+
+            )
+            </div>
+        </div>
+    </div>
+    <div class="new-row twelve-columns claimsActionsContainer">
+        <p class="message">
+            <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                class="statusMessage"></span>
+        </p>
+    </div>
+    <div class="new-row six-columns">
+        @*<button class="button green-gradient mid-margin-left margin-bottom" type="button"
+            onclick="ProcessCreateCUDlFile();">
+            Create CuDL File</button>*@
+        @if (canTagReadyForPayment)
+        {
+            <button class="button green-gradient mid-margin-left margin-bottom" type="button"
+                onclick="ProcessTagReadyForPayment();">
+                Tag Ready For Payment</button>
+        }
+        @if (canPayClaims)
+        {
+            <button class="button green-gradient mid-margin-left margin-bottom" type="button"
+                onclick="ProcessPayClaims();">
+                Pay Claims</button>
+        }
+    </div>
+    <div class="six-columns">
+        <div class="with-padding">
+            <p>
+                <label for="TimePeriod" class="float-right">
+                    Time Period : <strong><span id="spanTimePeriod">
+                        @Model.ClaimDateFrom to @Model.ClaimDateTo
+                    </span></strong>
+                </label>
+            </p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+
+    var $statusContainer = $(".claimsActionsContainer");
+
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdClaims").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-Edit').click();
+        });
+
+        $('input[name="rbstatusClaim"]').click(function (e) {
+            var claimStatusID = $(this).attr('value');
+            var IsRbStatusSelected = $(this).is(" :checked");
+            $("#frmClaimSearchCriteria").find("#ChkSearchClaimStatus input:checkbox").each(function (index) {
+                var recordID = $(this).attr('recordID');
+                if (recordID != undefined && claimStatusID != undefined && IsRbStatusSelected != undefined) {
+                    if (recordID == claimStatusID) {
+                        if (IsRbStatusSelected) {
+                            $(this).prop("checked", true);
+                            $(this).parent().addClass("checked");
+                        }
+                        else {
+                            $(this).prop("checked", false);
+                            $(this).parent().removeClass("checked");
+                        }
+                    }
+                }
+            });
+            $("#GrdClaims").data('kendoGrid').dataSource.read();
+
+        });
+
+    });
+
+    $(function () {
+        HideStatus($statusContainer);
+    });
+
+    function RefreshGridWith(status) {
+
+        var statusLabel = $('label[for="display-' + status + '"]');
+
+        var filterButtons = $(".filterButtons");
+        var labels = filterButtons.find("label");
+
+        labels.each(function () {
+            $(this).removeClass("active");
+            var chk = $(this).find("input");
+            chk.removeAttr("checked");
+        });
+
+        ResetCheckBoxesInSearchCriteria();
+
+        if (statusLabel.length > 0) {
+            statusLabel.addClass("active");
+            statusLabel.find("input").attr("checked", "checked");
+
+            CheckABoxInSearchCriteria(status);
+        }
+
+        $("#GrdClaims").data('kendoGrid').dataSource.read();
+
+    }
+
+    function ResetCheckBoxesInSearchCriteria() {
+        $("#frmClaimSearchCriteria").find("#pnlClaimStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+
+            $(this).prop("checked", false);
+            $(this).parent().removeClass("checked");
+
+        });
+
+    }
+    function CheckABoxInSearchCriteria(status) {
+        $("#frmClaimSearchCriteria").find("#pnlClaimStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+            if (recordName == status) {
+                $(this).prop("checked", true);
+                $(this).parent().addClass("checked");
+            }
+        });
+
+    }
+
+    $('input[name="chkSelectAll"]').change(function (e) {
+
+        var gridName = $(this).attr("gridID");
+        var grid = $("#@gridName").data('kendoGrid');
+        if ($(this).is(":checked")) {
+            grid.select("tr");
+        }
+        else {
+            grid.clearSelection();
+        }
+    });
+
+    function GetSummaryDetailsAsHTML(summaryData) {
+
+        var summaryDetails = "<p>Verification Complete</p>";
+        summaryDetails += '<table class="table simple-table">';
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Ready for Payment</td>"
+        summaryDetails += "<td>" + summaryData.ReadyForPayment + "</td>";
+        summaryDetails += "<td>$" + summaryData.ReadyForPaymentAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Exception</td>"
+        summaryDetails += "<td>" + summaryData.Exceptions + "</td>";
+        summaryDetails += "<td>$" + summaryData.ExceptionsAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Approved</td>"
+        summaryDetails += "<td>" + summaryData.Approved + "</td>";
+        summaryDetails += "<td>$" + summaryData.ApprovedAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Denied</td>"
+        summaryDetails += "<td>" + summaryData.Rejected + "</td>";
+        summaryDetails += "<td>$" + summaryData.RejectedAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>InProcess</td>"
+        summaryDetails += "<td>" + summaryData.InProcess + "</td>";
+        summaryDetails += "<td>$" + summaryData.InProcessAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Authorization Issued</td>"
+        summaryDetails += "<td>" + summaryData.Received + "</td>";
+        summaryDetails += "<td>$" + summaryData.ReceivedAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Cancelled</td>"
+        summaryDetails += "<td>" + summaryData.Cancelled + "</td>";
+        summaryDetails += "<td>$" + summaryData.CancelledAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "<tr>";
+        summaryDetails += "<td>Paid</td>"
+        summaryDetails += "<td>" + summaryData.Paid + "</td>";
+        summaryDetails += "<td>$" + summaryData.PaidAmount.toFixed(2) + "</td>";
+        summaryDetails += "</tr>";
+
+        summaryDetails += "</table>";
+
+        return summaryDetails;
+    }
+
+
+    function ProcessTagReadyForPayment() {
+        HideStatus($statusContainer);
+        var grid = $("#GrdClaims").data("kendoGrid");
+
+        var selectedRows = grid.select();
+        if (selectedRows.length == 0) {
+            openAlertMessage("Please select claims to be tagged");
+        }
+        else {
+            ShowStatus("inprogress", "Processing ...", $statusContainer);
+            var selectedClaims = [];
+            for (var i = 0, l = selectedRows.length; i < l; i++) {
+                
+                var record = grid.dataItem($(selectedRows[i]));
+                if (record.ClaimType == 'FordQFC') {
+                    openAlertMessage("Please exclude claims of type - FordQFC");
+                    HideStatus($statusContainer);
+                    return;
+                }
+                selectedClaims.push({ name: "claims[" + i + "]", value: record.ClaimID });
+            }
+            $.ajax({
+                url: '@Url.Action("VerifyForReadyForPayment", "Claim", new { area = "Claims" })' + '?useraction=tag',
+                type: 'POST',
+                data: selectedClaims,
+                cache: false,
+                async: true,
+                global: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+
+                        var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+
+                        $.modal.VerificationResults(summaryDetails, function () {
+                            //openAlertMessage("Work Exceptions clicked");
+                            if (!$("input[name='ClaimStatus[6].Selected']").is(":checked")) {
+                                $("input[name='ClaimStatus[6].Selected']").click();
+                            }
+                            GetSelectedCriteria();
+                        }, function () {
+                            //openAlertMessage("OK clicked");
+                            // Just refresh the grid.
+
+                            //if ($(event.srcElement).text() != "Close") {
+                                GetSelectedCriteria();
+                            //}
+                        });
+
+                        setTimeout(function () {
+                            if (msg.Data.Exceptions == 0) {
+
+                                $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                            }
+                        }, 500);
+                    }
+                    HideStatus($statusContainer);
+                },
+                error: function (err, errStatus) {
+
+                    HandleAjaxErrors("error", err);
+                    HideStatus($statusContainer);
+                }
+            });
+        }
+        return false;
+    }
+
+    var claimsProcessedSoFar = [];
+
+    function IncrementPaidCounts(invoiceID, claimsReadyForPayment, etlExecutionLogID, batchID) {
+        claimsProcessedSoFar.push(invoiceID);
+        var statusMessage = "Processing ... [ Claims Processed : " + claimsProcessedSoFar.length + " ]";
+        console.log(statusMessage);
+        ShowStatus("inprogress", statusMessage, $statusContainer);
+
+        // Start the next steps when claimsProcessedSoFar.length == claimsReadyForPayment.length
+        if (claimsProcessedSoFar.length == claimsReadyForPayment.length) {
+            statusMessage = "Claims created in staging, Creating export file ...";
+            console.log(statusMessage);
+            ShowStatus("success", statusMessage, $statusContainer);
+            var formData = [];
+
+            formData.push({ name: "etlExecutionLogID", value: etlExecutionLogID });
+            formData.push({ name: "batchID", value: batchID });
+
+            for (var k = 0, l = claimsProcessedSoFar.length; k < l; k++) {
+                formData.push({ name: "claims[" + k + "]", value: claimsProcessedSoFar[k] });
+            }
+
+            $.ajax({
+                url: '@Url.Action("CreateExportFiles", "Claim", new { area = "Claims" })',
+                type: 'POST',
+                data: formData,
+                cache: false,
+                async: true,
+                global: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        HideStatus($statusContainer);
+                        var summary = "<p>Pay claims has completed</p>";
+                        summary += "<p>BatchId : " + batchID + "</p>";
+                        summary += "<p>Payments : " + msg.Data.Paid + "</p>";
+                        summary += "<p>Amount : $" + msg.Data.PaidAmount.toFixed(2) + "</p>";
+
+                        openAlertMessage(summary);
+
+                        //TODO: Reset grid with ReadyForPayment
+                        //RefreshGridWith("ReadyForPayment");
+                        if (!$("input[name='ClaimStatus[5].Selected']").is(":checked")) {
+                            $("input[name='ClaimStatus[5].Selected']").click();
+                        }
+                        GetSelectedCriteria();
+                    }
+                },
+                error: function (err, errStatus) {
+                    HandleAjaxErrors("error", err);
+                    HideStatus($statusContainer);
+                }
+            });
+
+        }
+    }
+
+    function ProcessPayments(summaryData) {
+        if (summaryData.ClaimsReadyForPayment.length > 0) {
+            ShowStatus("inprogress", "Setting up the prerequisites", $statusContainer);
+            var claimsReadyForPayment = summaryData.ClaimsReadyForPayment;
+            var etlExecutionLogID = 0;
+            var batchID = 0;
+            var timestamp = null;
+            setTimeout(function () {
+                // Generate ETL ID.
+                $.ajax({
+                    url: '@Url.Action("GetETLExecutionLogID", "Claim", new { area = "Claims" })',
+                    type: 'POST',
+                    cache: false,
+                    async: false,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            var ids = msg.Data;
+                            etlExecutionLogID = ids.ETLExecutionLogID;
+                            batchID = ids.BatchID;
+                            var date = new Date(parseInt(ids.CurrentDate.substr(6)));
+                            timestamp = date.toString("MM/dd/yyyy HH:mm:ss");
+                            console.log("ETL ID = " + etlExecutionLogID + ", Batch ID = " + batchID + ", Timestamp = " + timestamp);
+
+                            // Process each Claim that is approved
+                            claimsProcessedSoFar.splice(0, claimsProcessedSoFar.length);
+
+                            for (var p = 0, l = claimsReadyForPayment.length; p < l; p++) {
+                                var claimID = claimsReadyForPayment[p];
+                                console.log("Processing Claim ID : " + claimID);
+                                $.ajax({
+                                    url: '@Url.Action("ProcessClaim", "Claim", new { area = "Claims" })',
+                                    type: 'POST',
+                                    data: { claimID: claimID, batchID: batchID, batchTimeStamp: timestamp },
+                                    cache: false,
+                                    async: true,
+                                    global: false,
+                                    success: function (msg) {
+                                        if (msg.Status == "Success") {
+                                            IncrementPaidCounts(msg.Data.ClaimID, claimsReadyForPayment, etlExecutionLogID, batchID);
+                                        }
+                                    },
+                                    error: function (err, errStatus) {
+                                        HandleAjaxErrors("error", err);
+                                        HideStatus($statusContainer);
+                                    }
+                                });
+
+                            }
+                        }
+                        else {
+                            ShowStatus("error", "Unable to get ETL Execution LogID", $statusContainer);
+                        }
+                    },
+                    error: function (err, errStatus) {
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+
+            }, 200);
+        }
+        else {
+            HideStatus($statusContainer);
+        }
+
+        // Process invoices
+    }
+
+    function ProcessPayClaims() {
+
+        var grid = $("#GrdClaims").data("kendoGrid");
+
+        var selectedRows = grid.select();
+        if (selectedRows.length == 0) {
+            openAlertMessage("Please select claims to be paid");
+        }
+        else {
+
+            ShowStatus("inprogress", "Processing ...", $statusContainer);
+            var selectedClaims = [];
+            for (var i = 0, l = selectedRows.length; i < l; i++) {
+                var record = grid.dataItem($(selectedRows[i]));
+                if (record.ClaimType == 'FordQFC') {
+                    openAlertMessage("Please exclude claims of type - FordQFC");
+                    HideStatus($statusContainer);
+                    return;
+                }
+                selectedClaims.push({ name: "claims[" + i + "]", value: record.ClaimID });
+            }
+
+            $.ajax({
+                url: '@Url.Action("VerifyForReadyForPayment", "Claim", new { area = "Claims" })' + '?useraction=pay',
+                type: 'POST',
+                data: selectedClaims,
+                cache: false,
+                async: true,
+                global: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+
+                        var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+
+                        if (msg.Data.ReadyForPayment == 0) {
+
+                            $.modal.VerificationResults(summaryDetails, function () {
+                                //openAlertMessage("Work Exceptions clicked");
+                                if (!$("input[name='ClaimStatus[6].Selected']").is(":checked")) {
+                                    $("input[name='ClaimStatus[6].Selected']").click();
+                                }
+                                
+                                GetSelectedCriteria();
+                            }, function () {
+                                //openAlertMessage("OK clicked");
+                                // Just refresh the grid.
+
+                                //if ($(event.srcElement).text() != "Close") {
+                                    GetSelectedCriteria();
+                                //}
+                            });
+
+                            setTimeout(function () {
+                                if (msg.Data.Exceptions == 0) {
+
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }
+                            }, 500);
+                        }
+                        else {
+
+                            $.modal.VerificationResultsForPaymentClaims(summaryDetails, function () {
+                                //openAlertMessage("Work Exceptions clicked");
+                                //RefreshGridWith("Exception");
+                                if (!$("input[name='ClaimStatus[6].Selected']").is(":checked")) {
+                                    $("input[name='ClaimStatus[6].Selected']").click();
+                                }
+                                
+                                GetSelectedCriteria();
+
+                            }, function () {
+                                //openAlertMessage("OK clicked");
+                                // Process payments.
+                                if ($(event.srcElement).text() != "Close") {
+                                    setTimeout(function () { ProcessPayments(msg.Data); }, 300);
+                                }
+                            });
+
+                            setTimeout(function () {
+                                if (msg.Data.Exceptions == 0) {
+
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }
+                            }, 500);
+                        }
+                    }
+                    HideStatus($statusContainer);
+                },
+                error: function (err, errStatus) {
+
+                    HandleAjaxErrors("error", err);
+                    HideStatus($statusContainer);
+                }
+            });
+        }
+        return false;
+    }
+    
+</script>

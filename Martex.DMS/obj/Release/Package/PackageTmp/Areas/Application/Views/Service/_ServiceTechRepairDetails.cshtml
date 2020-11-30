@@ -1,0 +1,144 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@model ServiceTechModel
+<script type="text/javascript">
+    function GetServiceTechCallHistory() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_ServiceTechCallHistory", "Service", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                var $divServiceTechCallHistory = $("#divServiceTechCallHistory");
+                if ($divServiceTechCallHistory != undefined) {
+                    $divServiceTechCallHistory.html("");
+                    $divServiceTechCallHistory.html(msg);
+                }
+            }
+        });
+    }
+</script>
+
+@if (Model.TrackRepairStatus)
+{
+    <form id="frmServiceTechRepairDetailsLocation">
+        <div class="full-width">
+            <div class=" margin-bottom">
+                <h3 class="thin underline">
+                    Repair Location and Status
+                </h3>
+                @if (Model.RepairLocationDetails.VendorLocationID.HasValue)
+                {
+                    <div class="with-small-padding  white-bg boxed left-border ">
+                        <p class="small-margin-bottom">
+                            <label class="label">
+                                @Html.DisplayFor(v => v.RepairLocationDetails.VendorName)<br />
+                                @Html.DisplayFor(v => v.RepairLocationDetails.VendorNumber)
+                            </label>
+                        </p>
+                        <p class="small-margin-bottom">
+                            <label class="label">
+                                @Html.DisplayFor(v => v.RepairLocationDetails.VendorAddressLine1)<br />
+                                @string.Join(" ", Model.RepairLocationDetails.VendorCity, Model.RepairLocationDetails.VendorStateProvince, Model.RepairLocationDetails.VendorPostalCode)
+                            </label>
+                        </p>
+                        <p class="small-margin-bottom">
+                            <label class="label">
+                                <strong>24hr : </strong>
+                                @if (!string.IsNullOrEmpty(Model.RepairLocationDetails.VendorDispatchNumber))
+                                {
+                                    @Html.Editor("DispatchPhoneNumber", "Phone", new { Value = Model.RepairLocationDetails.VendorDispatchNumber, ShowPhoneType = false, ReadOnly = true, ShowCallIcon = false })
+                                    <span class="icon-phone business-phone-service mid-margin-left" id="@Model.RepairLocationDetails.VendorDispatchNumber" phonenumber="@Model.RepairLocationDetails.VendorDispatchNumber" phonetype="Dispatch" businessname="@Model.RepairLocationDetails.VendorName">&nbsp;</span>
+                                }
+                            </label>
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="with-small-padding  white-bg boxed left-border">
+                        <p class="small-margin-bottom">
+                            <label class="label">
+                                @Html.DisplayFor(v => v.RepairLocationDetails.SRDestinationDescription)
+                                @Html.DisplayFor(v => v.RepairLocationDetails.SRDestinationAddress)<br />
+                                @string.Join(" ", Model.RepairLocationDetails.SRDestinationCity, Model.RepairLocationDetails.SRDestinationStateProvince, Model.RepairLocationDetails.SRDestinationPostalCode)
+                            </label>
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+        <h3 class="thin underline">Call History</h3>
+        <div class="row full-width" id="divServiceTechCallHistory">
+
+        </div>
+    </form>
+    <script type="text/javascript">
+        var winServiceTechCallLog = null;
+        $(function () {
+            GetServiceTechCallHistory();
+            $('.business-phone-service').click(function () {
+                
+                var phone = $(this);
+                var phoneType = phone.attr("phonetype");
+
+                var businessName = phone.attr("businessName");
+
+                var calledNumber = phone.attr("phoneNumber");
+              
+                var postData = [];
+                postData.push({ name: "PhoneType", value: phoneType });
+                postData.push({ name: "PhoneNumber", value: calledNumber });
+                postData.push({ name: "BusinessName", value: businessName });
+                postData.push({ name: "VendorLocationID", value: "@Model.RepairLocationDetails.VendorLocationID" });
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_ServiceTechCallLog", "Service", new { area = "Application" })',
+                    data: postData,
+                    cache: false,
+                    success: function (msg) {
+                        winServiceTechCallLog = $("<div id='winServiceTechCallLog' />").appendTo(document.body);
+                        winServiceTechCallLog.kendoWindow({
+                            title: "Call Log",
+                            modal: true,
+                            width: 1050,
+                            height: GetPopupWindowHeight(),
+                            deactivate: function () { this.destroy(); },
+                            close: function (e) {
+                                //Clear messages
+                                $(".formError").each(function () {
+                                    $(this).remove();
+                                });
+                                if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                    document.dialogResult = null;
+                                    if (IsMyContainerDirty('frmCallLog')) {
+                                        var prompt = PromptForDirtyFlag();
+                                        if (!prompt) {
+                                            e.preventDefault();
+                                            return false;
+                                        }
+                                        CleanMyContainer('frmCallLog');
+                                    }
+                                }
+                                isdirty = false;
+                                if (document.dialogResult == "OK") {
+                                    CleanMyContainer('frmCallLog');
+                                }
+
+                                return true;
+                            }
+                        });
+                        winServiceTechCallLog.data('kendoWindow').content(msg).center().open();
+                    }
+                });
+
+            });
+        });
+
+
+
+    </script>
+}
+
+

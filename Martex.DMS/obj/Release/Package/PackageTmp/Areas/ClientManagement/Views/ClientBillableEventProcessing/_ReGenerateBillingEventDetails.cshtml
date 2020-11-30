@@ -1,0 +1,161 @@
+﻿@using Kendo.Mvc.UI;
+<script type="text/javascript">
+
+    function GetBillingDefinitionInvoice(e) {
+        var combo = $("#ReGenerateBillingClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboBillingDefinitionInvoice = $("#ReGenerateBillingDefinitionInvoiceID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("GetBillingDefinitionInvoice", "ReferenceData", new { area = "Common" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboBillingDefinitionInvoice.setDataSource(msg);
+                comboBillingDefinitionInvoice.select(0);
+                SetFocusOnField("ReGenerateBillingDefinitionInvoiceID");
+            }
+
+        })
+    }
+</script>
+<form id="formReGenerateBillingEvents" action="javascript:void(0);">
+<div class="with-padding">
+    <div class="columns">
+        <div class="new-row ten-columns reGenerateBillingEventProgress">
+            <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                    class="statusMessage"></span>
+            </p>
+        </div>
+        <div class="ten-columns">
+            <div class="button-height inline-label small-margin-bottom small-margin-top">
+                <label class="label">
+                    Schedule Type <span class="spanstar">*</span>
+                </label>
+                @( Html.Kendo().ComboBox()
+                    .Name("ReGenerateBillingScheduleType")
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingScheduleType.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label class="label">
+                    Client <span class="spanstar">*</span>
+                </label>
+                @( Html.Kendo().ComboBox()
+                    .Name("ReGenerateBillingClientID")
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.RegenerateBillingEventsClientList.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("GetBillingDefinitionInvoice"))
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+            </div>
+            <div class="button-height inline-label small-margin-bottom">
+                <label class="label">
+                    Invoice Definition <span class="spanstar">*</span>
+                </label>
+                @( Html.Kendo().ComboBox()
+                    .Name("ReGenerateBillingDefinitionInvoiceID")
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingDefinitionInvoice.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+            </div>
+        </div>
+        <div class="new-row ten-columns">
+            <div class="button-height inline-label small-margin-bottom">
+                <label class="label">
+                    &nbsp;
+                </label>
+                <button class="button green-gradient large-margin-bottom small-margin-left" type="button"
+                    onclick="ClosePOPUpRegenerateBillingEvent();">
+                    Cancel
+                </button>
+                <button class="button green-gradient large-margin-bottom" type="button" onclick="ProcessRegenerateBillingEvent();"
+                    id="btnProcessRegenerateBillingEvents">
+                    Start
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    var $statusContainer = $('.reGenerateBillingEventProgress');
+    $(function () {
+
+        HideStatus($statusContainer);
+
+        $('#formReGenerateBillingEvents').validationEngine();
+
+        CleanMyContainer('formReGenerateBillingEvents');
+        WatchMyContainer('formReGenerateBillingEvents');
+    });
+
+    function ClosePOPUpRegenerateBillingEvent() {
+        $('#formReGenerateBillingEvents').validationEngine('hideAll');
+        document.dialogResult = "CANCEL";
+        POPUP_RE_GENERATE_BILLING_EVENTS.data('kendoWindow').close();
+    }
+
+    function ProcessRegenerateBillingEvent() {
+
+        HideStatus($statusContainer);
+
+        var isReGenerateIsValid = true;
+
+        var scheduleTypeID = $('#ReGenerateBillingScheduleType').data('kendoComboBox').value();
+        var clientID = $('#ReGenerateBillingClientID').data('kendoComboBox').value();
+        var invoiceDefinitionID = $('#ReGenerateBillingDefinitionInvoiceID').data('kendoComboBox').value();
+
+        if (scheduleTypeID == null || scheduleTypeID == undefined || scheduleTypeID == '') {
+            ShowValidationMessage($('input[name="ReGenerateBillingScheduleType_input"]'), "Please select Schedule Type");
+            isReGenerateIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="ReGenerateBillingScheduleType_input"]'));
+        }
+
+        if (clientID == null || clientID == undefined || clientID == '') {
+            ShowValidationMessage($('input[name="ReGenerateBillingClientID_input"]'), "Please select Client");
+            isReGenerateIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="ReGenerateBillingClientID_input"]'));
+        }
+
+        if (invoiceDefinitionID == null || invoiceDefinitionID == undefined || invoiceDefinitionID == '') {
+            ShowValidationMessage($('input[name="ReGenerateBillingDefinitionInvoiceID_input"]'), "Please select Invoice Definition");
+            isReGenerateIsValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="ReGenerateBillingDefinitionInvoiceID_input"]'));
+        }
+
+
+
+        if (isReGenerateIsValid == true) {
+            $('#btnProcessRegenerateBillingEvents').attr('disabled', 'disabled');
+
+            ShowStatus("inprogress", "Processing ...", $statusContainer);
+        }
+        return false;
+    }
+</script>

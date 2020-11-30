@@ -1,0 +1,187 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@using Martex.DMS.Areas.Application.Models;
+@{
+    string IsReadWriteForAddVendor = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.BUTTON_ADD_VENDOR) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string IsReadWriteForVendorSummary = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_VENDOR_SUMMARY) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string IsReadWriteForVendorEdit = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_VENDOR_EDIT) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string IsReadWriteForVendorMerge = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_VENDOR_MERGE) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? string.Empty : "hidden";
+    string canOpenEdit = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.GRID_ACTION_VENDOR_EDIT) == Martex.DMS.Areas.Application.Models.AccessType.ReadWrite ? "true" : "false";
+}
+<script type="text/javascript">
+
+    function VendorSearchCriteria() {
+        if ($("#frmVendorSearchCriteria").length > 0) {
+            var newArray = [];
+
+            $("#frmVendorSearchCriteria").find("#PanelVendorStatus input:checkbox").each(function (index) {
+                if ($(this).attr('recorID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "VendorStatus[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "VendorStatus[" + index + "].ID", value: $(this).attr('recorID') });
+                    newArray.push({ name: "VendorStatus[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+
+            $("#frmVendorSearchCriteria").find("#PanelVendorRegion input:checkbox").each(function (index) {
+                if ($(this).attr('recorID') != undefined && $(this).attr('recordName') != undefined) {
+                    newArray.push({ name: "VendorRegion[" + index + "].Selected", value: $(this).is(':checked') });
+                    newArray.push({ name: "VendorRegion[" + index + "].ID", value: $(this).attr('recorID') });
+                    newArray.push({ name: "VendorRegion[" + index + "].Name", value: $(this).attr('recordName') });
+                }
+            });
+
+            if ($('#VendorNameOperator').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "VendorNameOperatorValue", value: $('#VendorNameOperator').data('kendoComboBox').text() });
+                newArray.push({ name: "VendorNameOperator", value: $('#VendorNameOperator').data('kendoComboBox').value() });
+            }
+            if ($('#StateProvinceID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "StateProvince", value: $('#StateProvinceID').data('kendoComboBox').text() });
+                newArray.push({ name: "StateProvinceID", value: $('#StateProvinceID').data('kendoComboBox').value() });
+            }
+            if ($('#CountryID').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "Country", value: $('#CountryID').data('kendoComboBox').text() });
+                newArray.push({ name: "CountryID", value: $('#CountryID').data('kendoComboBox').value() });
+            }
+
+            newArray.push({ name: "VendorNumber", value: $("#frmVendorSearchCriteria").find("#VendorNumber").val() });
+            newArray.push({ name: "VendorName", value: $('#frmVendorSearchCriteria').find("#VendorName").val() });
+            newArray.push({ name: "City", value: $('#frmVendorSearchCriteria').find("#City").val() });
+            newArray.push({ name: "PostalCode", value: $('#frmVendorSearchCriteria').find("#PostalCode").val() });
+            newArray.push({ name: "IsLevy", value: $('#frmVendorSearchCriteria').find("#IsLevy").is(':checked') });
+            newArray.push({ name: "IsFordDirectTow", value: $('#frmVendorSearchCriteria').find("#IsFordDirectTow").is(':checked') });
+            newArray.push({ name: "IsCNETDirectPartner", value: $('#frmVendorSearchCriteria').find("#IsCNETDirectPartner").is(':checked') });
+            newArray.push({ name: "HasPo", value: $('#frmVendorSearchCriteria').find("#HasPo").is(':checked') });
+
+            var vendorCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                vendorCriteria[newArray[i].name] = newArray[i].value;
+            return vendorCriteria;
+        }
+    }
+
+    function ManageVendor(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).VendorID;
+            var vendorNumber = this.dataItem($(e.currentTarget).closest("tr")).VendorNumber;
+            var vendorName = this.dataItem($(e.currentTarget).closest("tr")).VendorName;
+            if (e.data.commandName == 'Edit') {
+                LoadVendorInformation('Edit', recordID, vendorNumber, vendorName);
+            }
+            else if (e.data.commandName == 'Merge') {
+                MergeVendor(recordID);
+            }
+            else if (e.data.commandName == 'View') {
+                LoadVendorSumamryInformation('Edit', recordID, vendorNumber, vendorName);
+            }
+        }
+        else {
+            AddVendorInformation();
+        }
+    }
+
+    function ManageVendor_Databound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip @IsReadWriteForVendorEdit").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Merge").addClass("with-tooltip @IsReadWriteForVendorMerge").html("<span class='k-icon k-i-restore'/>");
+        $(".k-grid-View").addClass("with-tooltip @IsReadWriteForVendorSummary").html("<span class='k-icon k-i-search'/>");
+        //Merge
+        $(".starred").addClass("with-tooltip message-status dispatchstar");
+        $(".unstarred").addClass("with-tooltip message-status dispatchstar");
+
+        FormatPhoneNumber(e.sender.table, 7);
+    }
+</script>
+<div class="with-padding" id="div_addVendor" style="display: none;">
+</div>
+<div class="with-padding" id="div_vendorManagementList">
+    <div class="tabs-content">
+        @(Html.Kendo().Grid<VendorManagementList_Result>()
+                .Name("GrdVenodors")
+                .Columns(column =>
+                {
+                    column.Bound(u => u.ContractStatus).Width(25).Title("").ClientTemplate("<span style='height: 16px;' ' #= ContractStatus=='Contracted' ? Class = 'class=starred' : Class = 'class=unstarred' # #= ContractStatus=='Contracted' ? Title = 'title=Contracted' : Title = 'title=NotContracted' # >&nbsp;</span>");
+                    column.Bound(u => u.VendorNumber).Title("Number").Width(100);
+                    column.Bound(u => u.VendorName).Title("Name").Width(150);
+                    column.Bound(u => u.City).Title("City").Width(100);
+                    column.Bound(u => u.StateProvince).Title("State").Width(50);
+                    column.Bound(u => u.PostalCode).Title("Postal Code").Width(100);
+                    column.Bound(u => u.CountryCode).Title("Country").Width(50);
+                    column.Bound(u => u.OfficePhone).Title("Office Phone").Width(100);
+                    column.Bound(u => u.AdminRating).Title("Admin Rating").Width(100);
+                    column.Bound(u => u.InsuranceExpirationDate).Title("Ins Expire").Format("{0:MM/dd/yyyy}").Width(100);
+                    column.Bound(u => u.PaymentMethod).Title("Pay Method").Width(100);
+                    column.Bound(u => u.VendorStatus).Title("Status").Width(100);
+                    column.Bound(u => u.POCount).Title("PO Count").Width(100);
+                    column.Bound(u => u.VendorID);
+                    column.Command(command =>
+                    {
+                        command.Custom("View").Click("ManageVendor").HtmlAttributes(new { style = "min-width:auto;", title = "Summary" });
+                        command.Custom("Edit").Click("ManageVendor").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                        command.Custom("Merge").Click("ManageVendor").HtmlAttributes(new { style = "min-width:auto;", title = "Merge" });
+                    })
+                    .Width(150)
+                    .Title("Action(s)");
+                })
+                        .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add Vendor' , class='k-button " + IsReadWriteForAddVendor + " k-button-icontext k-grid-vendor-add with-tooltip' href='javascript:void(0);' onclick='ManageVendor(null)'><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Vendor</label></a>"))
+                        .Events(e =>
+                        {
+                            e.DataBound("ManageVendor_Databound");
+                        })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("VendorSearch", "VendorHome").Data("VendorSearchCriteria"))
+               )
+                .Resizable(resize => resize.Columns(true))
+
+            )
+    </div>
+</div>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        if ('@canOpenEdit' == "true") {
+            $("#GrdVenodors").delegate("tbody>tr", "dblclick", function () {
+                $(this).find('.k-grid-Edit').click();
+            });
+        }
+
+    });
+    var winAddVendor;
+    function AddVendorInformation() {
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("AddVendor", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#div_addVendor").html(msg);
+                $("#div_addVendor").show();
+                $("#div_vendorManagementList").hide();
+            }
+        });
+    }
+</script>

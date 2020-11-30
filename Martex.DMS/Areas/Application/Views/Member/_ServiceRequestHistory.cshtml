@@ -1,0 +1,51 @@
+﻿@model Martex.DMS.DAL.Entities.MemberDetailsModel
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+    <div class="new-row">
+        <div class="full-width with-padding">
+            @(Html.Kendo().Grid<MemberServiceRequestHistory_Result>()
+            .Name("GrdServiceRequestHistory")
+            .Columns(column =>
+            {
+                column.Bound(a => a.CaseNumber).Title("Case#").Filterable(false).Sortable(true);
+                column.Bound(a => a.ServiceRequestNumber).Title("Service Request").Filterable(false).Sortable(true);
+                column.Bound(a => a.Date).Title("Date").Filterable(false).Sortable(true);
+                column.Bound(a => a.MemberName).Title("Member").Filterable(false).Sortable(true);
+                column.Bound(a => a.ContactPhoneNumber).Title("Contact").Filterable(false).Sortable(true);
+                column.Bound(a => a.ServiceType).Title("Service Type").Filterable(false).Sortable(true);
+                column.Bound(a => a.Status).Title("Status").Filterable(false).Sortable(true);
+                column.Bound(a => a.Vehicle).Title("Vehicle").Filterable(false).Sortable(true);
+                column.Bound(a => a.Vendor).Title("ISP").Filterable(false).Sortable(true);
+                column.Bound(a => a.POCount).Title("PO Count").Filterable(false).Sortable(true);
+                column.Command(command =>
+                {
+                    command.Custom("View").Click("ViewSRDetails").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                }).Width(50)
+                .Title("Action(s)");
+            })
+            .Events(e =>
+            {
+                e.DataBound("onDataBound");
+            })
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .Filterable(filterable => filterable
+                .Extra(false)
+            )
+            .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+            )
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+            .DataSource(datasource => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("ListResult", "Member"))
+                .Model(u => u.Id(p => p.ServiceRequestNumber))
+            )
+            .EnableCustomBinding(true)
+            .Resizable(resize => resize.Columns(true))
+            )
+        </div>
+    </div>

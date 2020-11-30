@@ -1,0 +1,1834 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/VendorManagement/Views/Shared/_VendorLayout.cshtml";
+}
+@*<script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0" type="text/javascript"></script>*@
+<script src="https://www.bing.com/api/maps/mapcontrol" type="text/javascript"></script>
+
+<hgroup id="main-title" class="thin">
+    <h1>
+        Vendor Maintenance
+    </h1>
+</hgroup>
+<div class="with-padding">
+    <div id="VendorManagementTab" class="standard-tabs same-height" data="vendorMaintenanaceDynamicTabs">
+        <ul class="tabs">
+            <li id="tbVendorList"><a id="hypVendorSearchCriteria" href="#tabs-1">List</a> </li>
+        </ul>
+        <div id="tabs-1" class="vendorMaintenanaceDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    
+    var tabObject = null;
+    $(function () {
+
+        if (typeof (Microsoft) != "undefined") {
+            //KS: Load the new BING Theme
+            //Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', { callback: themesModuleLoaded });
+        }
+        else {
+            LogBingMapServiceDown();
+            openAlertMessage("We are experiencing issues while loading BING API, therefore the Map functions might not work as expected.");
+        }
+
+        tabObject = $("#VendorManagementTab").tabs({
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+        GetSearchCriteria();
+    });
+
+    function DeleteTab(suffixVendorID) {
+        // Sanghi In newer versions of jQueryUI (1.9 +) use active instead of selected to get the active index of tab.
+        var activeIndex = tabObject.tabs('option', 'selected');
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                tabObject.tabs('remove', activeIndex);
+                tabObject.tabs('refresh');
+                tabObject.tabs('select', 0);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            tabObject.tabs('remove', activeIndex);
+            tabObject.tabs('refresh');
+            tabObject.tabs('select', 0);
+        }
+    }
+
+    function MergeVendor(vendorID) {
+        var message = "Are you sure to merge this vendor with another vendor?";
+        $.modal.confirm(message, function () {
+            window.location = '/VendorManagement/VendorMerge?vendorID=' + vendorID;
+        }, function () {
+            return false;
+        });
+    }
+
+    function LoadVendorSumamryInformation(mode, recordId, vendorNumber, vendorName) {
+        
+        var nameToCheck = "";
+        if (vendorNumber != null) {
+            nameToCheck = vendorNumber;  
+        }
+        else {
+            nameToCheck = vendorName.substr(0, 20);
+        }
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#VendorManagementTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTabForVendorSummary(nameToCheck, vendorNumber, vendorName, recordId);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+
+    function addTabForVendorSummary(tabTitle, vendorNumber, vendorName, vendorID) {
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + vendorName + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+        var numOfTabs = tabCounter - 1;
+
+        var lastTabId = $($("#VendorManagementTab").find(".vendorMaintenanaceDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+        console.log("Next tab index : " + newTabId);
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_VendorSummary", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { vendorID: vendorID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").first().append(li);
+                tabObject.append("<div id='" + id + "' class='ui-tabs-panel vendorMaintenanaceDynamicTabs ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+    function LoadVendorInformation(mode, recordId, vendorNumber, vendorName) {
+        var nameToCheck = "";
+        if (vendorNumber != null) {
+            nameToCheck = vendorNumber;  
+        }
+        else {
+            nameToCheck = vendorName.substr(0, 20); 
+        }
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#VendorManagementTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTab(nameToCheck, vendorNumber, vendorName, recordId);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+
+    function addTab(tabTitle, vendorNumber, vendorName, vendorID) {
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + vendorName + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+        var numOfTabs = tabCounter - 1;
+
+        var lastTabId = $($("#VendorManagementTab").find(".vendorMaintenanaceDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+        console.log("Next tab index : " + newTabId);
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_VendorDetails", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { vendorID: vendorID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").first().append(li);
+                tabObject.append("<div id='" + id + "' class='ui-tabs-panel vendorMaintenanaceDynamicTabs ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+    function ManageVendorVendorPO(e, suffixVendorID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var poID = grid.dataItem($(e.currentTarget).closest("tr")).PurchaseOrderID;
+            var poNumber = grid.dataItem($(e.currentTarget).closest("tr")).PurchaseOrderNumber;
+            var poStatus = grid.dataItem($(e.currentTarget).closest("tr")).Status;
+            if (e.data.commandName == 'View') {
+                AddPOTab(poID, poNumber, 'view')
+            }
+            else if (e.data.commandName == 'Edit') {
+                if (poStatus == "Cancelled") {
+                    isAjaxRequestRequired = false;
+                    openAlertMessage("This PO cannot be edited.");
+                }
+                else {
+                    AddPOTab(poID, poNumber, 'edit')
+                }
+            }
+
+        }
+        return false;
+    }
+    function AddPOTab(poID, poNumber, mode) {
+        if (poNumber == undefined) {
+            poNumber = '';
+        }
+        var tabTitle = 'View';
+        if (mode == 'edit') {
+            tabTitle = 'Edit';
+        }
+        var nameToCheck = "PO(" + poID.toString() + ")" + poNumber.toString();
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#VendorManagementTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTabForPo(nameToCheck, poID, nameToCheck, mode);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+
+    function addTabForPo(tabTitle, recordID, nameToCheck, mode) {
+        if (tabObject == null) {
+            openAlertMessage('Unable to find Container to add new tab');
+        }
+        else {
+            // Step 1: Veirfy that Current Tab is not added
+
+            if (canAddGenericTabInCurrentContainer(tabTitle, tabObject)) {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("PODetails", "History", new { area = "Application" })',
+                    traditional: true,
+                    data: { poId: recordID, pageMode: mode },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        addGenericTabWithCurrentContainer(tabTitle, tabObject, msg);
+                    }
+                });
+            }
+        }
+
+    }
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "VendorHome")',
+            type: 'POST',
+            data: GetVendorSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulVendorSearchCriteria').html(msg);
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "VendorHome")',
+            type: 'POST',
+            data: GetVendorSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#vendorSelectedSearchCriteria').html(msg);
+                $('#GrdVenodors').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+
+    function fnPanelCollapseVendorServices(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+    }
+
+    function fnPanelExpandVendorSevices(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+
+    }
+
+    function GetVendorSearchCriteria() {
+        var postData = $('#frmVendorSearchCriteria').serializeArray();
+
+        if ($('#VendorNameOperator').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VendorNameOperatorValue", value: $('#VendorNameOperator').data('kendoComboBox').text() });
+        }
+        if ($('#StateProvinceID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "StateProvince", value: $('#StateProvinceID').data('kendoComboBox').text() });
+        }
+        if ($('#CountryID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "Country", value: $('#CountryID').data('kendoComboBox').text() });
+        }
+        // Get the grid object
+        var grid = $("#GrdVenodors").data("kendoGrid");
+        // Get the datasource bound to the grid
+        var ds = grid.dataSource;
+        // Get current sorting
+        var sort = ds.sort();
+        // Display sorting fields and direction
+        if (sort && sort.length > 0) {
+            var propCounter = 0;
+            for (var i = 0, l = postData.length; i < l; i++) {
+                if (postData[i].name == "GridSortColumnName") {
+                    postData[i].value = sort[0].field;
+                    propCounter++;
+                }
+                if (postData[i].name == "GridSortOrder") {
+                    postData[i].value = sort[0].dir;
+                    propCounter++;
+                }
+                if (propCounter == 2) {
+                    break;
+                }
+            }
+        }
+        if ($('#VendorSearchViewID') != undefined) {
+            var value = parseInt($('#VendorSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function SwitchBetweenVendorORVendorLocation(vendorID, locationValue) {
+
+        //Clear Dirty Flag
+        $('#frmVendorContainerForDirtyFlag_' + vendorID).attr('data', 'false');
+
+        // IF Location Value is 0 means Load Vendor Tab
+        // ELSE Load Vendor Location Tabs
+
+        if (locationValue == "0" || locationValue == undefined || locationValue == null || locationValue == 0) {
+            $.ajax({
+                url: '@Url.Action("_VendorTabs", "VendorHome", new { area = "VendorManagement" })',
+                data: { vendorID: vendorID },
+                success: function (msg) {
+                    $('#VendorContainer_' + vendorID).html(msg);
+                }
+            });
+        }
+        else if (locationValue != "0") {
+            $.ajax({
+                url: '@Url.Action("_VendorLocationTabs", "VendorHome", new { area = "VendorManagement" })',
+                data: { vendorID: vendorID, vendorLocationID: locationValue },
+                success: function (msg) {
+                    $('#VendorContainer_' + vendorID).html(msg);
+                }
+            });
+        }
+    }
+
+    function HandleCountryComboChange(sourceDropDown, targetDropDown) {
+        var combo = $("#" + sourceDropDown).data("kendoComboBox");
+        var comboChild = $("#" + targetDropDown).data("kendoComboBox");
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }
+    }
+
+    function HandleCountryChange(e, targetDropDown) {
+
+        var combo = e.sender;
+        var comboChild = $("#" + targetDropDown).data("kendoComboBox");
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+        
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                data: { countryId: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+                    SetFocusOnField(targetDropDown);
+                }
+
+            });
+        }
+        else {
+            ResetCombo(comboChild);
+        }
+    }
+
+    function CascadeStateFromCountryAndSetValue(suffixVendorID, stateID) {
+        var countryCombo = $('#LocationCountry_' + suffixVendorID).data('kendoComboBox'); ;
+        var stateCombo = $('#LocationState_' + suffixVendorID).data('kendoComboBox');
+        $.ajax({
+            type: 'POST',
+            url: '/Common/ReferenceData/StateProvinceRelatedToCountry',
+            traditional: true,
+            data: { countryId: countryCombo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                stateCombo.setDataSource(msg);
+                stateCombo.value(stateID);
+            }
+        });
+    }
+
+    function HandleLocationListChange(e, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVendorLocationAddress", "VendorHome", new { area = "VendorManagement" })',
+                data: { vendorLocationID: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        var lca = msg.Data;
+                        $("#LocationAddress1_" + suffixVendorID + "").val(lca.LocationAddress1);
+                        $("#LocationAddress2_" + suffixVendorID + "").val(lca.LocationAddress2);
+                        $("#LocationAddress3_" + suffixVendorID + "").val(lca.LocationAddress3);
+                        $("#LocationCity_" + suffixVendorID + "").val(lca.LocationCity);
+                        //                        $("#LocationName_" + suffixVendorID + "").val(lca.LocationName);
+                        $("#LocationPostalCode_" + suffixVendorID + "").val(lca.LocationPostalCode);
+                        if (lca.LocationDispatchNumber != null && lca.LocationDispatchNumber != undefined && lca.LocationDispatchNumber != "") {
+                            SetPhoneValues("#LocationDispatchNumber_" + suffixVendorID, "+" + lca.LocationDispatchNumber, false);
+                        }
+                        if (lca.LocationFaxNumber != null && lca.LocationFaxNumber != undefined && lca.LocationFaxNumber != "") {
+                            SetPhoneValues("#LocationFaxNumber_" + suffixVendorID, "+" + lca.LocationFaxNumber, false);
+                        }
+                        $("#LocationCountry_" + suffixVendorID).data('kendoComboBox').value(lca.LocationCountry);
+
+                        CascadeStateFromCountryAndSetValue(suffixVendorID, lca.LocationState);
+                        //$("#LocationCountry_" + suffixVendorID).data('kendoComboBox').trigger('change');
+                        //$("#LocationState_" + suffixVendorID).data('kendoComboBox').value(lca.LocationState);
+
+
+                        /*$("#LocationState_" + suffixVendorID).data('kendoComboBox').trigger('change');
+                        setTimeout(function () {
+                        $("#LocationState_" + suffixVendorID).data('kendoComboBox').text(lca.LocationStateValue);
+                        }, 400);*/
+                    }
+                }
+            });
+        }
+        else {
+            $("#LocationAddress1_" + suffixVendorID + "").val('');
+            $("#LocationAddress2_" + suffixVendorID + "").val('');
+            $("#LocationAddress3_" + suffixVendorID + "").val('');
+            $("#LocationCity_" + suffixVendorID + "").val('');
+            //            $("#LocationName_" + suffixVendorID + "").val('');
+            $("#LocationPostalCode_" + suffixVendorID + "").val('');
+
+            $("#LocationCountry_" + suffixVendorID).data('kendoComboBox').value('');
+            $("#LocationCountry_" + suffixVendorID).data('kendoComboBox').text('');
+            $("#LocationCountry_" + suffixVendorID).data('kendoComboBox').trigger('change');
+
+            $("#LocationState_" + suffixVendorID).data('kendoComboBox').value('');
+            $("#LocationState_" + suffixVendorID).data('kendoComboBox').text('');
+            $("#LocationState_" + suffixVendorID).data('kendoComboBox').trigger('change');
+
+            SetPhoneValues("#LocationFaxNumber_" + suffixVendorID, "+", false);
+            SetPhoneValues("#LocationDispatchNumber_" + suffixVendorID, "+", false);
+        }
+    }
+
+    function CancelAddVendorLocation(sender, vendorID) {
+
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + vendorID)) {
+            var message = "Changes have not been saved; Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                var formElement = "#frmAddVendorLocation_" + vendorID;
+                $(formElement).validationEngine('hideAll');
+                $("#divAddVendorLocation_" + vendorID).hide();
+                $("#divVendorLocationsTab_" + vendorID).show();
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + vendorID);
+
+            }, function () {
+
+            });
+        }
+        else {
+            var formElement = "#frmAddVendorLocation_" + vendorID;
+            $(formElement).validationEngine('hideAll');
+            $("#divAddVendorLocation_" + vendorID).hide();
+            $("#divVendorLocationsTab_" + vendorID).show();
+        }
+    }
+
+    function BindVendorLocations(vendorID, val) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("BindVendorLocations", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: { vendorID: vendorID },
+            success: function (msg) {
+                var vlCombo = $("#VendorLocationID" + vendorID).data('kendoComboBox');
+                vlCombo.setDataSource(msg);
+                if (val != null) {
+                    vlCombo.value(val);
+                    vlCombo.trigger('change');
+                }
+
+
+            }
+        });
+    }
+
+    function SaveAddVendorLocation(sender, vendorID, isEdit) {
+
+        var formElement = "#frmAddVendorLocation_" + vendorID;
+        var errorfound = false;
+        if ($(formElement).validationEngine("validate") == false) {
+            errorfound = true;
+        }
+        var countryCombo = "LocationCountry_" + vendorID;
+        var country = $("#" + countryCombo).data('kendoComboBox').value();
+        if ($.trim(country).length == 0) {
+            ShowValidationMessage($('input[name= "' + countryCombo + '_input"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + countryCombo + '_input"]'));
+        }
+
+        var stateCombo = "LocationState_" + vendorID;
+        var state = $("#" + stateCombo).data('kendoComboBox').value();
+        if ($.trim(state).length == 0) {
+            ShowValidationMessage($('input[name= "' + stateCombo + '_input"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + stateCombo + '_input"]'));
+        }
+
+        if (errorfound == true) {
+            return false;
+        }
+        var formData = $("#frmAddVendorLocation_" + vendorID + "").serializeArray();
+        formData.push({ name: "LocationAddress1", value: $("#LocationAddress1_" + vendorID + "").val() });
+        formData.push({ name: "LocationAddress2", value: $("#LocationAddress2_" + vendorID + "").val() });
+        formData.push({ name: "LocationAddress3", value: $("#LocationAddress3_" + vendorID + "").val() });
+        //        formData.push({ name: "LocationName", value: $("#LocationName_" + vendorID + "").val() });
+        formData.push({ name: "LocationCity", value: $("#LocationCity_" + vendorID + "").val() });
+        formData.push({ name: "LocationPostalCode", value: $("#LocationPostalCode_" + vendorID + "").val() });
+        formData.push({ name: "LocationDispatchNumber", value: GetPhoneNumberForDB("LocationDispatchNumber_" + vendorID + "") });
+        formData.push({ name: "LocationFaxNumber", value: GetPhoneNumberForDB("LocationFaxNumber_" + vendorID + "") });
+        formData.push({ name: "LocationCountryValue", value: $("#LocationCountry_" + vendorID + "").data('kendoComboBox').text() });
+        formData.push({ name: "LocationStateValue", value: $("#LocationState_" + vendorID + "").data('kendoComboBox').text() });
+        formData.push({ name: "LocationCountry", value: $("#LocationCountry_" + vendorID + "").data('kendoComboBox').value() });
+        formData.push({ name: "LocationState", value: $("#LocationState_" + vendorID + "").data('kendoComboBox').value() });
+        formData.push({ name: "VendorID", value: vendorID });
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorLocation", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: formData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    var dirtyFlagContainer = $('#frmVendorContainerForDirtyFlag_' + vendorID);
+                    dirtyFlagContainer.attr("data", "false");
+                    openAlertMessage('Location Added Successfully');
+
+                    $("#GrdVendorLocations_" + vendorID).data('kendoGrid').dataSource.read();
+                    $("#divAddVendorLocation_" + vendorID).hide();
+                    $("#divVendorLocationsTab_" + vendorID).show();
+                    if (isEdit) {
+                        BindVendorLocations(vendorID, msg.Data);
+                    }
+                    else {
+                        BindVendorLocations(vendorID);
+                    }
+                }
+            }
+        });         // end of ajax
+
+    }
+
+    function ManageVendorLocations(e, suffixVendorID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).VendorLocation;
+
+            if (e.data.commandName == 'Edit') {
+                EditVendorLocations(recordID, suffixVendorID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteVendorLocations(recordID, suffixVendorID);
+            }
+        }
+        else {
+            AddVendorLocations(recordID, suffixVendorID);
+        }
+        return false;
+    }
+
+    function DeleteVendorLocations(recordID, suffixVendorID) {
+
+        $.modal.confirm('Are you sure you want to delete this Vendor Location?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DeleteVendorLocation", "VendorHome")',
+                traditional: true,
+                cache: false,
+                data: { vendorLocationID: recordID },
+                async: false,
+                success: function (msg) {
+                    $("#GrdVendorLocations_" + suffixVendorID).data('kendoGrid').dataSource.read();
+                    openAlertMessage('Vendor Location has been deleted successfully');
+                    BindVendorLocations(suffixVendorID);
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function EditVendorLocations(recordID, suffixVendorID) {
+        $("#VendorLocationID" + suffixVendorID).data('kendoComboBox').value(recordID);
+        $("#VendorLocationID" + suffixVendorID).data('kendoComboBox').trigger('change');
+    }
+
+    function AddVendorLocations(recordID, suffixVendorID) {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("AddVendorLocation", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { VendorID: suffixVendorID },
+            success: function (msg) {
+                $("#divAddVendorLocation_" + suffixVendorID + "").html(msg);
+                $("#divAddVendorLocation_" + suffixVendorID + "").show();
+                $("#divVendorLocationsTab_" + suffixVendorID + "").hide();
+            }
+        });
+    }
+
+    function ApplyMaskingforVendorInfoSection(vendorID) {
+        var taxIDElement = "#TaxEIN_" + vendorID;
+        var taxSSNElement = "#TaxSSN_" + vendorID;
+
+        $(taxIDElement).mask("99-9999999");
+        $(taxSSNElement).mask("999-99-9999");
+    }
+
+    function GetTextFromComboBoxByItsValue(value, e) {
+        var comboReference = e.sender;
+        var comboText = "";
+        var datasource = comboReference.dataSource._data;
+        for (i = 0; i < datasource.length; i++) {
+            if (datasource[i].Value == value) {
+                comboText = "<strong>" + datasource[i].Text + "</strong>";
+            }
+        }
+
+        return comboText;
+    }
+
+    function HandleVendorLocationDropDown(e, suffixVendorID) {
+        var oldSelectionElement = $('#VendorLocationIDPreviousValue_' + suffixVendorID);
+        var oldSelectionElementValue = oldSelectionElement.val();
+        var oldSelectionElementText = GetTextFromComboBoxByItsValue(oldSelectionElementValue, e);
+        var combo = e.sender;
+        //var comboDataSource = combo.datasource.view();
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes for " + oldSelectionElementText + " have not been saved; if you continue you will lose your changes.Click Confirm to continue and lose your changes or click Cancel to stay on this location"
+            $.modal.confirm(message, function () {
+                var comboValue = combo.value();
+                oldSelectionElement.val(comboValue);
+                SwitchBetweenVendorORVendorLocation(suffixVendorID, comboValue);
+
+            }, function () {
+                combo.value(oldSelectionElementValue);
+            });
+        }
+        else {
+            var comboValue = combo.value();
+            oldSelectionElement.val(comboValue);
+            SwitchBetweenVendorORVendorLocation(suffixVendorID, comboValue);
+        }
+
+    }
+
+
+    function openAddVendorActivityCommentWindow(sender, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                $("#CommentType_" + suffixVendorID).data('kendoComboBox').select(0);
+                $("#Comments_" + suffixVendorID).val(' ');
+                $("#divAddVendorActivityContact_" + suffixVendorID).hide();
+                $("#divAddVendorActivityComment_" + suffixVendorID).show();
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddVendorActivityContact_" + suffixVendorID).hide();
+            $("#divAddVendorActivityComment_" + suffixVendorID).show();
+        }
+    }
+
+    function closeAddVendorActivityCommentWindow(sender, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                $("#CommentType_" + suffixVendorID).data('kendoComboBox').select(0);
+                $("#Comments_" + suffixVendorID).val(' ');
+                $("#divAddVendorActivityComment_" + suffixVendorID).hide();
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddVendorActivityComment_" + suffixVendorID).hide();
+        }
+    }
+
+    function saveAddVendorActivityComments(sender, suffixVendorID) {
+        CleanMyContainer("formAddVendorActivityComment_" + suffixVendorID);
+        var errorFound = false;
+        if ($("#formAddVendorActivityComment_" + suffixVendorID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+        var combo = $("#CommentType_" + suffixVendorID).data('kendoComboBox');
+
+        var ComboInput = "CommentType_" + suffixVendorID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+
+        var Comments = $("#Comments_" + suffixVendorID).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorActivityComments", "VendorHome", new { area = "VendorManagement" })',
+            data: { CommentType: combo.value(), Comments: Comments, vendorID: suffixVendorID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    openAlertMessage("Comment Added Successfully");
+                    $("#CommentType_" + suffixVendorID).data('kendoComboBox').select(0);
+                    $("#Comments_" + suffixVendorID).val(' ');
+                    $("#divAddVendorActivityComment_" + suffixVendorID).hide();
+                    $("#GrdVendorActivity_" + suffixVendorID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+        });
+        return false;
+    }
+
+    function openAddVendorActivityContactWindow(sender, suffixVendorID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Vendor_Activity_AddContact", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { vendorID: suffixVendorID },
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+                    var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+                    $.modal.confirm(message, function () {
+                        CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                        ClearValidationMessages();
+                        $("#divAddVendorActivityContact_" + suffixVendorID).html(msg);
+                        $("#divAddVendorActivityContact_" + suffixVendorID).show();
+                        $("#divAddVendorActivityComment_" + suffixVendorID).hide();
+
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    ClearValidationMessages();
+                    $("#divAddVendorActivityContact_" + suffixVendorID).html(msg);
+                    $("#divAddVendorActivityContact_" + suffixVendorID).show();
+                    $("#divAddVendorActivityComment_" + suffixVendorID).hide();
+                }
+
+            }
+        });
+
+    }
+
+    function HandleVendorActivityContactMethodChange(e, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        ClearValidationMessages();
+        var ContactMethodValue = combo.text();
+        if (ContactMethodValue == "Phone" || ContactMethodValue == "Text" || ContactMethodValue == "Fax" || ContactMethodValue == "IVR" || ContactMethodValue == "Verbally") {
+            $("#divVendorActivityAddContactMethodPhone_" + suffixVendorID).show();
+            $("#divVendorActivityAddContactMethodEmail_" + suffixVendorID).hide();
+        }
+        else if (ContactMethodValue == "Email" || ContactMethodValue == "Mail") {
+            $("#divVendorActivityAddContactMethodEmail_" + suffixVendorID).show();
+            $("#divVendorActivityAddContactMethodPhone_" + suffixVendorID).hide();
+        }
+        else {
+            $("#divVendorActivityAddContactMethodEmail_" + suffixVendorID).hide();
+            $("#divVendorActivityAddContactMethodPhone_" + suffixVendorID).hide();
+        }
+
+    }
+
+    function HandleVendorContactCategoryChange(e, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var contactCategoryID = combo.value();
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixVendorID).data("kendoMultiSelect");
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixVendorID).data("kendoMultiSelect");
+        contactReasonMultiSelect.value('');
+        contactActionMultiSelect.value('');
+        if (contactCategoryID != null && contactCategoryID != undefined && contactCategoryID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContactActionsAndReasonsForCategory", "Member", new { area = "MemberManagement" })',
+                data: { contactCategoryID: contactCategoryID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        contactReasonMultiSelect.setDataSource(msg.Data.contactReason);
+                        contactActionMultiSelect.setDataSource(msg.Data.contactAction);
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "ContactCategory_" + suffixMemberID + "_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            contactReasonMultiSelect.setDataSource([]);
+            contactActionMultiSelect.setDataSource([]);
+        }
+    }
+
+    function closeAddVendorActivityContactWindow(sender, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                ClearValidationMessages();
+                $("#divAddVendorActivityContact_" + suffixVendorID).hide();
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddVendorActivityContact_" + suffixVendorID).hide();
+        }
+
+    }
+
+    function saveAddVendorActivityContact(sender, suffixVendorID) {
+
+        var errorFound = false;
+        if ($("#formAddVendorActivityContact_" + suffixVendorID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var contactCategoryCombo = $("#ContactCategory_" + suffixVendorID).data('kendoComboBox');
+        var contactCategoryComboInput = "ContactCategory_" + suffixVendorID + "_input";
+        if ($.trim(contactCategoryCombo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + contactCategoryComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + contactCategoryComboInput + ']'));
+        }
+
+        var combo = $("#ContactMethod_" + suffixVendorID).data('kendoComboBox');
+
+        var ComboInput = "ContactMethod_" + suffixVendorID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixVendorID).data("kendoMultiSelect");
+        var contactReasonMultiSelectInput = "#ContactReasonID_" + suffixVendorID + "_taglist";
+
+        if (contactReasonMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+            ShowValidationMessage($(contactReasonMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+        }
+
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixVendorID).data("kendoMultiSelect");
+        var contactActionMultiSelectInput = "#ContactActionID_" + suffixVendorID + "_taglist";
+
+        if (contactActionMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactActionMultiSelectInput));
+            ShowValidationMessage($(contactActionMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactActionMultiSelectInput));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+        var formData = $("#formAddVendorActivityContact_" + suffixVendorID).serializeArray();
+
+        formData.push({ name: "ContactMethod", value: combo.value() });
+        formData.push({ name: "ContactMethodValue", value: combo.text() });
+
+        formData.push({ name: "ContactCategory", value: contactCategoryCombo.value() });
+        formData.push({ name: "ContactCategoryValue", value: contactCategoryCombo.text() });
+
+        formData.push({ name: "Email", value: $("#Email_Activity_" + suffixVendorID).val() });
+        formData.push({ name: "TalkedTo", value: $("#TalkedTo__Activity_" + suffixVendorID).val() });
+        formData.push({ name: "Notes", value: $("#Notes_" + suffixVendorID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("PhoneNumber_Activity_" + suffixVendorID) });
+
+        var phoneNumberTypeID = $("#PhoneNumber_Activity_" + suffixVendorID + "_ddlPhoneType").val();
+        formData.push({ name: "PhoneNumberType", value: phoneNumberTypeID });
+
+        formData.push({ name: "VendorID", value: suffixVendorID });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorActivityContact", "VendorHome", new { area = "VendorManagement" })',
+            data: formData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    openAlertMessage("Contact Added Successfully");
+                    $("#divAddVendorActivityContact_" + suffixVendorID).hide();
+                    $("#GrdVendorActivity_" + suffixVendorID).data('kendoGrid').dataSource.read();
+                }
+            }
+        });
+        return false;
+    }
+
+    function openAddVendorLocationActivityCommentWindow(sender, suffixVendorLocationID, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).hide();
+                $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).show();
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                ClearValidationMessages();
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).hide();
+            $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).show();
+        }
+    }
+
+    function closeAddVendorLocationActivityCommentWindow(sender, suffixVendorLocationID, suffixVendorID) {
+        $("#formAddVendorLocationActivityComment_" + suffixVendorLocationID).validationEngine('hideAll')
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?"
+            $.modal.confirm(message, function () {
+                $("#VLCommentType_" + suffixVendorLocationID).data('kendoComboBox').select(0);
+                $("#VLComments_" + suffixVendorLocationID).val(' ');
+
+                $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).hide();
+                CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).hide();
+        }
+
+    }
+
+    function saveAddVendorLocationActivityComments(sender, suffixVendorLocationID, suffixVendorID) {
+
+        var errorFound = false;
+        if ($("#formAddVendorLocationActivityComment_" + suffixVendorLocationID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var combo = $("#VLCommentType_" + suffixVendorLocationID).data('kendoComboBox');
+
+        var ComboInput = "VLCommentType_" + suffixVendorLocationID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+
+        var Comments = $("#VLComments_" + suffixVendorLocationID).val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorLocationActivityComments", "VendorHome", new { area = "VendorManagement" })',
+            data: { CommentType: combo.value(), Comments: Comments, vendorLocationID: suffixVendorLocationID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    openAlertMessage("Comment Added Successfully");
+
+                    $("#VLCommentType_" + suffixVendorLocationID).data('kendoComboBox').select(0);
+                    $("#VLComments_" + suffixVendorLocationID).val(' ');
+
+                    $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).hide();
+                    $("#GrdVendorLocationActivity_" + suffixVendorLocationID).data('kendoGrid').dataSource.read();
+                    return false;
+                }
+            }
+
+        });
+        return false;
+    }
+
+    //NP : Vendor Location Activity Add Contact Start here
+    function openAddVendorLocationActivityContactWindow(sender, suffixVendorLocationID, suffixVendorID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Vendor_Location_Activity_AddContact", "VendorHome", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { vendorID: suffixVendorID, vendorLocationID: suffixVendorLocationID },
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+                    var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+                    $.modal.confirm(message, function () {
+                        CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                        ClearValidationMessages();
+                        $("#VLCommentType_" + suffixVendorLocationID).data('kendoComboBox').select(0);
+                        $("#VLComments_" + suffixVendorLocationID).val(' ');
+
+                        $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).html(msg);
+                        $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).show();
+                        $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).hide();
+
+                    }, function () {
+                        return false;
+                    });
+                }
+                else {
+                    ClearValidationMessages();
+                    $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).html(msg);
+                    $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).show();
+                    $("#divAddVendorLocationActivityComment_" + suffixVendorLocationID).hide();
+                }
+
+            }
+        });
+
+    }
+
+    function HandleVendorLocationActivityContactMethodChange(e, suffixVendorLocationID, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        ClearValidationMessages();
+        var ContactMethodValue = combo.text();
+        if (ContactMethodValue == "Phone" || ContactMethodValue == "Text" || ContactMethodValue == "Fax" || ContactMethodValue == "IVR" || ContactMethodValue == "Verbally") {
+            $("#divVendorLocationActivityAddContactMethodPhone_" + suffixVendorLocationID).show();
+            $("#divVendorLocationActivityAddContactMethodEmail_" + suffixVendorLocationID).hide();
+        }
+        else if (ContactMethodValue == "Email" || ContactMethodValue == "Mail") {
+            $("#divVendorLocationActivityAddContactMethodEmail_" + suffixVendorLocationID).show();
+            $("#divVendorLocationActivityAddContactMethodPhone_" + suffixVendorLocationID).hide();
+        }
+        else {
+            $("#divVendorLocationActivityAddContactMethodEmail_" + suffixVendorLocationID).hide();
+            $("#divVendorLocationActivityAddContactMethodPhone_" + suffixVendorLocationID).hide();
+        }
+
+    }
+
+    function HandleVendorLocationContactCategoryChange(e, suffixVendorLocationID, suffixVendorID) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+            return false;
+        }
+        var contactCategoryID = combo.value();
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixVendorLocationID).data("kendoMultiSelect");
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixVendorLocationID).data("kendoMultiSelect");
+        contactReasonMultiSelect.value('');
+        contactActionMultiSelect.value('');
+        if (contactCategoryID != null && contactCategoryID != undefined && contactCategoryID > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContactActionsAndReasonsForCategory", "Member", new { area = "MemberManagement" })',
+                data: { contactCategoryID: contactCategoryID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        contactReasonMultiSelect.setDataSource(msg.Data.contactReason);
+                        contactActionMultiSelect.setDataSource(msg.Data.contactAction);
+                    }
+                    else if (msg.Status == "Failure") {
+                        var ComboInput = "ContactCategory_" + suffixVendorLocationID + "_input";
+                        ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+                    }
+                }
+            });
+        }
+        else {
+            contactReasonMultiSelect.setDataSource([]);
+            contactActionMultiSelect.setDataSource([]);
+        }
+    }
+
+    function closeAddVendorLocationActivityContactWindow(sender, suffixVendorLocationID, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                ClearValidationMessages();
+                $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).hide();
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            ClearValidationMessages();
+            $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).hide();
+        }
+
+    }
+
+    function saveAddVendorLocationActivityContact(sender, suffixVendorLocationID, suffixVendorID) {
+
+        var errorFound = false;
+        if ($("#formAddVendorLocationActivityContact_" + suffixVendorLocationID).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        var contactCategoryCombo = $("#ContactCategory_" + suffixVendorLocationID).data('kendoComboBox');
+        var contactCategoryComboInput = "ContactCategory_" + suffixVendorLocationID + "_input";
+        if ($.trim(contactCategoryCombo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + contactCategoryComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + contactCategoryComboInput + ']'));
+        }
+
+        var combo = $("#ContactMethod_" + suffixVendorLocationID).data('kendoComboBox');
+
+        var ComboInput = "ContactMethod_" + suffixVendorLocationID + "_input";
+
+        if ($.trim(combo.value()).length == 0) {
+            ShowValidationMessage($('input[name=' + ComboInput + ']'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name=' + ComboInput + ']'));
+        }
+
+        var contactReasonMultiSelect = $("#ContactReasonID_" + suffixVendorLocationID).data("kendoMultiSelect");
+        var contactReasonMultiSelectInput = "#ContactReasonID_" + suffixVendorLocationID + "_taglist";
+
+        if (contactReasonMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+            ShowValidationMessage($(contactReasonMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactReasonMultiSelectInput));
+        }
+
+        var contactActionMultiSelect = $("#ContactActionID_" + suffixVendorLocationID).data("kendoMultiSelect");
+        var contactActionMultiSelectInput = "#ContactActionID_" + suffixVendorLocationID + "_taglist";
+
+        if (contactActionMultiSelect.value().length == 0) {
+            HideValidationMessage($(contactActionMultiSelectInput));
+            ShowValidationMessage($(contactActionMultiSelectInput), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($(contactActionMultiSelectInput));
+        }
+
+        if (errorFound == true) {
+            return false;
+        }
+        var formData = $("#formAddVendorLocationActivityContact_" + suffixVendorLocationID).serializeArray();
+
+        formData.push({ name: "ContactMethod", value: combo.value() });
+        formData.push({ name: "ContactMethodValue", value: combo.text() });
+
+        formData.push({ name: "ContactCategory", value: contactCategoryCombo.value() });
+        formData.push({ name: "ContactCategoryValue", value: contactCategoryCombo.text() });
+
+        formData.push({ name: "Email", value: $("#Email_Activity_" + suffixVendorLocationID).val() });
+        formData.push({ name: "TalkedTo", value: $("#TalkedTo__Activity_" + suffixVendorLocationID).val() });
+        formData.push({ name: "Notes", value: $("#Notes_" + suffixVendorLocationID).val() });
+        formData.push({ name: "PhoneNumber", value: GetPhoneNumberForDB("PhoneNumber_Activity_" + suffixVendorLocationID) });
+
+        var phoneNumberTypeID = $("#PhoneNumber_Activity_" + suffixVendorLocationID + "_ddlPhoneType").val();
+        formData.push({ name: "PhoneNumberType", value: phoneNumberTypeID });
+
+        formData.push({ name: "VendorID", value: suffixVendorID });
+        formData.push({ name: "VendorLocationID", value: suffixVendorLocationID });
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorLocationActivityContact", "VendorHome", new { area = "VendorManagement" })',
+            data: formData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    openAlertMessage("Contact Added Successfully");
+                    $("#divAddVendorLocationActivityContact_" + suffixVendorLocationID).hide();
+                    $("#GrdVendorLocationActivity_" + suffixVendorLocationID).data('kendoGrid').dataSource.read();
+                }
+            }
+        });
+        return false;
+    }
+
+    //NP : Vendor Location Activity Add Contact Ends here
+
+    function SaveVendorServices(sender, suffixVendorID) {
+        var postData = $("#frmVendorServices_" + suffixVendorID).serializeArray();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorServices", "VendorHome", new { area = "VendorManagement" })',
+            data: postData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Vendor Services Saved");
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    //Refresh the page 
+                    $('#VendorDetailsTab_' + suffixVendorID).tabs('load', 2);
+                }
+                else {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+            }
+        });
+    }
+
+    function CancelVendorServices(sender, suffixVendorID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                $('#VendorDetailsTab_' + suffixVendorID).tabs('load', 2);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $('#VendorDetailsTab_' + suffixVendorID).tabs('load', 2);
+        }
+    }
+
+    function SaveVendorLocationServices(sender, suffixVendorID, suffixVendorLocationID) {
+        var postData = $("#frmVendorLocationServices_" + suffixVendorID).serializeArray();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorLocationServices", "VendorHome", new { area = "VendorManagement" })',
+            data: postData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Vendor Services Saved");
+                    // Once the values save to DB Set page to No Dirty and Hide the Buttons
+                    CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                    //Refresh the page 
+                    $('#VendorLocationDetails_' + suffixVendorLocationID).tabs('load', 2);
+                }
+                else {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+            }
+        });
+    }
+
+    function CancelVendorLocationServices(sender, suffixVendorID, suffixVendorLocationID) {
+        if (IsMyContainerDirty("frmVendorContainerForDirtyFlag_" + suffixVendorID)) {
+            var message = "Changes will not be saved. Do you want to continue and lose the changes?";
+            $.modal.confirm(message, function () {
+                CleanMyContainer("frmVendorContainerForDirtyFlag_" + suffixVendorID);
+                $('#VendorLocationDetails_' + suffixVendorLocationID).tabs('load', 2);
+
+            }, function () {
+                return false;
+            });
+        }
+        else {
+            $('#VendorLocationDetails_' + suffixVendorLocationID).tabs('load', 2);
+        }
+    }
+
+    function ManageVendorContracts(e, suffixVendorID, grid) {
+        if (IsMyContainerDirty('frmVendorContainerForDirtyFlag_' + suffixVendorID)) {
+            $.modal.confirm("Do you want save the current changes?", function () {
+                $("#btnSaveVendorContractSection_" + suffixVendorID).click();
+                setTimeout(function () {
+                    if (e != null) {
+                        e.preventDefault();
+                        var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+                        if (e.data.commandName == 'Edit') {
+                            GetVendorContracts(recordID, suffixVendorID, "Edit");
+                        }
+                        else if (e.data.commandName == 'View') {
+                            GetVendorContracts(recordID, suffixVendorID, "View");
+                        }
+                        else if (e.data.commandName == 'Delete') {
+                            DeleteVendorContracts(recordID, suffixVendorID);
+                        }
+                    }
+                    else {
+                        GetVendorContracts("0", suffixVendorID, "Add");
+                    }
+                }, 1500);
+            }, function () {
+                CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+                if (e != null) {
+                    e.preventDefault();
+                    var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+                    if (e.data.commandName == 'Edit') {
+                        GetVendorContracts(recordID, suffixVendorID, "Edit");
+                    }
+                    else if (e.data.commandName == 'View') {
+                        GetVendorContracts(recordID, suffixVendorID, "View");
+                    }
+                    else if (e.data.commandName == 'Delete') {
+                        DeleteVendorContracts(recordID, suffixVendorID);
+                    }
+                }
+                else {
+                    GetVendorContracts("0", suffixVendorID, "Add");
+                }
+            });
+        }
+        else {
+            if (e != null) {
+                e.preventDefault();
+                var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+                if (e.data.commandName == 'Edit') {
+                    GetVendorContracts(recordID, suffixVendorID, "Edit");
+                }
+                else if (e.data.commandName == 'View') {
+                    GetVendorContracts(recordID, suffixVendorID, "View");
+                }
+                else if (e.data.commandName == 'Delete') {
+                    DeleteVendorContracts(recordID, suffixVendorID);
+                }
+            }
+            else {
+                GetVendorContracts("0", suffixVendorID, "Add");
+            }
+        }
+    }
+
+    function GetVendorContracts(recordID, suffixVendorID, mode) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Vendor_Contract_Details", "VendorHome", new { area = "VendorManagement" })',
+            data: { vendorID: suffixVendorID, contractID: recordID, mode: mode },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                $("#topSection_" + suffixVendorID).html("");
+                $("#topSection_" + suffixVendorID).html(msg);
+            }
+        });
+    }
+
+    function DeleteVendorContracts(recordID, suffixVendorID) {
+        $.modal.confirm("Do you want delete this contract?", function () {
+            DeleteVendorContractRecord(suffixVendorID, recordID);
+        }, function () {
+
+        });
+
+    }
+
+    function DeleteVendorContractRecord(suffixVendorID, recordID) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("DeleteVendorContract", "VendorHome", new { area = "VendorManagement" })',
+            data: { vendorID: suffixVendorID, contractID: recordID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Contract Deleted Successfully");
+                    $('#GrdVendorContracts_' + suffixVendorID).data('kendoGrid').dataSource.read();
+                    ResetVendorContractInformation(suffixVendorID, msg.Data)
+                }
+            }
+        });
+    }
+
+    function CancelVendorContractInformation(contractID, suffixVendorID) {
+        var dirtyFlagContainer = $('#frmVendorContainerForDirtyFlag_' + suffixVendorID);
+        var isPageDirty = dirtyFlagContainer.attr("data");
+        if (isPageDirty == "true") {
+            $.modal.confirm("Changes have not been saved. Do you want to continue and lose the changes?", function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetContractID", "VendorHome", new { area = "VendorManagement" })',
+                    data: { vendorID: suffixVendorID, contractID: contractID },
+                    traditional: true,
+                    cache: false,
+                    ajax: true,
+                    async: true,
+                    modal: true,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            ResetVendorContractInformation(suffixVendorID, msg.Data)
+                        }
+                    }
+                });
+            }, function () {
+                // Do Nothing
+            });
+        }
+        else {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetContractID", "VendorHome", new { area = "VendorManagement" })',
+                data: { vendorID: suffixVendorID, contractID: contractID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        ResetVendorContractInformation(suffixVendorID, msg.Data)
+                    }
+                }
+            });
+        }
+    }
+
+    function ResetVendorContractInformation(suffixVendorID, contractID) {
+
+        var contractStatusCombo = "ContractStatusID_" + suffixVendorID;
+        var vTAIDCombo = "VTAID_" + suffixVendorID;
+        var startDatepicker = "StartDate_" + suffixVendorID;
+        HideValidationMessage($('input[name= "' + startDatepicker + '"]'));
+        HideValidationMessage($('input[name= "' + contractStatusCombo + '_input"]'));
+        HideValidationMessage($('input[name= "' + vTAIDCombo + '_input"]'));
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_Vendor_Contract_Details", "VendorHome", new { area = "VendorManagement" })',
+            data: { vendorID: suffixVendorID, contractID: contractID, mode: "View" },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                $("#topSection_" + suffixVendorID).html("");
+                $("#topSection_" + suffixVendorID).html(msg);
+                CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+            }
+        });
+    }
+
+    function SaveVendorContractInformation(sender, contractID, suffixVendorID) {
+        var formElement = "#frmVendorContractDetails_" + suffixVendorID;
+        var errorfound = false;
+        var contractStatusCombo = "ContractStatusID_" + suffixVendorID;
+        var contractStatus = $("#" + contractStatusCombo).data('kendoComboBox').value();
+        if ($.trim(contractStatus).length == 0) {
+            ShowValidationMessage($('input[name= "' + contractStatusCombo + '_input"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + contractStatusCombo + '_input"]'));
+        }
+
+        var vTAIDCombo = "VTAID_" + suffixVendorID;
+        var vTAID = $("#" + vTAIDCombo).data('kendoComboBox').value();
+        if ($.trim(vTAID).length == 0) {
+            ShowValidationMessage($('input[name= "' + vTAIDCombo + '_input"]'), "* This field is required.");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + vTAIDCombo + '_input"]'));
+        }
+
+        var startDatepicker = "StartDate_" + suffixVendorID;
+        var startDate = $("#" + startDatepicker).data('kendoDatePicker').value();
+        if ($.trim(startDate).length == 0) {
+            ShowValidationMessage($('input[name= "' + startDatepicker + '"]'), "* This field is required.");
+            openAlertMessage("Select Start Date");
+            errorfound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + startDatepicker + '"]'));
+        }
+
+        if (errorfound == true) {
+            return false;
+        }
+        var postData = $("#frmVendorContractDetails_" + suffixVendorID).serializeArray();
+
+        postData.push({ name: "ID", value: contractID });
+        postData.push({ name: "ContractStatusID", value: contractStatus });
+        postData.push({ name: "VendorID", value: suffixVendorID });
+        postData.push({ name: "VTAID", value: vTAID });
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveVendorContractDetails", "VendorHome", new { area = "VendorManagement" })',
+            data: postData,
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    openAlertMessage("Contract Saved Successfully");
+                    $('#GrdVendorContracts_' + suffixVendorID).data('kendoGrid').dataSource.read();
+                    ResetVendorContractInformation(suffixVendorID, msg.Data)
+                }
+                else {
+                    openAlertMessage(msg.ErrorMessage);
+                }
+
+            }
+        });
+    }
+
+    function ViewVendorLocationChangeLog(sender, suffixVendorLocationID) {
+
+        var rateScheduleID = $("#cmbVLContractRateSchedule_" + suffixVendorLocationID).data('kendoComboBox').value();
+        var errorFound = false;
+
+        var VLContractCombo = "cmbVLContract_" + suffixVendorLocationID;
+        var contractID = $("#" + VLContractCombo).data('kendoComboBox').value();
+        if ($.trim(contractID).length == 0) {
+            ShowValidationMessage($('input[name= "' + VLContractCombo + '_input"]'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + VLContractCombo + '_input"]'));
+        }
+
+        var VLRateScheduleCombo = "cmbVLContractRateSchedule_" + suffixVendorLocationID;
+        rateScheduleID = $("#" + VLRateScheduleCombo).data('kendoComboBox').value();
+        if ($.trim(rateScheduleID).length == 0) {
+            ShowValidationMessage($('input[name= "' + VLRateScheduleCombo + '_input"]'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + VLRateScheduleCombo + '_input"]'));
+        }
+        if (errorFound == true) {
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_VendorLocation_ViewChangeLog", "VendorHome", new { area = "VendorManagement" })',
+            data: { RateScheduleID: rateScheduleID, VendorLocationID: suffixVendorLocationID },
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            success: function (msg) {
+                $("#divVendorLocationHideChangeLog_" + suffixVendorLocationID).html(msg);
+                $("#divVendorLocationHideChangeLog_" + suffixVendorLocationID).show();
+                $("#divVendorLocationViewChangeLog_" + suffixVendorLocationID).hide();
+            }
+        });
+
+    }
+
+    function ViewVendorRatesChangeLog(showButtonID, vendorID, rateScheduleID) {
+
+        if ($("#PlaceHolder_Vendor_Rates_Change_Log_" + vendorID).hasClass("hide")) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_VendorLocation_ViewChangeLog", "VendorHome", new { area = "VendorManagement" })',
+                data: { RateScheduleID: rateScheduleID },
+                traditional: true,
+                cache: false,
+                ajax: true,
+                async: true,
+                modal: true,
+                success: function (msg) {
+                    $("#PlaceHolder_Vendor_Rates_Change_Log_" + vendorID).html(msg);
+                    $("#PlaceHolder_Vendor_Rates_Change_Log_" + vendorID).removeClass("hide");
+                    $(showButtonID).html('Hide Change Log');
+                }
+            });
+        }
+        else {
+            $(showButtonID).html('View Change Log');
+            $("#PlaceHolder_Vendor_Rates_Change_Log_" + vendorID).html('');
+            $("#PlaceHolder_Vendor_Rates_Change_Log_" + vendorID).addClass("hide");
+        }
+    }
+
+    function HideVendorLocationChangeLog(sender, suffixVendorLocationID) {
+        $("#divVendorLocationHideChangeLog_" + suffixVendorLocationID).hide();
+        $("#divVendorLocationViewChangeLog_" + suffixVendorLocationID).show();
+    }
+
+    function HandleRateScheduleComboBoxChange(sender, suffixVendorLocationID, suffixVendorID) {
+        var combo = $("#cmbVLContractRateSchedule_" + suffixVendorLocationID).data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+        LoadVLGrdVendorRates(this, suffixVendorLocationID)
+    }
+
+    function HandleContractComboBoxChange(sender, suffixVendorLocationID, suffixVendorID) {
+        var combo = $("#cmbVLContract_" + suffixVendorLocationID).data('kendoComboBox');
+        var comboChild = $("#cmbVLContractRateSchedule_" + suffixVendorLocationID).data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //$('#frmVendorContainerForDirtyFlag_' + suffixVendorLocationID).attr('data', 'false');
+
+        if (combo.value() != '' && combo.value() != null) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetRateSchedulesRelatedToContract", "ReferenceData", new { area = "Common" })',
+                data: { contractID: combo.value() },
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    comboChild.setDataSource(msg);
+                    comboChild.select(0);
+
+                    SetFocusOnField("cmbVLContractRateSchedule_" + suffixVendorLocationID);
+                    $("#cmbVLContractRateSchedule_" + suffixVendorLocationID).data('kendoComboBox').trigger('change');
+                }
+
+            });
+        }
+        else {
+            comboChild.select(0);
+        }
+        CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+    }
+
+    function LoadVLGrdVendorRates(sender, suffixVendorLocationID, suffixVendorID) {
+
+        var errorFound = false;
+
+        var VLContractCombo = "cmbVLContract_" + suffixVendorLocationID;
+        var contractID = $("#" + VLContractCombo).data('kendoComboBox').value();
+        if ($.trim(contractID).length == 0) {
+            ShowValidationMessage($('input[name= "' + VLContractCombo + '_input"]'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + VLContractCombo + '_input"]'));
+        }
+
+        var VLRateScheduleCombo = "cmbVLContractRateSchedule_" + suffixVendorLocationID;
+        var rateScheduleID = $("#" + VLRateScheduleCombo).data('kendoComboBox').value();
+        if ($.trim(rateScheduleID).length == 0) {
+            ShowValidationMessage($('input[name= "' + VLRateScheduleCombo + '_input"]'), "* This field is required.");
+            errorFound = true;
+        }
+        else {
+            HideValidationMessage($('input[name= "' + VLRateScheduleCombo + '_input"]'));
+        }
+        if (errorFound == true) {
+            return false;
+        }
+        CleanMyContainer('frmVendorContainerForDirtyFlag_' + suffixVendorID);
+        $("#grdVendorRates_" + suffixVendorLocationID).data('kendoGrid').dataSource.read();
+    }
+</script>

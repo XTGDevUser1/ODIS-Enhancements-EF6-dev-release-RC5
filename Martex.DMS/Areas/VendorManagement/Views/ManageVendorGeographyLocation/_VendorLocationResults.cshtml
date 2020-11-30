@@ -1,0 +1,132 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+<div class="columns">
+    <div class="new-row twelve-columns">
+        <p class="button-height inline-medium-label small-margin-top">
+            <label for="InsuranceCarrierName" class="label">
+                Vendor Location ID</label>
+            @Html.TextBox("TextVendorLocationList", string.Empty, new { @class = "input full-width" })
+        </p>
+    </div>
+    <div class="new-row twelve-columns">
+        <button class="button green-gradient  float-right mid-margin-left margin-bottom"
+            onclick="ProcessRecords();" type="button">
+            Process</button>
+        <button class="button gray-gradient  float-right margin-bottom" type="button" onclick="SearchRecords();">
+            Search</button>
+    </div>
+    <div class="new-row twelve-columns">
+        <div class="tabs-content">
+            @(Html.Kendo().Grid<VendorLocationGeographyListManage_Result>()
+                .Name("GrdVenodorLocationGeographyList")
+                .Columns(column =>
+                {
+                    column.Bound(u => u.VendorLocationID).Title("ID").Width(100);
+                    column.Bound(u => u.Latitude).Title("Latitude").Width(150);
+                    column.Bound(u => u.Longitude).Title("Longitude").Width(100);
+                    column.Bound(u => u.GeographyLocation).Title("Geography Location").Width(250);
+                    column.Bound(u => u.ModifyBy).Title("Modified By").Width(100);
+                    column.Bound(u => u.ModifyDate).Title("Modified Date").Format("{0:MM/dd/yyyy hh:mm:ss}");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable()
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                            .PageSizes(new int[] { 10, 20, 50, 100 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+                .DataSource(datasource => datasource
+                .Ajax()
+                .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("VendorGeographyLocationList", "ManageVendorGeographyLocation", new { area = "VendorManagement" }).Data("GetVendorLocationListID"))
+               )
+                .Resizable(resize => resize.Columns(true))
+            )
+        </div>
+    </div>
+
+    <div class="new-row twelve-columns geographyProcess">
+         <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span><span
+                    class="statusMessage"></span>
+            </p>
+    </div>
+</div>
+<script type="text/javascript">
+    var IsProcessRunning = false;
+    $statusContainer = $(".geographyProcess");
+
+    $(function () {
+       HideStatus($statusContainer);
+    });
+    
+    function GetVendorLocationListID() {
+        var list = $('#TextVendorLocationList').val();
+        return {
+            vendorLocationID: list
+        }
+    }
+    function SearchRecords() {
+        $("#GrdVenodorLocationGeographyList").data('kendoGrid').dataSource.read();
+    }
+    var processedRecords = [];
+    var toBeProcessed = 0;
+    function ProcessVendorLocationID(vendorLocationID) {
+        ShowStatus("inprogress", "Processing ...", $statusContainer);
+        $.ajax({
+            url: '@Url.Action("_Process", "ManageVendorGeographyLocation", new { area = "VendorManagement" })',
+            type: 'POST',
+            data: { vendorLocationID: vendorLocationID },
+            cache: false,
+            global: false,
+            async: true,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    ShowStatus("inprogress", msg.Data.Information, $statusContainer);
+                }
+                else {
+                    ShowStatus("inprogress", msg.ErrorMessage, $statusContainer); 
+                }
+                processedRecords.push(vendorLocationID);
+                if (processedRecords.length == toBeProcessed) {
+                    HideStatus($statusContainer);
+                    IsProcessRunning = false;
+                    openAlertMessage("Process Completed");
+                    SearchRecords();
+                    IsProcessRunning = false;
+                }
+            }
+        });
+    }
+    
+    function ProcessRecords() {
+        if (!IsProcessRunning) {
+            processedRecords = [];
+            toBeProcessed = 0;
+            HideStatus($statusContainer);
+            //Get all selected items and verify them.
+            var grid = $("#GrdVenodorLocationGeographyList").data("kendoGrid");
+            var selectedRows = grid.select();
+            toBeProcessed = selectedRows.length;
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select Records to Process");
+            }
+            else {
+                IsProcessRunning = true;
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    ProcessVendorLocationID(record.VendorLocationID);
+                }
+                
+            }
+        }
+        else {
+            openAlertMessage("Please wait previous process is going on.");
+        }
+    }
+</script>

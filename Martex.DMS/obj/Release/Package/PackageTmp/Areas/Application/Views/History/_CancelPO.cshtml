@@ -1,0 +1,174 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.DAL.PurchaseOrder
+@{
+    var purchaseOrderStatusPayStatusCode = Model != null && Model.PurchaseOrderPayStatusCode != null ? Model.PurchaseOrderPayStatusCode.Name : string.Empty;
+}
+<script type="text/javascript">
+    function onComboBoxChange_Reason(e) {
+        var reasonCombo = $('#CancellationReasonID').data('kendoComboBox').text();
+        HideValidationMessage($('input[name="CancellationReasonID_input"]'));
+        if (reasonCombo == 'Other') {
+            $('#divIfOther').show();
+        }
+        else {
+            $('#divIfOther').hide();
+        }
+    }
+</script>
+<form name="frmCancelPO" id="frmCancelPO" action="#">
+    @Html.HiddenFor(p => p.ID)
+    @Html.Hidden("CancelPOID", Model.ID)
+    <div class="with-padding">
+        <div class="columns">
+            <div class="twelve-columns">
+                <p>
+                <p>
+                    To cancel this PO select a reason and add comments and click Cancel PO. If you do
+                    not want to cancel this PO then click Do Not Cancel PO
+                </p>
+                </p>
+            </div>
+            <div class="new-row tweleve=columns">
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Reason" class="label">
+                        Reason
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .Name("CancellationReasonID")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("onComboBoxChange_Reason"))
+                    .Suggest(true)
+                    .HtmlAttributes(new { @class = "selectlabel" })
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.POCancelReason.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    )
+                </div>
+                <div id="divIfOther">
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="ifOther" class="label">
+                            If Other
+                        </label>
+                        @Html.TextBoxFor(p => p.CancellationReasonOther, new { @class = "input" })
+                    </p>
+                </div>
+            </div>
+            <div class="block-label new-row twelve-columns">
+                <label for="ServiceRequestComments" class="label">
+                    Comments
+                </label>
+                <div class="margin-top">
+                    @Html.TextAreaFor(p => p.CancellationComment, new { @class = "validate[required] input full-width", rows = "5", cols = "30", style = "width : 100%" })
+                </div>
+            </div>
+        </div>
+        <div class="clear">
+        </div>
+        @{
+            if (purchaseOrderStatusPayStatusCode == "PaidByCC")
+            {
+                <div id="divPOCancelPaidByCCError">
+                    <p class="red">
+                        PO is paid by company credit card. If this credit card is not going to be used on
+                        another PO then notify a Manager to cancel the credit card
+                    </p>
+                </div>
+            }
+        }
+        <div>
+            <button id="btnDoNotCancel" class="button silver-gradient  float-right small-margin-top small-margin-bottom"
+                    type="button" value="Auto">
+                Do Not Cancel
+            </button>
+            <button id="btnCancelPO" class="button green-gradient  float-right small-margin-top small-margin-bottom margin-right"
+                    type="button" value="Auto">
+                Cancel PO
+            </button>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        WatchMyContainer('frmCancelPO');
+        setTimeout(function () {
+            var cancellationReasonKendoDropdown = $("#CancellationReasonID").data("kendoComboBox");
+
+            //KB: Set the width of the dropdown container to be 250px
+            $("#CancellationReasonID").data("kendoComboBox").list.width(250);
+
+            SetFocusOnField("CancellationReasonID");
+        }, 600);
+
+        $("#divIfOther").hide()
+        $("#btnCancelPO").on('click', function () {
+            var retVal = false;
+            var closeRefresh = false;
+            var $form = $("#frmCancelPO");
+            if ($form.validationEngine('validate') == false) {
+                return retVal;
+            }
+
+            var formdata = $form.serializeArray();
+            var isFormValid = true;
+            var $reason = $("#CancellationReasonID").data("kendoComboBox").value();
+            var $reasonText = $("#CancellationReasonID").data("kendoComboBox").text();
+            var $ifOther = $("#CancellationReasonOther").val();
+            if ($.trim($reason).length == 0) {
+                isFormValid = false;
+                ShowValidationMessage($('input[name="CancellationReasonID_input"]'), "Model is required.");
+                $('#CancellationReasonID-input').focus();
+            }
+            else if ($.trim($reasonText) == 'Other' && $.trim($ifOther).length == 0) {
+                isFormValid = false;
+                $('#CancellationReasonOther').validationEngine('showPrompt', 'Model (other) is required.', '', 'topRight', true);
+                $('#CancellationReasonOther').focus();
+            }
+
+            if (!isFormValid) {
+                return false;
+            }
+            var poid = $("#CancelPOID").val();
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CancelPO", "History", new { area = "Application" })',
+                traditional: true,
+                data: formdata,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        CleanMyContainer('frmCancelPO');
+                        document.dialogResult = "OK";
+                        POCancelWindow.data('kendoWindow').close();
+                    }
+                }
+            });
+
+        });
+
+        $("#btnDoNotCancel").on('click', function () {
+            if (IsMyContainerDirty('frmCancelPO')) {
+                var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+                $.modal.confirm(message, function () {
+                    HideValidationMessage($('input[name="CancellationReasonID_input"]'));
+                    document.dialogResult = "CANCEL";
+                    CleanMyContainer("frmCancelPO");
+                    POCancelWindow.data('kendoWindow').close();
+
+                }, function () {
+                    return false;
+                });
+            }
+            else {
+                HideValidationMessage($('input[name="CancellationReasonID_input"]'));
+                document.dialogResult = "CANCEL";
+                CleanMyContainer("frmCancelPO");
+                POCancelWindow.data('kendoWindow').close();
+
+            }
+
+
+        });
+    });
+
+</script>

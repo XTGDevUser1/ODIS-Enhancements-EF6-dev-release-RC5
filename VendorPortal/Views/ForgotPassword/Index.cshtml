@@ -1,0 +1,54 @@
+﻿@{
+    ViewBag.Title = "Forgot Password";
+    Layout = "~/Views/Shared/_LoginMaster.cshtml";
+}
+<div class="leader relative">
+    &nbsp;
+</div>
+<div class="constrain">
+    <div class="columns with-padding">
+        <div class="new-row-tablet new-row-mobile seven-columns twelve-columns-tablet instructions margin-top ">
+            <h2 class="thin">
+                Can't remember your password?
+            </h2>
+            <p style="text-align:justify">
+                No problem, we can help.  Fill in your Username in the box on the right and we will send you an email with a password reset link and instructions to set up a new password.
+            </p>
+        </div>
+        <div class="new-row-tablet new-row-mobile one-column twelve-columns-tablet">
+        </div>
+        <div class="new-row-tablet new-row-mobile four-columns twelve-columns-tablet margin-top">
+            <form method="post" action="" id="form-password" formtitle="Lost password?" class="frmWrapper">
+                <p class="button-height block-label">
+                    <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+                    <label for="input" class="label">
+                        <small>This is Your Service Provider/Vendor ID #</small> Username
+                    </label>
+                    @Html.TextBox("forgotpassword_username", string.Empty, new
+   {
+       name = "forgotpassword_username",
+       id = "forgotpassword_username",
+       value = "",
+       @class = "validate[required] input with-tooltip full-width tooltip-right",
+       autocomplsete = "off",
+       title = "Username",
+       @error_required = "Please type your User Name"
+   })
+                </p>
+                <button type="submit" class="btn btn-large btn-primary" id="send-password">
+                    Send password reset email
+                </button>
+                <p class="float-right margin-top big-text">
+                    <a href="@Url.Action("Login", "Account")">Return to Log In</a>
+                </p>
+            </form>
+        </div>
+    </div>
+    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#form-password').validationEngine({ promptPosition: "topLeft" });
+
+    });
+</script>

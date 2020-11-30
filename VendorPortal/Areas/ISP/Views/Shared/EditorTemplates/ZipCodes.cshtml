@@ -1,0 +1,75 @@
+﻿<!-- Lightweight grid for managing zip codes -->
+@{
+    string uniqueID = ViewData.TemplateInfo.HtmlFieldPrefix;
+    string val = ViewData["ZipCodes"] as string;
+}
+<div id="@uniqueID">
+    <input type="hidden" data-bind="value: getZipCodes" name="ZipCodesAsCSV" />
+    <form>
+    <h3 class="thin">
+        Zip Codes</h3>
+    <div style="max-height: 150px" class="scrollable">
+        <table class="table responsive-table" style="width: 90%;">
+            <thead>
+            </thead>
+            <tbody data-bind='foreach: items'>
+                <tr>
+                    <td style="width: 40%">
+                        <p data-bind="text : $data, uniqueName: true">
+                        </p>
+                    </td>
+                    <td style="width: 10%" class="align-center">
+                        <a href='#' class="icon-cross icon-size2 red with-tooltip" data-bind='click: $root.removeItem'>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">
+                        <input type="text" class="input" data-bind='value:itemToAdd, valueUpdate: "afterkeydown"' />
+                        <button type="submit" class="icon-plus icon-size2 with-tooltip" data-bind="enable: itemToAdd().length > 0, click : addItem">
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    </form>
+</div>
+<script language="javascript" type="text/javascript">
+    var ZipCodesViewModel = function (initItems) {
+        self = this;
+        self.items = ko.observableArray((initItems != null && $.trim(initItems).length > 0) ? initItems.split(',') : []);
+        self.itemToAdd = ko.observable("");
+        self.addItem = function () {
+            console.log("Adding zip code " + this.itemToAdd());
+            if ($.trim(this.itemToAdd()).length > 0 && this.items.indexOf(this.itemToAdd()) < 0) // Prevent blanks and duplicates
+            {
+                this.items.push(this.itemToAdd()); // Adds the item. Writing to the "items" observableArray causes any associated UI to update.                
+            }
+            this.itemToAdd(""); // Clears the text box, because it's bound to the "itemToAdd" observable
+        } .bind(this);  // Ensure that "this" is always this view model
+
+        self.removeItem = function (item) {
+            var that = this;
+            $.modal.confirm("Are you sure?", function () {
+                that.items.remove(item);
+            }, function () {
+
+            });
+        } .bind(this);
+
+        self.getZipCodes = ko.computed(function () {
+            return this.items().join(",");
+        }, this);
+    };
+
+    // Maintain a list of view models so as to allow updating the data programmatically from elsewhere.
+    if (!document.KOViewModels) {
+        document.KOViewModels = [];
+    }
+    document.KOViewModels['@uniqueID'] = new ZipCodesViewModel('@val');
+    ko.applyBindings(document.KOViewModels['@uniqueID'], document.getElementById('@uniqueID'));
+
+</script>

@@ -1,0 +1,38 @@
+﻿@model Martex.DMS.DAL.Vehicle
+@{
+    string suffixMembershipID = ViewData["MembershipID"].ToString();
+}
+<form name="frm_RVTab_@suffixMembershipID" id="frm_RVTab_@suffixMembershipID" relatedButtons="PlaceHolder_Membership_Vehicle_Trailer_RV_Buttons_@suffixMembershipID" action="javascript:void(0);">
+@Html.Partial("_RVBasicInformation", Model)
+@Html.Partial("_Specifications", Model)
+@Html.Partial("_WarrantyInformation", Model)
+<div class="clear"></div>
+<div class="full-width hide" id="PlaceHolder_Membership_Vehicle_Trailer_RV_Buttons_@suffixMembershipID">
+    <button id="btnSaveMembershipRVVehicleInformation_@suffixMembershipID" class="button green-gradient float-right mid-margin-left margin-bottom" type="button">
+        Save</button>
+    <button id="btnCancelMembershipRVVehicleInformation_@suffixMembershipID" class="button gray-gradient float-right margin-bottom" type="button" onclick="MembershipVehicleCancelButton('@suffixMembershipID');">
+        Cancel</button>
+</div>
+</form>
+
+<script type="text/javascript">
+
+    function SaveRV(uniqueID) {
+        
+        return SaveForm('frm_RVTab_' + uniqueID, "RV");
+    }
+
+    
+    $(function () {
+        $("#frm_RVTab_@suffixMembershipID").validationEngine();
+
+        $("#btnSaveMembershipRVVehicleInformation_@suffixMembershipID").click(function (e) {
+            e.preventDefault();
+
+            var uniqueID = '@suffixMembershipID';
+            SaveRV(uniqueID);
+
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,183 @@
+﻿@using Kendo.Mvc.UI
+@{
+    var customerFeedbackId = ViewData["CustomerFeedbackId"].ToString();
+    bool isLocked = (bool)ViewData["IsLocked"];
+    if (Convert.ToInt32(customerFeedbackId) == 0)
+    {
+      isLocked = true;
+    }
+
+    var functionHandler = "onclick=ManageCustomerFeedbackDetails(null," + customerFeedbackId + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add Feedback' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>Add Feedback</a>";
+}
+
+<script type="text/javascript">
+  $(function () {
+    var customerFeedbackId = '@customerFeedbackId';
+
+    if ('@isLocked'.toLocaleLowerCase() == 'true') {
+      $('#GrdCustomerFeedbackDetails_@customerFeedbackId .k-grid-toolbar').hide();
+    }
+  });
+
+  function ManageCustomerFeedbackDetails(e, customerFeedbackId, grid) {
+    if (e != null) {
+      e.preventDefault();
+      //var customerFeedbackDetailId = this.dataItem($(e.currentTarget).closest("tr")).ID;
+      var customerFeedbackDetailId = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+      if (e.data.commandName == 'Edit') {
+        OpenAddCustomerFeedbackDetail(customerFeedbackDetailId, customerFeedbackId, 'edit', 'Edit Customer Feedback Details');
+      }
+      else if (e.data.commandName == 'Delete') {
+        DeleteCustomerFeedbackDetail(customerFeedbackDetailId, customerFeedbackId);
+      }
+    }
+    else {
+      OpenAddCustomerFeedbackDetail(customerFeedbackDetailId, customerFeedbackId, 'add', 'Add Customer Feedback Details');
+    }
+  }
+
+  function DeleteCustomerFeedbackDetail(customerFeedbackDetailId, customerFeedbackId) {
+    $.modal.confirm('Are you sure you want to delete this customer feedback details?', function () {
+      $.ajax({
+        type: 'POST',
+        url: '@Url.Action("DeleteCustomerFeedbackDetails", "CXCustomerFeedback", new { area = "CX" })',
+        traditional: true,
+        cache: false,
+        data: { customerFeedbackDetailId: customerFeedbackDetailId },
+        async: false,
+        success: function (msg) {
+          $("#GrdCustomerFeedbackDetails_" + customerFeedbackId).data('kendoGrid').dataSource.read();
+          openAlertMessage('Customer feedback details has been deleted successfully');
+        }
+      });
+    }, function () {
+
+    });
+  }
+
+  function AdjustTooltipForLongText() {
+    $(".toBeEllipsized").data("tooltip-options", {
+      onShow: function (target) {
+        var tip = $("#tooltips").find(".message");
+        if (tip.width() > 200) {
+          tip.css("white-space", "normal");
+          tip.css("min-width", "200px");
+        }
+      },
+      onRemove: function (target) {
+        var tip = $("#tooltips").find(".message");
+        tip.css("white-space", "nowrap");
+        tip.css("min-width", "auto");
+      }
+    });
+  }
+
+  function ManageCustomerFeedbackDetails_Databound(e) {
+    $(".toBeEllipsized").each(function () {
+      $(this).addClass("with-tooltip").attr("title", $(this).text());
+    });
+    AdjustTooltipForLongText();
+
+    $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+    $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+  }
+
+</script>
+
+<div class="columns">
+  <div class="new-row twelve-columns">
+    <div class="small-margin-top" id="div_CustomerFeedbackDetails_@customerFeedbackId">
+      <div class="tabs-content">
+        @(Html.Kendo().Grid<Martex.DMS.DAL.GetCustomerFeedbackDetails_Result>()
+                  .Name("GrdCustomerFeedbackDetails_" + customerFeedbackId)
+                  .Columns(column =>
+                  {
+                  column.Bound(c => c.ID).Hidden();
+                  column.Bound(c => c.FeedbackTypeDescription).Title("Type").Width(80);
+                  column.Bound(c => c.FeedbackCategoryDescription).Title("Category").Width(60);
+                  column.Bound(c => c.FeedbackSubCategroyDescription).Title("Sub-Category").Width(100);
+                  column.Bound(c => c.FeedbackDetailResolutionDescription).Title("Resolution").Width(80).HtmlAttributes(new { @class = "toBeEllipsized" });
+                  column.Bound(c => c.CustomerFeedbackId).Hidden();
+
+                  column.Command(command =>
+                  {
+                  command.Custom("Edit").Click(@<text>function(e){ ManageCustomerFeedbackDetails(e,'@customerFeedbackId', this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    command.Custom("Delete").Click(@<text>function(e){ ManageCustomerFeedbackDetails(e,'@customerFeedbackId', this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+                  })
+                  .Width(40)
+                  .Title("Action(s)").Hidden(isLocked);
+                  })
+                .ToolBar(toolBar => toolBar.Template(@addTemplate))
+                .Events(e =>
+                {
+                  e.DataBound("ManageCustomerFeedbackDetails_Databound");
+                })
+                .Pageable()
+                .Sortable()
+                .Scrollable(s => s.Height(200))
+                .Filterable(filterable => filterable
+                    .Enabled(false)
+                )
+                .Pageable(pager => pager
+                    .Refresh(true)
+                  .PageSizes(new int[] { 10, 20, 50 })
+
+                )
+                .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+                .DataSource(datasource => datasource
+                    .Ajax()
+                    .PageSize(10)
+                    .Events(events => events.Error("KendoGridErrorHandler"))
+                    .Read(read => read.Action("CustomerFeedbackDetailsList", "CXCustomerFeedback", new { area = "CX", customerFeedbackId = customerFeedbackId }))
+               )
+                .Resizable(resize => resize.Columns(true))
+
+        )
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  function OpenAddCustomerFeedbackDetail(customerFeedbackDetailId, customerFeedbackId, mode, title) {
+    $.ajax({
+      type: 'POST',
+      url: '@Url.Action("ShowAddCustomerFeedbackDetails", "CXCustomerFeedback")',
+      traditional: true,
+      data: { customerFeedbackDetailId: parseInt(customerFeedbackDetailId), customerFeedbackId: parseInt(customerFeedbackId), mode: mode },
+      cache: false,
+      async: false,
+      success: function (msg) {
+        customerFeedbackDetailWindow = $("<div id='divAddCustomerFeedbackDetails' />").appendTo(document.body);
+        customerFeedbackDetailWindow.kendoWindow({
+          title: title,
+          modal: true,
+          width: "98%",
+          height: "1000",
+          deactivate: function () {
+            CleanMyContainer('formAddCustomerFeedbackDetails_' + customerFeedbackId);
+            this.destroy();
+          },
+          close: function (e) {
+            //$('#formAddCustomerFeedbackDetails_').validationEngine('hideAll'); // to hide the validation message of the popup
+            if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+              document.dialogResult = null;
+              if (IsMyContainerDirty('formAddCustomerFeedbackDetails_' + customerFeedbackId)) {
+                var prompt = PromptForDirtyFlag();
+                if (!prompt) {
+                  e.preventDefault();
+                  return false;
+                }
+                CleanMyContainer('formAddCustomerFeedbackDetails_' + customerFeedbackId);
+              }
+            }
+            return true;
+          }
+        });
+        customerFeedbackDetailWindow.data('kendoWindow').content(msg).maximize().open();
+      }
+    });
+  }
+</script>

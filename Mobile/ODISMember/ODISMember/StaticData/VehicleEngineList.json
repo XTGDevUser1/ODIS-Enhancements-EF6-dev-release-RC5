@@ -1,0 +1,30 @@
+[
+    {
+      "key": "Catepillar",
+      "value": 1
+    },
+    {
+      "key": "Cummins",
+      "value": 2
+    },
+    {
+      "key": "Detroit",
+      "value": 3
+    },
+    {
+      "key": "Ford",
+      "value": 4
+    },
+    {
+      "key": "Mercedes",
+      "value": 5
+    },
+    {
+      "key": "Workhorse",
+      "value": 6
+    },
+    {
+      "key": "Other",
+      "value": 7
+    }
+]

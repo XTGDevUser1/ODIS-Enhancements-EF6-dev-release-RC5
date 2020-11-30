@@ -1,0 +1,6 @@
+﻿@using Telerik.Web.Mvc.UI;
+
+@(Html.Telerik().ComboBox()
+      .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+      .DataBinding(binding => binding.Ajax().Select("_SelectPhoneTypes", "Phone", new { area = "Common", entityType = ViewData["entityName"] }))
+      .SelectedIndex(0))

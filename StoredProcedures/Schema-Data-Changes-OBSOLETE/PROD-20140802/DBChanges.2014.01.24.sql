@@ -1,0 +1,2 @@
+EXEC sp_RENAME 'TemporaryCreditCard.ReferencePurchaseOrderNumber' , 'OriginalReferencePurchaseOrderNumber', 'COLUMN'
+EXEC sp_RENAME 'TemporaryCreditCard.MatchPurchaseOrderNumber' , 'ReferencePurchaseOrderNumber', 'COLUMN'

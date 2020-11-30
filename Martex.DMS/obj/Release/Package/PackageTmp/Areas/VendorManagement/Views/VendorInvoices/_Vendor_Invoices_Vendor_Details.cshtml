@@ -1,0 +1,152 @@
+﻿@model Martex.DMS.BLL.Model.VendorInvoiceInfoCommonModel
+@using Martex.DMS.Areas.Application.Models
+@{
+    var suffixVendorInvoiceID = 0;
+    if (Model.VendorInvoiceDetails != null)
+    {
+        suffixVendorInvoiceID = Model.VendorInvoiceDetails.ID;
+    }
+}
+<div class="columns">
+    <div class="six-columns" id="divVendorBillingInformation_@suffixVendorInvoiceID">
+        @if (Model.VendorInvoiceVendorLocationBillingDetails != null)
+        {
+            @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.ID)
+            <h5 class="blue small-margin-bottom">
+                <label class="label">
+                    @{
+            var iconConfig = new VendorListIconConfig();
+            if (!string.IsNullOrEmpty(Model.VendorInvoiceVendorLocationBillingDetails.ContractStatus))
+            {
+                var contractStatusIconStyle = iconConfig.GetIconStyle(Model.VendorInvoiceVendorLocationDetails.ContractStatus);
+                        <span class="@contractStatusIconStyle.Class vendorinfostarred message-status with-tooltip" title="@contractStatusIconStyle.Title">
+                            &nbsp;</span>
+            }
+                    }
+                    @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.Name)
+                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.Name)
+                </label>
+            </h5>
+            <p class="small-margin-bottom ">
+                <label class="label">
+                    @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.VendorNumber)
+                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.VendorNumber)
+                </label>
+            </p>
+            <p class="small-margin-bottom ">
+                <label class="label">
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.Line1 != null && Model.VendorInvoiceVendorLocationBillingDetails.Line1 != "")
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line1)<br />
+                    }
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.Line2 != null && Model.VendorInvoiceVendorLocationBillingDetails.Line2 != "")
+                    { 
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line2) <br />
+                    }
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.Line3 != null && Model.VendorInvoiceVendorLocationBillingDetails.Line3 != "")
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line3)<br />
+                    }
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.BillingCityStZip != null && Model.VendorInvoiceVendorLocationBillingDetails.BillingCityStZip != "")
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.BillingCityStZip)<br />
+                    }
+                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line1) @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line2)
+                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.Line3)
+                    @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.BillingCityStZip)
+                </label>
+            </p>
+            <p class=" small-margin-bottom ">
+                <label class="label">
+                    <strong>Tax ID : </strong>
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.TaxID != null)
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.TaxID)
+                        @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.TaxID)
+                    }
+                </label>
+            </p>
+            <p class="  small-margin-bottom ">
+                <label class="label">
+                    <strong>Office : </strong>
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.PhoneNumber != null)
+                    {         
+                        @Html.Editor("VendorInvoiceVendorLocationBillingDetails_PhoneNumber_" + suffixVendorInvoiceID, "Phone", new { Value = Model.VendorInvoiceVendorLocationBillingDetails.PhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+                        @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.PhoneNumber)
+                    }
+                </label>
+            </p>
+            <p class=" small-margin-bottom ">
+                <label class="label">
+                    <strong>Email : </strong>
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.Email != null)
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.Email)
+                        @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.Email)
+                    }
+                </label>
+            </p>
+            <p class=" small-margin-bottom ">
+                <label class="label">
+                    <strong>Contact Name : </strong>
+                    @if (Model.VendorInvoiceVendorLocationBillingDetails.ContactName != null)
+                    {
+                        @Html.DisplayFor(v => v.VendorInvoiceVendorLocationBillingDetails.ContactName)
+                        @Html.HiddenFor(v => v.VendorInvoiceVendorLocationBillingDetails.ContactName)
+                    }
+                </label>
+            </p>
+        }
+    </div>
+    @if (Model.VendorInvoiceCurrentBillingInformation != null)
+    {
+        if (Model.VendorInvoiceCurrentBillingInformation.IsLevyActive == true)
+        {
+        <div class="six-columns">
+            <div class="with-padding redalert">
+                <h5 class="red small-margin-bottom ">
+                    <label class="label ">
+                        @Html.Raw("Tax Levy Active")
+                    </label>
+                </h5>
+                <p class="small-margin-bottom ">
+                    <label class="label">
+                        <strong>@Html.DisplayFor(v => v.VendorInvoiceCurrentBillingInformation.LevyRecipientName)</strong>
+                        @Html.HiddenFor(v => v.VendorInvoiceCurrentBillingInformation.LevyRecipientName)
+                    </label>
+                </p>
+                <p class="small-margin-bottom ">
+                    <label class="label">
+                        @if (Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine1 != null && Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine1 != "")
+                        {
+                            @Html.DisplayFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine1)<br />
+                        }
+                        @if (Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine2 != null && Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine2 != "")
+                        {
+                            @Html.DisplayFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine2)<br />
+                        }
+                        @if (Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine3 != null && Model.VendorInvoiceCurrentBillingInformation.LevyAddressLine3 != "")
+                        {
+                            @Html.DisplayFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine3)<br />
+                        }
+                        @if (Model.VendorInvoiceCurrentBillingInformation.LevyCityStZip != null && Model.VendorInvoiceCurrentBillingInformation.LevyCityStZip != "")
+                        {
+                            @Html.DisplayFor(v => v.VendorInvoiceCurrentBillingInformation.LevyCityStZip)<br />
+                        }
+                        @Html.HiddenFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine1)
+                        @Html.HiddenFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine2)
+                        @Html.HiddenFor(v => v.VendorInvoiceCurrentBillingInformation.LevyAddressLine3)
+                        @Html.HiddenFor(v => v.VendorInvoiceCurrentBillingInformation.LevyCityStZip)
+                    </label>
+                </p>
+                <p class=" small-margin-bottom ">
+                    <label class="label">
+                        Payment Type :
+                        @Html.Raw("Check")
+                    </label>
+                </p>
+            </div>
+        </div>
+        }
+    }
+</div>

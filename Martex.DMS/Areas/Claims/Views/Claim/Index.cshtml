@@ -1,0 +1,159 @@
+﻿@using Martex.DMS.DAL;
+@using Martex.DMS.DAL.Entities.Claims;
+@model ClaimSearchCriteria
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Claims/Views/Shared/_ClaimsLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+<h1>Claims Processing</h1>
+</hgroup>
+<div class="with-padding">
+    <div id="ClaimsManagementTab" class="standard-tabs same-height" data="claimTabs">
+        <ul class="tabs">
+            <li id="tbClaimsList"><a id="hypClaimsSearchCriteria" href="#tabs-1">List</a> </li>
+        </ul>
+        <div id="tabs-1" class="claimTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult", Model)
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var tabObject = null;
+    $(function () {
+        tabObject = $("#ClaimsManagementTab").tabs();
+        GetSearchCriteria();
+    });
+
+    function GetClaimSearchCriteria() {
+        var postData = $('#frmClaimSearchCriteria').serializeArray();
+
+        if ($('#NameOperatorValue').data('kendoComboBox')) {
+            postData.push({ name: "NameOperator", value: $('#NameOperatorValue').data('kendoComboBox').text() });
+            postData.push({ name: "ProgramIDValue", value: $('#Claim_Search_ProgramID').data('kendoComboBox').text() });
+            postData.push({ name: "ClientIDValue", value: $('#Claim_Search_ClientID').data('kendoComboBox').text() });
+            postData.push({ name: "ExportBatchID", value: $('#ExportBatchID').data('kendoComboBox').value() });
+            postData.push({ name: "ExportBatchName", value: $('#ExportBatchID').data('kendoComboBox').text() });
+            
+        }
+
+        if ($('#ClaimSearchViewID') != undefined) {
+            var value = parseInt($('#ClaimSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "Claim", new { area = "Claims" })',
+            type: 'POST',
+            data: GetClaimSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulClaimSearchCriteriaRight').html(msg);
+            }
+        })
+    }
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "Claim", new { area = "Claims" })',
+            type: 'POST',
+            data: GetClaimSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#claimSelectedSearchCriteriaDetails').html(msg);
+                $('#GrdClaims').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+
+    function DeleteClaim(claimID) {
+        $.modal.confirm('Are you sure you want to delete this Claim?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DeleteClaim", "Claim", new { area = "Claims" })',
+                traditional: true,
+                cache: false,
+                data: { claimID: claimID },
+                async: false,
+                success: function (msg) {
+                    $("#GrdClaims").data('kendoGrid').dataSource.read();
+                    openAlertMessage('Claim has been deleted successfully');
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function DisableAllTabsinClaim(claimID) {
+        $('#ClaimDetailsTab_' + claimID).tabs("disable", 0);
+        $('#ClaimDetailsTab_' + claimID).tabs("disable", 1);
+        $('#ClaimDetailsTab_' + claimID).tabs("disable", 2);
+        $('#ClaimDetailsTab_' + claimID).tabs("disable", 3);
+        $('#ClaimDetailsTab_' + claimID).tabs("disable", 4);
+        DisabledClaimInformationFields();
+        HideStatus($("#statusIndicator_" + claimID));
+    }
+
+    
+    function DisabledClaimInformationFields() {
+        $('#frmCLaimInformation_0 :input').each(function () {
+            var roleName = $(this).attr('dmsrole');
+            var elementID = $(this).attr('id');
+            if (roleName != undefined && elementID != undefined) {
+                try {
+                    if (roleName == "Combo") {
+                        $('#' + elementID).data('kendoComboBox').enable(false);
+                    }
+                    if (roleName == "DatePicker") {
+                        $('#' + elementID).data('kendoDatePicker').enable(false);
+                    }
+                    if (roleName == "DateTimePicker") {
+                        $('#' + elementID).data('kendoDateTimePicker').enable(false);
+                    }
+                    if (roleName == "text") {
+                        $('#' + elementID).attr("disabled", "disabled");
+                    }
+                    if (roleName == "chkBox") {
+                        $('#' + elementID).attr("disabled", "disabled");
+                    }
+                    if (roleName == "numericTextBox") {
+                        $('#' + elementID).data('kendoNumericTextBox').enable(false);
+                    }
+
+                } catch (e) {
+
+                }
+               
+            }
+
+        });
+    }
+</script>

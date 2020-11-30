@@ -1,0 +1,148 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model List<ServiceRequestHistoryList_Result>
+@{
+    Layout = "";
+}
+<script type="text/javascript">
+
+    HandleDblClickOnGrid($("#GrdHistoryList"), '.k-grid-View');
+
+    function ManageHistoryRecord(e) {
+
+        if (e != null) {
+            e.preventDefault();
+
+            var serviceRequestID = this.dataItem($(e.currentTarget).closest("tr")).RequestNumber;
+            if (e.data.commandName == 'View') {
+                LoadServiceDetailsTab(serviceRequestID);
+            }
+        }
+    }
+    function GrdHistoryList_onDataBound(e) {
+
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        if (this.dataSource.total() <= 0) {
+            openAlertMessage("No results found");
+        }
+    }
+
+
+
+
+    function addTab(tabTitle, recordID) {
+
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + tabTitle + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+        var numOfTabs = tabCounter - 1;
+        var lastTabId = $($("#SearchHistoryCriteriaTab").find(".historyDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetServiceRequestDetails", "History", new { area = "Application" })',
+            traditional: true,
+            data: { serviceRequestID: recordID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").append(li);
+                tabObject.append("<div id='" + id + "' class='historyDynamicTabs ui-tabs-panel ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+    function LoadServiceDetailsTab(recordID) {
+
+        var nameToCheck = "SR" + recordID.toString();
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#SearchHistoryCriteriaTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTab(nameToCheck, recordID);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+
+
+    }
+</script>
+<div class="with-padding">
+    @(Html.Kendo().Grid(Model)
+    .Name("GrdHistoryList")
+    .Columns(column =>
+    {
+        column.Bound(u => u.RequestNumber).Filterable(false).Title("Req #");
+        column.Bound(u => u.Program).Filterable(false).Title("Program");
+        column.Bound(u => u.MemberName).Filterable(false).Title("Member");
+        column.Bound(u => u.CreateDate).Filterable(false).Title("Created").Format("{0:MM/dd/yyyy hh:mm:ss tt}");
+        column.Bound(u => u.VehicleType).Filterable(false).Title("Vehicle Type");
+        column.Bound(u => u.ServiceType).Filterable(false).Title("Service Type");
+        column.Bound(u => u.Status).Filterable(false).Title("Status");
+        column.Bound(u => u.ISPName).Filterable(false).Title("ISP");
+        column.Bound(u => u.PONumber).Filterable(false).Title("PO #");
+        column.Bound(u => u.PurchaseOrderStatus).Filterable(false).Title("PO Status");
+        column.Bound(u => u.PurchaseOrderAmount).Filterable(false).Title("PO Amount").Format("{0:c}");
+        column.Command(command =>
+        {
+            command.Custom("View").Click("ManageHistoryRecord").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+        })
+        .Width(60)
+        .Title("Action(s)");
+    })
+    .Events(e =>
+    {
+        e.DataBound("GrdHistoryList_onDataBound");
+    })
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Filterable(filterable => filterable.Extra(false))
+    .Pageable(pager => pager
+        .Refresh(true)
+        .PageSizes(new int[] { 10, 20, 50, 100 }
+        )
+    )
+    .Selectable(select => select.Mode(GridSelectionMode.Single))
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+                .Read(read => read.Action("List", "History"))//.Data("GetData"))
+        .Model(u => u.Id(p => p.RequestNumber))
+        .PageSize(100)
+        .Total(Model != null && Model.Count > 0 ? (int)Model[0].TotalRows : 0)
+    )
+    .Resizable(resize => resize.Columns(true))
+    .EnableCustomBinding(true)
+    )
+</div>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

@@ -1,0 +1,260 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" />
+  <xs:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:element name="CreateMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="Membership" nillable="true" type="q1:Membership" />
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="memberProcessResponse" nillable="true" type="q2:MembershipApplicationResponse" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="PaymentID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CreateMembershipResult" type="xs:boolean" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="memberProcessResponse" nillable="true" type="q3:MembershipApplicationResponse" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="PaymentID" type="xs:int" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessMembership">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="Membership" nillable="true" type="q4:Membership" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q5:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessMembershipResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessMembershipResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q6:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessMembers">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="Members" nillable="true" type="q7:ArrayOfMember" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q8:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessMembersResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessMembersResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q9:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteMember">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element minOccurs="0" name="memberNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteMemberResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DeleteMemberResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessVehicles">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="Vehicles" nillable="true" type="q10:ArrayOfVehicleInformation" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q11:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessVehiclesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ProcessVehiclesResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q12:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteVehicle">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element minOccurs="0" name="VehicleID" type="xs:long" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteVehicleResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DeleteVehicleResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterUser">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="objWebUser" nillable="true" type="q13:WebUser" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q14:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterUserResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RegisterUserResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q15="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q15:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterVerify">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="MemberNumber" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="FirstName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="LastName" nillable="true" type="xs:string" />
+        <xs:element xmlns:q16="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="CellPhone" nillable="true" type="q16:PhoneNumber" />
+        <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q17="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q17:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterVerifyResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="RegisterVerifyResult" type="xs:boolean" />
+        <xs:element xmlns:q18="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="CellPhone" nillable="true" type="q18:PhoneNumber" />
+        <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q19="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q19:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetPassword">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q20="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q20:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ResetPasswordResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ResetPasswordResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q21="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q21:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePassword">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="MembershipNumber" nillable="true" type="xs:string" />
+        <xs:element xmlns:q22="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="objWebUser" nillable="true" type="q22:WebUser" />
+        <xs:element minOccurs="0" name="OldPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q23="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q23:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePasswordResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ChangePasswordResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q24="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q24:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePasswordWithToken">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element xmlns:q25="http://schemas.microsoft.com/2003/10/Serialization/" minOccurs="0" name="PasswordResetToken" type="q25:guid" />
+        <xs:element minOccurs="0" name="NewPassword" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q26="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q26:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ChangePasswordWithTokenResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ChangePasswordWithTokenResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q27="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q27:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendUserName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:int" />
+        <xs:element minOccurs="0" name="Email" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q28="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q28:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendUserNameResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SendUserNameResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+        <xs:element xmlns:q29="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="FriendlyErrorMessage" nillable="true" type="q29:NMCApiMessage" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendMemberEmail">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="OrganizationID" type="xs:long" />
+        <xs:element xmlns:q30="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="objWebUser" nillable="true" type="q30:WebUser" />
+        <xs:element xmlns:q31="http://schemas.datacontract.org/2004/07/Aptify.BusinessObjects" minOccurs="0" name="EmailType" type="q31:enumMemberEmailType" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SendMemberEmailResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="SendMemberEmailResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="ExceptionText" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

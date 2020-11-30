@@ -1,0 +1,281 @@
+﻿@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.DAO.Admin
+@model Martex.DMS.DAL.DAO.Admin.EventViewerSearchCriteria
+@{
+    int i = 0;
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "EventViewer";
+    string JSMethodNameToCollectData = "GetSelectionCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForEventViewer";
+    string applyCallBackFuntion = "LoadEventViewerPredefinedViews";
+}
+<style type="text/css">
+    .search
+    {
+        width: 90% !important;
+    }
+</style>
+<script type="text/javascript">
+    function startDateChange() {
+        var endPicker = $("#ToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+        }
+    }
+
+    function endDateChange() {
+        var startPicker = $("#FromDate").data("kendoDatePicker"),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+        }
+    }
+
+    function fnEventCategoryOnChange() {
+        var combo = $("#EventCategoryID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        RefreshEventDetails();
+    }
+
+    function fnEventTypeOnChange() {
+        var combo = $("#EventTypeID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        RefreshEventDetails();
+    }
+
+    function fnApplicatonNameChange() {
+        var combo = $("#ApplicationName").data('kendoComboBox');
+        var users = $("#UserName").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        $.ajax({
+            url: '@Url.Action("GetUsers", "ReferenceData", new { area = "Common" })',
+            data: { applicationName: combo.value() },
+            success: function (msg) {
+                users.setDataSource(msg);
+                users.select(0);
+                SetFocusOnField("UserName");
+            }
+
+        });
+    }
+
+    function RefreshEventDetails() {
+
+        var eventCategoryIDValue = $("#EventCategoryID").data('kendoComboBox').value();
+        var eventTypeIDValue = $("#EventTypeID").data('kendoComboBox').value();
+        var combo = $("#EventID").data('kendoComboBox');
+
+        $.ajax({
+            url: '@Url.Action("GetEvents", "ReferenceData", new { area = "Common" })',
+            data: { categoryID: eventCategoryIDValue, eventTypeID: eventTypeIDValue },
+            success: function (msg) {
+                combo.setDataSource(msg);
+                combo.select(0);
+                SetFocusOnField("EventID");
+            }
+
+        });
+    }
+</script>
+<li>
+    <form id="frmEventViewerSearchCriteria" action="javascript:void(0)" method="post">
+    @Html.Hidden("EventViewerSearchViewID", string.Empty)
+    @Html.HiddenFor(u => u.GridSortOrder)
+    @Html.HiddenFor(u => u.GridSortColumnName)
+    @Html.HiddenFor(u => u.ResetModelCriteria)
+    @Html.HiddenFor(u => u.PanelItemsSelected)
+    @Html.HiddenFor(u => u.PanelViewsSelected)
+    @Html.HiddenFor(u => u.PanelDateRangeSelected)
+    @Html.HiddenFor(u => u.PanelUsersSelected)
+    @Html.HiddenFor(u => u.PanelEventSelected)
+    @(Html.Kendo().PanelBar()
+          .Name("panelbarSearchCriteria")
+          .ExpandMode(PanelBarExpandMode.Multiple)
+          .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+          .Items(panelbar =>
+           {
+
+               panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width"
+                         onclick="GetSelectedCriteria();">Search </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+
+
+               panelbar.Add().Text("Views").Content(
+               @<div class="with-padding small-margin-right">
+                   @Html.Editor("FilterView", "FilterView", new
+                {
+                    filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+                })
+               </div>
+               ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+               panelbar.Add().Text("Items Selected").Content(
+                @<div class="with-padding" id="eventViewerSelectedSearchCriteriaDetails">
+                    @Html.Partial("_SelectedCriteria", Model)
+                </div>
+              ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+
+
+               panelbar.Add().Text("User").Expanded(Model.PanelUsersSelected.HasValue ? Model.PanelUsersSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelUsersSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label class="label">
+                           User Type
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.ApplicationName)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ApplicationNames.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("fnApplicatonNameChange"))
+                    .Value(string.IsNullOrEmpty(Model.ApplicationName) ? string.Empty : Model.ApplicationName)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label class="label">
+                           User Name
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.UserName)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Users.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(string.IsNullOrEmpty(Model.UserName) ? string.Empty : Model.UserName)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                   </div>
+               </div>
+               );
+
+               panelbar.Add().Text("Date Range").Expanded(Model.PanelDateRangeSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelDateRangeSelected" })
+              .Content(@<div class="with-padding">
+                  <div class="button-height inline-label">
+                      <label class="label">
+                          From</label>
+                      @(Html.Kendo().DatePickerFor(u => u.FromDate).Events(e => e.Change("startDateChange"))
+                    .HtmlAttributes(new { style = "width:90%" })
+                    )
+                  </div>
+                  <div class="button-height inline-label">
+                      <label class="label">
+                          To</label>
+                      @(Html.Kendo().DatePickerFor(u => u.ToDate).Events(e => e.Change("endDateChange"))
+                            .HtmlAttributes(new { style = "width:90%" })
+                    )
+                  </div>
+              </div>
+              );
+
+
+               panelbar.Add().Text("Event").Expanded(Model.PanelEventSelected.GetValueOrDefault()).LinkHtmlAttributes(new { id = "Panel_PanelEventSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label class="label">
+                           Category
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.EventCategoryID)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.EventCategory.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("fnEventCategoryOnChange"))
+                    .Value(Model.EventCategoryID.HasValue ? Model.EventCategoryID.GetValueOrDefault().ToString() : string.Empty)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label class="label">
+                           Event Type
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.EventTypeID)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.EventTypes.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("fnEventTypeOnChange"))
+                    .Value(Model.EventTypeID.HasValue ? Model.EventTypeID.GetValueOrDefault().ToString() : string.Empty)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                   </div>
+                   <div class="button-height inline-label small-margin-bottom">
+                       <label class="label">
+                           Event
+                       </label>
+                       @(Html.Kendo().ComboBoxFor(u => Model.EventID)
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Events.ToString()] as IEnumerable<SelectListItem>)
+                    .SelectedIndex(0)
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .Value(Model.EventID.HasValue ? Model.EventID.GetValueOrDefault().ToString() : string.Empty)
+                    .HtmlAttributes(new { style = "width:90%;" })
+                    .Suggest(true)
+                    )
+                   </div>
+               </div>
+               );
+
+
+           }))
+    </form>
+</li>
+<script type="text/javascript">
+
+    $(function () {
+        $("#EventID").data("kendoComboBox").list.width(250);
+        $("#EventTypeID").data("kendoComboBox").list.width(250);
+        $("#EventCategoryID").data("kendoComboBox").list.width(250);
+        $("#UserName").data("kendoComboBox").list.width(250);
+        $("#ApplicationName").data("kendoComboBox").list.width(250);
+    });
+
+    function LoadEventViewerPredefinedViews(recordID) {
+        $('#EventViewerSearchViewID').val(recordID);
+        GetSearchCriteria();
+        var gridReference = $('#GrdEventLogList').data('kendoGrid').dataSource;
+
+        var sortOrder = $('#GridSortOrder').val();
+        var sortColumn = $('#GridSortColumnName').val();
+        if (sortOrder != undefined && sortColumn != undefined) {
+            gridReference.sort({ field: sortColumn, dir: sortOrder });
+        }
+        gridReference.read();
+        setTimeout(function () {
+            $('#EventViewerSearchViewID').val('');
+        }, 1000);
+    }
+</script>

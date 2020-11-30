@@ -1,0 +1,255 @@
+﻿@using Martex.DMS.Models
+@model Martex.DMS.BLL.Model.PaymentInformation
+@using Kendo.Mvc.UI
+@{
+    bool isView = Model.Mode.Equals("view");
+    bool isEdit = Model.Mode.Equals("edit");
+}
+
+<style type="text/css">
+    .divHeader {
+        float: left;
+        width: 125px;
+    }
+
+        .divHeader hr {
+            width: 80px;
+        }
+</style>
+<script type="text/javascript">
+    function Country_OnChange(e) {
+
+        var countrycombo = e.sender;
+        var comboChild = $("#Estimate_BillingStateProvinceID").data("kendoComboBox");
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(countrycombo)) {
+            e.preventDefault();
+            ResetCombo(comboChild);
+        }
+            //PV
+
+        else {
+            var combo = $("#Estimate_BillingCountryID").data("kendoComboBox");
+
+            var comboChildInputField = $('input[name="Estimate_BillingStateProvinceID_input"]');
+
+            if (combo.value != '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+                    data: { countryId: combo.value() },
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        comboChild.setDataSource(msg);
+                        comboChild.value('');
+                        SetFocusOnField("Estimate_BillingStateProvinceID");
+                    }
+
+                });
+            }
+        }
+
+    }
+</script>
+<div class="twelve-columns">
+    @Html.HiddenFor(u => u.CurrentMonth)
+    @Html.HiddenFor(u => u.CurrentYear)
+    <div class="button-height inline-large-label small-margin-bottom">
+        <label for="Year" class="label">
+            Card Type<span class="spanstar">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("Estimate.PaymentTypeID")
+        .Suggest(true)
+        .HighlightFirst(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.PaymentType.ToString()] as IEnumerable<SelectListItem>)
+        .HtmlAttributes(new { style = "width:85%;vertical-align:middle;", @class = "comboRequired", data = "Payment.PaymentTypeID" })
+        .Value(Model.Payment.PaymentTypeID == null ? string.Empty : Model.Payment.PaymentTypeID.ToString())
+                //.Enable(@Model.Mode == "add" ? true : false)
+        .SelectedIndex(0)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo");
+        })
+        )
+    </div>
+    <p class="inline-large-label">
+        <label for="FirstName" class="label">
+            Card Number <span class="spanstar">*</span>
+        </label>
+        @if (string.IsNullOrEmpty(Model.Payment.CCAccountNumber))
+        {
+            @Html.TextBoxFor(u => u.Payment.CCAccountNumber, new { @class = "validate[required,minSize[14],maxSize[16],custom[integer]] input full-width2" })
+            @Html.TextBoxFor(u => u.Payment.CCPartial, new { @class = "input full-width2", style = "display:none" })
+        }
+        else
+        {
+            @Html.TextBoxFor(u => u.Payment.CCAccountNumber, new { @class = "input full-width2", style = "display:none" })
+            @Html.TextBoxFor(u => u.Payment.CCPartial, new { @class = "validate[required,minSize[14],maxSize[16] input full-width2" })
+        }
+    </p>
+    <div class="button-height inline-large-label small-margin-bottom">
+        <label for="Year" class="label">
+            Expiration Date<span class="spanstar">*</span>
+        </label>
+        @(Html.Kendo().ComboBox()
+        .Name("EstimateCardExpirationMonth")
+        .Suggest(true)
+        .HighlightFirst(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CreditCardExpirationMonths.ToString()] as IEnumerable<SelectListItem>)
+        .Value(Model.CardExpirationMonth <= 0 ? string.Empty : Model.CardExpirationMonth.ToString())
+        .SelectedIndex(0)
+        .HtmlAttributes(new { style = "width:150px;vertical-align:middle;", @class = "comboRequired", data = "CardExpirationMonth" })
+                //.Enable(@Model.Mode == "add" ? true : false)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo");
+        })
+        )
+        &nbsp;
+        @(Html.Kendo().ComboBox()
+        .Name("EstimateCardExpirationYear")
+        .Suggest(true)
+        .HighlightFirst(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.CreditCardExpirationYear.ToString()] as IEnumerable<SelectListItem>)
+        .Value(Model.CardExpirationYear <= 0 ? string.Empty : Model.CardExpirationYear.ToString())
+        .SelectedIndex(0)
+        .HtmlAttributes(new { style = "width:120px;vertical-align:middle;", @class = "comboRequired", data = "CardExpirationYear" })
+                //.Enable(@Model.Mode == "add" ? true : false)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo");
+        })
+        )
+    </div>
+    <p class="inline-large-label">
+        <label for="NameonCard" class="label">
+            Name on Card<span class="spanstar">*</span>
+        </label>
+        @Html.TextBoxFor(u => u.Payment.CCNameOnCard, new { @class = "validate[required,maxSize[50]] input full-width2" })
+    </p>
+    <p class="inline-large-label">
+        <label for="BillingAddress" class="label" style="font-style: italic;">
+            Billing Address
+        </label>
+        @Html.CheckBox("BillingAddress", false, new { @class = "checkbox" })
+        Use Member's Address
+    </p>
+    <div id="DIVbillingAddress">
+        <p class="inline-large-label">
+            <label for="Address1" class="label">
+                Address 1
+            </label>
+            @Html.TextBoxFor(u => Model.Payment.BillingLine1, new { @class = "validate[maxSize[100]] input full-width2" })
+        </p>
+        <p class="inline-large-label">
+            <label for="Address2" class="label">
+                Address 2
+            </label>
+            @Html.TextBoxFor(u => Model.Payment.BillingLine2, new { @class = "validate[maxSize[100]] input full-width2" })
+        </p>
+        <p class="inline-large-label">
+            <label for="City" class="label">
+                City
+            </label>
+            @Html.TextBoxFor(u => Model.Payment.BillingCity, new { @class = "validate[maxSize[100]] input full-width2" })
+        </p>
+        <div class="button-height inline-large-label mid-margin-bottom">
+            <label for="StateCountry" class="label">
+                Country, State
+            </label>
+            @(Html.Kendo().ComboBox()
+            .Name("Estimate.BillingCountryID")
+            .Suggest(true)
+            .HighlightFirst(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+            .Value(Model.Payment.BillingCountryID == null ? string.Empty : Model.Payment.BillingCountryID.ToString())
+            .SelectedIndex(0)
+            .HtmlAttributes(new { style = "width:42%;vertical-align:middle;" })
+                    //.Enable(@Model.Mode == "add" ? true : false)
+            .Events(events =>
+                {
+                    events.Change("Country_OnChange");
+                })
+            )
+            @(Html.Kendo().ComboBox()
+                    .Name("Estimate.BillingStateProvinceID")
+            .Suggest(true)
+            .HighlightFirst(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+            .HtmlAttributes(new { style = "width:42%;vertical-align:middle;" })
+            .Value(Model.Payment.BillingStateProvinceID == null ? string.Empty : Model.Payment.BillingStateProvinceID.ToString())
+            .SelectedIndex(0)
+                    // .Enable(@Model.Mode == "add" ? true : false)
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo");
+            })
+            )
+        </div>
+        <p class="inline-large-label">
+            <label for="PostalCode" class="label">
+                Postal Code
+            </label>
+            @Html.TextBoxFor(u => Model.Payment.BillingPostalCode, new { @class = "validate[maxSize[20]] input inputSmall mid-margin-bottom" })
+        </p>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function CountryChange(countryID) {
+        var comboChild = $("#Estimate_BillingStateProvinceID").data("kendoComboBox");
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("StateProvinceRelatedToCountry", "ReferenceData", new { area = "Common" })',
+            data: { countryId: countryID },
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                comboChild.setDataSource(msg);
+                comboChild.value('');
+            }
+        });
+    }
+
+    $(function () {
+        $('#BillingAddress').change(function () {
+            if ($('#BillingAddress').is(':checked')) {
+                // Ajax Call to get the Member Address.
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("_GetMemberAddress", "Payment", new { area = "Application" })',
+                    traditional: true,
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        var address = msg.Data;
+                        // Bind the address fields
+                        if (msg.Data != null) {
+                            $("#Payment_BillingLine1").val(address.Line1);
+                            $("#Payment_BillingLine2").val(address.Line2);
+                            $("#Payment_BillingCity").val(address.City);
+                            $("#Estimate_BillingCountryID").data('kendoComboBox').value(address.CountryID);
+                            CountryChange(address.CountryID)
+                            $("#Payment_BillingPostalCode").val(address.PostalCode);
+                            var selectItem = function (dataItem) {
+                                //dataItem argument is a ComboBox data item.
+                                return dataItem.Value == address.StateProvinceID;
+                            }
+                            $("#Estimate_BillingStateProvinceID").data('kendoComboBox').select(selectItem);
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+</script>

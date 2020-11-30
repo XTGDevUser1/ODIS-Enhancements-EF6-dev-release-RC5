@@ -1,0 +1,72 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.MemberShipManagementSRHistory_Result>
+@{
+    var suffixMembershipID = ViewData["MembershipID"].ToString();    
+}
+<script type="text/javascript" language="javascript">
+    function GrdMembershipSRH_OnDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        //$(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+    }
+
+    function MemberSearchCriteria() {
+        return { membershipID: '@suffixMembershipID' };
+    }
+</script>
+<div class="with-padding">
+    @(Html.Kendo().Grid(Model)
+.Name("GrdMembershipSRH_" + suffixMembershipID)
+.Columns(column =>
+{
+    column.Bound(a => a.RequestNumber).Title("Request#");
+    column.Bound(a => a.RequestDate).Title("Date").Format("{0:MM/dd/yyyy}");
+    column.Bound(a => a.MemberName).Title("Member");
+    column.Bound(a => a.ServiceType).Title("Service Type");
+    column.Bound(a => a.Status).Title("Status");
+    column.Bound(a => a.Vehicle).Title("Vehicle");
+    column.Bound(a => a.POCount).Title("PO Count");
+    column.Command(command =>
+    {
+        command.Custom("View").Click(@<text>function(e){ ManageMembershipSRH(e,'@suffixMembershipID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+        //command.Custom("Edit").Click(@<text>function(e){ ManageMembershipSRH(e,'@suffixMembershipID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+    }).Width(75)
+    .Title("Action(s)");
+})
+.Events(e =>
+{
+    e.DataBound("GrdMembershipSRH_OnDataBound");
+})
+.Pageable()
+.Sortable()
+.Scrollable()
+.Filterable(filterable => filterable
+    .Extra(false)
+)
+.Pageable(pager => pager
+    .Refresh(true)
+    .PageSizes(new int[] { 10, 20, 50, 100 })
+)
+.Selectable(select => select.Mode(GridSelectionMode.Single))
+.DataSource(datasource => datasource
+    .Ajax()
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    .Read(read => read.Action("_GetMembershipSRHistory", "Member").Data("MemberSearchCriteria"))
+    .Model(u => u.Id(p => p.RequestNumber))
+)
+.Resizable(resize => resize.Columns(true))
+)
+</div>
+<script type="text/javascript">
+    $(function () {
+        HandleDblClickOnGrid($("#GrdMembershipSRH_@suffixMembershipID"), '.k-grid-View');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        350
+                                        );
+        $("#GrdMembershipSRH_@suffixMembershipID>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

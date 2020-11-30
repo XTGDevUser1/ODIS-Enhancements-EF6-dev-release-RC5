@@ -1,0 +1,33 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right memberManagementShortcuts">
+ @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_MEMBER) == AccessType.ReadWrite)
+ {
+    <li id="LMenu_MemeberManagement_DashBoard"><a href="@Url.Action("Index", "Dashboard", new { area = "MemberManagement" })" class="shortcut-dashboard" title="Dashboard" data="Dashboard">
+        Dashboard</a></li>
+ }
+  @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_MEMBER_MAINTENANCE) == AccessType.ReadWrite)
+  {
+    <li id="LMenu_MemeberManagement_Member"><a href="@Url.Action("Index", "Member", new { area = "MemberManagement" })" class="shortcut-stats" title="Maintenance" data ="Member">
+        Member</a></li>
+  }
+  @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_MEMBER_MERGE) == AccessType.ReadWrite)
+  {
+    <li id="LMenu_MemeberManagement_MemberMerge"><a href="@Url.Action("Index", "MemberMerge", new { area = "MemberManagement" })" class="shortcut-contacts" title="Merge" data ="MemberMerge">
+        Merge</a></li>
+  }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.memberManagementShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.memberManagementShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

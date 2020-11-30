@@ -1,0 +1,36 @@
+﻿@model Martex.DMS.BLL.Model.VendorPortal.VendorAccountModel
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.VendorDetails.ID.ToString();
+    string suffixVendorLocationID = Model.VendorLocationID.ToString();
+}
+<div class="with-padding">
+    <div id="VendorLocationDetails_@suffixVendorLocationID" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li><a href="@Url.Action("_Vendor_Location_Info", "VendorInfo", new { area = "ISP" })" id="#VendorLocationDetailsInfoTab_@suffixVendorLocationID">
+                Info</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Service", "VendorLocation", new { area = "ISP" })" id="#VendorLocationDetailsServiceAreasTab_@suffixVendorLocationID">
+                Service Areas</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Service_Repairs", "VendorServices", new { area = "ISP" })" id="#VendorLocationDetailsServicesTab_@suffixVendorLocationID">
+                Services</a></li>
+            <li><a href="@Url.Action("_Vendor_Location_Rates", "VendorRates", new { area = "ISP" })" id="#VendorLocationDetailsRatesTab_@suffixVendorLocationID">
+                Rates</a></li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        $('#VendorLocationDetails_@suffixVendorLocationID').tabs({
+            ajaxOptions: {
+                data: { vendorID: '@suffixVendorID', vendorLocationID: '@suffixVendorLocationID' }
+            },
+            cache: false,
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,19 @@
+﻿@using Martex.DMS.DAL.Entities.Clients;
+@model ClientBillableEventProcessingSearchCriteriaPartial
+@for (int i = 0; i < Model.BillingDefinitionInvoiceLine.Count; i++)
+{
+    <div class="with-small-padding">
+        @Html.HiddenFor(u => Model.BillingDefinitionInvoiceLine[i].ID)
+        @Html.HiddenFor(u => Model.BillingDefinitionInvoiceLine[i].Name)
+        @Html.CheckBoxFor(u => Model.BillingDefinitionInvoiceLine[i].Selected, new { @class = "checkbox billingDefinitionInvoiceLines", recorID = Model.BillingDefinitionInvoiceLine[i].ID, recordName = Model.BillingDefinitionInvoiceLine[i].Name })
+        @Model.BillingDefinitionInvoiceLine[i].Name
+    </div>
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('.billingDefinitionInvoiceLines').change(function () {
+            HandleBillingDefinitionInvoiceLines();
+        });
+    });
+</script>

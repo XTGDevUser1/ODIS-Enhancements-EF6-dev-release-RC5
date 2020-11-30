@@ -1,0 +1,57 @@
+﻿@model ClientPortal.Models.LogOnModel
+@{
+    ViewBag.Title = "Login"; 
+ }
+
+<form method="post" action="" id="form-login" class="input-wrapper orange-gradient glossy" formtitle="Login">
+ 
+ @Html.Hidden("returnUrl", Request.QueryString["returnUrl"])
+<ul class="inputs black-input large">
+    <!-- The autocomplete="off" attributes is the only way to prevent webkit browsers from filling the inputs with yellow -->
+    <li><span class="icon-user mid-margin-right"></span>
+        @Html.TextBoxFor(m => m.UserName, new
+   {
+       name = "login_username",
+       id = "login_username",
+       value = "",
+       @class = "validate[required] input-unstyled with-tooltip tooltip-right",       
+       autocomplsete="off",
+       title = "User name",
+    @error_required="Please type your User name"})
+        </li>
+    <li><span class="icon-lock mid-margin-right"></span>
+        @Html.PasswordFor(m => m.Password, new
+   {
+       name = "login_password",
+       id = "login_password",
+       value = "",
+       @class = "validate[required] input-unstyled with-tooltip tooltip-right",       
+       autocomplete="off",
+       title="Password",
+       @error_required = "Please type your password"
+   })
+  
+        </li>
+</ul>
+<p class="button-height align-right">
+    <button type="submit" class="button glossy" id="login">
+        Login</button>
+
+    @* CR - Defect # 148 
+    @Html.CheckBoxFor(m => m.RememberMe, new
+{
+    name = "login_rememberme",
+    id = "login_rememberme",
+    value = "0",
+    @class = "switch tiny mid-margin-right with-tooltip"
+        ,title="Enable auto-login"})
+    <label for="remind">
+        Stay signed in</label>*@
+</p>
+<span style="position:absolute;right:0;bottom:0;width:0px;height:0px">
+<APPLET CODE="ClickToCallApplet.class" Width="100" Height="100" archive="@Url.Content("~/Applet/SignedDMSClickToCall-Trusted-lib.jar")">
+    <param name="DeviceRegistryPath" value="@ViewData[Martex.DMS.BLL.Common.AppConfigConstants.DEVICE_NAME_REGISTRY_PATH]"/>
+    
+</APPLET>
+</span>
+</form>

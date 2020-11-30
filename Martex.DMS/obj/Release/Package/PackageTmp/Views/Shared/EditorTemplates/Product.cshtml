@@ -1,0 +1,144 @@
+﻿@using Kendo.Mvc.UI
+@model object
+@{
+    var strHandler = "GetProductID('" + ViewData["VendorID"] + "')";
+}
+<script language="javascript" type="text/javascript">
+
+    function GetProductID(uniqueID) {
+        var row = $("#ddlProducts_" + uniqueID).closest("tr");
+        var grid = $("#ddlProducts_" + uniqueID).closest("[data-role=grid]").data("kendoGrid");
+        var dataItem = grid.dataItem(row);
+
+        return { productID: dataItem.ProductID };
+    }
+
+    function onEditorDropDownChange(e) {
+
+        var combo = e.sender;
+
+        // KB: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        //get the edited field name
+        var fieldName = combo.element.attr("fieldName");
+        //find the closest row
+        var currentRow = combo.wrapper.closest("tr");
+        //find the grid
+        var grid = combo.wrapper.closest(".k-grid").data("kendoGrid");
+        //get the current row dataItem
+        var currentDataItem = grid.dataItem(currentRow);
+        //manually set the current value of the DropDownList to the field
+        var val = combo.value();
+
+        if (isNaN(val)) {
+            currentDataItem.set(fieldName, val);
+        }
+        else {
+            currentDataItem.set(fieldName, parseInt(val));
+        }
+
+        CallProductConfiguration(combo.value(), currentRow);
+    }
+
+    function CallProductConfiguration(productID, currentRow) {
+
+        $.ajax({
+            type: 'GET',
+            data: { productID: productID },
+            url: '@Url.Action("_ProductConfiguration", "VendorHome", new { area = "VendorManagement" })',
+            success: function (msg) {
+                try {
+                    var isServiceRateConfigured = msg.Data.IsServiceRateConfigured;
+                    var isServiceFreeMilesConfigured = msg.Data.IsServiceFreeMilesConfigured;
+
+                    var isBaseRateConfigured = msg.Data.IsBaseRateConfigured;
+                    var isEnrouteRateConfigured = msg.Data.IsEnrouteRateConfigured;
+                    var isEnrouteFreeMilesConfigured = msg.Data.IsEnrouteFreeMilesConfigured;
+                    var isHourlyRateFreeMilesConfigured = msg.Data.IsHourlyRateConfigured;
+                    var isGOARateFreeMilesConfigured = msg.Data.IsGOARateConfigured;
+
+                    var $serviceRate = currentRow.find(".serviceRate :input");
+                    var $serviceFreeMiles = currentRow.find(".serviceFreeMiles :input");
+
+                    var $baseRate = currentRow.find(".baseRate :input");
+                    var $enrouteRate = currentRow.find(".enrouteRate :input");
+                    var $enrouteFreeMiles = currentRow.find(".enrouteFreeMiles :input");
+                    var $hourlyRate = currentRow.find(".hourlyRate :input");
+                    var $goaRate = currentRow.find(".goaRate :input");
+
+                    if (isServiceRateConfigured != null && isServiceRateConfigured == false && $serviceRate.length > 0) {
+                        $serviceRate.attr("disabled", "disabled");
+                    }
+                    else if (isServiceRateConfigured != null && isServiceRateConfigured == true && $serviceRate.length > 0) {
+                        $serviceRate.removeAttr("disabled", "disabled");
+                    }
+
+                    if (isServiceFreeMilesConfigured != null && isServiceFreeMilesConfigured == false && $serviceFreeMiles.length > 0) {
+                        $serviceFreeMiles.attr("disabled", "disabled");
+                    }
+                    else if (isServiceFreeMilesConfigured != null && isServiceFreeMilesConfigured == true && $serviceFreeMiles.length > 0) {
+                        $serviceFreeMiles.removeAttr("disabled", "disabled");
+                    }
+
+                    if (isBaseRateConfigured != null && isBaseRateConfigured == false && $baseRate.length > 0) {
+                        $baseRate.attr("disabled", "disabled");
+                    }
+                    else if (isBaseRateConfigured != null && isBaseRateConfigured == true && $baseRate.length > 0) {
+                        $baseRate.removeAttr("disabled", "disabled");
+                    }
+                    if (isEnrouteRateConfigured != null && isEnrouteRateConfigured == false && $enrouteRate.length > 0) {
+                        $enrouteRate.attr("disabled", "disabled");
+                    }
+                    else if (isEnrouteRateConfigured != null && isEnrouteRateConfigured == true && $enrouteRate.length > 0) {
+                        $enrouteRate.removeAttr("disabled", "disabled");
+                    }
+                    if (isEnrouteFreeMilesConfigured != null && isEnrouteFreeMilesConfigured == false && $enrouteFreeMiles.length > 0) {
+                        $enrouteFreeMiles.attr("disabled", "disabled");
+                    }
+                    else if (isEnrouteFreeMilesConfigured != null && isEnrouteFreeMilesConfigured == true && $enrouteFreeMiles.length > 0) {
+                        $enrouteFreeMiles.removeAttr("disabled", "disabled");
+                    }
+                    if (isHourlyRateFreeMilesConfigured != null && isHourlyRateFreeMilesConfigured == false && $hourlyRate.length > 0) {
+                        $hourlyRate.attr("disabled", "disabled");
+                    }
+                    else if (isHourlyRateFreeMilesConfigured != null && isHourlyRateFreeMilesConfigured == true && $hourlyRate.length > 0) {
+                        $hourlyRate.removeAttr("disabled", "disabled");
+                    }
+
+                    if (isGOARateFreeMilesConfigured != null && isGOARateFreeMilesConfigured == false && $goaRate.length > 0) {
+                        $goaRate.attr("disabled", "disabled");
+                    }
+                    else if (isGOARateFreeMilesConfigured != null && isGOARateFreeMilesConfigured == true && $goaRate.length > 0) {
+                        $goaRate.removeAttr("disabled", "disabled");
+                    }
+                }
+                catch (e) {
+
+                }
+            }
+
+        });
+    }
+
+</script>
+@(
+ Html.Kendo().ComboBoxFor(m => m)
+
+            .DataSource(source =>
+                              {
+                                  source.Read(read =>
+                                       {
+                                           read.Action("_GetContractRateScheduleProducts", "VendorHome", new { Area = "VendorManagement", vendorID = ViewData["VendorID"], contractRateScheduleID = ViewData["ContractRateScheduleID"] }).Data(strHandler);
+                                       })
+                                           .ServerFiltering(false);
+                              })
+                              .DataTextField("Text")
+                              .DataValueField("Value")
+            .Events(events => events.Change("onEditorDropDownChange"))
+            .Placeholder("Select")
+            .HtmlAttributes(new { id = "ddlProducts_" + ViewData["VendorID"].ToString(), fieldName = ViewData["FieldName"] })
+
+    )

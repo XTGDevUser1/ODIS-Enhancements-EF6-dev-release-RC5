@@ -1,0 +1,23 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.Entities;
+@{
+    GenericAddressEntityModel model = ViewData["address"] as GenericAddressEntityModel;
+    string recordID = model.RecordID.ToString();
+    int height = model.Height > 0 ? model.Height : 300;
+    string heightPixel = "height:" + height.ToString() + "px;";
+    string entityName = model.EntityName;
+}
+<div class="with-padding">
+    <div style="margin-left: 5px; margin-bottom: 5px;" id="PlaceHolder_AddressNew_@recordID">
+        @if (!model.IsReadOnly)
+        {
+            <a class="icon-add-user icon-size2 with-tooltip" title="New Address" href="javascript:void(0);" id="address_add_@recordID" onclick="SwitchViewToEdit('0','@recordID','@entityName')">
+            </a>
+        }
+    </div>
+    <div style="@heightPixel" class="scrollable" id="PlaceHolder_Address_@recordID">
+        @Html.Partial("_ScrollableAddressList", model)
+    </div>
+    <div style="@heightPixel" class="scrollable hidden" id="PlaceHolder_AddressContainer_@recordID">
+    </div>
+</div>

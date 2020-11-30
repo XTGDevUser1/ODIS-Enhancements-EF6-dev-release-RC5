@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Application xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Common="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+              xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.App">
+  <Application.Resources>
+    <ResourceDictionary>
+
+      <Style x:Key="BaseContentPage" TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.BackgroundColor}" />
+      </Style>
+      <Style x:Key="MainLayout" TargetType="ScrollView">
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.MainLayoutColor}" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="VerticalOptions" Value="Fill" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="Orientation" Value="Vertical" />
+      </Style>
+
+      <Style x:Key="BaseLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.BaseLabelFontSize}" />
+      </Style>
+      <Style x:Key="BaseLabelStyle_Italic" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.BaseLabelFont_Italic}" />
+      </Style>
+      <Style x:Key="LeftMenuLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LeftMenuLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LeftMenuLabelFont}" />
+      </Style>
+      <Style x:Key="ButtomMenuLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ButtomMenuLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ButtomMenuLabelFont}" />
+      </Style>
+      <Style x:Key="ActionBarHeaderLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ActionBarHeaderLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ActionBarHeaderLabelFont}" />
+      </Style>
+      <Style x:Key="ToolbarHeaderLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ToolbarHeaderLabelTextColor}" />
+        <Setter Property="FontFamily" Value="{x:Static Common:FontResources.ToolbarHeaderLabelFontName}" />
+        <Setter Property="FontSize" Value="{x:Static Common:FontResources.ToolbarHeaderLabelFontSize}" />
+      </Style>
+      <Style x:Key="HeaderLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.HeaderLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.HeaderLabelFontSize}" />
+      </Style>
+      <Style x:Key="SubHeaderLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SubHeaderLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SubHeaderLabelFont}" />
+      </Style>
+      <Style x:Key="SubHeaderBoldLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SubHeaderBoldLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SubHeaderBoldLabelFont}" />
+      </Style>
+
+      <Style x:Key="EntryLabelLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.EntryLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.EntryLabelFontSize}" />
+      </Style>
+      <Style x:Key="LabelValueLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LabelValueLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LabelValueLabelFont}" />
+      </Style>
+      <Style x:Key="LabelValueValueStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LabelValueValueTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LabelValueValueFont}" />
+      </Style>
+
+      <Style x:Key="HintLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.HintLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.HintLabelFontSize}" />
+      </Style>
+
+      <Style x:Key="BaseButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.BaseButtonFontSize}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.BaseButtonBackgroundColor}" />
+      </Style>
+
+      <Style x:Key="LabledButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LabledButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LabledButtonFontSize}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.LabledButtonBackgroundColor}" />
+      </Style>
+
+      <Style x:Key="ToolbarLabledButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ToolbarLabledButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ToolbarLabledButtonFontSize}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.ToolbarLabledButtonBackgroundColor}" />
+      </Style>
+
+      <Style x:Key="LabelValueVertical_LabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LabelValueVertical_LabelFont}" />
+      </Style>
+      <Style x:Key="LabelValueVertical_ValueStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.LabelValueVertical_ValueFont}" />
+      </Style>
+      <!-- Start Settings page-->
+      <Style x:Key="Settings_SubtitleStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SettingsSubtitleTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SettingsSubtitleFont}" />
+      </Style>
+      <Style x:Key="Settings_ContentStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SettingsContentTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SettingsContentFont}" />
+      </Style>
+      <Style x:Key="Settings_LabledButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SettingsLabledButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SettingsLabledButtonFontSize}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.SettingsLabledButtonBackgroundColor}" />
+      </Style>
+      <Style x:Key="Settings_MenuTitleStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.SettingsMenuTitleTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.SettingsMenuTitleFont}" />
+      </Style>
+      <!-- End Settings page-->
+
+      <!--vehicle List page-->
+      <Style x:Key="VehicleListFirstLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.VehicleFirstLineColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.VehicleListFirstLineFont}" />
+      </Style>
+
+      <Style x:Key="VehicleListSecondLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.VehicleSecondLineColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.VehicleListSecondLineFont}" />
+      </Style>
+  <!-- start vehicle detailspage--> 
+  <Style x:Key="VehicleYearMakeModelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.VehicleYearMakeModelFontColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.VehicleYearMakeModelFont}" />
+      </Style>
+
+      <Style x:Key="VehicleHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.VehicleTypeTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.VehicleTypeFont}" />
+      </Style>
+      <!--end vehicle details page-->
+    <!--Account Page-->
+
+      <Style x:Key="AccountHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.AccountHeaderLineTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.AccountHeaderLineFont}" />
+      </Style>
+      <!--end Account Page-->
+      
+      <!--Edit Account page-->
+      <Style x:Key="EditAccountHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.EditAccountHeaderLineTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.EditAccountHeaderLineFont}" />
+      </Style>
+      <!--end EditAccountPage-->
+      
+
+      <!--Start Profile styles-->
+      <Style x:Key="ProfileLabelValueVertical_LabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ProfileLabelValueVerticalLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ProfileLabelValueVerticalLabelFont}" />
+      </Style>
+      <Style x:Key="ProfileLabelValueVertical_ValueStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ProfileLabelValueVerticalValueTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ProfileLabelValueVerticalValueFont}" />
+      </Style>
+
+      <Style x:Key="ProfileUserLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ProfileUserLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ProfileUserLabelFont}" />
+      </Style>
+
+      <Style x:Key="BoldLabelButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LabledButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.BoldFont}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.LabledButtonBackgroundColor}" />
+      </Style>
+      <!--End Profile styles-->
+      
+      <!--forgot password & user name-->
+      <Style x:Key="ForgotHeaderLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ForgotHeaderLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ForgotHeadersLineFont}" />
+      </Style>
+<!--service request submit page-->
+      <Style x:Key="RequestTypeHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.RequestTypeHeaderTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ServiceRequestTypeHeadersLineFont}" />
+      </Style>
+
+      <Style x:Key="ServiceRequestHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.ServiceRequestHeaderTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ServiceRequestPageHeadersLineFont}" />
+      </Style>
+
+      <Style x:Key="ServiceRequestLabelsHeadLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.LabelsHeaderTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.ServiceRequestPagLabelsFont}" />
+      </Style>
+
+      <Style x:Key="CallButtonStyle" TargetType="Button">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.BaseButtonTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.BaseButtonFontSize}" />
+        <Setter Property="BackgroundColor" Value="{x:Static Common:ColorResources.CallButtonBackGroundColor}" />
+      </Style>
+      <!-- End service request submit page-->
+      <!--Home page-->
+      <Style x:Key="HeaderLineStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.HomePageHeaderLabelTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.HomepageHeaderLabelFont}" />
+      </Style>
+
+      <Style x:Key="HomePageEmptyRequestCardStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.EmptyRequestCardTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.EmptyRequestsCardLabelFont}" />
+      </Style>
+
+      <Style x:Key="CardTitleLabelStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.CardTitleTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.CardTitleLabelFont}" />
+      </Style>
+
+      <Style x:Key="CardReadLinkStyle" TargetType="Label">
+        <Setter Property="TextColor" Value="{x:Static Common:ColorResources.CardReadLinkTextColor}" />
+        <Setter Property="Font" Value="{x:Static Common:FontResources.CardReadLinkLabelFont}" />
+      </Style>
+      <!--End Home Page-->
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

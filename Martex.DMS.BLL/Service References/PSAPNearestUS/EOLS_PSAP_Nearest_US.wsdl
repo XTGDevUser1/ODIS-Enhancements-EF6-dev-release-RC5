@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:ns2="http://www.pb.com/spectrum/services/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://spectrum.pb.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://www.pb.com/spectrum/services/EOLS_PSAP_Nearest_US" xmlns:ns3="http://schemas.xmlsoap.org/soap/http" name="EOLS_PSAP_Nearest_US" targetNamespace="http://spectrum.pb.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xs:schema xmlns:tns="http://www.pb.com/spectrum/services/EOLS_PSAP_Nearest_US" xmlns:ns1="http://spectrum.pb.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.pb.com/spectrum/services/EOLS_PSAP_Nearest_US" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://spectrum.pb.com/" />
+      <xs:element name="Input.Row" type="tns:Input.Row" />
+      <xs:element name="Input.RowList" type="tns:Input.RowList" />
+      <xs:element name="Output.Row" type="tns:Output.Row" />
+      <xs:element name="Output.RowList" type="tns:Output.RowList" />
+      <xs:complexType name="EOLS_PSAP_Nearest_USRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" form="qualified" name="options" type="tns:options" />
+          <xs:element minOccurs="0" form="qualified" name="Input" type="tns:Input.RowList" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="options">
+        <xs:sequence>
+          <xs:element minOccurs="0" form="qualified" name="MaxDistance" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MaxCandidates" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="DistanceUnits" type="tns:DistanceUnits" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Input.RowList">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" form="qualified" name="Row" type="tns:Input.Row" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Input.Row">
+        <xs:all>
+          <xs:element minOccurs="0" form="qualified" name="Latitude" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Longitude" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="InputKeyValue" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="FirmName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine1" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine2" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine3" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine4" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine5" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine6" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="LastLine" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="City" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="StateProvince" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PostalCode" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="user_fields">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" form="qualified" name="user_field" type="tns:user_field" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="user_field">
+        <xs:sequence>
+          <xs:element form="qualified" name="name" type="xs:string" />
+          <xs:element form="qualified" name="value" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="EOLS_PSAP_Nearest_USResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" form="qualified" name="Output" type="tns:Output.RowList" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Output.RowList">
+        <xs:sequence>
+          <xs:element minOccurs="0" maxOccurs="unbounded" form="qualified" name="Row" type="tns:Output.Row" />
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="Output.Row">
+        <xs:all>
+          <xs:element minOccurs="0" form="qualified" name="Distance" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="DistanceUnits" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PSAPID" type="xs:int" />
+          <xs:element minOccurs="0" form="qualified" name="FCCID" type="xs:int" />
+          <xs:element minOccurs="0" form="qualified" name="PSAPType" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="CountyName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="CountyFIPS" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Agency" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="CoverageArea" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="CoverageExceptions" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="CoverageComments" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PSAPComments" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="OperatorPhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactPrefix" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactFirstName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactLastName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactTitle" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactPhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactFax" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactEmail" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ContactComments" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MailingStreet" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MailingCity" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MailingState" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MailingZip" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SitePhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SiteFax" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SiteStreet" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SiteCity" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SiteState" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="SiteZip" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Status" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Status.Code" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Status.Description" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Confidence" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="ProcessedBy" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="StreetDataType" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="LocationCode" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="MatchCode" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AdditionalInputData" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine1" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine2" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="City" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Country" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="FirmName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="LastLine" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PostalCode" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PostalCode.Base" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PostalCode.AddOn" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="RRHC" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="StateProvince" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="USUrbanName" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Latitude" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="Longitude" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="StreetSide" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="InputKeyValue" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine3" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine4" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine5" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="AddressLine6" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="PolicePhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="FirePhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="EMSPhone" type="xs:string" />
+          <xs:element minOccurs="0" form="qualified" name="user_fields">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element minOccurs="0" maxOccurs="unbounded" form="qualified" name="user_field" type="tns:user_field" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:all>
+      </xs:complexType>
+      <xs:simpleType name="DistanceUnits">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Feet" />
+          <xs:enumeration value="Yards" />
+          <xs:enumeration value="Miles" />
+          <xs:enumeration value="Meters" />
+          <xs:enumeration value="Kilometers" />
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:element name="EOLS_PSAP_Nearest_USRequest" nillable="true" type="tns:EOLS_PSAP_Nearest_USRequest" />
+      <xs:element name="EOLS_PSAP_Nearest_USResponse" nillable="true" type="tns:EOLS_PSAP_Nearest_USResponse" />
+    </xs:schema>
+    <xs:schema xmlns="http://spectrum.pb.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://spectrum.pb.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:import namespace="http://www.pb.com/spectrum/services/EOLS_PSAP_Nearest_US" />
+      <xs:element name="EOLS_PSAP_Nearest_USRequest" type="ns1:EOLS_PSAP_Nearest_USRequest" />
+      <xs:element name="EOLS_PSAP_Nearest_USResponse" type="ns1:EOLS_PSAP_Nearest_USResponse" />
+      <xs:element name="options" type="ns1:options" />
+      <xs:element name="user_field" type="ns1:user_field" />
+      <xs:complexType name="ServiceInvocationFault">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="message" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+    <xsd:schema xmlns:tns="http://www.pb.com/spectrum/services/" xmlns:ns0="http://spectrum.pb.com/" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.pb.com/spectrum/services/">
+      <xsd:element name="ServiceInvocationFault" nillable="true" type="ns0:ServiceInvocationFault" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="EOLS_PSAP_Nearest_US">
+    <wsdl:part name="parameters" element="ns1:EOLS_PSAP_Nearest_USRequest" />
+  </wsdl:message>
+  <wsdl:message name="EOLS_PSAP_Nearest_USResponse">
+    <wsdl:part name="parameters" element="ns1:EOLS_PSAP_Nearest_USResponse" />
+  </wsdl:message>
+  <wsdl:message name="ServiceInvocationFault">
+    <wsdl:part name="ServiceInvocationFault" element="ns2:ServiceInvocationFault" />
+  </wsdl:message>
+  <wsdl:portType name="EOLS_PSAP_Nearest_US">
+    <wsdl:operation name="EOLS_PSAP_Nearest_US">
+      <wsdl:input name="EOLS_PSAP_Nearest_US" message="tns:EOLS_PSAP_Nearest_US" />
+      <wsdl:output name="EOLS_PSAP_Nearest_USResponse" message="tns:EOLS_PSAP_Nearest_USResponse" />
+      <wsdl:fault name="ServiceInvocationFault" message="tns:ServiceInvocationFault" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="EOLS_PSAP_Nearest_USSoapBinding" type="tns:EOLS_PSAP_Nearest_US">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="EOLS_PSAP_Nearest_US">
+      <soap:operation soapAction="" style="document" />
+      <wsdl:input name="EOLS_PSAP_Nearest_US">
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output name="EOLS_PSAP_Nearest_USResponse">
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="ServiceInvocationFault">
+        <soap:fault use="literal" name="ServiceInvocationFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="EOLS_PSAP_Nearest_US">
+    <wsdl:port name="EOLS_PSAP_Nearest_USPort" binding="tns:EOLS_PSAP_Nearest_USSoapBinding">
+      <soap:address location="https://staging.g1.com/soap/EOLS_PSAP_Nearest_US" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

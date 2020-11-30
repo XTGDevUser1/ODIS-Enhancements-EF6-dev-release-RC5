@@ -1,0 +1,292 @@
+﻿@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.Common
+@model List<CallSummary_Result>
+@{
+    var result = Model.Select(u => u.GroupName).Distinct();
+    var iconConfig = new VendorListIconConfig();
+    var tabID = 0;
+    string imageUrl = Url.Content("~/Content/img/standard/sprites.png");
+    bool memberEligibilityApplies = (bool)ViewData["MemberEligibilityApplies"];
+}
+<style type="text/css">
+    .greenSolidIcon
+    {
+        background: url(@imageUrl) no-repeat -79px -34px;
+        display: block;
+        overflow: hidden;
+        text-indent: -9999px;
+        text-align: left;
+        width: 16px;
+        white-space: nowrap;
+    }
+    .redSolidIcon
+    {
+
+        background: url(@imageUrl) no-repeat -112px -34px;
+        display: block;
+        overflow: hidden;
+        text-indent: -9999px;
+        text-align: left;
+        width: 16px;
+        white-space: nowrap;
+    }
+</style>
+@functions{
+
+    bool IsPrinted(CallSummary_Result element)
+    {
+        return !string.IsNullOrEmpty(element.ColumnValue);
+    }
+
+}
+@helper PrintElement(CallSummary_Result element)
+{
+    var result = Model.Select(u => u.GroupName).Distinct();
+    var iconConfig = new VendorListIconConfig();
+    bool memberEligibilityApplies = (bool)ViewData["MemberEligibilityApplies"];
+
+    if (element.ColumnName.Equals("Service_ProductCategoryTow"))
+    {
+        var tempElement = Model.Where(u => u.ColumnName.Equals("Service_IsPrimaryOverallCovered")).FirstOrDefault();
+        if (tempElement != null)
+        {
+            if (tempElement.ColumnValue.Equals("Covered"))
+            {
+                <span class="greenSolidIcon message-status with-tooltip" title="Covered">Covered</span>
+            }
+            else
+            {
+                <span class="redSolidIcon message-status with-tooltip" title="Not Covered">Not Covered</span>
+            }
+        }
+    }
+
+    if (element.ColumnName.Equals("Service_IsPossibleTow"))
+    {
+        var tempElement = Model.Where(u => u.ColumnName.Equals("Service_IsSecondaryOverallCovered")).FirstOrDefault();
+        if (tempElement != null)
+        {
+            if (tempElement.ColumnValue.Equals("Covered"))
+            {
+                <span class="greenSolidIcon message-status with-tooltip" title="Covered">Covered</span>
+            }
+            else
+            {
+                <span class="redSolidIcon message-status with-tooltip" title="Not Covered">Not Covered</span>
+            }
+        }
+    }
+
+    if (element.ColumnName.Equals("Vehicle_IsEligible"))
+    {
+        if (element.ColumnValue.Equals("In Warranty"))
+        {
+            <span class="greenSolidIcon message-status with-tooltip" title="In Warranty">In Warranty</span>
+        }
+        else
+        {
+            <span class="redSolidIcon message-status with-tooltip" title="Out of Warranty">
+                Out of
+                Warranty
+            </span>
+        }
+    }
+    //NP 8/21: TFS 439: Considering "MemberEligibilityApplies" from ProgramConfiguration.
+    if (memberEligibilityApplies)
+    {
+        if (element.ColumnName.Equals("Member_Status"))
+        {
+            if (element.ColumnValue.Equals("Active"))
+            {
+                <span class="greenSolidIcon message-status with-tooltip" title="Active">Active</span>
+            }
+            else
+            {
+                <span class="redSolidIcon message-status with-tooltip" title="Inactive">Inactive</span>
+            }
+        }
+    }
+    if (element.DataType.Equals("String"))
+    {
+
+        if (element.ColumnName.Equals("ISP_Contracted") && !string.IsNullOrEmpty(element.ColumnValue))
+        {
+            var contractStatusIconStyle = iconConfig.GetIconStyle(element.ColumnValue);
+            <span class="@contractStatusIconStyle.Class message-status with-tooltip" title="@contractStatusIconStyle.Title">
+                &nbsp;
+            </span>
+        }
+        else if (element.ColumnName.Equals("SR_CreateInfo"))
+        {
+            <br />@element.ColumnValue
+        }
+        else
+        {
+            @element.ColumnValue
+        }
+        if (element.ColumnName.Equals("ISP_Contracted"))
+        {
+            //Junk
+        }
+        else
+        {
+            <br />
+        }
+
+    }
+    else if (element.DataType.Equals("Phone"))
+    {
+        if (element.ColumnName == "Member_CallbackPhoneNumber")
+        {
+            @Html.Editor("PhoneNumber" + element.ColumnName, "Phone", new { Value = element.ColumnValue, ReadOnly = true, CallType = "Member" })
+        }
+        else
+        {
+            @Html.Editor("PhoneNumber" + element.ColumnName, "Phone", new { Value = element.ColumnValue, ReadOnly = true, CallType = "Vendor" })
+        }
+
+        <br />
+    }
+    else if (element.DataType.Equals("LabelTheme"))
+    {
+        if (@element.ColumnValue.Contains("Active") || @element.ColumnValue.Contains("In Warranty") || @element.ColumnValue.Equals("Covered"))
+        {
+            <small class="tag grey-bg">@element.ColumnValue</small><br />
+        }
+        else
+        {
+            <small class="tag grey-bg">@element.ColumnValue</small><br />
+        }
+    }
+    else if (element.DataType.Equals("LabelThemeInline"))
+    {
+        if (element.ColumnName.Equals("Member_ClientMemberType"))
+        {
+            if (!string.IsNullOrEmpty(element.ColumnValue) && element.ColumnValue.ToLower().Equals("employee") || element.ColumnValue.ToLower().Equals("pcs") || element.ColumnValue.ToLower().Equals("vip"))
+            {
+                <small class="tag purple-bg">@element.ColumnValue</small>
+            }
+            <br />
+        }
+        else if (element.ColumnName.Equals("SR_ID"))
+        {
+            @element.ColumnValue
+        }
+        else if (element.ColumnName.Equals("SR_ServiceRequestName"))
+        {
+            <small class="tag blue-bg">@element.ColumnValue</small>
+        }
+        else if (element.ColumnName.Equals("SR_SourceName"))
+        {
+            if (!string.IsNullOrWhiteSpace(element.ColumnValue) && element.ColumnValue == StringConstants.MEMBER_MOBILE)
+            {
+                <small class="tag red-bg">Mobile App</small>
+            }
+        }
+        else
+        {
+            <small class="tag grey-bg">@element.ColumnValue</small>
+        }
+    }
+}
+@foreach (var tabName in result)
+{
+    var elementCounter = -1;
+    CallSummary_Result gropuCount = Model.Where(u => u.GroupName.Equals(tabName)).FirstOrDefault();
+    if (gropuCount != null)
+    {
+        elementCounter = gropuCount.DefaultRows.Value;
+    }
+
+    tabID++;
+    <li>
+        <strong class="blue">@tabName.ToString()</strong>
+        <br />
+        @{
+            var childElements = Model.Where(u => u.GroupName.Equals(tabName)).OrderBy(u => u.Sequence);
+            var counter = 0;
+        }
+        @foreach (var element in childElements)
+        {
+            if (counter >= elementCounter)
+            {
+                <span class="@tabID" style="display:none;">
+                    @PrintElement(element)
+                    @if (IsPrinted(element))
+                    {
+                        counter++;
+                    }
+                </span>
+            }
+            else
+            {
+                @PrintElement(element);
+                if (IsPrinted(element))
+                {
+                    counter++;
+                }
+            }
+        }
+        @if (counter > elementCounter)
+        {
+            <div class="align-center small-margin-top">
+                <small>
+                    <a id="event_@tabID" class="anthracite inactive" tabName="@tabID">
+                        Show More
+                        [+]
+                    </a>
+                </small>
+            </div>
+
+            <script type="text/javascript">
+                $(function () {
+                    $("#event_@tabID").unbind("click");
+                    $("#event_@tabID").click(function (event, restore) {
+                        event.preventDefault();
+                        var tabName = $(this).attr('tabName');
+                        if ($(this).hasClass("inactive")) {
+                            $('.' + tabName).show();
+                            $(this).html("Show Less [-]");
+                            $(this).removeClass("inactive")
+                            UpdateCallSummary("@tabID", "add", restore);
+                        }
+                        else {
+                            $('.' + tabName).hide();
+                            $(this).html("Show More [+]");
+                            $(this).addClass("inactive");
+                            UpdateCallSummary("@tabID", "delete", restore);
+                        }
+
+                        return false;
+                    });
+
+                });
+            </script>
+        }
+    </li>
+}
+<script type="text/javascript">
+    $(function () {
+        for (i = 0; i < callSummarySelections.length; i++) {
+            $("#event_" + callSummarySelections[i].toString()).trigger('click', ["true"]);
+        }
+    });
+
+    function UpdateCallSummary(tabName, Operation, restore) {
+        if (restore == undefined) {
+
+            if (Operation == "add") {
+                var index = callSummarySelections.indexOf(tabName);
+                if (index >= 0) {
+                    callSummarySelections.splice(index, 1);
+                }
+                callSummarySelections[callSummarySelections.length] = tabName;
+            }
+            else {
+                var index = callSummarySelections.indexOf(tabName);
+                callSummarySelections.splice(index, 1);
+            }
+        }
+    }
+</script>

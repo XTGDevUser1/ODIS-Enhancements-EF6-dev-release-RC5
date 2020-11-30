@@ -1,0 +1,1325 @@
+﻿@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@using Martex.DMS.Common
+@using Martex.DMS.ActionFilters
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.BLL.Model
+@model List<ServiceTab>
+@{
+    List<ServiceTab> allowedServiceTypes = Model.Where(a => a.IsEnabled == true).ToList<ServiceTab>();
+
+
+    ServiceEligibilityModel eligibilityModel = ViewData["ServiceEligibilityModel"] as ServiceEligibilityModel;
+    //List<MemberProductsUsingCategory_Result> memberProducts = ViewData["MemberProductsUsingCategory_Result"] as List<MemberProductsUsingCategory_Result>;
+    string[] primaryCoverageDescriptionTokens = null;
+    string[] secondaryCoverageDescriptionTokens = null;
+
+    string primaryServiceEligibiltyMessageClass = "alert-info";
+    string secondaryServiceEligibiltyMessageClass = "alert-info";
+    string primaryServiceCoveredPrefix = "";
+    string secondaryServiceCoverdPrefix = "";
+    if (eligibilityModel != null)
+    {
+        if (!string.IsNullOrEmpty(eligibilityModel.PrimaryServiceCoverageDescription))
+        {
+            primaryCoverageDescriptionTokens = eligibilityModel.PrimaryServiceCoverageDescription.Split('|');
+        }
+
+        if (!string.IsNullOrEmpty(eligibilityModel.SecondaryServiceCoverageDescription))
+        {
+            secondaryCoverageDescriptionTokens = eligibilityModel.SecondaryServiceCoverageDescription.Split('|');
+        }
+        if (eligibilityModel.IsPrimaryOverallCovered != null)
+        {
+            if (eligibilityModel.IsPrimaryOverallCovered.GetValueOrDefault())
+            {
+                primaryServiceEligibiltyMessageClass = "alert-success";
+                primaryServiceCoveredPrefix = "COVERED: ";
+            }
+            else
+            {
+                primaryServiceEligibiltyMessageClass = "alert-wrong";
+                primaryServiceCoveredPrefix = "NOT COVERED: ";
+            }
+        }
+        if (eligibilityModel.IsSecondaryOverallCovered != null)
+        {
+            if (eligibilityModel.IsSecondaryOverallCovered.GetValueOrDefault())
+            {
+                secondaryServiceEligibiltyMessageClass = "alert-success";
+                secondaryServiceCoverdPrefix = "COVERED: ";
+            }
+            else
+            {
+                secondaryServiceEligibiltyMessageClass = "alert-wrong";
+                secondaryServiceCoverdPrefix = "NOT COVERED: ";
+            }
+        }
+    }
+}
+<link href="~/Content/themes/base/jquery.ui.datepicker.css" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript">
+<!--
+    var isPossibleTowAnswers = new Array();
+    var towAnswersProvidedForQuestions = new Array();
+    var towTabId = 0;
+    var techTabId = 0;
+    var techTabIndex = 0;
+    var renderedQuestions = new Array();
+    var serviceLimits = [];
+
+    var jsonAnswers = null;
+    var answersArray = null;
+
+    function SetPossibleTow(val) {
+
+        if (!IsPossibleTowEnabled()) {
+            return;
+        }
+        var $checkbox = $("#PossibleTow");
+        if (val) {
+            $checkbox.attr('checked', true);
+            $checkbox.parent().addClass("checked");
+
+        }
+        else {
+            $checkbox.attr('checked', false);
+            $checkbox.parent().removeClass("checked");
+        }
+
+        //KB: Re-calculate Eligibility when PossibleTow gets set/reset
+        var serviceType = $("#ServiceType").data("kendoComboBox").text();
+        //KB: If the selected service type = Tow, there is no need to call GetServiceEligibility as it would already be handled in service type change.
+        if (!($.trim(serviceType) == "Tow" && !val)) {
+            GetServiceEligibility();
+        }
+    }
+    // Hide or show the related questions
+    function AnswerCombo_Change(e) {
+        console.log('Answer combo changed');
+        var combo = e.sender;
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+
+            var comboVal = combo.value();
+            var questionId = combo.element.attr("id");
+            // Show/hide related fields.
+            var currentPC = currentActiveTabId.replace("tabs-", "");
+            // Loop through jsonQuestions object.
+            for (var s = 0, sl = jsonQuestions.length; s < sl; s++) {
+
+                if (jsonQuestions[s].ProductCategoryID == currentPC) {
+                    var pcQuestions = jsonQuestions[s].Questions;
+                    for (var p = 0, pl = pcQuestions.length; p < pl; p++) {
+                        var currentQuestion = pcQuestions[p];
+                        if (questionId == currentQuestion.ProductCategoryQuestionId) {
+                            if (currentQuestion.AnswerToTriggerRelatedQuestion == comboVal) {
+                                if (currentQuestion.RelatedQuestionId != null && $('#sq_' + currentQuestion.RelatedQuestionId).length > 0) {
+
+                                    $('#sq_' + currentQuestion.RelatedQuestionId).removeClass("hidden");
+                                }
+                            }
+                            else {
+                                if (currentQuestion.RelatedQuestionId != null && $('#sq_' + currentQuestion.RelatedQuestionId).length > 0) {
+                                    $('#sq_' + currentQuestion.RelatedQuestionId).addClass("hidden");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            var flag = false;
+            // Check if the answer is a possible tow
+
+            var itemRemoved = false;
+            for (var i = 0, l = isPossibleTowAnswers.length; i < l; i++) {
+                var answer = isPossibleTowAnswers[i];
+                if (comboVal == answer.Value && questionId == answer.QuestionID) {
+                    flag = true;
+                    if ($.inArray(questionId, towAnswersProvidedForQuestions) == -1) {
+                        towAnswersProvidedForQuestions.push(questionId);
+                    }
+                }
+            }
+
+            if (!flag) {
+                var itemIndex = $.inArray(questionId, towAnswersProvidedForQuestions);
+                if (itemIndex != -1) {
+                    towAnswersProvidedForQuestions.splice(itemIndex, 1);
+                    itemRemoved = true;
+                }
+            }
+
+            if (currentActiveTabId != "tabs-" + towTabId) {
+                if (towAnswersProvidedForQuestions.length > 0) {
+                    SetPossibleTow(true);
+                }
+                else {
+                    // Uncheck the checkbox if only the user updated an answer that affect IsPossibleTow.
+                    if (itemRemoved) {
+                        SetPossibleTow(false);
+                    }
+                }
+            }
+        }
+    }
+
+    function IsPossibleTowEnabled() {
+        var $checkbox = $("#PossibleTow")
+        var attr = $checkbox.attr("disabled");
+        return !(typeof attr !== 'undefined' && attr !== false);
+    }
+
+    function EnableIsPossibleTow(enable) {
+
+        var $checkbox = $("#PossibleTow");
+        if (!enable) {
+            $checkbox.attr('disabled', true);
+            $checkbox.parent("span").addClass("disabled");
+
+        }
+        else {
+            $checkbox.removeAttr('disabled');
+            $checkbox.parent("span").removeClass("disabled");
+        }
+
+    }
+
+    function UpdateIsPossibleTow() {
+        var combo = $("#ServiceType").data("kendoComboBox");
+        if ($.trim(combo.value()).length == 0 || combo.text() == "Tow" || !IsVehicleRequiredForSelectedService(combo.text())) {
+            SetPossibleTow(false);
+            //Disable the checkbox - Is Possible Tow.
+            EnableIsPossibleTow(false);
+            HideEligibilityDetails(false);
+        }
+        else {
+            //Enable the checkbox - Is Possible Tow
+            EnableIsPossibleTow(true);
+        }
+    }
+    function ServiceTypeCombo_Change(e) {
+
+        var combo = $("#ServiceType").data("kendoComboBox");
+        var serviceTypeId = combo.value();
+
+        var vehicleCategoryValue = $("#frmService").find("#VehicleCategory").data("kendoComboBox").value();
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo) && e != undefined) {
+            UpdateIsPossibleTow();
+            e.preventDefault();
+        }
+        else if (IsVehicleRequiredForSelectedService(combo.text()) && $.trim(vehicleCategoryValue).length == 0) {
+            e.preventDefault();
+            UpdateIsPossibleTow();
+            ShowValidationMessage($("#frmService").find('input[name="VehicleCategory_input"]'), "* Please select weight class");
+        }
+        else {
+            HideValidationMessage($("#frmService").find('input[name="VehicleCategory_input"]'));
+            $("#serviceTabs").tabs("select", "#tabs-" + serviceTypeId);
+            // RefreshServiceLimit();
+            UpdateIsPossibleTow();
+
+            GetServiceEligibility();
+
+        }
+        RefreshMemberAdditionalProgramDetails();
+        //pv
+    }
+
+    function HideEligibilityDetails(isPrimary) {
+        if (isPrimary) {
+            $("#divPrimaryServiceName").html("");
+            $("#divPrimaryServiceComments").html("");
+        }
+        else {
+
+            $("#divSecondaryServiceLimit").hide();
+
+            $("#divSecondaryServiceName").html("");
+            $("#divSecondaryServiceComments").html("");
+        }
+    }
+    function HandleBlankParameters() {
+        var serviceTypeId = $("#ServiceType").data("kendoComboBox").value();
+        var vehicleCategoryId = $("#VehicleCategory").data("kendoComboBox").value();
+
+        if ($.trim(serviceTypeId).length == 0) {
+            $("#pIsPrimaryOverallCovered").removeClass("alert-success").removeClass("alert-wrong").addClass("alert-info");
+            $("#spPrimaryServiceLimit").html("Undetermined");
+
+            HideEligibilityDetails(true);
+
+            $("#pIsSecondaryOverallCovered").removeClass("alert-success").removeClass("alert-wrong").addClass("alert-info");
+
+            $("#spSecondaryServiceLimit").html("Undetermined");
+
+            HideEligibilityDetails(false);
+        }
+    }
+
+    function GetServiceEligibility() {
+        var serviceTypeId = $("#ServiceType").data("kendoComboBox").value();
+        var vehicleCategoryId = $("#VehicleCategory").data("kendoComboBox").value();
+        var isPossibleTow = $("#PossibleTow").is(':checked');
+
+        if ($.trim(serviceTypeId).length == 0) {
+            HandleBlankParameters();
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetServiceEligibility", "Service", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            global: true,
+            async: true,
+            data: { serviceTypeId: serviceTypeId, vehicleCategoryId: vehicleCategoryId, isPossibleTow: isPossibleTow },
+            success: function (msg) {                
+                if (msg.Data && msg.Data != null) {
+
+                    var isServiceEligible = null;
+                    var primaryServiceEligibleComments = [];
+                    var secondaryServiceEligibleComments = [];
+                    var serviceCoverageLimit = null;
+                    var serviceCoverageLimitComments = null;
+                    var primaryServiceBenefit = null;
+                    var secondaryServiceBenfit = null;
+
+                    console.log(msg.Data);
+
+                    if (msg.Data.ServiceBenefit.length > 0) {
+                        var serviceBenefit = msg.Data.ServiceBenefit;
+                        var serviceBenefitLength = msg.Data.ServiceBenefit.length;
+
+                        for (var sb = 0, l = serviceBenefitLength; sb < l; sb++) {
+                            if (serviceBenefit[sb].IsPrimary == "1" && primaryServiceBenefit == null) {
+                                primaryServiceBenefit = serviceBenefit[sb];
+                            }
+                            if (serviceBenefit[sb].IsPrimary == "0" && secondaryServiceBenfit == null) {
+                                secondaryServiceBenfit = serviceBenefit[sb];
+                            }
+                        }
+
+                        if (primaryServiceBenefit != null) {
+                            primaryServiceEligibleComments.push(primaryServiceBenefit.ServiceCoverageDescription);
+                        }
+                        if (secondaryServiceBenfit != null) {
+                            secondaryServiceEligibleComments.push(secondaryServiceBenfit.ServiceCoverageDescription);
+                        }
+                    }
+
+                    if (msg.Data.ProgramServiceEventLimit.length > 0) {
+                        var programServiceEventLimit = msg.Data.ProgramServiceEventLimit;
+                        var programServiceEventLimitLength = programServiceEventLimit.length;
+
+                        for (var sel = 0, l = programServiceEventLimitLength; sel < l; sel++) {
+                            if (programServiceEventLimit[sel].IsPrimary == "1") {
+                                primaryServiceEligibleComments.push(programServiceEventLimit[sel].Description);
+                            }
+                            else {
+                                secondaryServiceEligibleComments.push(programServiceEventLimit[sel].Description);
+                            }
+                        }
+                    }
+
+
+                    var primaryMessageStatus = "alert-info";
+                    var secondaryMessageStatus = "alert-info";
+                    var primaryMessageStatusPrefix = "";
+                    var secondaryMessageStatusPrefix = "";
+                    if (msg.Data.IsPrimaryOverallCovered != null) {
+                        if (msg.Data.IsPrimaryOverallCovered == true) {
+                            primaryMessageStatus = "alert-success";
+                            primaryMessageStatusPrefix = "COVERED: ";
+                        }
+                        else {
+                            primaryMessageStatus = "alert-wrong";
+                            primaryMessageStatusPrefix = "NOT COVERED: ";
+                        }
+                    }
+
+                    if (msg.Data.IsSecondaryOverallCovered != null) {
+                        if (msg.Data.IsSecondaryOverallCovered == true) {
+                            secondaryMessageStatus = "alert-success";
+                            secondaryMessageStatusPrefix = "COVERED: ";
+                        }
+                        else {
+                            secondaryMessageStatus = "alert-wrong";
+                            secondaryMessageStatusPrefix = "NOT COVERED: ";
+                        }
+                    }
+                    $("#pIsPrimaryOverallCovered").removeClass("alert-info").removeClass("alert-success").removeClass("alert-wrong").addClass(primaryMessageStatus);
+                    $("#pIsSecondaryOverallCovered").removeClass("alert-info").removeClass("alert-success").removeClass("alert-wrong").addClass(secondaryMessageStatus);
+
+
+                    if (primaryServiceEligibleComments.length > 0) {
+                        var str = "<ul>"
+                        for (var j = 0, l = primaryServiceEligibleComments.length; j < l; j++) {
+                            if ($.trim(primaryServiceEligibleComments[j]).length > 0) {
+                                str += "<li>";
+                                str += primaryServiceEligibleComments[j];
+                                str += "</li>";
+                            }
+                        }
+                        str += "</ul>";
+                        $("#divPrimaryServiceComments").html(str);
+                        $("#hdnPrimaryServiceComments").val(str);
+                    }
+                    else {
+                        $("#divPrimaryServiceComments").html("");
+                        $("#hdnPrimaryServiceComments").val("");
+                    }
+
+                    if (secondaryServiceEligibleComments.length > 0) {
+                        var str = "<ul>"
+                        for (var m = 0, l = secondaryServiceEligibleComments.length; m < l; m++) {
+                            if ($.trim(secondaryServiceEligibleComments[m]).length > 0) {
+                                str += "<li>";
+                                str += secondaryServiceEligibleComments[m];
+                                str += "</li>";
+                            }
+                        }
+                        str += "</ul>";
+                        $("#divSecondaryServiceComments").html(str);
+                        $("#hdnSecondaryServiceComments").val(str);
+                    } else if (!isPossibleTow) {
+                        $("#divSecondaryServiceComments").html("");
+                        $("#hdnSecondaryServiceComments").val("");
+                    }
+                    else {
+                        $("#divSecondaryServiceComments").html("");
+                        $("#hdnSecondaryServiceComments").val("");
+                    }
+
+                    if (isPossibleTow) {
+                        $("#divSecondaryServiceName").html("<hr><strong>Possible Tow</strong>");
+                        $("#divSecondaryServiceLimit").show();
+                    }
+                    else {
+                        $("#divSecondaryServiceName").html("");
+                        $("#divSecondaryServiceLimit").hide();
+                    }
+                    var primaryServiceName = $("#ServiceType").data("kendoComboBox").text();
+                    if (primaryServiceName == "Select" || primaryServiceName == null || primaryServiceName == "") {
+                        primaryServiceName = "Primary";
+                    }
+                    $("#divPrimaryServiceName").html("<strong>" + primaryServiceName + "</strong>");
+
+
+                    if (msg.Data.PrimaryServiceEligiblityMessage != null) {
+                        $("#spPrimaryServiceLimit").text(primaryMessageStatusPrefix + msg.Data.PrimaryServiceEligiblityMessage);
+                    }
+                    else {
+                        $("#spPrimaryServiceLimit").text("");
+                    }
+
+                    if (msg.Data.SecondaryServiceEligiblityMessage != null) {
+                        $("#spSecondaryServiceLimit").text(secondaryMessageStatusPrefix + msg.Data.SecondaryServiceEligiblityMessage);
+                    }
+                    else {
+                        $("#spPrimaryServiceLimit").text("");
+                    }
+
+                }
+                HandleBlankParameters();
+            } // end of success
+
+
+        });
+    }
+
+    function MemberPaymentTypeID_Change(e) {
+
+        var combo = e.sender;
+        var serviceTypeId = combo.value();
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+
+            e.preventDefault();
+        }
+    }
+
+    function HideQuestion(allQuestions, currentQuestionId, vehicleCategoryId) {
+        var count = 0;
+        for (var i = 0, l = allQuestions.length; i < l; i++) {
+
+            var x = allQuestions[i];
+            if (x.ProductCategoryQuestionId == currentQuestionId && (x.VehicleCategoryId == null || x.VehicleCategoryId == vehicleCategoryId)) {
+                count++;
+                break;
+            }
+        }
+        return (count == 0);
+    }
+
+    function IsVehicleRequiredForSelectedService(selectedServiceType) {
+
+        for (var i = 0, l = jsonQuestions.length; i < l; i++) {
+            if (jsonQuestions[i].ProductCategoryName == selectedServiceType) {
+                console.log(jsonQuestions[i].ProductCategoryName + ' - VehicleRequired = ' + jsonQuestions[i].IsVehicleRequired);
+                return jsonQuestions[i].IsVehicleRequired == null ? false : jsonQuestions[i].IsVehicleRequired;
+            }
+        }
+
+        return false;
+    }
+
+    function VehicleCategoryCombo_Change(e) {
+
+        var combo = e.sender;
+        var comboVal = combo.value();
+        var $serviceType = $("#frmService").find("#ServiceType").data("kendoComboBox");
+        var selectedServiceType = $serviceType.text();
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo) || comboVal == "Select") {
+            e.preventDefault();
+        }
+        else if (IsVehicleRequiredForSelectedService(selectedServiceType) && $.trim(comboVal).length == 0) {
+            e.preventDefault();
+            ShowValidationMessage($("#frmService").find('input[name="VehicleCategory_input"]'), "* Please select weight class");
+        }
+        else {
+            HideValidationMessage($("#frmService").find('input[name="VehicleCategory_input"]'));
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_GetQuestionsForVehicleCategory", "Service", new { area = "Application" })',
+                traditional: true,
+                cache: false,
+                async: true,
+                data: { vehicleCategoryId: comboVal },
+                success: function (msg) {
+
+                    //Set the values into Session.
+                    if (msg.Status == "Success") {
+                        var serviceCombo = $("#ServiceType").data('kendoComboBox');
+                        var selectedServiceType = serviceCombo.value();
+                        GetServiceLimits(comboVal, true);
+                        // Bind the service dropdown.
+                        // Enable disable tabs.
+                        // Enable / disable questions
+                        var serviceTabsInfo = msg.Data;
+                        var newServiceType = [];
+                        var firstActiveTab = 0;
+                        var activeTabSet = false;
+                        for (var s = 0, l = serviceTabsInfo.length; s < l; s++) {
+                            var t = serviceTabsInfo[s];
+                            if (t.IsEnabled) {
+                                $("#serviceTabs").tabs("enable", s);
+                                $("#tabh-" + t.ProductCategoryID).removeClass("disabled");
+                                if (!activeTabSet) {
+                                    firstActiveTab = s;
+                                    activeTabSet = true;
+                                }
+                            }
+                            else {
+                                $("#serviceTabs").tabs("disable", s);
+                                $("#tabh-" + t.ProductCategoryID).addClass("disabled");
+                            }
+                            newServiceType.push({ Text: t.ProductCategoryName, Value: t.ProductCategoryID });
+                        }
+
+                        serviceCombo.setDataSource(newServiceType);
+                        //KB: Reset to first tab. 
+                        //serviceCombo.value(selectedServiceType);
+                        serviceCombo.select(0);
+
+                        if (newServiceType[0].Text == "Tow") {
+                            SetPossibleTow(false);
+                            EnableIsPossibleTow(false);
+                        }
+                        else {
+                            EnableIsPossibleTow(true);
+                        }
+                        // Set the first active tab
+                        $("#serviceTabs").tabs("select", firstActiveTab);
+
+                        // Hide / show questions
+                        // Find out those questions that are missing in the new set but were painted in the old run and hide them.
+                        // If something appears in the new and got hidden in the last run, just enable them.
+                        // Also handle Tow questions and answers
+
+                        for (var s = 0, l = serviceTabsInfo.length; s < l; s++) {
+                            var t = serviceTabsInfo[s];
+                            for (var q = 0, ql = t.Questions.length; q < ql; q++) {
+                                var qn = t.Questions[q];
+                                var hideQuestion = HideQuestion(t.Questions, qn.ProductCategoryQuestionId, comboVal);
+
+                                var $q = $("#q_" + qn.ProductCategoryQuestionId);
+                                if (!hideQuestion) {
+                                    if ($q.length > 0 && $q.hasClass("hidden")) {
+                                        $q.removeClass("hidden");
+                                    }
+                                }
+                                else {
+                                    if ($q.length > 0 && !$q.hasClass("hidden")) {
+                                        $q.addClass("hidden");
+                                        // Watch Tow related questionsvar 
+                                        var itemIndex = $.inArray(qn.ProductCategoryQuestionId, towAnswersProvidedForQuestions);
+                                        if (itemIndex != -1) {
+                                            towAnswersProvidedForQuestions.splice(itemIndex, 1);
+                                        }
+                                        if (towAnswersProvidedForQuestions.length == 0) {
+                                            SetPossibleTow(false);
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                    GetServiceEligibility();
+                }
+            });
+        }    // Determine if some questions should be hidden.
+    }
+
+//-->
+</script>
+@Html.Partial("_ServiceRequestExceptions", ViewData)
+@Html.Hidden("hdnPrimaryServiceComments", ViewData["PrimaryServiceComments"])
+@Html.Hidden("hdnSecondaryServiceComments", ViewData["SecondaryServiceComments"])
+@Html.Hidden("hdnPrimaryServiceMessageText", ViewData["PrimaryServiceMessageText"])
+@Html.Hidden("hdnSecondaryServiceMessageText", ViewData["SecondaryServiceMessageText"])
+@Html.Hidden("hdnIsPrimaryOverallCovered", ViewData["IsPrimaryOverallCovered"])
+@Html.Hidden("hdnIsSecondaryOverallCovered", ViewData["IsSecondaryOverallCovered"])
+<div class="with-padding" id="divService">
+    <form id="frmService" action="javascript:void(0);" method="post">
+    <div class="columns">
+        <div class="five-columns margin-bottom">
+            <div class="button-height inline-medium-label">
+                <label for="VehicleCategory" class="label">
+                    Weight Class
+                </label>
+                @(Html.Kendo().ComboBox()
+                .BindTo(ViewData[StaticData.VehicleCategory.ToString()] as IEnumerable<SelectListItem>)
+                .Name("VehicleCategory")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .HighlightFirst(true)
+                .Events(events =>
+                {
+                    events.Change("VehicleCategoryCombo_Change");
+                })
+                .AutoBind(true)
+                .Value(DMSCallContext.VehicleCategoryID == null ? string.Empty : DMSCallContext.VehicleCategoryID.ToString())
+                .SelectedIndex(0)
+                )
+            </div>
+            <div class="button-height inline-medium-label">
+                <label for="ServiceType" class="label">
+                    Service Type
+                </label>
+                @(Html.Kendo().ComboBox()
+                                        .BindTo(allowedServiceTypes.ToSelectListItem(x => x.ProductCategoryID.ToString(), y => y.ProductCategoryName, true))
+                                                .Name("ServiceType")
+                                .Suggest(true)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .HighlightFirst(true)
+                                .Events(events =>
+                                {
+                                    events.Change("ServiceTypeCombo_Change");
+                                })
+                                .AutoBind(true)
+                                .Value(DMSCallContext.ProductCategoryID == null ? string.Empty : DMSCallContext.ProductCategoryID.ToString())
+                                        .SelectedIndex(0)
+                            )
+                @*<span id="spServiceEligibility" class="mid-margin-left"></span>*@
+            </div>
+            <div class="button-height inline-medium-label">
+                <label class="label">
+                    Possible Tow</label>
+                @Html.CheckBox("PossibleTow", DMSCallContext.IsPossibleTow, new { @class = "checkbox" })
+            </div>
+            <hr />
+            <div class="inline-medium-label">
+                <label class="label">
+                    Available Coverage</label>
+                <p class="alert @primaryServiceEligibiltyMessageClass" id="pIsPrimaryOverallCovered">
+                    <!--if covered then the class should be "alert alert-success" if not then "alert alert-wrong" the default is "alert alert-info"-->
+                    <span class="" id="spPrimaryServiceLimit">@Html.Raw(primaryServiceCoveredPrefix) @Html.Raw(eligibilityModel.PrimaryServiceEligiblityMessage)</span>
+                </p>
+                @Html.Hidden("hdnServiceLimit")
+            </div>
+            <div class="inline-medium-label" id="divSecondaryServiceLimit">
+                <label class="label" id="lblSecondaryServiceLimit">
+                    Possible Tow Coverage</label>
+                <p class="alert @secondaryServiceEligibiltyMessageClass" id="pIsSecondaryOverallCovered">
+                    <span class="" id="spSecondaryServiceLimit">@Html.Raw(secondaryServiceCoverdPrefix)
+                        @Html.Raw(eligibilityModel.SecondaryServiceEligiblityMessage)</span>
+                </p>
+                <!--if covered then the class should be "alert alert-success" if not then "alert alert-wrong" the default is "alert alert-info"-->
+            </div>
+        </div>
+        <div class="six-columns margin-bottom">
+            <fieldset class="fieldset">
+                <legend class="legend">Service Coverage Description</legend>
+                <div class="with-padding" id="divServiceBenefitDescription">
+                    <div id="divPrimaryServiceName">
+                        Primary</div>
+                    <div id="divPrimaryServiceComments">
+                        @if (primaryCoverageDescriptionTokens != null && primaryCoverageDescriptionTokens.Length > 0)
+                        {
+                            <ul>
+                                @foreach (var token in primaryCoverageDescriptionTokens)
+                                {
+                                    if (!string.IsNullOrEmpty(token))
+                                    {
+                                    <li>@Html.Raw(token)</li>
+                                    }
+                                }
+                            </ul>
+                        }
+                    </div>
+                    <div id="divSecondaryServiceName">
+                        Possible Tow</div>
+                    <div id="divSecondaryServiceComments">
+                        @if (secondaryCoverageDescriptionTokens != null && secondaryCoverageDescriptionTokens.Length > 0)
+                        {
+                            <ul>
+                                @foreach (var token in secondaryCoverageDescriptionTokens)
+                                {
+                                    if (!string.IsNullOrEmpty(token))
+                                    {
+                                    <li>@Html.Raw(token)</li>
+                                    }
+                                }
+                            </ul>
+                        }</div>
+                </div>
+                <div class="new-row twelve-columns" id="PlaceHolder_Member_Products_Using_Category">
+                   @* @if (memberProducts != null && memberProducts.Count > 0)
+                    {
+                        <strong>Related Coverage</strong>
+                        <ul>
+                            @foreach (var item in memberProducts)
+                            {
+                                <li>@item.AdditionalProduct @Html.Partial("_Help", @item.HelpText)</li>
+                            }
+                        </ul>
+                    }*@
+                </div>
+            </fieldset>
+        </div>
+        @*<div class="three-columns">
+            <div class="button-height inline-medium-label">
+                <label for="ServiceType" class="label">
+                    How will member Pay ?
+                </label>
+                @(Html.Kendo().ComboBox() .BindTo(ViewData[StaticData.ServiceMemberPayMode.ToString()]
+                as IEnumerable<selectlistitem>) .Name("MemberPaymentTypeID") .Suggest(true) .Filter(FilterType.StartsWith).MinLength(0)
+                .HighlightFirst(true) .Events(events => { events.Change("MemberPaymentTypeID_Change");
+                }) .AutoBind(true) .Value(DMSCallContext.MemberPaymentTypeID == null ? string.Empty
+                : DMSCallContext.MemberPaymentTypeID.ToString()) .SelectedIndex(0) )
+            </div>
+            <div class="button-height inline-medium-label">
+                <label for="CanWeTextYou" class="label">
+                    Can we text you ?</label>
+                @Html.RadioButton("rdSMS", "1", DMSCallContext.IsSMSAvailable == true, new { @class
+                = "radio small-margin-right canSMS" }) Yes &nbsp; @Html.RadioButton("rdSMS", "0",
+                DMSCallContext.IsSMSAvailable == false, new { @class = "radio small-margin-right
+                canSMS" }) No
+            </div>
+        </div>
+        *@
+        <div class="one-column">
+            <button type="button" id="btnVerify" class="button medium blue-gradient  float-right small-margin-right">
+                Verify</button>
+        </div>
+        <div class="new-row twelve-columns">
+            &nbsp;</div>
+    </div>
+    </form>
+    <div class="clear">
+    </div>
+    <p class="message" id="statusIndicator">
+        <span class="block-arrow"><span></span></span><span class="statusMessage"></span>
+    </p>
+    @Html.Hidden("hdnJsonModel", ViewData["JSON_MODEL"])
+    <!-- Render tabs -->
+    <div class="boxed  silver-gradient">
+        <h3 class="underline">
+            Service Details</h3>
+        <div id="serviceTabs" class="standard-tabs same-height">
+            <ul class="tabs">
+                @foreach (ServiceTab tab in Model)
+                {
+                    if (tab.IsEnabled)
+                    {
+                    <li id="tabh-@tab.ProductCategoryID"><a href="#tabs-@tab.ProductCategoryID">@tab.ProductCategoryName</a></li>
+                        if (tab.ProductCategoryName.Contains("Tow"))
+                        {
+                    <script language="javascript" type="text/javascript">
+                        <!--
+                        towTabId = "@tab.ProductCategoryID";
+                        //-->
+                    </script>
+                        }
+                        if (tab.ProductCategoryName.Contains("Tech"))
+                        {
+                    <script language="javascript" type="text/javascript">
+                        <!--
+                        techTabId = "@tab.ProductCategoryID";
+                        //-->
+                    </script>
+                        }
+                    }
+                    else
+                    {
+                    <li id="tabh-@tab.ProductCategoryID" class="disabled"><a href="#tabs-@tab.ProductCategoryID">@tab.ProductCategoryName</a></li>
+                
+                    }
+
+
+                }
+            </ul>
+            <!-- Render tab contents -->
+            @foreach (ServiceTab tab in Model)
+            {
+                //if (tab.IsEnabled)
+                {
+                <div id="tabs-@tab.ProductCategoryID">
+                    <div class="with-padding">
+                        <div>
+                            <form id="frm-@tab.ProductCategoryID" action="javascript:void(0);" method="post">
+                            <div class="full-width">
+                                @{
+                    ViewDataDictionary viewData = new ViewDataDictionary();
+                    var tabQuestions = tab.Questions.GroupBy(t => t.ProductCategoryQuestionId).Select(grp => grp.FirstOrDefault()).ToList<Question>();
+                    viewData["Questions"] = tab.Questions;
+                                }
+                                @foreach (var question in tabQuestions)
+                                {
+                                    // do not render this question, if this happens to be a sub question.
+                                    var isSubQuestion = tab.Questions.Where(x => x.RelatedQuestionId == question.ProductCategoryQuestionId).Count() > 0;
+                                    if (!isSubQuestion)
+                                    {                                
+                                    @Html.Partial("_Question", question, viewData)
+                                    }
+                                }
+                            </div>
+                            <!-- KB: Render Tech tab -->
+                            @if (tab.ProductCategoryName.Equals("Tech"))
+                            {
+                                @Html.Partial("_ServiceTech", ViewData[StringConstants.SERVICE_TECH_MODEL] as ServiceTechModel)
+                            }
+                            </form>
+                        </div>
+                        <script language="javascript" type="text/javascript">
+                    <!--
+                            // Initialize validation engine.
+                            $("#frm-@tab.ProductCategoryID").validationEngine();
+                    //-->
+                        </script>
+                    </div>
+                </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+@*</form>*@
+<script language="javascript" type="text/javascript">
+
+    var visitedTabIndices = new Array(); // This list helps to list down the tabs that needs to be vaidated.
+    var currentActiveTabId = null;
+    var oldForm = null;
+    var isSaveInProgress = false;
+    var towTabIndex = 0;
+
+    function GetFormValues() {
+
+        if ($("#PossibleTow").is(":checked") || $('#ServiceType').data('kendoComboBox').value() == towTabId) {
+            if ($.inArray(towTabIndex, visitedTabIndices) == -1) {
+                visitedTabIndices.push(towTabIndex);
+            }
+        }
+        var allFormData = new Array();
+        for (var i = 0, l = visitedTabIndices.length; i < l; i++) {
+            // Get tab by index.
+            $("#serviceTabs").tabs("select", visitedTabIndices[i]);
+            var pcqId = currentActiveTabId.replace("tabs-", "");
+            if (pcqId != techTabId) {
+                var formSelector = "#frm-" + pcqId;
+                var $f = $(formSelector);
+                // remove the elements with class="hidden" from the dom.
+                $f.find(".hidden").remove();
+
+                $f.find('input[type="hidden"]').remove();
+
+                var temp = $(formSelector).serializeArray();
+
+                //SanitizeKendoComboInputs(temp);
+                var formData = [];
+                for (var j = 0, k = temp.length; j < k; j++) {
+                    if (temp[j].name.indexOf("_input") < 0) {
+                        formData.push(temp[j]);
+                    }
+                }
+                allFormData = allFormData.concat(formData);
+            }
+        }
+        return allFormData;
+    }
+    function isFormValid(pcqId) {
+
+        var formSelector = "#frm-" + pcqId;
+        oldForm = formSelector; // Track the old form to clear messages.
+        var errorFound = false;
+        if ($(formSelector).validationEngine('validate') == false) {
+            errorFound = true;
+        }
+
+        // Validate telerik comboboxes.
+        $(formSelector + ' span.required input:text').each(function () {
+
+            if ($(this).css("visibility") != "hidden" && $(this).css("display") != undefined && $(this).css("display") != "none") {
+                var val = $(this).val();
+
+                if ($.trim(val).length == 0) {
+                    var fieldName = $(this).attr("name");
+                    $(this).attr("id", fieldName);
+                    ShowValidationMessage($(this), "Please select a value.");
+                    errorFound = true;
+                }
+                else {
+                    HideValidationMessage($(this));
+                }
+            }
+        });
+
+        return !errorFound;
+    }
+    function VerifyServiceInfo() {
+
+        // for each visited indexes.
+        // Set the focus to the tab, validate and stay there if there are validation errors.
+        var selectedService = $("#ServiceType").data('kendoComboBox').value();
+        if ($.trim(selectedService).length == 0) {
+            ShowValidationMessage($('input[name="ServiceType_input"]'), "Primary service type must be selected");
+            return false;
+        }
+
+        // RH : Weight Class is required for ServiceType in (Tow, Tire, Lockout, Fluid, Jump, WInch, Mobile)
+        var weightClass = $("#VehicleCategory").data("kendoComboBox");
+        var selectedServiceName = $("#ServiceType").data('kendoComboBox').text();
+        var weightClassRequiredServiceTypes = []; //  ["tow", "tire", "lockout", "fluid", "jump", "winch", "mobile"];
+
+        for (var i = 0, l = jsonQuestions.length; i < l; i++) {
+            if (jsonQuestions[i].IsVehicleRequired == true) {
+                weightClassRequiredServiceTypes.push(jsonQuestions[i].ProductCategoryName.toLowerCase());
+            }
+        }
+
+        if ($.inArray(selectedServiceName.toLowerCase(), weightClassRequiredServiceTypes) >= 0) {
+            if ($.trim(weightClass.value()).length == 0) {
+                ShowValidationMessage($('input[name="VehicleCategory_input"]'), "Weight Class must be selected");
+                return false;
+            }
+        }
+
+
+        HideValidationMessage($('input[name="ServiceType_input"]'));
+        HideValidationMessage($('input[name="VehicleCategory_input"]'));
+
+        for (var i = 0, l = visitedTabIndices.length; i < l; i++) {
+
+            // Check if tow tab is required to be validated even if the user visited this tab.
+
+            // Get tab by index.
+            $("#serviceTabs").tabs("select", visitedTabIndices[i]);
+            var pcqId = currentActiveTabId.replace("tabs-", "");
+
+            if (selectedService == pcqId) {
+                if (!isFormValid(pcqId)) {
+                    return false;
+                }
+            }
+        }
+
+        // Validate tow tab.
+        if (selectedServiceName == "Tow" || $("#PossibleTow").is(":checked")) {
+            $("#serviceTabs").tabs("select", "#tabs-" + towTabId);
+            if (!isFormValid(towTabId)) {
+                return false;
+            }
+        }
+
+        // KB: Set the focus to the tab as selected in the service type dropdown
+
+        $("#serviceTabs").tabs("select", "#tabs-" + selectedService);
+        return true;
+    }
+    function LogEventForTechTab(eventName, eventData) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LogEvent", "Dispatch", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: true,
+            data: { eventName: eventName, description: eventData },
+            success: function (msg) {
+                // No need to present any message on the page.                
+            }
+        });  // end of ajax request    
+    }
+    function UpdateServiceRequest() {
+        var postData = new Array();
+        postData.push({ name: "ProductCategoryID", value: $('#ServiceType').data('kendoComboBox').value() });
+        postData.push({ name: "IsPossibleTow", value: $("#PossibleTow").is(':checked') });
+        postData.push({ name: "VehicleCategoryID", value: $('#VehicleCategory').data('kendoComboBox').value() });
+        postData.push({ name: "PassengersRidingWithServiceProvider", value: $('#7').val() });
+
+        //        postData.push({ name: "PrimaryServiceCoverageDescription", value: $("#hdnPrimaryServiceComments").val() });
+        //        postData.push({ name: "SecondaryServiceCoverageDescription", value: $("#hdnSecondaryServiceComments").val() });
+        //        postData.push({ name: "PrimaryServiceEligiblityMessage", value: $("#hdnPrimaryServiceMessageText").val() });
+        //        postData.push({ name: "SecondaryServiceEligiblityMessage", value: $("#hdnSecondaryServiceMessageText").val() });
+
+
+        //postData.push({ name: "MemberPaymentTypeID", value: $('#MemberPaymentTypeID').data('kendoComboBox').value() });
+        // Set By validation Logic
+        //0 = unvisited (light gray)
+        //1 = visited with no errors
+        //2 = visited with errors
+
+        var tabStatus = 1;
+        //if ($("#ServiceType").data("kendoComboBox").value() != '') {
+        if (VerifyServiceInfo()) {
+            StyleTabAfterValidation("service", false);
+            tabStatus = 1;
+        }
+        else {
+            StyleTabAfterValidation("service", true);
+            tabStatus = 2;
+        }
+        //}
+        postData.push({ name: "ServiceTabStatus", value: tabStatus });
+
+        //        var isSMSAvailable = $('input:radio[id=rdSMS]:checked').val();
+
+        //        isSMSAvailable = isSMSAvailable == "1" ? "true" : "false";
+        //        postData.push({ name: "IsSMSAvailable", value: isSMSAvailable });
+        postData.push({ name: "productCategoryName", value: $('#ServiceType').data('kendoComboBox').text() });
+        //postData.push({ name: "CoverageLimit", value: $("#hdnServiceLimit").val() });
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateServiceTab", "Service", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            data: postData,
+            success: function (msg) {
+                //Set the values into Session.
+                if (msg.Data.TabValidationStatus) {
+                    if (tabStatus == 1 && msg.Data.TabValidationStatus == 2) {
+                        StyleTabAfterValidation("service", true);
+                    }
+                }
+            }
+        });
+    }
+    function SaveTechTabData() {
+
+        var isSaved = true;
+        var formId, tabName;
+        if (activeVehicleTypeId == 1) // Auto
+        {
+            tabName = "Auto";
+            formId = "frm_ServiceAutoTab";
+        }
+        else if (activeVehicleTypeId == 2) // RV
+        {
+            tabName = "RV";
+            formId = "frm_ServiceRVTab";
+        }
+        if (formId !== undefined && tabName !== undefined) {
+            isSaved = SaveTechVehicle(formId, tabName);
+        }
+
+        if (!isSaved) {
+            $("#serviceTabs").tabs("select", techTabIndex);
+
+        }
+        return isSaved
+    }
+    function SaveServiceTab() {
+        
+        var retVal = false;
+        UpdateServiceRequest();
+        isSaveInProgress = true;
+
+        if (techTabIndex > 0 && $.inArray(techTabIndex, visitedTabIndices) != -1) {
+            // Save Tech tab.
+            retVal = SaveTechTabData();
+        }
+
+        var postData = GetFormValues();
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Save", "Service", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(postData),
+            success: function (msg) {
+                CleanMyContainer("divService");
+                //Set the values into Session.
+                retVal = true;
+            }
+        });
+
+
+        isSaveInProgress = false;
+
+        return retVal;
+    }
+    fnSaveTab = SaveServiceTab;
+    var currentTabIsTech = false;
+    function RefreshServiceLimit() {
+
+        var typeFound = false;
+        var serviceLimit$ = $("#spPrimaryServiceLimit");
+        serviceLimit$.css("display", "block");
+        var hdnServiceLimit$ = $("#hdnServiceLimit");
+        var serviceType = $('#ServiceType').data('kendoComboBox').text();
+        if (serviceType.length > 0 && serviceLimits != null && serviceLimits.length > 0) {
+            for (var i = 0, l = serviceLimits.length; i < l; i++) {
+                if (serviceLimits[i].ProductCategoryName == serviceType) {
+                    typeFound = true;
+                    var limitValue = serviceLimits[i].ServiceCoverageLimit;
+                    if (limitValue != null) {
+                        serviceLimit$.text("$" + limitValue.toFixed(2));
+                        hdnServiceLimit$.val(limitValue);
+                    }
+                    else {
+
+                        serviceLimit$.text("");
+                        hdnServiceLimit$.val("");
+                    }
+                    break;
+                }
+            }
+        }
+        else {
+
+            serviceLimit$.text("");
+            hdnServiceLimit$.val("");
+        }
+        if (!typeFound) {
+
+            serviceLimit$.text("");
+            hdnServiceLimit$.val("");
+        }
+    }
+    function GetServiceLimits(vehicleCategoryId, refresh) {
+
+        var programId = '@DMSCallContext.ProgramID';
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_GetServiceLimits", "Service", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            global: true,
+            async: true,
+            data: { programId: programId, vehicleCategoryId: vehicleCategoryId },
+            success: function (msg) {
+                if (msg.Data && msg.Data != null) {
+                    serviceLimits = msg.Data;
+                    if (refresh) {
+                        //RefreshServiceLimit();
+                    }
+                }
+            }
+        });
+
+    }
+    var jsonQuestions = null;
+    $(function () {
+
+        $('input[name="PossibleTow"]').change(function () {
+
+            GetServiceEligibility();
+        });
+
+        setTimeout(function () {
+            UpdateIsPossibleTow();
+            GetServiceEligibility();
+            RefreshMemberAdditionalProgramDetails();
+        }, 800);
+
+        var tabValidationStatus = '@ViewData[StringConstants.TAB_VALIDATION_STATUS]';
+
+        StyleTabUsingValidationStatus("service", tabValidationStatus);
+        if (tabValidationStatus == '2') {
+            setTimeout(function () { VerifyServiceInfo(); }, 800);
+        }
+
+        WatchMyContainer('divService', null, null);
+
+        var jsonQuestionsStr = $("#hdnJsonModel").val();
+        jsonQuestions = eval(jsonQuestionsStr);
+
+        var selectTabOnLoad = '@DMSCallContext.ProductCategoryID.GetValueOrDefault()';
+        var vehicleCategoryIdOnLoad = '@DMSCallContext.VehicleCategoryID.GetValueOrDefault()';
+        GetServiceLimits(vehicleCategoryIdOnLoad, true);
+
+        $("#VehicleTab").html("");
+        $(".message").hide();
+
+        $("#serviceTabs").tabs({ select: function (event, ui) {
+
+            if ($(ui.tab).parents("li").hasClass("disabled")) {
+                return false;
+            }
+            currentActiveTabId = ui.panel.id;
+
+            // Let's not push the Tow tab for now. Push this tab when user happens to have answered Tow related questions or IspossibleTow is checked or if the selected item in the dropdown is Tow.
+            if (ui.panel.id == "tabs-" + towTabId) {
+                towTabIndex = ui.index;
+                return true;
+            }
+
+            if (ui.panel.id == "tabs-" + techTabId) {
+                techTabIndex = ui.index;
+
+            }
+            if ($.inArray(ui.index, visitedTabIndices) == -1) {
+                visitedTabIndices.push(ui.index);
+            }
+
+
+            // If oldForm is there, clear the validation callouts
+            if (oldForm != null) {
+                $(oldForm).validationEngine("hideAll");
+            }
+
+            if (currentTabIsTech && $(ui.tab).html() != "Tech") {
+
+                // Leave tab.
+                currentTabIsTech = false;
+                if (!isSaveInProgress) {
+                    SaveTechTabData();
+                }
+
+            }
+            // if the selected tab is Tech, then log an event for entering.
+            if ($(ui.tab).html() == "Tech") {
+                if (!isSaveInProgress) {
+                    LogEventForTechTab("EnterTechTab", "Enter Tech Tab");
+                }
+                currentTabIsTech = true;
+            }
+            // If the old tab is tech, then log event for leaving.
+            return true;
+        }
+        });
+
+        setTimeout(function () {
+            if (selectTabOnLoad != '0' && selectTabOnLoad != '') {
+                $("#serviceTabs").tabs("select", "#tabs-" + selectTabOnLoad);
+            }
+            var isPossibleTow = $("#PossibleTow").is(':checked');
+            if (isPossibleTow) {
+                $("#divSecondaryServiceName").html("<hr><strong>Possible Tow</strong>");
+                $("#divSecondaryServiceLimit").show();
+            }
+            else {
+                $("#divSecondaryServiceName").html("");
+                $("#divSecondaryServiceLimit").hide();
+            }
+            var primaryServiceName = $("#ServiceType").data("kendoComboBox").text();
+            if (primaryServiceName == "Select" || primaryServiceName == null || primaryServiceName == "") {
+                primaryServiceName = "";
+            }
+            $("#divPrimaryServiceName").html("<strong>" + primaryServiceName + "</strong>");
+
+            HandleBlankParameters();
+        }, 500);
+        // Add the currently active tab to the visitedindices
+        var activeTabIndex = 0;
+        $("#serviceTabs > ul.tabs > li").each(function () {
+            if ($(this).hasClass("ui-state-active")) {
+
+                currentActiveTabId = $(this).attr("id").replace("tabh-", "");
+                if (currentActiveTabId != towTabId) {
+                    visitedTabIndices.push(activeTabIndex);
+                }
+                // Push tow tab if the possible tow checkbox is checked by default or if the page loaded for the first time (when there is no service type set yet).
+                if (currentActiveTabId == towTabId && ($("#PossibleTow").is(":checked") || selectTabOnLoad == '0' || selectTabOnLoad == '')) {
+                    visitedTabIndices.push(activeTabIndex);
+                }
+            }
+            activeTabIndex++;
+        });
+
+        $("#btnVerify").click(function () {
+
+            ShowStatus("inprogress", "Verifying information ...");
+            var result = VerifyServiceInfo();
+            if (!result) {
+                ShowStatus("error", "Missing information");
+            }
+            else {
+                ShowStatus("success", "Service information complete");
+            }
+        });
+
+        function HideStatus() {
+            var $msg = $(".message");
+            $msg.hide();
+        }
+
+        function ShowStatus(status, msg) {
+            var $msg = $(".message");
+            if ($msg.hasClass("blue-gradient")) {
+                $msg.removeClass("blue-gradient");
+            }
+            else if ($msg.hasClass("red-gradient")) {
+                $msg.removeClass("red-gradient");
+            }
+            else if ($msg.hasClass("green-gradient")) {
+                $msg.removeClass("green-gradient");
+            }
+
+            if (status == "success") {
+                $(".message").addClass("green-gradient");
+            }
+            else if (status == "inprogress") {
+                $(".message").addClass("blue-gradient");
+            }
+            else if (status == "error") {
+                $(".message").addClass("red-gradient");
+            }
+            $msg.show();
+            $(".message .statusMessage").text(msg);
+        }
+
+    });
+
+
+    function RefreshMemberAdditionalProgramDetails() {
+        var serviceTypeId = $("#ServiceType").data("kendoComboBox").value();
+        if (serviceTypeId == undefined || serviceTypeId == null || serviceTypeId == '' || serviceTypeId == ' ') {
+            serviceTypeId = 0;
+        }
+        $.ajax({
+            url: '@Url.Action("_MemberProductsUsingCategory", "Member", new { area = "Application" })',
+            data: { serviceTypeId: serviceTypeId },
+            success: function (msg) {
+                $('#PlaceHolder_Member_Products_Using_Category').html(msg);
+            }
+        });
+        return false;
+    }
+</script>

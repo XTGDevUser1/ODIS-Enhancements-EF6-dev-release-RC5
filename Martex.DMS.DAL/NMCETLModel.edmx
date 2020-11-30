@@ -1,0 +1,641 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Martex.DMS.DAL.NMC.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ExecutionLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ParentLogID" Type="int" />
+          <Property Name="Description" Type="varchar" MaxLength="50" />
+          <Property Name="PackageName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PackageGuid" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="MachineName" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="ExecutionGuid" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="LogicalDate" Type="datetime" Nullable="false" />
+          <Property Name="Operator" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="StartTime" Type="datetime" Nullable="false" />
+          <Property Name="EndTime" Type="datetime" />
+          <Property Name="Status" Type="tinyint" Nullable="false" />
+          <Property Name="FailureTask" Type="varchar" MaxLength="64" />
+        </EntityType>
+        <EntityType Name="APCheckRequest">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ETL_Load_ID" Type="int" />
+          <Property Name="ProcessFlag" Type="bit" />
+          <Property Name="Status" Type="nvarchar" MaxLength="1" />
+          <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+          <Property Name="AddDateTime" Type="datetime" />
+          <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="VendorNumber" Type="nvarchar" MaxLength="7" />
+          <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="10" />
+          <Property Name="InvoiceDate" Type="datetime" />
+          <Property Name="InvoiceDueDate" Type="datetime" />
+          <Property Name="Comment" Type="nvarchar" MaxLength="30" />
+          <Property Name="SeparateCheck" Type="nvarchar" MaxLength="10" />
+          <Property Name="InvoiceAmount" Type="money" />
+          <Property Name="GLExpenseAccount" Type="nvarchar" MaxLength="11" />
+          <Property Name="ExpenseAmount" Type="money" />
+          <Property Name="AdditionalComment" Type="nvarchar" MaxLength="50" />
+          <Property Name="PaymentMethod" Type="nvarchar" MaxLength="20" />
+          <Property Name="DocumentNoteID" Type="int" />
+          <Property Name="PONumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="POIssuedDate" Type="datetime" />
+          <Property Name="VendorInvoiceNumber" Type="nvarchar" MaxLength="15" />
+          <Property Name="ReceivedDate" Type="datetime" />
+          <Property Name="VendorRepContactName" Type="nvarchar" MaxLength="50" />
+          <Property Name="VendorRepContactPhoneNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="VendorRepContactEmail" Type="nvarchar" MaxLength="100" />
+          <Property Name="ProgramName" Type="nvarchar" MaxLength="50" />
+          <Property Name="ProgramRefNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="RegionNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="DivisionNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="DistrictNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="Leader" Type="bit" />
+          <Property Name="Bulletin" Type="bit" />
+          <Property Name="ContractedDate" Type="datetime" />
+          <Property Name="CancelledDate" Type="datetime" />
+          <Property Name="BegDebitBalance" Type="money" />
+          <Property Name="FirstyearCommissions" Type="money" />
+          <Property Name="Renewals" Type="money" />
+          <Property Name="Comissions" Type="money" />
+          <Property Name="Advances" Type="money" />
+          <Property Name="Backend" Type="money" />
+          <Property Name="ServiceCharge" Type="money" />
+          <Property Name="Other" Type="money" />
+          <Property Name="TotalCharges" Type="money" />
+          <Property Name="EndDebitBalance" Type="money" />
+          <Property Name="EstRemainFirstYear" Type="money" />
+          <Property Name="QualityRatioPct" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="SilverRenewalQaulifier" Type="money" />
+          <Property Name="EarnedCommYTD" Type="money" />
+          <Property Name="AdvancesYTD" Type="money" />
+          <Property Name="SilverRenewalText" Type="nvarchar" MaxLength="30" />
+          <Property Name="QCQYTD" Type="money" />
+          <Property Name="AdvancesQualityYTD" Type="money" />
+          <Property Name="PersonalMembershipCount" Type="int" />
+          <Property Name="PersonalMemberCount" Type="int" />
+          <Property Name="PersonalNBAV" Type="money" />
+          <Property Name="PersonalAdvance" Type="money" />
+          <Property Name="PersonalBonus" Type="money" />
+          <Property Name="OverrideMembershipCount" Type="int" />
+          <Property Name="OverrideMemberCount" Type="int" />
+          <Property Name="OverrideNBAV" Type="money" />
+          <Property Name="OverrideAdvance" Type="money" />
+          <Property Name="OverrideBonus" Type="money" />
+          <Property Name="TIPS" Type="money" />
+          <Property Name="Multiplier" Type="decimal" Precision="7" Scale="2" />
+          <Property Name="AdjustmentAmount" Type="money" />
+          <Property Name="ContractType" Type="nvarchar" MaxLength="50" />
+          <Property Name="PersonalOverrideAdvance" Type="money" />
+          <Property Name="DetailItem1Date" Type="datetime" />
+          <Property Name="DetailItem1Number" Type="nvarchar" MaxLength="10" />
+          <Property Name="DetailItem1Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="DetailItem1Amount" Type="money" />
+          <Property Name="DetailItem2Date" Type="datetime" />
+          <Property Name="DetailItem2Number" Type="nvarchar" MaxLength="10" />
+          <Property Name="DetailItem2Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="DetailItem2Amount" Type="money" />
+          <Property Name="DetailItem3Date" Type="datetime" />
+          <Property Name="DetailItem3Number" Type="nvarchar" MaxLength="10" />
+          <Property Name="DetailItem3Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="DetailItem3Amount" Type="money" />
+          <Property Name="DetailItem4Date" Type="datetime" />
+          <Property Name="DetailItem4Number" Type="nvarchar" MaxLength="10" />
+          <Property Name="DetailItem4Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="DetailItem4Amount" Type="money" />
+          <Property Name="DetailItem5Date" Type="datetime" />
+          <Property Name="DetailItem5Number" Type="nvarchar" MaxLength="10" />
+          <Property Name="DetailItem5Description" Type="nvarchar" MaxLength="50" />
+          <Property Name="DetailItem5Amount" Type="money" />
+          <Property Name="ClientName" Type="nvarchar" MaxLength="50" />
+          <Property Name="ClientAddress1" Type="nvarchar" MaxLength="100" />
+          <Property Name="ClientAddress2" Type="nvarchar" MaxLength="100" />
+          <Property Name="ClientCity" Type="nvarchar" MaxLength="50" />
+          <Property Name="ClientState" Type="nvarchar" MaxLength="30" />
+          <Property Name="ClientZip" Type="nvarchar" MaxLength="25" />
+        </EntityType>
+        <EntityType Name="APVendorMaster">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ETL_Load_ID" Type="int" />
+          <Property Name="ProcessFlag" Type="bit" />
+          <Property Name="Status" Type="nvarchar" MaxLength="1" />
+          <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+          <Property Name="AddDateTime" Type="datetime" />
+          <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="VendorNumber" Type="nvarchar" MaxLength="7" />
+          <Property Name="VendorName" Type="nvarchar" MaxLength="30" />
+          <Property Name="AddressLine1" Type="nvarchar" MaxLength="30" />
+          <Property Name="AddressLine2" Type="nvarchar" MaxLength="30" />
+          <Property Name="AddressLine3" Type="nvarchar" MaxLength="30" />
+          <Property Name="City" Type="nvarchar" MaxLength="20" />
+          <Property Name="State" Type="nvarchar" MaxLength="2" />
+          <Property Name="ZipCode" Type="nvarchar" MaxLength="10" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="17" />
+          <Property Name="VendorRef" Type="nvarchar" MaxLength="15" />
+          <Property Name="MasterFileComment" Type="nvarchar" MaxLength="30" />
+          <Property Name="SSN" Type="nvarchar" MaxLength="9" />
+          <Property Name="Fax" Type="nvarchar" MaxLength="17" />
+          <Property Name="EmailAddress" Type="nvarchar" MaxLength="50" />
+          <Property Name="ISRNumber" Type="nvarchar" MaxLength="50" />
+          <Property Name="ContractType" Type="nvarchar" MaxLength="50" />
+          <Property Name="BankAccountNumber" Type="nvarchar" MaxLength="17" />
+          <Property Name="BankTransitNumber" Type="nvarchar" MaxLength="9" />
+          <Property Name="BankAccountType" Type="nvarchar" MaxLength="1" />
+          <Property Name="CountryCode" Type="nvarchar" MaxLength="3" />
+        </EntityType>
+        <EntityType Name="InvoiceRequest">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ETL_Load_ID" Type="int" />
+          <Property Name="ProcessFlag" Type="bit" />
+          <Property Name="Status" Type="nvarchar" MaxLength="1" />
+          <Property Name="ErrorDescription" Type="nvarchar" MaxLength="4000" />
+          <Property Name="AddDateTime" Type="datetime" />
+          <Property Name="Division" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="CustomerNumber" Type="nvarchar" MaxLength="7" />
+          <Property Name="InvoiceNumber" Type="nvarchar" MaxLength="7" />
+          <Property Name="InvoiceDate" Type="datetime" />
+          <Property Name="InvoiceDueDate" Type="datetime" />
+          <Property Name="TermsCode" Type="numeric" Precision="2" Scale="0" />
+          <Property Name="CustomerPONumber" Type="nvarchar" MaxLength="15" />
+          <Property Name="Comment" Type="nvarchar" MaxLength="30" />
+          <Property Name="ItemCode" Type="nvarchar" MaxLength="14" />
+          <Property Name="LineAmount" Type="numeric" Precision="9" Scale="2" />
+          <Property Name="AdditionalComment" Type="nvarchar" MaxLength="2048" />
+          <Property Name="AccountingSystemAddressCode" Type="nvarchar" MaxLength="4" />
+          <Property Name="POPrefix" Type="nvarchar" MaxLength="10" />
+          <Property Name="BillingPeriodEndDate" Type="datetime" />
+          <Property Name="InvoiceDescription" Type="nvarchar" MaxLength="255" />
+          <Property Name="LineQuantity" Type="numeric" Precision="6" Scale="0" />
+          <Property Name="LineCost" Type="numeric" Precision="7" Scale="2" />
+          <Property Name="LineNumber" Type="numeric" Precision="3" Scale="0" />
+        </EntityType>
+        <Function Name="dms_staging_tables_status_update" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="etlExecutionLogID" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="dms_staging_tables_status_update_Billing" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="etlExecutionLogID" Type="bigint" Mode="In" />
+        </Function>
+        <Function Name="CreateExecutionLog" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+          <Parameter Name="Description" Type="nvarchar" Mode="In" />
+          <Parameter Name="UserName" Type="nvarchar" Mode="In" />
+          <Parameter Name="LogID" Type="int" Mode="InOut" />
+        </Function>
+        <Function Name="UpdateExecutionLog" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+          <Parameter Name="LogID" Type="int" Mode="In" />
+          <Parameter Name="Status" Type="int" Mode="In" />
+        </Function>
+        <Function Name="UpdateExecutionLog_Billing" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dms">
+          <Parameter Name="LogID" Type="int" Mode="In" />
+          <Parameter Name="Status" Type="int" Mode="In" />
+        </Function>
+        <EntityContainer Name="MartexDMSDALNMCStoreContainer">
+          <EntitySet Name="ExecutionLog" EntityType="Self.ExecutionLog" Schema="audit" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="APCheckRequest" EntityType="Self.APCheckRequest" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="APVendorMaster" EntityType="Self.APVendorMaster" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+          <EntitySet Name="InvoiceRequest" EntityType="Self.InvoiceRequest" Schema="staging_MAS90" store:Type="Tables" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Martex.DMS.DAL.NMC" Alias="Self" xmlns="http://schemas.microsoft.com/ado/2009/11/edm" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+        <EntityContainer Name="NMC_ETLEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+          <FunctionImport Name="CreateExecutionLog">
+            <Parameter Name="Description" Mode="In" Type="String" />
+            <Parameter Name="UserName" Mode="In" Type="String" />
+            <Parameter Name="LogID" Mode="InOut" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateExecutionLog">
+            <Parameter Name="LogID" Mode="In" Type="Int32" />
+            <Parameter Name="Status" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateStatusOnStagingTables">
+          <Parameter Name="etlExecutionLogID" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateStatusOnInvoiceRequest">
+          <Parameter Name="etlExecutionLogID" Mode="In" Type="Int64" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateExecutionLogForBilling">
+            <Parameter Name="LogID" Mode="In" Type="Int32" />
+            <Parameter Name="Status" Mode="In" Type="Int32" />
+          </FunctionImport>
+          <EntitySet Name="ExecutionLogs" EntityType="Martex.DMS.DAL.NMC.ExecutionLog" />
+          <EntitySet Name="APCheckRequests" EntityType="Martex.DMS.DAL.NMC.APCheckRequest" />
+          <EntitySet Name="APVendorMasters" EntityType="Martex.DMS.DAL.NMC.APVendorMaster" />
+          <EntitySet Name="InvoiceRequests" EntityType="Martex.DMS.DAL.NMC.InvoiceRequest" />
+        </EntityContainer>
+        <EntityType Name="ExecutionLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="ParentLogID" Type="Int32" />
+          <Property Name="Description" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PackageName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PackageGuid" Type="Guid" Nullable="false" />
+          <Property Name="MachineName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ExecutionGuid" Type="Guid" Nullable="false" />
+          <Property Name="LogicalDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Operator" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="StartTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="EndTime" Type="DateTime" Precision="3" />
+          <Property Name="Status" Type="Byte" Nullable="false" />
+          <Property Name="FailureTask" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="APCheckRequest">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="ETL_Load_ID" Type="Int32" />
+          <Property Name="ProcessFlag" Type="Boolean" />
+          <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+          <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="VendorNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceNumber" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+          <Property Name="InvoiceDueDate" Type="DateTime" Precision="3" />
+          <Property Name="Comment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="SeparateCheck" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceAmount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="GLExpenseAccount" Type="String" MaxLength="11" FixedLength="false" Unicode="true" />
+          <Property Name="ExpenseAmount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="AdditionalComment" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PaymentMethod" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="DocumentNoteID" Type="Int32" />
+          <Property Name="PONumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="POIssuedDate" Type="DateTime" Precision="3" />
+          <Property Name="VendorInvoiceNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="ReceivedDate" Type="DateTime" Precision="3" />
+          <Property Name="VendorRepContactName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="VendorRepContactPhoneNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="VendorRepContactEmail" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ProgramName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ProgramRefNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="RegionNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DivisionNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DistrictNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Leader" Type="Boolean" />
+          <Property Name="Bulletin" Type="Boolean" />
+          <Property Name="ContractedDate" Type="DateTime" Precision="3" />
+          <Property Name="CancelledDate" Type="DateTime" Precision="3" />
+          <Property Name="BegDebitBalance" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="FirstyearCommissions" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Renewals" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Comissions" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Advances" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Backend" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="ServiceCharge" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Other" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="TotalCharges" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="EndDebitBalance" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="EstRemainFirstYear" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="QualityRatioPct" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="SilverRenewalQaulifier" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="EarnedCommYTD" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="AdvancesYTD" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="SilverRenewalText" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="QCQYTD" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="AdvancesQualityYTD" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="PersonalMembershipCount" Type="Int32" />
+          <Property Name="PersonalMemberCount" Type="Int32" />
+          <Property Name="PersonalNBAV" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="PersonalAdvance" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="PersonalBonus" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="OverrideMembershipCount" Type="Int32" />
+          <Property Name="OverrideMemberCount" Type="Int32" />
+          <Property Name="OverrideNBAV" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="OverrideAdvance" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="OverrideBonus" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="TIPS" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="Multiplier" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="AdjustmentAmount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="ContractType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PersonalOverrideAdvance" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DetailItem1Date" Type="DateTime" Precision="3" />
+          <Property Name="DetailItem1Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem1Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem1Amount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DetailItem2Date" Type="DateTime" Precision="3" />
+          <Property Name="DetailItem2Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem2Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem2Amount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DetailItem3Date" Type="DateTime" Precision="3" />
+          <Property Name="DetailItem3Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem3Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem3Amount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DetailItem4Date" Type="DateTime" Precision="3" />
+          <Property Name="DetailItem4Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem4Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem4Amount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="DetailItem5Date" Type="DateTime" Precision="3" />
+          <Property Name="DetailItem5Number" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem5Description" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DetailItem5Amount" Type="Decimal" Precision="19" Scale="4" />
+          <Property Name="ClientName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ClientAddress1" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ClientAddress2" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="ClientCity" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ClientState" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="ClientZip" Type="String" MaxLength="25" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="APVendorMaster">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="ETL_Load_ID" Type="Int32" />
+          <Property Name="ProcessFlag" Type="Boolean" />
+          <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+          <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="VendorNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+          <Property Name="VendorName" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="AddressLine1" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="AddressLine2" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="AddressLine3" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="City" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="State" Type="String" MaxLength="2" FixedLength="false" Unicode="true" />
+          <Property Name="ZipCode" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+          <Property Name="VendorRef" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="MasterFileComment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="SSN" Type="String" MaxLength="9" FixedLength="false" Unicode="true" />
+          <Property Name="Fax" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+          <Property Name="EmailAddress" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ISRNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ContractType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="BankAccountNumber" Type="String" MaxLength="17" FixedLength="false" Unicode="true" />
+          <Property Name="BankTransitNumber" Type="String" MaxLength="9" FixedLength="false" Unicode="true" />
+          <Property Name="BankAccountType" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="CountryCode" Type="String" MaxLength="3" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="InvoiceRequest">
+          <Key>
+            <PropertyRef Name="RecID" />
+          </Key>
+          <Property Name="RecID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" />
+          <Property Name="ETL_Load_ID" Type="Int32" />
+          <Property Name="ProcessFlag" Type="Boolean" />
+          <Property Name="Status" Type="String" MaxLength="1" FixedLength="false" Unicode="true" />
+          <Property Name="ErrorDescription" Type="String" MaxLength="4000" FixedLength="false" Unicode="true" />
+          <Property Name="AddDateTime" Type="DateTime" Precision="3" />
+          <Property Name="Division" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="CustomerNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceNumber" Type="String" MaxLength="7" FixedLength="false" Unicode="true" />
+          <Property Name="InvoiceDate" Type="DateTime" Precision="3" />
+          <Property Name="InvoiceDueDate" Type="DateTime" Precision="3" />
+          <Property Name="TermsCode" Type="Decimal" Precision="2" Scale="0" />
+          <Property Name="CustomerPONumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="Comment" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="ItemCode" Type="String" MaxLength="14" FixedLength="false" Unicode="true" />
+          <Property Name="LineAmount" Type="Decimal" Precision="9" Scale="2" />
+          <Property Name="AdditionalComment" Type="String" MaxLength="2048" FixedLength="false" Unicode="true" />
+          <Property Name="AccountingSystemAddressCode" Type="String" MaxLength="4" FixedLength="false" Unicode="true" />
+          <Property Name="POPrefix" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="BillingPeriodEndDate" Type="DateTime" Precision="3" />
+          <Property Name="InvoiceDescription" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LineQuantity" Type="Decimal" Precision="6" Scale="0" />
+          <Property Name="LineCost" Type="Decimal" Precision="7" Scale="2" />
+          <Property Name="LineNumber" Type="Decimal" Precision="3" Scale="0" />
+        </EntityType>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="MartexDMSDALNMCStoreContainer" CdmEntityContainer="NMC_ETLEntities">
+          <FunctionImportMapping FunctionImportName="CreateExecutionLog" FunctionName="Martex.DMS.DAL.NMC.Store.CreateExecutionLog" />
+          <FunctionImportMapping FunctionImportName="UpdateExecutionLog" FunctionName="Martex.DMS.DAL.NMC.Store.UpdateExecutionLog" />
+          <FunctionImportMapping FunctionImportName="UpdateStatusOnStagingTables" FunctionName="Martex.DMS.DAL.NMC.Store.dms_staging_tables_status_update" />
+          <FunctionImportMapping FunctionImportName="UpdateStatusOnInvoiceRequest" FunctionName="Martex.DMS.DAL.NMC.Store.dms_staging_tables_status_update_Billing" />
+          <FunctionImportMapping FunctionImportName="UpdateExecutionLogForBilling" FunctionName="Martex.DMS.DAL.NMC.Store.UpdateExecutionLog_Billing" />
+          <EntitySetMapping Name="ExecutionLogs">
+            <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.ExecutionLog">
+              <MappingFragment StoreEntitySet="ExecutionLog">
+                <ScalarProperty Name="FailureTask" ColumnName="FailureTask" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="Operator" ColumnName="Operator" />
+                <ScalarProperty Name="LogicalDate" ColumnName="LogicalDate" />
+                <ScalarProperty Name="ExecutionGuid" ColumnName="ExecutionGuid" />
+                <ScalarProperty Name="MachineName" ColumnName="MachineName" />
+                <ScalarProperty Name="PackageGuid" ColumnName="PackageGuid" />
+                <ScalarProperty Name="PackageName" ColumnName="PackageName" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="ParentLogID" ColumnName="ParentLogID" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="APCheckRequests">
+            <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.APCheckRequest">
+              <MappingFragment StoreEntitySet="APCheckRequest">
+                <ScalarProperty Name="ClientZip" ColumnName="ClientZip" />
+                <ScalarProperty Name="ClientState" ColumnName="ClientState" />
+                <ScalarProperty Name="ClientCity" ColumnName="ClientCity" />
+                <ScalarProperty Name="ClientAddress2" ColumnName="ClientAddress2" />
+                <ScalarProperty Name="ClientAddress1" ColumnName="ClientAddress1" />
+                <ScalarProperty Name="ClientName" ColumnName="ClientName" />
+                <ScalarProperty Name="DetailItem5Amount" ColumnName="DetailItem5Amount" />
+                <ScalarProperty Name="DetailItem5Description" ColumnName="DetailItem5Description" />
+                <ScalarProperty Name="DetailItem5Number" ColumnName="DetailItem5Number" />
+                <ScalarProperty Name="DetailItem5Date" ColumnName="DetailItem5Date" />
+                <ScalarProperty Name="DetailItem4Amount" ColumnName="DetailItem4Amount" />
+                <ScalarProperty Name="DetailItem4Description" ColumnName="DetailItem4Description" />
+                <ScalarProperty Name="DetailItem4Number" ColumnName="DetailItem4Number" />
+                <ScalarProperty Name="DetailItem4Date" ColumnName="DetailItem4Date" />
+                <ScalarProperty Name="DetailItem3Amount" ColumnName="DetailItem3Amount" />
+                <ScalarProperty Name="DetailItem3Description" ColumnName="DetailItem3Description" />
+                <ScalarProperty Name="DetailItem3Number" ColumnName="DetailItem3Number" />
+                <ScalarProperty Name="DetailItem3Date" ColumnName="DetailItem3Date" />
+                <ScalarProperty Name="DetailItem2Amount" ColumnName="DetailItem2Amount" />
+                <ScalarProperty Name="DetailItem2Description" ColumnName="DetailItem2Description" />
+                <ScalarProperty Name="DetailItem2Number" ColumnName="DetailItem2Number" />
+                <ScalarProperty Name="DetailItem2Date" ColumnName="DetailItem2Date" />
+                <ScalarProperty Name="DetailItem1Amount" ColumnName="DetailItem1Amount" />
+                <ScalarProperty Name="DetailItem1Description" ColumnName="DetailItem1Description" />
+                <ScalarProperty Name="DetailItem1Number" ColumnName="DetailItem1Number" />
+                <ScalarProperty Name="DetailItem1Date" ColumnName="DetailItem1Date" />
+                <ScalarProperty Name="PersonalOverrideAdvance" ColumnName="PersonalOverrideAdvance" />
+                <ScalarProperty Name="ContractType" ColumnName="ContractType" />
+                <ScalarProperty Name="AdjustmentAmount" ColumnName="AdjustmentAmount" />
+                <ScalarProperty Name="Multiplier" ColumnName="Multiplier" />
+                <ScalarProperty Name="TIPS" ColumnName="TIPS" />
+                <ScalarProperty Name="OverrideBonus" ColumnName="OverrideBonus" />
+                <ScalarProperty Name="OverrideAdvance" ColumnName="OverrideAdvance" />
+                <ScalarProperty Name="OverrideNBAV" ColumnName="OverrideNBAV" />
+                <ScalarProperty Name="OverrideMemberCount" ColumnName="OverrideMemberCount" />
+                <ScalarProperty Name="OverrideMembershipCount" ColumnName="OverrideMembershipCount" />
+                <ScalarProperty Name="PersonalBonus" ColumnName="PersonalBonus" />
+                <ScalarProperty Name="PersonalAdvance" ColumnName="PersonalAdvance" />
+                <ScalarProperty Name="PersonalNBAV" ColumnName="PersonalNBAV" />
+                <ScalarProperty Name="PersonalMemberCount" ColumnName="PersonalMemberCount" />
+                <ScalarProperty Name="PersonalMembershipCount" ColumnName="PersonalMembershipCount" />
+                <ScalarProperty Name="AdvancesQualityYTD" ColumnName="AdvancesQualityYTD" />
+                <ScalarProperty Name="QCQYTD" ColumnName="QCQYTD" />
+                <ScalarProperty Name="SilverRenewalText" ColumnName="SilverRenewalText" />
+                <ScalarProperty Name="AdvancesYTD" ColumnName="AdvancesYTD" />
+                <ScalarProperty Name="EarnedCommYTD" ColumnName="EarnedCommYTD" />
+                <ScalarProperty Name="SilverRenewalQaulifier" ColumnName="SilverRenewalQaulifier" />
+                <ScalarProperty Name="QualityRatioPct" ColumnName="QualityRatioPct" />
+                <ScalarProperty Name="EstRemainFirstYear" ColumnName="EstRemainFirstYear" />
+                <ScalarProperty Name="EndDebitBalance" ColumnName="EndDebitBalance" />
+                <ScalarProperty Name="TotalCharges" ColumnName="TotalCharges" />
+                <ScalarProperty Name="Other" ColumnName="Other" />
+                <ScalarProperty Name="ServiceCharge" ColumnName="ServiceCharge" />
+                <ScalarProperty Name="Backend" ColumnName="Backend" />
+                <ScalarProperty Name="Advances" ColumnName="Advances" />
+                <ScalarProperty Name="Comissions" ColumnName="Comissions" />
+                <ScalarProperty Name="Renewals" ColumnName="Renewals" />
+                <ScalarProperty Name="FirstyearCommissions" ColumnName="FirstyearCommissions" />
+                <ScalarProperty Name="BegDebitBalance" ColumnName="BegDebitBalance" />
+                <ScalarProperty Name="CancelledDate" ColumnName="CancelledDate" />
+                <ScalarProperty Name="ContractedDate" ColumnName="ContractedDate" />
+                <ScalarProperty Name="Bulletin" ColumnName="Bulletin" />
+                <ScalarProperty Name="Leader" ColumnName="Leader" />
+                <ScalarProperty Name="DistrictNumber" ColumnName="DistrictNumber" />
+                <ScalarProperty Name="DivisionNumber" ColumnName="DivisionNumber" />
+                <ScalarProperty Name="RegionNumber" ColumnName="RegionNumber" />
+                <ScalarProperty Name="ProgramRefNumber" ColumnName="ProgramRefNumber" />
+                <ScalarProperty Name="ProgramName" ColumnName="ProgramName" />
+                <ScalarProperty Name="VendorRepContactEmail" ColumnName="VendorRepContactEmail" />
+                <ScalarProperty Name="VendorRepContactPhoneNumber" ColumnName="VendorRepContactPhoneNumber" />
+                <ScalarProperty Name="VendorRepContactName" ColumnName="VendorRepContactName" />
+                <ScalarProperty Name="ReceivedDate" ColumnName="ReceivedDate" />
+                <ScalarProperty Name="VendorInvoiceNumber" ColumnName="VendorInvoiceNumber" />
+                <ScalarProperty Name="POIssuedDate" ColumnName="POIssuedDate" />
+                <ScalarProperty Name="PONumber" ColumnName="PONumber" />
+                <ScalarProperty Name="DocumentNoteID" ColumnName="DocumentNoteID" />
+                <ScalarProperty Name="PaymentMethod" ColumnName="PaymentMethod" />
+                <ScalarProperty Name="AdditionalComment" ColumnName="AdditionalComment" />
+                <ScalarProperty Name="ExpenseAmount" ColumnName="ExpenseAmount" />
+                <ScalarProperty Name="GLExpenseAccount" ColumnName="GLExpenseAccount" />
+                <ScalarProperty Name="InvoiceAmount" ColumnName="InvoiceAmount" />
+                <ScalarProperty Name="SeparateCheck" ColumnName="SeparateCheck" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="InvoiceDueDate" ColumnName="InvoiceDueDate" />
+                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+                <ScalarProperty Name="VendorNumber" ColumnName="VendorNumber" />
+                <ScalarProperty Name="Division" ColumnName="Division" />
+                <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+                <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+                <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+                <ScalarProperty Name="RecID" ColumnName="RecID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="APVendorMasters">
+            <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.APVendorMaster">
+              <MappingFragment StoreEntitySet="APVendorMaster">
+                <ScalarProperty Name="CountryCode" ColumnName="CountryCode" />
+                <ScalarProperty Name="BankAccountType" ColumnName="BankAccountType" />
+                <ScalarProperty Name="BankTransitNumber" ColumnName="BankTransitNumber" />
+                <ScalarProperty Name="BankAccountNumber" ColumnName="BankAccountNumber" />
+                <ScalarProperty Name="ContractType" ColumnName="ContractType" />
+                <ScalarProperty Name="ISRNumber" ColumnName="ISRNumber" />
+                <ScalarProperty Name="EmailAddress" ColumnName="EmailAddress" />
+                <ScalarProperty Name="Fax" ColumnName="Fax" />
+                <ScalarProperty Name="SSN" ColumnName="SSN" />
+                <ScalarProperty Name="MasterFileComment" ColumnName="MasterFileComment" />
+                <ScalarProperty Name="VendorRef" ColumnName="VendorRef" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="ZipCode" ColumnName="ZipCode" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="City" ColumnName="City" />
+                <ScalarProperty Name="AddressLine3" ColumnName="AddressLine3" />
+                <ScalarProperty Name="AddressLine2" ColumnName="AddressLine2" />
+                <ScalarProperty Name="AddressLine1" ColumnName="AddressLine1" />
+                <ScalarProperty Name="VendorName" ColumnName="VendorName" />
+                <ScalarProperty Name="VendorNumber" ColumnName="VendorNumber" />
+                <ScalarProperty Name="Division" ColumnName="Division" />
+                <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+                <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+                <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+                <ScalarProperty Name="RecID" ColumnName="RecID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="InvoiceRequests">
+            <EntityTypeMapping TypeName="Martex.DMS.DAL.NMC.InvoiceRequest">
+              <MappingFragment StoreEntitySet="InvoiceRequest">
+                <ScalarProperty Name="LineNumber" ColumnName="LineNumber" />
+                <ScalarProperty Name="LineCost" ColumnName="LineCost" />
+                <ScalarProperty Name="LineQuantity" ColumnName="LineQuantity" />
+                <ScalarProperty Name="InvoiceDescription" ColumnName="InvoiceDescription" />
+                <ScalarProperty Name="BillingPeriodEndDate" ColumnName="BillingPeriodEndDate" />
+                <ScalarProperty Name="POPrefix" ColumnName="POPrefix" />
+                <ScalarProperty Name="AccountingSystemAddressCode" ColumnName="AccountingSystemAddressCode" />
+                <ScalarProperty Name="AdditionalComment" ColumnName="AdditionalComment" />
+                <ScalarProperty Name="LineAmount" ColumnName="LineAmount" />
+                <ScalarProperty Name="ItemCode" ColumnName="ItemCode" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="CustomerPONumber" ColumnName="CustomerPONumber" />
+                <ScalarProperty Name="TermsCode" ColumnName="TermsCode" />
+                <ScalarProperty Name="InvoiceDueDate" ColumnName="InvoiceDueDate" />
+                <ScalarProperty Name="InvoiceDate" ColumnName="InvoiceDate" />
+                <ScalarProperty Name="InvoiceNumber" ColumnName="InvoiceNumber" />
+                <ScalarProperty Name="CustomerNumber" ColumnName="CustomerNumber" />
+                <ScalarProperty Name="Division" ColumnName="Division" />
+                <ScalarProperty Name="AddDateTime" ColumnName="AddDateTime" />
+                <ScalarProperty Name="ErrorDescription" ColumnName="ErrorDescription" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ProcessFlag" ColumnName="ProcessFlag" />
+                <ScalarProperty Name="ETL_Load_ID" ColumnName="ETL_Load_ID" />
+                <ScalarProperty Name="RecID" ColumnName="RecID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer>
+    <edmx:Connection>
+      <edmx:DesignerInfoPropertySet>
+        <edmx:DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </edmx:DesignerInfoPropertySet>
+    </edmx:Connection>
+    <edmx:Options>
+      <edmx:DesignerInfoPropertySet>
+        <edmx:DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <edmx:DesignerProperty Name="EnablePluralization" Value="True" />
+        <edmx:DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <edmx:DesignerProperty Name="UseLegacyProvider" Value="False" />
+        <edmx:DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </edmx:DesignerInfoPropertySet>
+    </edmx:Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <edmx:Diagram Name="NMCETLModel">
+        <edmx:EntityTypeShape EntityType="Martex.DMS.DAL.NMC.ExecutionLog" Width="1.5" PointX="0.75" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="Martex.DMS.DAL.NMC.APCheckRequest" Width="1.5" PointX="2.75" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="Martex.DMS.DAL.NMC.APVendorMaster" Width="1.5" PointX="4.75" PointY="0.75" />
+        <edmx:EntityTypeShape EntityType="Martex.DMS.DAL.NMC.InvoiceRequest" Width="1.5" PointX="6.75" PointY="0.75" />
+      </edmx:Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

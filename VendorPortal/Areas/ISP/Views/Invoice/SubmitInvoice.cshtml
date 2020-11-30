@@ -1,0 +1,683 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.BLL.Model.VendorPortal.VendorInvoiceModel
+@{
+    ViewBag.Title = "Submit Invoice";
+    Layout = "~/Views/Shared/_ContentMaster-Vendor.cshtml";
+    var showInvoiceUploadOnSubmitInvoice = false;
+    var requireInvoiceUploadOnSubmitInvoice = false;
+    var showUploadFile = showInvoiceUploadOnSubmitInvoice == true ? "" : "hidden";
+    var requireUploadFile = requireInvoiceUploadOnSubmitInvoice == true ? "" : "hidden";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Submit Invoice
+    </h1>
+</hgroup>
+<script language="javascript" type="text/javascript">
+
+    function OnFileSelect(e) {
+
+        setTimeout(function () {
+            $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+            $(".k-upload-selected").hide();
+        }, 500);
+        $.map(e.files, function (file) {
+            var info = file.name;
+
+            var fileSize = Math.ceil(file.size / 1024);
+            if (fileSize > 10000) {
+                openAlertMessage("File size more than 10 MB can not be uploaded.");
+                e.preventDefault();
+                return false;
+            }
+        });
+
+    }
+    function UploadApplication(e) {
+        var $form = $("#frmSubmitInvoice");
+        var postData = $form.serializeArray();
+
+        postData.push({ name: "AllowLowerPOAmount", value: $("#hdnAllowLowerPOAmount").val() });
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = postData.length; i < l; i++) {
+            if (nvp[postData[i].name] == null) {
+                nvp[postData[i].name] = postData[i].value;
+            }
+        }
+        e.data = nvp;
+
+    }
+
+    function UploadSuccess(e) {
+        ClearValidationMessages();
+        var $form = $("#frmSubmitInvoice");
+        $form.clearMessages();
+        var msg = e.response;
+        if (msg.Status == "Success") {
+            CleanMyContainer("frmSubmitInvoice");
+            openAlertMessage("Invoice successfully submitted", function () { window.location = '@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })'; });
+
+        }
+        else if (msg.Status == "BusinessRuleFail") {
+            var errorMessage = msg.ErrorMessage;
+            switch (msg.ErrorMessage) {
+                case 'PO_NOT_EXISTS':
+                    errorMessage = 'PO number was not found, please try again';
+                    break;
+                case 'PO_NOT_ASSIGNED':
+                    errorMessage = 'PO number is not assigned to you. Please try again or contact your Vendor Rep.';
+                    break;
+                case 'PO_PAID_BY_CC':
+                    errorMessage = 'PO was paid by credit card.';
+                    break;
+                case 'PO_ALREADY_PAID':
+                    errorMessage = 'PO was paid by the member';
+                    break;
+                case 'PO_NOT_ISSUED':
+                    errorMessage = 'PO number cannot be verified, please check the number and try again. If you think the PO number is valid, please contact your Vendor Rep';
+                    break;
+                case 'PO_ALREADY_INVOICED':
+                    errorMessage = 'An invoice has already been submitted for this PO';
+                    break;
+
+                case 'PO_TOO_EARLY':
+                    errorMessage = "PO is not available yet, please try again later.";
+                    break;
+
+                case 'PO_LAPSED':
+                    errorMessage = 'Invoice not allowed because the PO is over 90 days old';
+                    break;
+
+                case 'APP_CONFIG_VALUE_NOT_FOUND':
+                    errorMessage = 'Application configuration item - POInvoiceDifferenceThreshold is not set up';
+                    break;
+
+                case 'INVOICE_AMOUNT_ABOVE_PO_AMOUNT':
+                    errorMessage = "Invoice amount does not match the PO amount";
+                    break;
+
+                case 'LOWER_PO_AMOUNT':
+                    errorMessage = 'Please check the invoice amount, is it correct?';
+                    $.modal.confirmYesNo(errorMessage, function () {
+                        SubmitInvoice(true);
+                    },
+                    function () {
+
+                    });
+                    errorMessage = '';
+                    break;
+                case 'MISSING_BILLING_ADDRESS':
+                    errorMessage = 'Missing vendor billing address, please go to My Account and enter your billing address';
+                    break;
+                case 'MISSING_TAX_ID':
+                    errorMessage = 'Missing Tax ID, please go to My Account and enter your Tax ID';
+                    break;
+                case 'VENDOR_STATUS_ISSUE':
+                    errorMessage = 'There is an issue with your account status, please contact your Vendor Rep';
+                    break;
+
+                default:
+                    break;
+
+            }
+            if ($.trim(errorMessage).length > 0) {
+                displayError(errorMessage, $form);
+            }
+
+        }
+        else if (msg.Status == "Error") {
+            displayError(msg.ErrorMessage, $form);
+        }
+    }
+
+    function UploadError(e) {
+        //HideLoadingIndicator();
+        openAlertMessage("An error occurred while processing the application. Please contact administrator for more details");
+    }
+
+    function UploadComplete(e) {
+        //HideLoadingIndicator();
+    }
+
+    @*function VerifyPoNumber(e) {
+        var $form = $("#frmSubmitInvoice");
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetProgramConfigurationForPO", "Invoice", new { area = "ISP" })',
+            traditional: true,
+            data: { purchaseOrderNumber: $("PONumber").val() },
+            cache: false,
+            async: true,
+            global: false,
+            success: function (msg) {
+                $form.clearMessages();
+                if (msg.Status == "Success") {
+
+
+                }
+                else if (msg.Status == "Error") {
+                    displayError(msg.ErrorMessage, $form);
+
+                }
+            }
+        });
+    }*@
+
+
+
+</script>
+<div class="with-padding">
+    <fieldset class="fieldset">
+        <legend class="legend">Submit Invoice</legend>
+        <div class="columns">
+            <div class="twelve-columns formArea">
+                @using (Html.BeginForm("SubmitInvoice", "Invoice", new { area = "ISP" }, FormMethod.Post, new { id = "frmSubmitInvoice" }))
+                {
+                    @Html.Hidden("hdnAllowLowerPOAmount", false)
+                    @Html.Hidden("hdnShowInvoiceUploadOnSubmitInvoice", showInvoiceUploadOnSubmitInvoice)
+                    @Html.Hidden("hdnRequireInvoiceUploadOnSubmitInvoice", requireInvoiceUploadOnSubmitInvoice)
+                    <p class="button-height inline-large-label ">
+                        <label class="label">
+                            PO Number <span class="star red">*</span>
+                        </label>
+                        @Html.TextBoxFor(v => v.PONumber, new { @class = "input  validate[required, maxSize[50]]" })
+                    </p>
+                    <p class="button-height inline-large-label ">
+                        <label for="invoiceNumber" class="label">
+                            Invoice Number <span class="star red">*</span>
+                        </label>
+                        @Html.TextBoxFor(v => v.InvoiceNumber, new { @class = "input validate[required, maxSize[50]]" })
+                    </p>
+                    <p class="button-height inline-large-label ">
+                        <label for="invoiceAmount" class="label">
+                            Invoice Amount <span class="star red">*</span>
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(v => v.InvoiceAmount)
+                        .Decimals(2)
+                        .Format("{0:C}")
+                        .Spinners(false)
+                        .Placeholder("$0.00")
+                        .HtmlAttributes(new { style = "width:143px;" })
+
+                        )
+                        <span>US Dollars Only</span> @*&nbsp <span><a href="javascript:void(0);">Canadian Conversion</a></span>*@
+                    </p>
+
+                    <div class="button-height inline-large-label">
+                        <label for="arrival" class="label">
+                            How long to arrive on scene? <span class="star red">*</span>
+                        </label>
+                        @{
+                    List<SelectListItem> hours = new List<SelectListItem>();
+                    for (var i = 0; i <= 6; i++)
+                    {
+                        hours.Add(new SelectListItem() { Text = i.ToString(), Value = i.ToString() });
+                    }
+                    hours.Add(new SelectListItem() { Text = "Over 6", Value = "7" });
+
+                    List<SelectListItem> minutes = new List<SelectListItem>();
+                    for (var i = 0; i < 60; i++)
+                    {
+                        minutes.Add(new SelectListItem() { Text = i.ToString(), Value = i.ToString() });
+                    }
+
+                        }
+                        @(Html.Kendo().ComboBoxFor(v => v.Hours)
+                    .BindTo(hours)
+                    .Placeholder("Hours")
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:10%;" })
+                        )
+                        @(Html.Kendo().ComboBoxFor(v => v.Minutes)
+                    .BindTo(minutes)
+                    .Placeholder("Minutes")
+                    .HighlightFirst(true)
+                    .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("ValidateInputForKendoCombo"))
+                    .HtmlAttributes(new { style = "width:10%;" })
+                        )
+                    </div>
+
+                    <p class="button-height inline-large-label ">
+                        <label for="vin" class="label">
+                            Last 8 of VIN Number@* <span class="star red">*</span>*@
+                        </label>
+                        @Html.TextBoxFor(v => v.VIN, new { @class = "input validate[minSize[8],maxSize[8]]" })
+                    </p>
+
+
+                    <p class="button-height inline-large-label ">
+                        <label for="mileage" class="label">
+                            Vehicle Mileage @*<span class="star red">*</span>*@
+                        </label>
+                        @(Html.Kendo().NumericTextBoxFor(v => v.Mileage)
+                        .Decimals(0)
+                        .Format("{0:N0}")
+                        .Spinners(false)
+                        .HtmlAttributes(new { style = "width:143px;" })
+
+
+                        )
+                    </p>
+                    <div class="@showUploadFile" id="divshowInvoiceUploadOnSubmitInvoice">
+                        <p class="button-height inline-large-label">
+                            <label for="attachment" class="label">
+                                <strong>Upload Copy of the Invoice <span class="star red @requireUploadFile" id="spanShowInvoiceUploadRequired">*</span> </strong>
+                            </label>
+                            @(Html.Kendo().Upload()
+                            .Name("attachment")
+                            .Async(a => a
+                                .Save("SubmitInvoice", "Invoice", new { area = "ISP" })
+                                .AutoUpload(false)
+                                .RemoveUrl("/Remove")
+                            )
+                            .Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete"))
+                            .Multiple(false)
+                            .ShowFileList(true)
+                            .HtmlAttributes(new { @style = "text-align:right;" })
+                            )
+                        </p>
+                        <p class="button-height inline-large-label">
+                            <label for="attachment" class="label">
+                                &nbsp;
+
+                            </label>
+                            <small>Upload file size should be less than 10MB.</small>
+                        </p>
+                    </div>
+                    <p class="button-height inline-large-label ">
+                        <label class="label">
+                        </label>
+                        <button id="btnSubmitInvoice" class="button huge  green-gradient" type="button">
+                            Submit Invoice
+                        </button>
+                    </p>
+                    <br />
+                    <br />
+                    <p>
+                        Please DO NOT send invoice if you are entering it online.
+                        <br />
+                        A hard copy may be requested at a future date.
+                    </p>
+                }
+            </div>
+            @*<div class="twelve-columns statusArea hidden">
+                    <button class="button glossy green-gradient" type="button" onclick="window.location = '@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })';" id="btnSubmitAnother">
+                        Submit Another Invoice</button>
+                </div>*@
+        </div>
+    </fieldset>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+    $(function () {
+        $("#PONumber").focusout(function () {
+            var $form = $("#frmSubmitInvoice");
+            $form.clearMessages();
+            var poNumber = $("#PONumber").val();
+            if (poNumber.length > 0) {
+                displayLoading("Verifying PO ...", $form);
+                var $form = $("#frmSubmitInvoice");
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GetProgramConfigurationForPO", "Invoice", new { area = "ISP" })',
+                    traditional: true,
+                    data: { purchaseOrderNumber: poNumber },
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+                        $form.clearMessages();
+                        if (msg.Status == "Success") {
+                            displaySuccess("Verified PO successfully.", $form);
+                            var requireInvoiceUploadOnSubmitInvoice = msg.Data.requireInvoiceUploadOnSubmitInvoice;
+                            var showInvoiceUploadOnSubmitInvoice = msg.Data.showInvoiceUploadOnSubmitInvoice;
+                            $("#hdnShowInvoiceUploadOnSubmitInvoice").val(showInvoiceUploadOnSubmitInvoice);
+                            $("#hdnRequireInvoiceUploadOnSubmitInvoice").val(requireInvoiceUploadOnSubmitInvoice);
+                            if(showInvoiceUploadOnSubmitInvoice!=null && showInvoiceUploadOnSubmitInvoice==true)
+                            {
+                                $("#divshowInvoiceUploadOnSubmitInvoice").removeClass("hidden");
+                                if(requireInvoiceUploadOnSubmitInvoice!=null && requireInvoiceUploadOnSubmitInvoice==true)
+                                {
+                                    $("#spanShowInvoiceUploadRequired").removeClass("hidden");
+                                }
+                                else
+                                {
+                                    $("#spanShowInvoiceUploadRequired").addClass("hidden");
+                                }
+                            }
+                            else
+                            {
+                                $("#divshowInvoiceUploadOnSubmitInvoice").addClass("hidden");
+                                $("#spanShowInvoiceUploadRequired").addClass("hidden");
+                            }
+                        }
+                        else if (msg.Status == "Error") {
+                            displayError(msg.ErrorMessage, $form);
+
+                        }
+                    },
+                    error:function(msg)
+                    {
+                        
+                    }
+                });
+            }
+        });
+    });
+    function SubmitInvoice(allowLowerPOAmount) {
+        var $form = $("#frmSubmitInvoice");
+        var $formArea = $(".formArea");
+        var $btnSubmitAnother = $("#btnSubmitAnother");
+        var formData = $form.serializeArray();
+
+        formData.push({ name: "AllowLowerPOAmount", value: allowLowerPOAmount });
+        var isFormValid = true;
+
+        if (($("#Hours").data("kendoComboBox").value() == "") && ($("#Minutes").data("kendoComboBox").value() == "")) {
+            ShowValidationMessage($('input[name="Hours_input"]'), "* Please select how long to arrive on scene");
+            isFormValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="Hours_input"]'));
+        }
+
+        if ($form.validationEngine('validate') == false) {
+            isFormValid = false;
+        }
+
+
+        // Validate numeric fields.
+        var $invoiceAmount = $("#InvoiceAmount").data("kendoNumericTextBox");
+        var invoiceAmountValue = $invoiceAmount.value();
+        var $invoiceAmountFormatted = $("#txtInvoiceAmount");
+        if ($.trim(invoiceAmountValue).length == 0 || invoiceAmountValue == 0) {
+            ShowValidationMessage($invoiceAmountFormatted, "* Please enter a valid amount");
+            isFormValid = false;
+        }
+        else {
+            HideValidationMessage($invoiceAmountFormatted);
+        }
+        if ($("#hdnShowInvoiceUploadOnSubmitInvoice").val().toLowerCase() == "true" && $("#hdnRequireInvoiceUploadOnSubmitInvoice").val().toLowerCase() == "true")
+        {
+            if ($(".k-upload-selected").length == 0) {
+                ShowValidationMessage($('input[name="attachment"]'), "* A copy of the invoice is required for this PO");
+                isFormValid = false;
+            }
+            else {
+                HideValidationMessage($('input[name="attachment"]'));
+            }
+        }
+        // Validate dropdowns.
+        var hours = $("#Hours").data("kendoComboBox");
+        var minutes = $("#Minutes").data("kendoComboBox");
+        var hoursValue = hours.value();
+        var minutesValue = minutes.value();
+
+        //        if (($.trim(hoursValue).length == 0 && $.trim(minutesValue).length == 0) ||
+        //                (hoursValue == 0 && minutesValue == 0)) {
+        //            isFormValid = false;
+        //            ShowValidationMessage($('input[name="Hours_input"]'), "Please select a value from one or both of the time dropdowns");
+        //        }
+        //        else {
+        //            HideValidationMessage($('input[name="Hours_input"]'));
+        //        }
+        if (!isFormValid) {
+            return false;
+        }
+
+        $form.clearMessages();
+        displayLoading("Processing ...", $form);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ValidateInvoice", "Invoice", new { area = "ISP" })',
+            traditional: true,
+            data: formData,
+            cache: false,
+            async: true,
+            global: false,
+            success: function (msg) {
+                $form.clearMessages();
+                if (msg.Status == "Success") {
+                    if ($(".k-upload-selected").length > 0) {
+                        console.log("File uploaded so going via Kendo Upload");
+                        $(".k-upload-selected").click();
+                    }
+                    else {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })',
+                            traditional: true,
+                            data: formData,
+                            cache: false,
+                            async: true,
+                            global: false,
+                            success: function (msg) {
+                                $form.clearMessages();
+                                if (msg.Status == "Success") {
+                                    CleanMyContainer("frmSubmitInvoice");
+                                    openAlertMessage("Invoice successfully submitted", function () { window.location = '@Url.Action("SubmitInvoice", "Invoice", new { area = "ISP" })'; });
+                                }
+                                else if (msg.Status == "BusinessRuleFail") {
+                                    var errorMessage = msg.ErrorMessage;
+                                    switch (msg.ErrorMessage) {
+                                        case 'PO_NOT_EXISTS':
+                                            errorMessage = 'PO number was not found, please try again';
+                                            break;
+                                        case 'PO_NOT_ASSIGNED':
+                                            errorMessage = 'PO number is not assigned to you. Please try again or contact your Vendor Rep.';
+                                            break;
+                                        case 'PO_PAID_BY_CC':
+                                            errorMessage = 'PO was paid by credit card.';
+                                            break;
+                                        case 'PO_ALREADY_PAID':
+                                            errorMessage = 'PO was paid by the member';
+                                            break;
+                                        case 'PO_NOT_ISSUED':
+                                            errorMessage = 'PO number cannot be verified, please check the number and try again. If you think the PO number is valid, please contact your Vendor Rep';
+                                            break;
+                                        case 'PO_ALREADY_INVOICED':
+                                            errorMessage = 'An invoice has already been submitted for this PO';
+                                            break;
+
+                                        case 'PO_TOO_EARLY':
+                                            errorMessage = "PO is not available yet, please try again later.";
+                                            break;
+
+                                        case 'PO_LAPSED':
+                                            errorMessage = 'Invoice not allowed because the PO is over 90 days old';
+                                            break;
+
+                                        case 'APP_CONFIG_VALUE_NOT_FOUND':
+                                            errorMessage = 'Application configuration item - POInvoiceDifferenceThreshold is not set up';
+                                            break;
+
+                                        case 'INVOICE_AMOUNT_ABOVE_PO_AMOUNT':
+                                            errorMessage = "Invoice amount does not match the PO amount";
+                                            break;
+
+                                        case 'LOWER_PO_AMOUNT':
+                                            errorMessage = 'Please check the invoice amount, is it correct?';
+                                            $.modal.confirmYesNo(errorMessage, function () {
+                                                $("#hdnAllowLowerPOAmount").val(true);
+                                                SubmitInvoice(true);
+                                            },
+                                            function () {
+
+                                            });
+                                            errorMessage = '';
+                                            break;
+                                        case 'MISSING_BILLING_ADDRESS':
+                                            errorMessage = 'Missing vendor billing address, please go to My Account and enter your billing address';
+                                            break;
+                                        case 'MISSING_TAX_ID':
+                                            errorMessage = 'Missing Tax ID, please go to My Account and enter your Tax ID';
+                                            break;
+                                        case 'VENDOR_STATUS_ISSUE':
+                                            errorMessage = 'There is an issue with your account status, please contact your Vendor Rep';
+                                            break;
+
+                                        default:
+                                            break;
+
+                                    }
+                                    if ($.trim(errorMessage).length > 0) {
+                                        displayError(errorMessage, $form);
+                                    }
+
+                                }
+                                else if (msg.Status == "Error") {
+                                    displayError(msg.ErrorMessage, $form);
+                                }
+                            },
+                            error: function (err, errStatus) {
+                                $form.clearMessages();
+
+                                var errorMessage = 'An error occurred while processing the request.';
+                                //displayError(err, $form);
+                                if (err.status == 403) {
+                                    Handle403(err);
+                                    return false;
+                                }
+                                try {
+                                    var json = $.parseJSON(err.responseText);
+                                    if (json.Data == null) {
+                                        errorMessage = json.ErrorMessage;
+                                    }
+                                    else {
+                                        errorMessage = json.ErrorMessage + "<br/> Please contact administrator with the key [ " + json.Data + " ] for more details";
+                                    }
+                                    displayError(errorMessage, $form);
+                                }
+                                catch (exception) {
+                                    // possible error while parsing response as JSON
+                                }
+                            }
+                        });
+                    }
+
+                }
+                else if (msg.Status == "BusinessRuleFail") {
+                    var errorMessage = msg.ErrorMessage;
+                    switch (msg.ErrorMessage) {
+                        case 'PO_NOT_EXISTS':
+                            errorMessage = 'PO number was not found, please try again';
+                            break;
+                        case 'PO_NOT_ASSIGNED':
+                            errorMessage = 'PO number is not assigned to you. Please try again or contact your Vendor Rep.';
+                            break;
+                        case 'PO_PAID_BY_CC':
+                            errorMessage = 'PO was paid by credit card.';
+                            break;
+                        case 'PO_ALREADY_PAID':
+                            errorMessage = 'PO was paid by the member';
+                            break;
+                        case 'PO_NOT_ISSUED':
+                            errorMessage = 'PO number cannot be verified, please check the number and try again. If you think the PO number is valid, please contact your Vendor Rep';
+                            break;
+                        case 'PO_ALREADY_INVOICED':
+                            errorMessage = 'An invoice has already been submitted for this PO';
+                            break;
+
+                        case 'PO_TOO_EARLY':
+                            errorMessage = "PO is not available yet, please try again later.";
+                            break;
+
+                        case 'PO_LAPSED':
+                            errorMessage = 'Invoice not allowed because the PO is over 90 days old';
+                            break;
+
+                        case 'APP_CONFIG_VALUE_NOT_FOUND':
+                            errorMessage = 'Application configuration item - POInvoiceDifferenceThreshold is not set up';
+                            break;
+
+                        case 'INVOICE_AMOUNT_ABOVE_PO_AMOUNT':
+                            errorMessage = "Invoice amount does not match the PO amount";
+                            break;
+
+                        case 'LOWER_PO_AMOUNT':
+                            errorMessage = 'Please check the invoice amount, is it correct?';
+                            $.modal.confirmYesNo(errorMessage, function () {
+                                $("#hdnAllowLowerPOAmount").val(true);
+                                SubmitInvoice(true);
+                            },
+                            function () {
+
+                            });
+                            errorMessage = '';
+                            break;
+                        case 'MISSING_BILLING_ADDRESS':
+                            errorMessage = 'Missing vendor billing address, please go to My Account and enter your billing address';
+                            break;
+                        case 'MISSING_TAX_ID':
+                            errorMessage = 'Missing Tax ID, please go to My Account and enter your Tax ID';
+                            break;
+                        case 'VENDOR_STATUS_ISSUE':
+                            errorMessage = 'There is an issue with your account status, please contact your Vendor Rep';
+                            break;
+
+                        default:
+                            break;
+
+                    }
+                    if ($.trim(errorMessage).length > 0) {
+                        displayError(errorMessage, $form);
+                    }
+
+                }
+                else if (msg.Status == "Error") {
+                    displayError(msg.ErrorMessage, $form);
+                }
+
+            }, // end of success
+            error: function (err, errStatus) {
+                $form.clearMessages();
+
+                var errorMessage = 'An error occurred while processing the request.';
+                //displayError(err, $form);
+                if (err.status == 403) {
+                    Handle403(err);
+                    return false;
+                }
+                try {
+                    var json = $.parseJSON(err.responseText);
+                    if (json.Data == null) {
+                        errorMessage = json.ErrorMessage;
+                    }
+                    else {
+                        errorMessage = json.ErrorMessage + "<br/> Please contact administrator with the key [ " + json.Data + " ] for more details";
+                    }
+                    displayError(errorMessage, $form);
+                }
+                catch (exception) {
+                    // possible error while parsing response as JSON
+                }
+            }
+        });// end of ajax options
+    }
+
+    $(function () {
+
+        var fnbuttonHandler = function (sender) {
+            $("#btnSubmitInvoice").removeAttr("disabled");
+        }
+        LoadHelpText("_SubmitInvoiceHelp");
+        WatchMyContainer('frmSubmitInvoice'); //, null, fnbuttonHandler); This one is causing issues in some of the versions of IE.
+        var $invoiceAmountFormatted = $("#InvoiceAmount").siblings(".k-formatted-value")
+        $invoiceAmountFormatted.attr("id", "txtInvoiceAmount");
+        $("#frmSubmitInvoice").validationEngine();
+
+        $("#btnSubmitInvoice").click(function (e) {
+            e.preventDefault();
+            SubmitInvoice(false);
+
+            return false;
+        });
+    });
+//-->
+</script>

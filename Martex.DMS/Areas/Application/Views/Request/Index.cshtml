@@ -1,0 +1,273 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@model Martex.DMS.Areas.Application.Models.ConnectModel
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+    var nextAction = string.Empty;
+    if (!string.IsNullOrWhiteSpace(DMSCallContext.NextAction))
+    {
+        nextAction = DMSCallContext.NextAction;
+    }
+}
+<script language="javascript" type="text/javascript" src="@Url.Content("~/Scripts/timer.jquery.js")"></script>
+@*<script src="http://ecn.dev.virtualearth.net/mapcontrol/mapcontrol.ashx?v=7.0" type="text/javascript"></script>*@
+<script src="https://www.bing.com/api/maps/mapcontrol" type="text/javascript"></script>
+
+<script type="text/javascript">
+    window.name = "ODISWindow"
+    //Array used in Call Summary to remember the selection for Show More and Less
+    var callSummarySelections = new Array();
+    var currentActiveTabId = -1;
+    var previousActiveTabId = -1;
+
+    function LogEventForEnterAndLeaveTabs(tabId, isEntering) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("LogEventForEnterAndLeaveTabs", "ReferenceData", new { area = "Common" })',
+            traditional: true,
+            data: { tabId: tabId, isEntering: isEntering },
+            cache: false,
+            async: isEntering,
+            global: !isEntering,
+            success: function (msg) {
+                console.log("Event logged successfully.");
+            }
+        });
+    }
+    var previousIndex = 0;
+    var fnSaveTab = function () { return true; };
+    // Jeevan
+    // 15-Nov-2012
+    function isDisabled(index) {
+        return $.inArray(index, $("#RequestTabs").tabs("option", "disabled")) > -1;
+    }
+    //
+    var startTab = '@ViewBag.StartTab'
+    $(function () {
+
+        if (typeof (Microsoft) != "undefined") {
+            //KS: Load the new BING Theme
+            //Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', { callback: themesModuleLoaded });
+        }
+        else {
+            LogBingMapServiceDown();
+            openAlertMessage("We are experiencing issues while loading BING API, therefore the Map functions might not work as expected.");
+        }
+        $("#RequestTabs").tabs({
+            disabled: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], show: function (event, ui) {
+
+                /*NP 02/11: Methods to log events for Tabs Entering and Leaving*/
+                if (previousActiveTabId >= 0) {
+                    LogEventForEnterAndLeaveTabs(previousActiveTabId, false);
+                }
+                currentActiveTabId = ui.index;
+                if (currentActiveTabId > 0) {
+                    LogEventForEnterAndLeaveTabs(currentActiveTabId, true);
+                }
+                previousActiveTabId = currentActiveTabId;
+
+            }, select: function (event, ui) {
+
+
+                if ($(ui.tab).parents("li").hasClass("disabled")) {
+                    return false;
+                }
+
+                var result = fnSaveTab();
+
+                if (result) {
+                    // Clear off dirty flags on previous tabs
+                    ClearDirtyFlag("pagecontainer");
+                }
+
+
+                if (previousIndex == 0 && ui.index > 0) {
+                    if (startTab != "Queue") {
+                        SaveInboundCallData();
+                    }
+                }
+                // Handle map save.
+                if (previousIndex == 5) {
+                    result = UpdateServiceRequestWithMapData();
+                    //result = true;
+                }
+
+                // If the user clicks on Start tab- register the save tab function.
+                if (previousIndex == 0) {
+                    if (typeof (IsStartTabValid) != "undefined") {
+                        result = IsStartTabValid();
+                    }
+                }
+
+                if (result) {
+                    previousIndex = ui.index;
+                    fnSaveTab = function () { return true; };
+                    //Clear messages
+                    $(".formError").each(function () {
+                        $(this).remove();
+                    });
+                }
+
+
+                //Jeevan
+                // 15-Nov-2012
+                if (!isDisabled(ui.index)) {
+                    GetCallSummary();
+                    GetMemberProductsDetails();
+                }
+
+                if (ui.index == 11) {
+                    // Refresh the Finish tab form with latest SR attributes
+
+                    if (typeof (RefreshServiceRequestAttributes) != "undefined") {
+                        console.log("Refreshing the form with latest SR attributes");
+                        RefreshServiceRequestAttributes();
+                    }
+                }
+
+                return result;
+            }
+        });
+    });
+
+</script>
+<div class="with-padding">
+    <div id="RequestTabs" class="standard-tabs same-height">
+        <ul class="tabs">
+            <li id="tbStart"><a id="hypStart" href="#tabs-1"><span class="spstart">Start</span></a></li>
+            <li id="tbGetHelp" class="disabled">
+                <a href="@Url.Action("Index", "EmergencyAssistance", new { area = "Common" })">
+                    <span class="spemergency">Emergency </span>
+                </a>
+            </li>
+            <li id="tbMemberDetails" class="disabled">
+                <a id="hypMemberDetails" href="@Url.Action("MemberDetails", "Member", new { area = "Application" })">
+                    <span class="spmember">Member</span>
+                </a>
+            </li>
+            <li id="tbVehicle" class="disabled">
+                <a href="@Url.Action("_Index", "Vehicle", new { area = "Application" })">
+                    <span class="spvehicle">Vehicle</span>
+                </a>
+            </li>
+            <li id="tbService" class="disabled">
+                <a href="@Url.Action("Index", "Service", new { area = "Application" })">
+                    <span class="spservice">Service</span>
+                </a>
+            </li>
+            <li id="tbMap" class="disabled">
+                <a href="@Url.Action("Index", "Map", new { area = "Application" })">
+                    <span class="spmap">Map</span>
+                </a>
+            </li>
+            <li id="tbEstimate" class="disabled">
+                <a href="@Url.Action("Index", "Estimate", new { area = "Application" })">
+                    <span class="spestimate">Estimate</span>
+                </a>
+            </li>
+            <li id="tbDispatch" class="disabled">
+                <a id="hypDispatch" href="@Url.Action("Index", "Dispatch", new { area = "Application" })">
+                    <span class="spdispatch">Dispatch</span>
+                </a>
+            </li>
+            <li id="tbPO" class="disabled">
+                <a id="hypPO" href="@Url.Action("_Index", "PO", new { area = "Application" })">
+                    <span class="sppo">P.O.</span>
+                </a>
+            </li>
+            <li id="tbPayment" class="disabled">
+                <a href="@Url.Action("Index", "Payment", new { area = "Application" })">
+                    <span class="sppayment">Payment</span>
+                </a>
+            </li>
+            <li id="tbActivity" class="disabled">
+                <a href="@Url.Action("_Activity", "Activity", new { area = "Application" })">
+                    <span class="spactivity">Activity</span>
+                </a>
+            </li>
+            <li id="tbFinishTab" class="disabled">
+                <a href="@Url.Action("_Index", "Finish", new { area = "Application" })">
+                    <span class="spfinish">Finish</span>
+                </a>
+            </li>
+        </ul>
+        <div id="tabs-1">
+            @{
+                if ((string)ViewBag.StartTab != "Queue" & Model.isFromConnect == true)
+                {
+                    Html.RenderAction("_Start", "Request", new { area = "Application", memberPhoneNumber = Model.memberPhoneNumber, inBoundNumber = Model.inBoundNumber, isFromConnect = Model.isFromConnect, programFound = Model.programs});
+                }
+                else if ((string)ViewBag.StartTab != "Queue")
+                {
+                    Html.RenderAction("_Start", "Request", new { area = "Application", isFromConnect = Model.isFromConnect });
+                }
+            }
+        </div>
+    </div>
+</div>
+@Html.Hidden("hdnTabValidationStatuses", ViewData[Martex.DMS.Common.StringConstants.TAB_VALIDATION_STATUS])
+<script type="text/javascript">
+    $(function () {
+
+        var allowPayment = '@DMSCallContext.AllowPaymentProcessing.ToString().ToLower()';
+        var allowEstimate = '@DMSCallContext.AllowEstimateProcessing.ToString().ToLower()';
+        var isFromHistoryTab = '@DMSCallContext.IsFromHistoryList.ToString().ToLower()';
+        var poIDFromHistoryId = '@DMSCallContext.IsFromHistoryListPOID.ToString().ToLower()';
+        var nextAction = '@nextAction';
+        if (startTab == 'Queue') {
+            $('ul.tabs > li.disabled').removeClass("disabled");
+            $("#RequestTabs").tabs("option", "disabled", []);
+            $("#tbStart").addClass("disabled");
+
+            $(".timer").timer();
+            $(".timer").timer("reset");
+            $(".timer").timer("start");
+
+            if (isFromHistoryTab == "false") {
+                if (nextAction == 'Dispatch') {
+                    $('#hypDispatch').click();
+                }
+                else {
+                    $('#hypMemberDetails').click();
+                }
+            }
+            else if (isFromHistoryTab == "true" && poIDFromHistoryId == "0") {
+                $('#hypMemberDetails').click();
+            }
+            else if (isFromHistoryTab == "true" && poIDFromHistoryId != "0") {
+                $('#hypPO').click();
+            }
+
+
+        }
+
+        if (startTab == "startCall") {
+            setTimeout(function () {
+                $('#btnStartCall').click();
+            }, 500);
+
+        }
+
+        if (allowPayment == 'false') {
+            $("#RequestTabs").tabs("disable", 9);
+            $("#tbPayment").addClass("disabled");
+        }
+        //PAY_AS_YOU_GO: Estimate tab
+        if (allowEstimate == 'false') {
+            $("#RequestTabs").tabs("disable", 6);
+            $("#tbEstimate").addClass("disabled");
+        }
+
+        // Process tab validation statuses
+        var strTabValidationStatuses = $("#hdnTabValidationStatuses").val();
+        if ($.trim(strTabValidationStatuses).length > 0) {
+            var tabValidationStatuses = JSON.parse(strTabValidationStatuses);
+
+            for (var i = 0, l = tabValidationStatuses.length; i < l; i++) {
+                StyleTabUsingValidationStatus(tabValidationStatuses[i].Key.toLowerCase(), tabValidationStatuses[i].Value);
+            }
+        }
+    });
+
+
+</script>

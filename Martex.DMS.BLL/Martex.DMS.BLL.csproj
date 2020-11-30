@@ -1,0 +1,681 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9E93D34A-E7DA-46DF-A542-F274C02D4663}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Martex.DMS.BLL</RootNamespace>
+    <AssemblyName>Martex.DMS.BLL</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\ReferenceDLLs\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Configuration">
+      <HintPath>..\packages\Microsoft.WindowsAzure.ConfigurationManager.3.2.1\lib\net40\Microsoft.WindowsAzure.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NVelocity, Version=1.1.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ReferenceDLLs\NVelocity.dll</HintPath>
+    </Reference>
+    <Reference Include="Select.HtmlToPdf">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ReferenceDLLs\Select.HtmlToPdf.dll</HintPath>
+    </Reference>
+    <Reference Include="NVelocityTemplateEngine">
+      <HintPath>..\ReferenceDLLs\NVelocityTemplateEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Twilio">
+      <HintPath>..\packages\Twilio.5.26.1\lib\net451\Twilio.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="AWSSDK.Core">
+      <HintPath>..\packages\AWSSDK.Core.3.3.28.1\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3">
+      <HintPath>..\packages\AWSSDK.S3.3.3.26.1\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Client">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Client.1.1.3\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Azure.NotificationHubs">
+      <HintPath>..\packages\Microsoft.Azure.NotificationHubs.1.0.5\lib\net45-full\Microsoft.Azure.NotificationHubs.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\AmazonS3.cs" />
+    <Compile Include="Common\AppConfigConstants.cs" />
+    <Compile Include="Common\EntityExtensions.cs" />
+    <Compile Include="DataValidators\AbstractServiceRequestDataValidator.cs" />
+    <Compile Include="DataValidators\FinishDataValidator.cs" />
+    <Compile Include="DataValidators\IServiceRequestDataValidator.cs" />
+    <Compile Include="DataValidators\MemberDataValidator.cs" />
+    <Compile Include="DataValidators\ServiceDataValidator.cs" />
+    <Compile Include="Facade\ActivityFacade.cs" />
+    <Compile Include="Facade\AddressFacade.cs" />
+    <Compile Include="Facade\API\MemberAPIFacade.cs" />
+    <Compile Include="Facade\API\ServiceRequestAPIFacade.cs" />
+    <Compile Include="Facade\CallFacade.cs" />
+    <Compile Include="Facade\CallLogFacade.cs" />
+    <Compile Include="Facade\CaseFacade.cs" />
+    <Compile Include="Facade\CasePhoneLocationFacade.cs" />
+    <Compile Include="Facade\ClaimsFacade.cs" />
+    <Compile Include="Facade\Claim\ClaimInformationFacade.cs" />
+    <Compile Include="Facade\Claim\Claims_ACES_Payments_Facade.cs" />
+    <Compile Include="Facade\Claim\Claim_Activity_Facade.cs" />
+    <Compile Include="Facade\Claim\Claim_Facade_Base.cs" />
+    <Compile Include="Facade\Claim\Claim_Payemnt_Runs_Facade.cs" />
+    <Compile Include="Facade\Claim\Claim_Vehicle_Service_Facade.cs" />
+    <Compile Include="Facade\Claim\Claim_Verify_Pay_Facade.cs" />
+    <Compile Include="Facade\ClickToCallFacade.cs" />
+    <Compile Include="Facade\ClientRepMaintenanceFacade.cs" />
+    <Compile Include="Facade\ClientsFacade.cs" />
+    <Compile Include="Facade\Client\ClientInvoices_Verify_Facade.cs" />
+    <Compile Include="Facade\Client\Client_CloseOpenPeriods.cs" />
+    <Compile Include="Facade\Client\Client_EventBillableProcessing_Facade.cs" />
+    <Compile Include="Facade\Client\Client_InvoiceProcessing_Facade.cs" />
+    <Compile Include="Facade\ClosedLoopFacade.cs" />
+    <Compile Include="Facade\CommentFacade.cs" />
+    <Compile Include="Facade\CommunicationServiceFacade.cs" />
+    <Compile Include="Facade\ContactLogActionFacade.cs" />
+    <Compile Include="Facade\ContactLogFacade.cs" />
+    <Compile Include="Facade\CustomerFeedbackFacade.cs" />
+    <Compile Include="Facade\DashBoardFacade.cs" />
+    <Compile Include="Facade\DataGroupFacade.cs" />
+    <Compile Include="Facade\DBAuditFacade.cs" />
+    <Compile Include="Facade\DesktopNotificationFacade.cs" />
+    <Compile Include="Facade\DeviceFacade.cs" />
+    <Compile Include="Facade\DigitalDispatch\DigitalDispatchFacade.cs" />
+    <Compile Include="Facade\DispatchFacade.cs" />
+    <Compile Include="Facade\DispatchProcessingServiceFacade.cs" />
+    <Compile Include="Facade\DocumentFacade.cs" />
+    <Compile Include="Facade\EstimateFacade.cs" />
+    <Compile Include="Facade\EventProcessors\DefaultEventProcessor.cs" />
+    <Compile Include="Facade\EventProcessors\IEventProcessor.cs" />
+    <Compile Include="Facade\EventSource.cs" />
+    <Compile Include="Facade\MobileStaticDataVersionFacade.cs" />
+    <Compile Include="Facade\ProgramManagementFacade.cs" />
+    <Compile Include="Facade\QAFacade.cs" />
+    <Compile Include="Facade\VendorPortal\MessageFacade.cs" />
+    <Compile Include="Facade\VendorPortal\PostLoginFacade.cs" />
+    <Compile Include="Facade\VendorPortal\ServiceRatings_Facade.cs" />
+    <Compile Include="Facade\VendorPortal\VendorPortalAccountFacade.cs" />
+    <Compile Include="Facade\VendorPortal\VendorPortalDashboardFacade.cs" />
+    <Compile Include="Facade\VendorTemporaryCCHistoryFacade.cs" />
+    <Compile Include="Facade\VendorTemporaryCCProcessingFacade.cs" />
+    <Compile Include="Facade\VendorTemporaryCC_Verify_Facade.cs" />
+    <Compile Include="Model\API\APISearchMemberModel.cs" />
+    <Compile Include="Model\API\APISearchSRModel.cs" />
+    <Compile Include="Model\API\ClosedLoopRequest.cs" />
+    <Compile Include="Model\BingDataContracts\DataContracts.cs" />
+    <Compile Include="Model\Claims\ClaimInput.cs" />
+    <Compile Include="Model\ClientRepDetails.cs" />
+    <Compile Include="Model\Clients\BillingDetailMaintenanceModel.cs" />
+    <Compile Include="Model\Clients\BillingEventDetailStatus.cs" />
+    <Compile Include="Model\DigitalDispatch\ACKModel.cs" />
+    <Compile Include="Model\DigitalDispatch\CNLModel.cs" />
+    <Compile Include="Model\DigitalDispatch\DigitalDispatchHeaderModel.cs" />
+    <Compile Include="Model\DigitalDispatch\DSIModel.cs" />
+    <Compile Include="Model\DigitalDispatch\DSPModel.cs" />
+    <Compile Include="Model\DigitalDispatch\DSRModel.cs" />
+    <Compile Include="Model\DigitalDispatch\ERRModel.cs" />
+    <Compile Include="Model\DigitalDispatch\INQModel.cs" />
+    <Compile Include="Model\DigitalDispatch\RETModel.cs" />
+    <Compile Include="Model\DigitalDispatch\RSLModel.cs" />
+    <Compile Include="Model\DigitalDispatch\RSPModel.cs" />
+    <Compile Include="Model\DigitalDispatch\UPDModel.cs" />
+    <Compile Include="Model\DispatchDashBoardModel.cs" />
+    <Compile Include="Model\DocumentModel.cs" />
+    <Compile Include="Facade\EmergencyAssistanceFacade.cs" />
+    <Compile Include="Facade\EventLoggerFacade.cs" />
+    <Compile Include="Facade\EventNotificationFacade.cs" />
+    <Compile Include="Facade\FeedBackFacade.cs" />
+    <Compile Include="Facade\FinishFacade.cs" />
+    <Compile Include="Facade\Impersonation.cs" />
+    <Compile Include="Facade\INotifier.cs" />
+    <Compile Include="Facade\MapFacade.cs" />
+    <Compile Include="Facade\MapOptionsFacade.cs" />
+    <Compile Include="Facade\MemberFacade.cs" />
+    <Compile Include="Facade\MemberManagementFacade.cs" />
+    <Compile Include="Facade\MemberManagement\MemberBase\MemberManagementBaseFacade.cs" />
+    <Compile Include="Facade\MemberManagement\Membership\Membership_Activity_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Membership\Membership_InfoFacade.cs" />
+    <Compile Include="Facade\MemberManagement\Membership\Membership_Members_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Membership\Membership_SRHistory_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Membership\Membership_Vehicles_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Member\MemberInfoFacade.cs" />
+    <Compile Include="Facade\MemberManagement\Member\Member_Activity_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Member\Member_Claim_Facade.cs" />
+    <Compile Include="Facade\MemberManagement\Member\Member_SR_History_Facade.cs" />
+    <Compile Include="Facade\MemberMergeFacade.cs" />
+    <Compile Include="Facade\MobileCallForServiceFacade.cs" />
+    <Compile Include="Facade\NotifierFactory.cs" />
+    <Compile Include="Facade\OrganizationsFacade.cs" />
+    <Compile Include="Facade\PaymentFacade.cs" />
+    <Compile Include="Facade\PhoneFacade.cs" />
+    <Compile Include="Facade\PhoneSystemConfigurationFacade.cs" />
+    <Compile Include="Facade\POFacade.cs" />
+    <Compile Include="Facade\ProgramMaintenanceFacade.cs" />
+    <Compile Include="Facade\QueueFacade.cs" />
+    <Compile Include="Facade\RouteFacade.cs" />
+    <Compile Include="Facade\ServiceFacade.cs" />
+    <Compile Include="Facade\UsersFacade.cs" />
+    <Compile Include="Facade\VehicleFacade.cs" />
+    <Compile Include="Facade\VendorApplicationFacade.cs" />
+    <Compile Include="Facade\VendorFacade.cs" />
+    <Compile Include="Facade\VendorInvoiceFacade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoices_Verify_Pay_Facade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoice_Activity_Facade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoice_Details_Facade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoice_Info_Facade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoice_List_Facade.cs" />
+    <Compile Include="Facade\VendorInvoice\VendorInvoice_Batch_Facade.cs" />
+    <Compile Include="Facade\VendorManagementFacade.cs" />
+    <Compile Include="Facade\VendorManagement\VendorBase\VendorManagement_Base.cs" />
+    <Compile Include="Facade\VendorManagement\VendorLocation\VendorLocation_ServicesAndRates_Facade.cs" />
+    <Compile Include="Facade\VendorManagement\VendorLocation\VendorLocation_ServiceAreas_Facade.cs" />
+    <Compile Include="Facade\VendorManagement\VendorLocation\VendorLocation_Services_Facade.cs" />
+    <Compile Include="Facade\VendorManagement\Vendor\Vendor_Claims.cs" />
+    <Compile Include="Facade\VendorManagement\Vendor\Vendor_Contract.cs" />
+    <Compile Include="Facade\VendorManagement\VendorLocation\VendorLocation_Info_Facade.cs" />
+    <Compile Include="Facade\VendorManagement\Vendor\Vendor_Info_Facade.cs" />
+    <Compile Include="Facade\VendorManagement\Vendor\Vendor_Rates_Facade.cs" />
+    <Compile Include="Facade\VendorMergeFacade.cs" />
+    <Compile Include="Facade\VendorPortalFacade.cs" />
+    <Compile Include="Facade\VendorPortal\TransitionVerifyFacade.cs" />
+    <Compile Include="Facade\VendorPortal\VendorPortalACHFacade.cs" />
+    <Compile Include="Facade\VendorPortal\Vendor_Portal_Invoive_Facade.cs" />
+    <Compile Include="Facade\VendorUserFacade.cs" />
+    <Compile Include="Model\ApplyCashClaimsModel.cs" />
+    <Compile Include="Model\ClickToCallModel.cs" />
+    <Compile Include="Model\CloseLoopSearchCriteria.cs" />
+    <Compile Include="Model\EstimateModel.cs" />
+    <Compile Include="Model\FinishModel.cs" />
+    <Compile Include="Model\FinishReasonsActionsModel.cs" />
+    <Compile Include="Model\GetLocationRequestResult.cs" />
+    <Compile Include="Model\GoToPOModel.cs" />
+    <Compile Include="Model\HubNotification.cs" />
+    <Compile Include="Model\MemberManagementCommonModel.cs" />
+    <Compile Include="Model\MemberMergeDetails.cs" />
+    <Compile Include="Model\MemberSearchCriteria.cs" />
+    <Compile Include="Model\PaymentInformation.cs" />
+    <Compile Include="Model\ProfileImageModel.cs" />
+    <Compile Include="Model\RejectVendorModel.cs" />
+    <Compile Include="Model\ServiceCallLogModel.cs" />
+    <Compile Include="Model\ServiceModel.cs" />
+    <Compile Include="Model\ServiceTechModel.cs" />
+    <Compile Include="Model\TempCCPModels\VirtualPlus.cs" />
+    <Compile Include="Model\VendorApplicationModel.cs" />
+    <Compile Include="Model\VendorCommonModel.cs" />
+    <Compile Include="Model\VendorInfo.cs" />
+    <Compile Include="Model\VendorInvoiceInfoCommonModel.cs" />
+    <Compile Include="Model\VendorLocationModel.cs" />
+    <Compile Include="Model\VendorPortal\PostLoginPromptModel.cs" />
+    <Compile Include="Model\VendorPortal\VendorAccountModel.cs" />
+    <Compile Include="Model\VendorPortal\VendorDashboardModel.cs" />
+    <Compile Include="Model\VendorPortal\VendorInvoiceModel.cs" />
+    <Compile Include="Model\VendorPortal\VendorLocationAccountModel.cs" />
+    <Compile Include="Model\VendorRatesAgreementModel.cs" />
+    <Compile Include="Model\VendorServiceAreaModel.cs" />
+    <Compile Include="Notifiers\DesktopNotifier.cs" />
+    <Compile Include="Notifiers\EmailNotifier.cs" />
+    <Compile Include="Notifiers\FaxNotifier.cs" />
+    <Compile Include="Notifiers\IVRNotifier.cs" />
+    <Compile Include="Notifiers\MobileNotifier.cs" />
+    <Compile Include="Notifiers\SMSNotifier.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\BINGGeocodeService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\BINGServices\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\DigitalDispatchAPI\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\HagertyPlusService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\Hagerty\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\PSAPNearestUS\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\PSAP_LookupUS\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TechnoCom\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\TowBookServiceReference\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\WebDialerService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\WSCreditCardService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="EmailService\EmailService.cs" />
+    <Compile Include="Notifiers\AmazonConnectNotifier.cs" />
+    <Compile Include="Notifiers\TwilioFaxNotifier.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Properties\DataSources\System.Xml.XmlNode.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\BINGGeocodeService\Arrays.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGGeocodeService\common.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGGeocodeService\contracts.wsdl" />
+    <None Include="Service References\BINGGeocodeService\contracts.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGGeocodeService\geocode.wsdl" />
+    <None Include="Service References\BINGGeocodeService\geocode.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGGeocodeService\Martex.DMS.BLL.BINGGeocodeService.GeocodeResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\BINGGeocodeService\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGServices\common.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGServices\contracts.wsdl" />
+    <None Include="Service References\BINGServices\contracts.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGServices\Martex.DMS.BLL.BINGServices.MajorRoutesResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\BINGServices\Martex.DMS.BLL.BINGServices.RouteResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\BINGServices\route.wsdl" />
+    <None Include="Service References\BINGServices\route.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\BINGServices\service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DigitalDispatchAPI\pinnacle.wsdl" />
+    <None Include="Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceEventResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceMembershipPlanResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\HagertyPlusService\Martex.DMS.BLL.HagertyPlusService.ServiceMembershipResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\HagertyPlusService\NMCHPlusService.wsdl" />
+    <None Include="Service References\HagertyPlusService\SecondaryHPlusService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HagertyPlusService\SecondaryHPlusService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HagertyPlusService\SecondaryHPlusService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\HagertyPlusService\SecondaryHPlusService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Hagerty\Martex.DMS.BLL.Hagerty.ResponseData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\Hagerty\NMCService.wsdl" />
+    <None Include="Service References\Hagerty\NMCService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Hagerty\NMCService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Hagerty\NMCService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Hagerty\NMCService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PSAPNearestUS\EOLS_PSAP_Nearest_US.wsdl" />
+    <None Include="Service References\PSAPNearestUS\Martex.DMS.BLL.PSAPNearestUS.OutputRow.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PSAP_LookupUS\EOLS_PSAPLookupUS.wsdl" />
+    <None Include="Service References\PSAP_LookupUS\Martex.DMS.BLL.PSAP_LookupUS.OutputRow.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TechnoCom\LocationRequest.wsdl" />
+    <None Include="Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.GetSMSDeliveryNotificationResult1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.GetSMSMobileOriginatedResult1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TechnoCom\Martex.DMS.BLL.TechnoCom.SendSMSMessageResult1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\TowBookServiceReference\TowbookRequestHandler.wsdl" />
+    <None Include="Service References\TowBookServiceReference\TowbookRequestHandler.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TowBookServiceReference\TowbookRequestHandler1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.CallResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.ConfigResponseDetail.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WebDialerService\Martex.DMS.BLL.WebDialerService.GetConfigResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\WebDialerService\wd70.wsdl" />
+    <None Include="Service References\WSCreditCardService\CreditCardService1.wsdl" />
+    <None Include="Service References\WSCreditCardService\CreditCardService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCreditCardService\CreditCardService41.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCreditCardService\CreditCardService42.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCreditCardService\CreditCardService43.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\WSCreditCardService\Martex.DMS.BLL.WSCreditCardService.ProcessorResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\BINGGeocodeService\" />
+    <WCFMetadataStorage Include="Service References\BINGServices\" />
+    <WCFMetadataStorage Include="Service References\DigitalDispatchAPI\" />
+    <WCFMetadataStorage Include="Service References\HagertyPlusService\" />
+    <WCFMetadataStorage Include="Service References\Hagerty\" />
+    <WCFMetadataStorage Include="Service References\PSAPNearestUS\" />
+    <WCFMetadataStorage Include="Service References\PSAP_LookupUS\" />
+    <WCFMetadataStorage Include="Service References\TechnoCom\" />
+    <WCFMetadataStorage Include="Service References\TowBookServiceReference\" />
+    <WCFMetadataStorage Include="Service References\WebDialerService\" />
+    <WCFMetadataStorage Include="Service References\WSCreditCardService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAPNearestUS\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAPNearestUS\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAPNearestUS\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAP_LookupUS\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAP_LookupUS\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PSAP_LookupUS\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TechnoCom\LocationRequest.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TechnoCom\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TechnoCom\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TechnoCom\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WSCreditCardService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WSCreditCardService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WSCreditCardService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WebDialerService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WebDialerService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WebDialerService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGServices\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGServices\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGServices\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Hagerty\NMCService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Hagerty\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Hagerty\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\Hagerty\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WSCreditCardService\CreditCardService1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGGeocodeService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGGeocodeService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\BINGGeocodeService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HagertyPlusService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HagertyPlusService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\HagertyPlusService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DigitalDispatchAPI\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DigitalDispatchAPI\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DigitalDispatchAPI\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TowBookServiceReference\TowbookRequestHandler.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TowBookServiceReference\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TowBookServiceReference\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\TowBookServiceReference\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Martex.DMS.DAL\Martex.DMS.DAL.csproj">
+      <Project>{d5d79872-000c-4e5e-917c-ccc939bac84e}</Project>
+      <Name>Martex.DMS.DAL</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.26.1\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

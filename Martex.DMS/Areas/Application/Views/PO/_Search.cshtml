@@ -1,0 +1,271 @@
+﻿@using Kendo.Mvc.UI;
+@model List<Martex.DMS.DAL.SearchPO_Result>
+<link href="~/Content/themes/base/jquery.ui.datepicker.css" rel="stylesheet" type="text/css" />
+<link href="~/Content/jquery.ui.combogrid.css" rel="stylesheet" type="text/css" />
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script src="~/Scripts/jquery.ui.combogrid-1.6.3.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    function ddlUserName_OnChange(e) {
+        // PV: Reset the combo if the value entered is not in the list of allowed values.
+        var combo = $('#ddlUserName').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV: End reset.
+    }
+
+    function ddlTime_OnChange(e) {
+        var combo = $('#ddlTime').data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV:End Reset
+    }
+    function GrdSearchPO_OnDatabinding(e) {
+        $(".k-grid-viewPOSearchDetails").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+    }
+    function ViewPODetails(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        ShowServiceRequestDetails('@Url.Action("Get", "Queue")', dataRow.RequestID, "Service Request Details", true,true);
+    }
+
+
+
+    // For Rebinding and Search Criteria
+    function GetPOSearchParams() {
+        var searchCriteria = { PONumber: $('#txtPONumber').val(),
+            UserName: $('#ddlUserName').data('kendoComboBox').value(),
+            VendorNumber: $('#txtVendorNumber').val(),
+            Time: $('#ddlTime').val()
+
+        };
+        return searchCriteria;
+    }
+</script>
+<style type="text/css">
+    .item
+    {
+        float: left; 
+        padding: 5px;
+    }
+    
+    .search
+    {
+        margin-bottom: 30px;
+    }
+    .txtitem
+    {
+        width: 90px;
+    }
+    .ui-icon
+    {
+        background-image: url('/Content/img/magnifier.png');
+        background-repeat: no-repeat;
+        float: left;
+        width: 14px;
+        height: 14px;
+    }
+    .autofill
+    {
+        display: block;
+        width: 100%;
+    }
+    
+    .cg-searchButton
+    {
+        padding: 0 !important;
+        vertical-align: middle !important;
+    }
+</style>
+<div class="with-padding">
+    <form id="frmPOSearch" action="#" name="frmPOSearch">
+    <div class="search">
+       
+            <div class="button-height block-label item">
+                <label for="PONumber" class="label">
+                    PO Number</label>
+                <input type="text" class="input validate[maxSize[50],minSize[4]] txtitem" id="txtPONumber"
+                    name="PONumber" /></div>
+       
+        
+            <div class="button-height block-label item">
+                <label for="User" class="label">
+                    User</label>
+                @(Html.Kendo().ComboBox()
+                .Name("ddlUserName")
+                .Suggest(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Users.ToString()] as IEnumerable<SelectListItem>)
+                .Events(events =>
+                {
+                    events.Change("ddlUserName_OnChange");
+                })
+                .HtmlAttributes(new { style = "width:120px;" })
+                .HighlightFirst(true)
+                )
+            </div>
+            <p class="button-height block-label item">
+                <label for="VendorNumber" class="label">
+                    Vendor Number <span style="padding-top: 5px">@Html.Partial("_Help", "Enter part of the vendor name to lookup the vendor number")</span>
+                </label>
+                <span class="autofill">
+                    <input type="text" class="input validate[maxSize[50],minSize[1]] txtitem" id="txtVendorNumber"
+                        style="width: 115px" name="VendorNumber" />
+                </span>
+            </p>
+       
+        
+            <div class="button-height block-label item">
+                <label for="TimePeriod" class="label">
+                    Time Period</label>
+                @(Html.Kendo().ComboBox()
+                              .Name("ddlTime")
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.POSearchTimeFilter.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                              {
+                                  events.Change("ddlTime_OnChange");
+                              })
+
+                              .HtmlAttributes(new { style = "width:100px;" })
+                                      .HighlightFirst(true)
+            )</div>
+       
+        
+            <button id="btnPOSearch" class="button blue-gradient compact margin-top margin-left" type="button">
+                Search
+            </button>
+           
+            <button id="btnPOSearchClear" class="button compact margin-top margin-left" type="button">
+                Clear
+            </button>
+       <div class="clear">
+            &nbsp;</div>
+    </div>
+    </form>
+    <div>
+    @(Html.Kendo().Grid(Model)
+
+    .Name("GrdSearchPO")
+
+    .Columns(columns =>
+           {
+               columns.Bound(a => a.RequestID).Title("Request #").Width(50).Filterable(false);
+               columns.Bound(a => a.PONumber).Title("PO #").Width(50).Filterable(false);
+               columns.Bound(a => a.Date).Title("Date").Width(100).Filterable(false).Format("{0:MM/dd/yyyy}");
+               columns.Bound(a => a.MemberName).Title("Member  Name").Width(100).Filterable(false);
+               columns.Bound(a => a.MemberNumber).Title("MemberNumber").Width(100).Filterable(false);
+               columns.Bound(a => a.UserName).Title("User").Width(100).Filterable(false);
+               columns.Bound(a => a.ServiceType).Title("Service Type").Width(100).Filterable(false);
+               columns.Bound(a => a.Amount).Title("Amount").Width(100).Filterable(false).Format("{0:c}");
+               columns.Bound(a => a.DatePaid).Title("Date Paid").Width(100).Filterable(false).Format("{0:MM/dd/yyyy}");
+               columns.Bound(a => a.Status).Title("Status").Width(100).Filterable(false);
+               columns.Bound(a => a.City).Filterable(false).Width(100);
+               columns.Bound(a => a.StateProvince).Title("StateProvince").Width(50).Filterable(false);
+               columns.Command(commands =>
+               {
+                   commands
+                      .Custom("viewPOSearchDetails")
+                      .Text("View")
+                      .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "View" })
+                      .Click("ViewPODetails");
+               })
+               .Title("Action").Width(50);
+
+           })
+            .DataSource(dataBinding =>
+            {
+                dataBinding.Ajax()
+                            .Events(events => events.Error("KendoGridErrorHandler"))
+                            .Read(read => read.Action("_Search", "PO").Data("GetPOSearchParams"));
+            })
+             .Events(events =>
+                    {
+                        events.DataBound("GrdSearchPO_OnDatabinding");
+                    })
+
+                .Sortable()
+                        .Filterable(filterable => filterable
+                            .Extra(false)
+                        )
+                .Selectable()
+                .Resizable(a => a.Columns(true))
+                .Scrollable()
+                .Pageable(pager => pager
+                        .Refresh(true)
+                        .PageSizes(new int[] { 10, 20, 50, 100 }))
+                .Selectable(select => select.Mode(GridSelectionMode.Single))
+
+        )
+        </div>
+</div>
+<script language="javascript" type="text/javascript">
+    
+
+<!--
+    //For Popup Window
+
+    $(function () {
+
+        HandleDblClickOnGrid($("#GrdSearchPO"), ".k-grid-viewPOSearchDetails");
+
+        //DS: Validate user input on PO Number and Vendor Number
+        $('#frmPOSearch').validationEngine();
+
+        //InitlizeDefault Values
+        $('#ddlUserName').data('kendoComboBox').value('');
+        $('#ddlTime').data('kendoComboBox').value('');
+
+        // Cache the tabs
+        var currentTabIndex = $("#startCallSearchTabs").tabs('option', 'selected');
+        var currentTabAnchor = $("#startCallSearchTabs").data('tabs').anchors[currentTabIndex];
+        $(currentTabAnchor).data('cache.tabs', true);
+
+        if (!isCallInProgress) {
+            $("#btnPOSearch").attr("disabled", "disabled");
+        }
+
+        var autoFill = $("#txtVendorNumber").combogrid({
+            url: '@Url.Action("Search", "Vendor")',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                        { 'columnName': 'VendorName', 'width': '65', 'label': 'Vendor Name', 'align': 'left' },
+                        { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                        { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+                $("#txtVendorNumber").val(ui.item.VendorNumber);
+                return false;
+            }
+        });
+
+
+        // Handle search button
+        $("#btnPOSearch").click(function () {
+            if ($('#frmPOSearch').validationEngine('validate') == false) {
+                return false;
+            }
+
+            $('#GrdSearchPO').data('kendoGrid').dataSource.read();
+
+        });
+
+        //Clear the form
+        $('#btnPOSearchClear').live("click", function () {
+            $('.search input:text').each(function () {
+                $(this).val('');
+            });
+        })
+        SearchOnEnter('frmPOSearch', 'btnPOSearch');
+
+
+    });
+    //-->
+</script>

@@ -1,0 +1,90 @@
+﻿@model List<Martex.DMS.DAL.ServiceTechCallHistory_Result>
+@if (Model != null && Model.Count > 0)
+{
+    <div class="previousCalls scrollable" style="height: 450px;">
+
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            string[] questionList = null;
+            string[] answer = null;
+
+            if (Model[i].Question != null && Model[i].Answer != null)
+            {
+                questionList = Model[i].Question.Split('|');
+                answer = Model[i].Answer.Split('|');
+            }
+            <div class="callLogEntry" style="width: 100%; float: left; display: inline-table;
+                margin-bottom: 10px; margin-top: 5px;">
+                <div class="callLogDetails" style="width: 98%; float: left;">
+                    <ul style="list-style-type: none; margin-left: 5px;">
+                        <li>@Model[i].CreateDate.GetValueOrDefault().ToString("MMM dd, yyyy hh:mm tt") @Model[i].CreateBy</li>
+
+                        <li>@Model[i].ContactCategory | @Model[i].CompanyName</li>
+                        @*<li class="business-name">@Model[i].CompanyName</li>*@
+                        <li>
+                            @Html.Hidden(@Model[i].CompanyName + @i.ToString(), string.Empty, new { @class = "business-name", data = @Model[i].CompanyName })
+                            @if (!string.IsNullOrEmpty(Model[i].PhoneNumber))
+                            {
+                                @Html.Editor("PhoneNumber" + i.ToString() + "_History", "Phone", new { Value = Model[i].PhoneNumber, ReadOnly = true, ShowCallIcon = false })
+                            }
+                            @if (!string.IsNullOrEmpty(Model[i].TalkedTo))
+                            {
+                               @Html.Raw(" | ") @Model[i].TalkedTo
+                            }
+                        </li>
+                        <li>
+                            Reason :
+                            @Model[i].ContactReason
+                        </li>
+                        <li>
+                            Action(s):
+                            @Model[i].ContactAction
+                        </li>
+
+                        @if (questionList != null)
+                        {
+                            for (int iQuestion = 0; iQuestion < @questionList.Length; iQuestion++)
+                            {
+                                @*<ul style="list-style-type: none; margin-left: 5px; margin-right: 5px;">*@
+                                <li>
+                                    @questionList[iQuestion]
+                                    :
+                                    @try
+                                    {
+                                        <span>@answer[iQuestion]</span>
+
+                                    }
+                                    catch
+                                    {
+
+                                    }
+                                </li>
+                                @*</ul>*@
+                            }
+
+                        }
+                        <li>@Model[i].Comments</li>
+                        @if (i != Model.Count - 1)
+                        {
+                            <li><hr /></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+        }
+    </div>
+}
+else
+{
+    <div class="previousCalls scrollable">
+        <p class="title">
+            Call History
+        </p>
+        <div>
+            <strong>No calls to display</strong>
+        </div>
+    </div>
+}
+<div class="clear">
+</div>

@@ -1,0 +1,144 @@
+﻿@model Martex.DMS.DAL.DAO.QA.CoachingConcernsSearchCriteria
+@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL.DAO.Admin
+@{
+    int i = 0;
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    <!-- Name Section -->
+    if (!string.IsNullOrEmpty(Model.NameType))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameType">X</a>
+        @Html.Raw("- Name Type : ")
+        @Html.DisplayFor(u => Model.NameType)
+    </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.NameValue))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="NameValue" relatedcombo="NameOperator">
+            X</a>
+        @Html.Raw("- Name : ")
+        @Html.DisplayFor(u => Model.NameValue)
+    </p>
+    }
+    if (!string.IsNullOrEmpty(Model.NameOperator))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameOperator" relatedtexbox="NameTypeValue">
+            X</a>
+        @Html.Raw("- value that : ")
+        @Html.DisplayFor(u => Model.NameOperator)
+    </p>
+    }
+    
+    <!-- Concern Type Section-->
+    foreach (CheckBoxLookUp result in Model.ConcernTypeList)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "ConcernTypeList_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Concern Types : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+    {
+        i = 0;
+    }
+    
+    <!-- Concern-->
+    if (Model.SearchByConcernTypeID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="SearchByConcernTypeID" relatedcombo="SearchByConcernID">
+            X</a>
+        @Html.Raw("- Concern Type : ")
+        @Html.DisplayFor(u => Model.SearchByConcernTypeText)
+    </p>
+    }
+    if (Model.SearchByConcernID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="SearchByConcernID">X</a>
+        @Html.Raw("- Concern : ")
+        @Html.DisplayFor(u => Model.SearchByConcernText)
+    </p>
+    }
+
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                    }
+                }
+                else if (role == "slider") {
+                    $('#' + element).data("kendoRangeSlider").value([0, 10000]);
+                    $('#ClaimAmountStart').val('');
+                    $('#ClaimAmountEnd').val('');
+                }
+                else if (role == "kendoNumeric") {
+                    $('#' + element).data('kendoNumericTextBox').value('');
+                }
+                if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+
+                    if (element == 'SearchByConcernID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetSearchCriteria();
+            $('#GrdCoachingConcern').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

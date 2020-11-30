@@ -1,0 +1,112 @@
+﻿@model Martex.DMS.DAL.Entities.ProgramManagementSearchCriteria
+@{
+    bool hasElement = false;  
+}
+@if (Model != null)
+{
+    <!-- Number Section -->
+    if (!string.IsNullOrEmpty(Model.Number))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="Number">X</a>
+        @Html.Raw("- Number : ")
+        @Html.DisplayFor(u => Model.Number)
+    </p>
+    }
+   
+    <!-- Name Section -->
+    if (!string.IsNullOrEmpty(Model.Name))
+    {
+        hasElement = true;
+        <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="Name" relatedcombo="NameOperatorValue">
+            X</a>
+        @Html.Raw("- Name : ")
+        @Html.DisplayFor(u => Model.Name)
+    </p>
+    }
+    if (!string.IsNullOrEmpty(Model.NameOperatorValue))
+    {
+        hasElement = true;
+        <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="NameOperatorValue"
+            relatedtexbox="NameTypeValue">X</a>
+        @Html.Raw("- value that : ")
+        @Html.DisplayFor(u => Model.NameOperator)
+    </p>
+    }
+    
+     <!-- Client and Program Section-->
+    if (Model.ClientID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="ProgramMaintenance_Search_ClientID">
+            X</a>
+        @Html.Raw("- Client Name : ")
+        @Html.DisplayFor(u => Model.ClientName)
+    </p>
+    }
+    if (Model.ProgramID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="ProgramMaintenance_Search_ProgramID">
+            X</a>
+        @Html.Raw("- Program Name : ")
+        @Html.DisplayFor(u => Model.ProgramName)
+    </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role == "textBox") {
+                    $('#' + element).val('');
+                    if (relatedCombo != undefined) {
+                        $('#' + relatedCombo).data('kendoComboBox').value('');
+                    }
+                }
+                else if (role == "combo") {
+                    $('#' + element).data('kendoComboBox').value('');
+
+                    if (relatedTexBox != undefined) {
+                        $('#' + relatedTexBox).val('');
+                    }
+                    if (element == 'ProgramMaintenance_Search_ClientID') {
+                        $('#' + element).data('kendoComboBox').trigger('change');
+                    }
+
+                }
+                GetSelectedCriteria();
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            GetProgramManagementFilters();
+            $('#GrdProgramMaintenance').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

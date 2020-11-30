@@ -1,0 +1,107 @@
+﻿<link href="~/Content/jquery.ui.combogrid.css" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Scripts/jquery.ui.combogrid-1.6.2.js")" type="text/javascript"></script>
+<style type="text/css">
+    .item
+    {
+        float: left;
+        padding: 5px;
+    }
+    
+    .search
+    {
+        margin-bottom: 30px;
+    }
+    .ui-icon
+    {
+        background-image: url('/Content/img/magnifier.png');
+        background-repeat: no-repeat;
+        float: left;
+        width: 14px;
+        height: 14px;
+    }
+    .autofill
+    {
+        display: block;
+        width: 100%;
+    }
+    
+    .cg-searchButton
+    {
+        padding: 0 !important;
+        vertical-align: middle !important;
+    }
+</style>
+<form id="frmImpersonate" action="javascript:void(0);" method="post">
+<div class="with-padding">
+    <div>
+        <div class="button-height block-label item">
+            <label for="VendorNumber" class="label">
+                ISP Number <span style="padding-top: 5px">@Html.Partial("_Help", "Enter part of the vendor name to lookup the vendor number")</span>
+            </label>
+            <span class="autofill">
+                <input type="text" class="input validate[maxSize[50],minSize[1]]" id="txtVendorNumber"
+                    style="width: 115px" name="VendorNumber" />
+            </span>
+        </div>
+        <div class="three-columns">
+            <button id="btnImpersonateLoggedInUser" class="button green-gradient big margin-bottom margin-top"
+                type="button">
+                Impersonate</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript" language="javascript">
+
+    $(function () {
+        $('#frmImpersonate').validationEngine();
+        var autoFill = $("#txtVendorNumber").combogrid({
+            url: '@Url.Action("SearchVendor", "Dashboard", new { area = "ISP" })',
+            searchButton: true,
+            width: '630px',
+            replaceNull: true,
+            colModel: [{ 'columnName': 'VendorNumber', 'width': '14', 'label': 'Vendor #', 'align': 'left' },
+                        { 'columnName': 'VendorName', 'width': '55', 'label': 'Vendor Name', 'align': 'left' },
+                        { 'columnName': 'City', 'width': '14', 'label': 'City', 'align': 'left' },
+                        { 'columnName': 'StateProvince', 'width': '7', 'label': 'State', 'align': 'left' },
+            { 'columnName': 'VendorUser', 'width': '7', 'label': 'Account', 'align': 'left' }
+                        ],
+            select: function (event, ui) {
+                $("#txtVendorNumber").val(ui.item.VendorNumber);
+                return false;
+            }
+        });
+    });
+
+    $("#btnImpersonateLoggedInUser").click(function () {
+        var val = $("#txtVendorNumber").val();
+
+        if ($.trim(val).length == 0) {
+            ShowValidationMessage($('input[name="VendorNumber"]'), "Please select a Vendor.");
+            return false;
+        }
+        else {
+            HideValidationMessage($('input[name="VendorNumber"]'));
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ImpersonateUser", "Dashboard", new { area = "ISP" })',
+            traditional: true,
+            cache: false,
+            ajax: true,
+            async: true,
+            modal: true,
+            data: { vendorNumber: val },
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    //window.location.reload(true);
+                    window.location.href = '/ISP/Dashboard';
+                }
+                else if (msg.Status == "Failure") {
+                    ShowValidationMessage($('input[name="VendorNumber"]'), msg.Data);
+                }
+            }
+        }); // end of ajax
+    });
+</script>

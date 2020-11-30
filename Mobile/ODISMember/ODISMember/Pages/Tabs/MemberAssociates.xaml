@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.Pages.Tabs.MemberAssociates">
+  <RelativeLayout x:Name="mainLayout">
+    <StackLayout Padding="0,0,0,0" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}">
+      <controls:ExtendedLabel x:Name="lblNoRecords" Text="No records found" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Center" VerticalOptions="Start"/>
+      <ListView x:Name="listAssociates" HasUnevenRows="False">
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <ViewCell>
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="0.5*" />
+                </Grid.ColumnDefinitions>
+                <controls:ExtendedLabel Grid.Row="0" Grid.Column="0" Text="{Binding MemberNumber}" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Center" VerticalOptions="Center"/>
+                <controls:ExtendedLabel Grid.Row="0" Grid.Column="1" Text="{Binding FullName}" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Center"/>
+              </Grid>
+            </ViewCell>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+    </StackLayout>
+    <!--<StackLayout RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" VerticalOptions="FillAndExpand" BackgroundColor="Transparent">-->
+    <StackLayout BackgroundColor="Black" Opacity="0.8" Padding="0,10,0,10" x:Name="stackSync"
+                 RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}"
+                 RelativeLayout.HeightConstraint="{ConstraintExpression Type=Constant, Constant=50}"
+                 RelativeLayout.XConstraint="{ConstraintExpression Type=Constant, Constant=0}"
+                RelativeLayout.YConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height,Factor=1, Constant=-50}">
+      <controls:ExtendedLabel Text="We are syncing.. Please wait.." Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Center" VerticalOptions="Center" TextColor="White"/>
+    </StackLayout>
+    <!--</StackLayout>-->
+  </RelativeLayout>
+</BaseContentPage>

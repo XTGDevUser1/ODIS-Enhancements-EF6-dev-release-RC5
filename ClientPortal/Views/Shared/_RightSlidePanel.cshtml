@@ -1,0 +1,131 @@
+﻿@using Kendo.Mvc.UI
+@using  ClientPortal.Models
+@using ClientPortal.Areas.Application.Models
+@{
+    RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as RegisterUserModel;
+    if (userProfile == null)
+    {
+        Response.Redirect("~/Account/LogOn");
+        return;
+    }
+}
+<!-- Sidebar/drop-down menu -->
+<section id="menu" role="complementary">
+
+		<!-- This wrapper is used by several responsive layouts -->
+		<div id="menu-content">
+
+			<header>
+				@userProfile.UserName (@userProfile.OrganizationName)
+           </header>
+
+			<div id="profile">
+				<img src="@Url.Content("~/img/odis-user.png")" width="64" height="80" alt="User name" class="user-icon"/>
+				Welcome
+				<span class="name">@userProfile.FirstName @userProfile.LastName </span>
+                <span>@DateTime.Now.ToString("MM/dd/yyyy")</span>
+			</div>
+            <ul id="access" class="children-tooltip">
+      <li><a href="@Url.Action("Index", "Feedback", new { area = "Application" })" title="Feedback"><span class="icon-inbox"></span></a></li>
+      <li><a href="@Url.Action("LogOff", "Account", new { area = "" })" title="Logout"><span class="icon-extract"></span></a></li>
+      <li><a href="#" data-tooltip-options='{"classes":["anthracite-gradient"],"position":"bottom"}' id="aUserDetails"><span class="icon-user"></span></a></li>
+      <li><a id="btnStickyNoteBasic" href="javascript:void(0);" title="Clipboard"><span class="icon-paperclip"></span></a></li>
+      
+    </ul>
+    
+    <ul class="unstyled-list" id="ulHistorySearchCriteria">
+        
+    </ul>
+    <ul class="unstyled-list" id="ulHistorySearchCriteriaRight">
+        
+    </ul>
+			<ul class="unstyled-list">
+
+            @(Html.Kendo().PanelBar()
+                .Name("panelBarCallSummary")
+                .Items(panelbar =>
+                {
+                    if (ViewData[ClientPortal.ActionFilters.ControlConstants.ShowCallTimer.ToString()] != null)
+                    {
+                        panelbar.Add().Text("Call timer").Expanded(true).Content(@<div class="timer with-padding"></div>);
+                    }
+                    if (ViewContext.RouteData.Values["Controller"] != null && ViewContext.RouteData.Values["Controller"].ToString().Equals("Request"))
+                    {
+                        panelbar.Add().Text("Call Summary").Expanded(true).Content(@<div class="message-menu" id="ulCallSummary"></div>);
+                        panelbar.Add().Text("Program Information").Expanded(true).Content(@<div id="liProgramInfo"></div>);
+                    }
+
+                })
+                     )
+            
+			</ul>
+
+		</div>
+		<!-- End content wrapper -->
+
+		
+
+	</section>
+<!-- End sidebar/drop-down menu -->
+<script type="text/javascript" language="javascript">
+    var panelbar = null;
+    $(function () {
+        GetCallSummary();
+        GetUserDetails();    
+    });
+
+
+    function GetCallSummary() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetCallSummary", "Request", new { Area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulCallSummary').html(msg);
+            }
+
+        });
+    }
+
+    function AdjustStylingOnProgramInfoSection() {
+        var programInfoSection = $("#liProgramInfo");
+        var ul = programInfoSection.find("ul");
+        ul.attr("class", "message-menu");
+        ul.find(".absolute-right").each(function () {
+            $(this).removeClass("absolute-right");
+        });
+    }
+    function PopulateRightPanelWithProgramInfo(id) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetProgramInformationDuringCall", "ProgramMaintenance", new { area = "Admin" })',
+            traditional: true,
+            data: { programId: id },
+            cache: false,
+            async: true,
+            /*global: false,*/
+            success: function (msg) {
+                $("#liProgramInfo").html(msg);
+                AdjustStylingOnProgramInfoSection();
+                $("#liProgramInfo").show("highlight", { color: "#FFBB2B" }, 300, null);
+                
+            }
+        });  // end of ajax
+    }
+
+    function GetUserDetails() {
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetUserDetails", "Account", new { Area = "" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#aUserDetails').attr("title", msg);
+            }
+
+        });
+    }  
+</script>

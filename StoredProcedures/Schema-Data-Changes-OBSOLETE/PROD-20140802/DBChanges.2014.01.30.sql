@@ -1,0 +1,2 @@
+ALTER TABLE BillingDefinitionInvoiceLineEvent
+ADD IsEditable bit null

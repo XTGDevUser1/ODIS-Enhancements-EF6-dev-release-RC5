@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/ClientManagement/Views/Shared/_ClientManagementLayout.cshtml";
+}
+<hgroup id="main-title" class="thin"> 
+    <h1>Client Billable Event History</h1> 
+</hgroup>
+<div class="with-padding">
+    <div id="ClientBillableTab" class="standard-tabs same-height" data="clientBillableDynamicTabs">
+        <ul class="tabs clientBillable">
+            <li id="tbClientBillableList"><a id="hypClientBillableSearchCriteria" href="#tabs-1">
+                List</a> </li>
+        </ul>
+        <div id="tabs-1" class="clientBillableDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult")
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var tabObject = null;
+
+    $(function () {
+        tabObject = $("#ClientBillableTab").tabs();
+        GetSearchCriteria();
+    });
+
+    function fnPanelCollapseR(e) {
+        $(e.item).find("> .k-link").removeClass("k-state-selected");
+        $(e.item).find("> .k-link").removeClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('false');
+    }
+
+    function fnPanelExpandR(e) {
+        $(e.item).find("> .k-link").addClass("k-state-selected");
+        $(e.item).find("> .k-link").addClass("k-state-focused");
+        var panelName = $(e.item).find("> .k-link").attr("id");
+        panelName = panelName.replace("Panel_", "");
+        $('#' + panelName).val('true');
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "ClientBillableEventHistory", new { area = "ClientManagement" })',
+            type: 'POST',
+            data: GetClientBillableEventProcessingSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#clientBillableEventProcessingSelectedSearchCriteriaDetails').html(msg);
+                $('#GrdClientBillableEvents').data('kendoGrid').dataSource.read();
+            }
+        })
+    }
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "ClientBillableEventHistory", new { area = "ClientManagement" })',
+            type: 'POST',
+            data: GetClientBillableEventProcessingSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulClientBillableEventProcessingSearchCriteriaRight').html(msg);
+            }
+        })
+    }
+
+    function GetClientBillableEventProcessingSearchCriteria() {
+
+        var postData = $('#frmClientBillableEventProcessingSearchCriteria').serializeArray();
+
+        if ($('#BillingScheduleType').data('kendoComboBox') != undefined) {
+            postData.push({ name: "BillingScheduleTypeName", value: $('#BillingScheduleType').data('kendoComboBox').text() });
+        }
+
+        if ($('#Billing_Definition_InvoiceID').data('kendoComboBox') != undefined) {
+            postData.push({ name: "BillingDefinitionInvoiceName", value: $('#Billing_Definition_InvoiceID').data('kendoComboBox').text() });
+        }
+
+        if ($('#SearchBillingEvent').data('kendoComboBox') != undefined) {
+            postData.push({ name: "BillingEventName", value: $('#SearchBillingEvent').data('kendoComboBox').text() });
+            postData.push({ name: "ClientIDValue", value: $('#Client_Search_ClientID').data('kendoComboBox').text() });
+        }
+
+        if ($('#ClientBillableEventProcessingViewID') != undefined) {
+            var value = parseInt($('#ClientBillableEventProcessingViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+</script>

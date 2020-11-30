@@ -1,0 +1,193 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    string uniqueID = ViewData.TemplateInfo.HtmlFieldPrefix;
+    string gridId = uniqueID + "_GrdDocuments";
+    var recordId = ViewData["entityId"].ToString();
+    var documentCategory = ViewData["documentCategory"].ToString();
+    var entityName = ViewData["entityName"].ToString();
+    var sourceSystem = ViewData["sourceSystem"].ToString();
+    bool isPagingRequired = (entityName == Martex.DMS.DAL.Common.EntityNames.VENDOR) ? false : true;
+    //var functionHandler = "onclick=OpenAddDocument('" + uniqueID + "','" + recordId + "','" + entityName + "','" + documentCategory +"','" + sourceSystem + "');return false;";
+    //var addTemplate = "<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>&nbsp;<label class='label'>Add Document</label></a>";
+}
+<script language="javascript" src="@Url.Content("~/Scripts/FileTypeIcons.js")"></script>
+<script type="text/javascript">
+    var documentWindow;
+
+    function ManageDocument(e, uniqueId, entityName, recordID, that) {
+        var mode = "view";
+        var title = "Add Document";
+
+        if (e != null) {
+            var documentID = that.dataItem($(e.currentTarget).closest("tr")).DocumentId;
+            var isContentFromFile = that.dataItem($(e.currentTarget).closest("tr")).ContentFromFileSystem;
+            var documentName = that.dataItem($(e.currentTarget).closest("tr")).ContentPath;
+            if (e.data.commandName == 'View') {
+                var hiddenForm = $("#frmGetDocument_" + uniqueId);
+                hiddenForm.find("#documentID").val(documentID);
+                hiddenForm.find("#isContentFromFile").val(isContentFromFile);
+                hiddenForm.find("#recordId").val(recordID);
+                hiddenForm.find("#documentName").val(documentName);
+                hiddenForm.submit();
+            }
+            else if (e.data.commandName == 'Delete') {
+
+                $.modal.confirm("Are you sure?",
+                function () {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Delete", "Documents", new { area = "Common" })',
+                        traditional: true,
+                        data: { documentID: documentID, entityName: entityName, recordID: recordID },
+                        cache: false,
+                        async: true,
+                        success: function (msg) {
+                            $('#' + uniqueId + '_GrdDocuments').data('kendoGrid').dataSource.read();
+                        }
+                    });
+                },
+                function () {
+                });
+
+            }
+        }
+
+        return false;
+    }
+
+    function OpenAddDocument(uniqueId, recordId, entityName, documentCategory,sourceSystem) {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AddDocument", "Documents", new { area = "Common" })',
+            traditional: true,
+            data: { recordId: recordId, entityName: entityName, documentCategory: documentCategory, sourceSystem: sourceSystem },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                documentWindow = $("<div id='documentDetailWindow' />").appendTo(document.body);
+                documentWindow.kendoWindow({
+                    title: "Add Document",
+                    modal: true,
+                    width: 850,
+                    height: GetPopupWindowHeight(),
+                    deactivate: function () {
+                        document.dialogResult = null;
+                        this.destroy();
+                    },
+                    close: function (e) {
+
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+//                            if (!IsPageDirty()) {
+//                                e.preventDefault();
+//                                return false;
+//                            }
+
+                        }
+                        isdirty = false;
+                        if (document.dialogResult == "OK") {
+                            //ClearDirtyFlag("popupcontainer");
+                            document.dialogResult = null;
+                            $('#' + uniqueId + '_GrdDocuments').data('kendoGrid').dataSource.read();
+                        }
+                        return true;
+                    }
+                });
+                documentWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+
+    function onDataBound(e) {
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+        var that = this;
+        e.sender.table.find('tr').each(function () {
+            var dataRow = that.dataItem($(this));
+            var extension = dataRow.DocumentType;
+            
+            if (extension.length > 3) {
+                extension = extension.substr(0, 3);
+            }
+
+            var fileIconSrc = fileIcons["no-image"];
+            if (fileIcons[extension] != null) {
+                fileIconSrc = fileIcons[extension];
+            }
+
+            var img = $(this).find(".fileTypeImage");
+            if (img.length > 0) {
+                img.attr("src", fileIconSrc);
+                img.addClass("with-tooltip").attr("title",dataRow.DocumentType);
+            }
+           
+        });
+
+    }
+</script>
+<h5>
+    Documents list</h5>
+@(Html.Kendo().Grid<Martex.DMS.DAL.DocumentsList_Result>()
+.Name(ViewData.TemplateInfo.HtmlFieldPrefix + "_GrdDocuments")
+.DataSource(dataSource =>
+    dataSource.Ajax()
+    .Read("_SelectDocuments", "Documents", new { area = "Common", recordId = recordId, documentCategory = documentCategory, entityName = entityName })
+    .Events(events => events.Error("KendoGridErrorHandler"))
+    )
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.DocumentId).Visible(false);
+        columns.Bound(p => p.ContentFromFileSystem).Visible(false);
+        columns.Bound(p => p.ContentPath).Visible(false);
+        columns.Bound(p => p.Category).Width(100);
+        columns.Bound(p => p.DocumentName).Title("Document Name");
+        columns.Bound(p => p.DocumentType).Title("Type").Width(60).ClientTemplate("<img src='' class='fileTypeImage'>");
+        columns.Bound(p => p.Comment);
+        columns.Bound(p => p.AddedBy);
+        columns.Bound(p => p.DateAdded).Format("{0:MM/dd/yyyy}").Width(80);
+        columns.Command(command =>
+        {
+            command.Custom("View").Click(@<text>function(e) { return ManageDocument(e,'@uniqueID','@entityName','@recordId',this);
+}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+            @*command.Custom("Delete").Click(@<text>function(e) { return ManageDocument(e,'@uniqueID','@entityName','@recordId',this);
+}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });*@
+        }).Width(100)
+        .Title("Action(s)");
+
+    })
+                    //.ToolBar(toolBar => toolBar.Template(addTemplate))
+                    .Events(e =>
+                    {
+                        e.DataBound("onDataBound");
+                    })
+                    .Pageable(p => { p.Enabled(isPagingRequired); })
+                    .Sortable(p => { p.Enabled(isPagingRequired); })
+                    .Filterable(p => { p.Enabled(false); })
+                    .Pageable(pager => pager.Enabled(isPagingRequired)
+                        .Refresh(true)
+                        .PageSizes(new int[] { 10, 20, 50, 100 })
+                    )
+                    .Scrollable()
+                    )
+<form id="frmGetDocument_@ViewData.TemplateInfo.HtmlFieldPrefix" method="post" action="@Url.Action("Get", "Documents", new { area = "Common" })" target="_blank" class="hidden">
+<input type="hidden" name="documentID" id="documentID" value="" />
+<input type="hidden" name="documentName" id="documentName" value="" />
+<input type="hidden" name="recordId" id="recordId" value="" />
+<input type="hidden" name="isContentFromFile" id="isContentFromFile" value="" />
+<input type="submit" value="submit" />
+</form>
+
+<script type="text/javascript">
+    $(function () {
+
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+</script>

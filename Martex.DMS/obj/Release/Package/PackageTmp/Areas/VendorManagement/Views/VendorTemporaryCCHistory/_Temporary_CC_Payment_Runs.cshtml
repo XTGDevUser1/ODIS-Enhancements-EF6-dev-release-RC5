@@ -1,0 +1,262 @@
+﻿@model List<Martex.DMS.DAL.TemporaryCCBatchList_Result>
+@using Kendo.Mvc.UI;
+@using Martex.DMS.ActionFilters;
+<script type="text/javascript">
+    function grdTemporaryCCBatchList_OnDataBound(e) {
+        // TFS : 2121
+        e.sender.table.find('tr').each(function () {
+            var row = $(this);
+            var $totalCount = row.find(".spTotalCount");
+            var $totalAmount = row.find(".spTotalAmount");
+            var dataItem = e.sender.dataItem(row);
+
+            if (dataItem != undefined && dataItem != null) {
+                if (dataItem.TotalCount == 0) {
+                    $totalCount.html("");
+                }
+                if (dataItem.TotalAmount == 0) {
+                    $totalAmount.html("");
+                }
+            }
+        });
+    }
+    function VendorInvoicePaymentRunsCriteria() {
+
+        var newArray = [];
+        newArray.push({ name: "DateSectionFromDate", value: $("#DateSectionFromDate").val() });
+        newArray.push({ name: "DateSectionToDate", value: $("#DateSectionToDate").val() });
+        newArray.push({ name: "BatchStatusID", value: $("#BatchStatusID").data("kendoComboBox").value() });
+        newArray.push({ name: "DateSectionPresetValue", value: $("#DateSectionPreset").data("kendoComboBox").text() });
+
+        var vendorCriteria = {};
+        for (var i = 0; i < newArray.length; ++i)
+            vendorCriteria[newArray[i].name] = newArray[i].value;
+        return vendorCriteria;
+
+    }
+
+    function DateSectionPresetOnChange(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var value = combo.value();
+        DatePresetOnChange(value);
+    }
+    function DatePresetOnChange(value) {
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker");
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker");
+        var endDate = new Date();
+        var startDate = new Date();
+        if (value == 1) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 60);
+            startPicker.value(startDate)
+        }
+        else if (value == 2) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 120);
+            startPicker.value(startDate)
+        }
+        else if (value == 3) {
+            endPicker.value(endDate);
+            startDate.setDate(startDate.getDate() - 180);
+            startPicker.value(startDate)
+        }
+        else {
+            endPicker.value('');
+            startPicker.value('')
+        }
+    }
+    function StartDateChange() {
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker"),
+            startDate = this.value();
+
+        if (startDate) {
+            startDate = new Date(startDate);
+            startDate.setDate(startDate.getDate() + 1);
+            endPicker.min(startDate);
+            $("#DateSectionPreset").data("kendoComboBox").select(0);
+        }
+    }
+
+    function EndDateChange() {
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker"),
+            endDate = this.value();
+
+        if (endDate) {
+            endDate = new Date(endDate);
+            endDate.setDate(endDate.getDate() - 1);
+            startPicker.max(endDate);
+            $("#DateSectionPreset").data("kendoComboBox").select(0);
+        }
+    }
+</script>
+<div class="with-padding">
+    <div class="with-padding">
+        <fieldset class="fieldset">
+            <legend class="legend">Search Criteria</legend>
+            <form id="frmVendorInvoiceBatchSearchCriteria" action="javascript:void(0)" method="post">
+            <div class="with-padding">
+                <b>Batch Status:</b>
+                @(Html.Kendo().ComboBox()
+                .BindTo(ViewData[StaticData.BatchStatus.ToString()] as IEnumerable<SelectListItem>)
+                .Name("BatchStatusID")
+                .HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                .HtmlAttributes(new { style = "width:150px" })
+                )
+                <b>Date Range:</b>
+                @(Html.Kendo().ComboBox()
+                .BindTo(ViewData["HistorySearchCriteriaDatePreset"] as IEnumerable<SelectListItem>)
+                .Name("DateSectionPreset")
+                .SelectedIndex(0)
+                .HighlightFirst(true)
+                .Filter(FilterType.StartsWith).MinLength(0)
+                .Events(events => events.Change("DateSectionPresetOnChange"))
+                .HtmlAttributes(new { style = "width:150px" })
+                )
+                <b>From:</b>
+                @(Html.Kendo().DatePicker()
+                .Name("DateSectionFromDate")
+                .Events(e => e.Change("StartDateChange"))
+                .HtmlAttributes(new { style = "width:150px", type = "text" })
+                )
+                <b>To:</b>
+                @(Html.Kendo().DatePicker()
+                .Name("DateSectionToDate")
+                .Events(e => e.Change("EndDateChange"))
+                .HtmlAttributes(new { style = "width:150px", type = "text" })
+                )
+                <button id="btnSearchInvoiceBatchList" class="button green-gradient mid-margin-left margin-bottom"
+                    type="button">
+                    Search
+                </button>
+                <button id="btnClearInvoiceBatchList" class="button gray-gradient mid-margin-left margin-bottom"
+                    type="button">
+                    Clear</button>
+            </div>
+            </form>
+        </fieldset>
+        @(Html.Kendo().Grid(Model)
+        .Name("GrdTemporaryCCBatchList")
+        .Columns(column =>
+        {
+            column.Bound(u => u.ID).Title("Batch ID").Width(75);//.HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" })
+            column.Bound(u => u.BatchType).Title("Batch Type").Width(150);
+            column.Bound(u => u.BatchStatus).Title("Status").Width(100);
+            column.Bound(u => u.TotalCount).Title("Records").Width(75).HtmlAttributes(new { @style = "text-align:right;", @class = "spTotalCount" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.TotalAmount).Title("Amount").Width(100).Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;", @class = "spTotalAmount" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.CreateDate).Format("{0:MM/dd/yyyy}").Width(100).Title("Create Date");
+            column.Bound(u => u.CreateBy).Title("Create By").Width(100);
+        })
+        .Pageable()
+        .Sortable()
+                //.Scrollable()
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetTemporaryCCBatchList", "VendorTemporaryCCHistory", new { area = "VendorManagement" })
+                .Data(@<text>function(e){return VendorInvoicePaymentRunsCriteria()}</text>)
+            )
+        )
+        .Events(events => events.DataBound("grdTemporaryCCBatchList_OnDataBound"))
+        .ClientDetailTemplateId("tempCCGLAccountList")
+        .Resizable(resize => resize.Columns(true))
+        )
+    </div>
+</div>
+<script id="tempCCGLAccountList" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<Martex.DMS.DAL.TempCCGLAccountList_Result>()
+    .Name("gridTempCCGLAccountList_#=ID#")
+    .Columns(columns =>
+    {
+        columns.Bound(o => o.GLAccountName).Title("GLExpenseAccount");
+        columns.Bound(o => o.GLAccountCount).Title("Total Records").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(o => o.PaymentAmount).Title("Total Amounts").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+        columns.Bound(o => o.BatchId).Hidden();
+        columns.Bound(o => o.RowNum).Hidden();
+    })
+    .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Read(read => read.Action("TempCCGLAccountList", "VendorTemporaryCCHistory", new { area = "VendorManagement", BatchID = "#=ID#" }))
+    )
+    .Pageable()
+    .Sortable()
+    .Resizable(resize => resize.Columns(true))
+    .ClientDetailTemplateId("temporaryCCBatchPaymentRuns")
+    .ToClientTemplate()
+    )
+    
+</script>
+<script id="temporaryCCBatchPaymentRuns" type="text/kendo-tmpl">
+    @(Html.Kendo().Grid<Martex.DMS.DAL.TemporaryCCBatchPaymentRunsList_Result>()
+    .Name("gridVendorInvoiceBatchPaymentRuns_#=BatchId#_#=RowNum#_#=GLAccountName#")
+    .Columns(columns =>
+    {
+        columns.Bound(o => o.CreditCardIssueNumber).Title("CC Purchase ID");
+        columns.Bound(o => o.TemporaryCCNumber).Title("Temporary CC \\#").Width(125);
+        columns.Bound(o => o.CCIssueDate).Title("CC Issue Date").Format("{0:MM/dd/yyyy}").Width(100);
+        columns.Bound(o => o.CCIssueBy).Title("CC Issue By").Width(100);
+        columns.Bound(o => o.CCApprove).Title("CC Approve").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+        columns.Bound(o => o.CCCharge).Title("CC Charge").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+        columns.Bound(o => o.PONumber).Title("PO \\#").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+        columns.Bound(o => o.POAmount).Title("PO Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+        //columns.Bound(o => o.InvoiceNumber).Title("Invoice \\#").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+        columns.Bound(o => o.InvoiceAmount).Title("Invoice Amount").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });//.Width(100);
+    })
+    .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+    )
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .PageSize(10)
+        .Read(read => read.Action("GetTemporaryCCBatchPaymentRunsList", "VendorTemporaryCCHistory", new { area = "VendorManagement", BatchID = "#=BatchId#", GLAccountName = "#=GLAccountName#" }))
+    )
+    .Pageable()
+    .Sortable()
+    .Scrollable()
+    .Resizable(resize => resize.Columns(true))
+    .ToClientTemplate()
+    )
+    
+</script>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $("#GrdTemporaryCCBatchList>.k-grid-content").css("height", gridContentHeight + "px");
+    });
+
+    $("#btnSearchInvoiceBatchList").click(function (e) {
+        $('#GrdTemporaryCCBatchList').data('kendoGrid').dataSource.read();
+    });
+
+    $("#btnClearInvoiceBatchList").click(function (e) {
+        var startPicker = $("#DateSectionFromDate").data("kendoDatePicker");
+        var endPicker = $("#DateSectionToDate").data("kendoDatePicker");
+        endPicker.value('');
+        startPicker.value('');
+        $("#BatchStatusID").data("kendoComboBox").text('');
+        //        $("#BatchStatusID").data("kendoComboBox").value('');
+        $("#DateSectionPreset").data("kendoComboBox").select(0);
+    });
+</script>

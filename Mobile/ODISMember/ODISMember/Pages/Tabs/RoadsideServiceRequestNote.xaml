@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CustomContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:custom="clr-namespace:ODISMember.CustomControls;assembly=ODISMember"
+             x:Class="ODISMember.Pages.Tabs.RoadsideServiceRequestNote">
+  <StackLayout Spacing="0">
+    <StackLayout x:Name="stackActionBar">
+      <StackLayout x:Name="stackCustomActionBar"/>
+    </StackLayout>
+    <ScrollView x:Name="scrollNote">
+     <custom:CustomEditor x:Name="lblNote" Focused="LblNote_Focused" Unfocused="LblNote_Unfocused"  HorizontalOptions="Fill" VerticalOptions="FillAndExpand"/>
+    </ScrollView>
+    </StackLayout>
+</CustomContentPage>

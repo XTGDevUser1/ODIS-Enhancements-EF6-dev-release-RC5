@@ -1,0 +1,192 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    bool isView = false;
+    string pageMode = ViewData["mode"].ToString();
+    if (pageMode != null && pageMode.ToString().Equals("view")) 
+    {
+        isView = true;
+    }
+    
+    var suffixprogramID = Model.ToString();
+    var functionHandler = "onclick=ManageServiceCategories(null," + suffixprogramID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add Service Category' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>Add Service Category</a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function ProgramManagementServiceCategoriesSearchCriteria() {
+        return { programID: '@suffixprogramID' };
+    }
+
+    function grdProgramServiceCategories_OnDataBound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+        if ('@isView' == 'true' || '@isView' =='True') {
+            $("#GrdProgramManagementServiceCategories_@suffixprogramID").find(".k-grid-add").addClass("hidden");
+        }
+
+         var grid = e.sender;
+         e.sender.table.find('tr').each(function () {
+             var $programID = $(this).find('.programID');
+             var $programName = $(this).find('.programName');
+             
+             var editButton = $(this).find('.k-grid-Edit');
+             var deleteButton = $(this).find('.k-grid-Delete');
+             
+             if ($programID.html() != @suffixprogramID) {
+                 $programName.html($programName.html() + " (Parent)");
+                 $(editButton).addClass("hide");
+                 $(deleteButton).addClass("hide");
+             }
+         });
+
+    }
+
+    function ManageServiceCategories(e, suffixProgramID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ID;
+
+            if (e.data.commandName == 'Edit') {
+                GetManageServiceCategories(recordID, 'edit', 'Program Service Category ID: ' + recordID);
+                //openAlertMessage("Edit in progress");
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteServiceCategory(recordID);
+                //openAlertMessage("Delete in progress");
+
+            }
+        }
+        else {
+            GetManageServiceCategories(null, 'add', 'New Program Service Category');
+        }
+        return false;
+    }
+
+    function DeleteServiceCategory(recordID) {
+        $.modal.confirm('Are you sure you want to delete this Service Category?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_DeleteServiceCategoryInformation", "ProgramManagement", new { area = "Admin" })',
+                traditional: true,
+                cache: false,
+                data: { programServiceCategoryId: recordID },
+                async: false,
+                success: function (msg) {
+                    $('#GrdProgramManagementServiceCategories_@suffixprogramID').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function GetManageServiceCategories(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ProgramServiceCategoryInformation", "ProgramManagement", new { area = "Admin" })',
+            traditional: true,
+            data: { programServiceCategoryId: recordID, mode: mode, programId: '@suffixprogramID' },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                programServiceCategoriesWindow = $("<div id='programServiceCategoriesWindow' />").appendTo(document.body);
+                programServiceCategoriesWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 500,
+                    height: 400,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-ProgramServiceCategories').validationEngine('hideAll'); // to hide the validation message of the popup 
+
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-ProgramServiceCategories')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-ProgramServiceCategories');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                programServiceCategoriesWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <div id="divProgramManagementServiceCategoriesTab_@suffixprogramID">
+        @(Html.Kendo().Grid<ProgramManagementServiceCategoriesList_Result>()
+        .Name("GrdProgramManagementServiceCategories_" + suffixprogramID)
+        .Columns(column =>
+        {
+            column.Bound(a => a.ProgramID).Hidden().HtmlAttributes(new { @class = "programID" });
+            column.Bound(a => a.ProgramDescription).Title("Program").Width(100).HtmlAttributes(new { @class = "programName" });
+            column.Bound(a => a.ProductCategoryDescription).Title("Product Category").Width(100);
+            column.Bound(a => a.VehicleCategoryDescription).Title("Vehicle Category").Width(100);
+            column.Bound(a => a.vehicleTypeDescription).Title("Vehicle Type").Width(100);
+            column.Bound(a => a.Sequence).Title("Sequence").Width(100);
+            column.Bound(a => a.IsActive).Title("Active").ClientTemplate("<input type='checkbox' #= IsActive ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            if (!isView)
+            {
+                column.Command(command =>
+                {
+                    command.Custom("Edit").Click(@<text>function(e){ ManageServiceCategories(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    command.Custom("Delete").Click(@<text>function(e){ ManageServiceCategories(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+
+                }).Width(100)
+                .Title("Action(s)");
+            }
+        })
+        .ToolBar(toolBar => toolBar.Template(@addTemplate))
+        .Events(e =>
+        {
+            e.DataBound("grdProgramServiceCategories_OnDataBound");
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        .Filterable(filterable => filterable
+            .Extra(false)
+        )
+        .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetProgramManagementServiceCategoriesList", "ProgramManagement", new { area = "Admin" }).Data("ProgramManagementServiceCategoriesSearchCriteria"))
+            .PageSize(50)
+        )
+        .Resizable(resize => resize.Columns(true))
+        .EnableCustomBinding(true)
+        )
+    </div>
+</div>
+<script type="text/javascript">
+    var suffixprogramID = '@suffixprogramID';
+    $(function () {
+        HandleDblClickOnGrid($("#GrdProgramManagementServiceCategories_@suffixprogramID"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        350
+                                        );
+        $("#GrdProgramManagementServiceCategories_@suffixprogramID>.k-grid-content").css("height", gridContentHeight + "px");
+    });    
+</script>

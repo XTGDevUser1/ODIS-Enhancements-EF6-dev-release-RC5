@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+			xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+			xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+			xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+			x:Class="ODISMember.Pages.Registration.RegisterVerify"
+			Style="{StaticResource BaseContentPage}">
+  <RelativeLayout x:Name="mainLayout">
+    <ScrollView Style="{StaticResource MainLayout}" RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}">
+      <StackLayout BackgroundColor="#F8F8F9">
+        <widget:CustomIconActionBar Title="Register Verify" x:Name="widgetActionBar" VerticalOptions="Start"/>
+        <StackLayout VerticalOptions="Start">
+          <controls:ExtendedLabel Text="- MEMBERSHIP LOOKUP - " Style="{StaticResource SubHeaderLabelStyle}" HorizontalTextAlignment="Center"/>
+          <controls:ExtendedLabel Text="To begin registration please enter the information below and click VERIFY." Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start"/>
+        </StackLayout>
+        <StackLayout VerticalOptions="CenterAndExpand">
+          <widget:LabelEntryVertical EntryHint="Member Number" IsLabelVisible="False" IsLeftAlign="True" KeyboardEntry="Numeric" x:Name="widgetMemberNumber" IsRemoveWhiteBackground="true" />
+          <widget:LabelEntryVertical EntryHint="First Name" IsRemoveWhiteBackground="true" IsLabelVisible="False" IsLeftAlign="True" x:Name="widgetFirstName" />
+          <widget:LabelEntryVertical EntryHint="Last Name"  IsRemoveWhiteBackground="true" IsLabelVisible="False" IsLeftAlign="True" x:Name="widgetLastName"/>
+          <Button x:Name="btnVerify" Style="{StaticResource BaseButtonStyle}" Text="VERIFY"></Button>
+        </StackLayout>
+        <StackLayout Orientation="Horizontal" Padding="0" VerticalOptions="EndAndExpand">
+          <Button x:Name="btnTermsAndConditions" Style="{StaticResource LabledButtonStyle}" Text="TERMS &amp; CONDITIONS" HorizontalOptions="StartAndExpand"></Button>
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </RelativeLayout>
+</BaseContentPage>

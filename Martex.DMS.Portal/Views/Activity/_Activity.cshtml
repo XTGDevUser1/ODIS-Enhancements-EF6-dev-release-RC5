@@ -1,0 +1,276 @@
+﻿@using Telerik.Web.Mvc.UI;
+@model List<Martex.DMS.DAL.ActivityList_Result>
+<style type="text/css">
+.activity-details
+{
+    padding: .8em .6em;
+    display: inline-block;
+}
+.activity-details
+{
+    display: block;
+}
+.activity-details:after
+{
+    clear: both;
+}
+.activity-details dl, .activity-details dt, .activity-details dd
+{
+    margin: 0;
+    padding: 0;
+}
+.activity-details img, .activity-details h3, .activity-details dl, .commands
+{
+    float: left;
+    clear: none;
+    margin: 0 14px 0 0;
+}
+.activity-details h3, .activity-details dl
+{
+    /*width: 40%;*/
+    min-height: 100px;
+    border-width: 0 1px 0 0;
+    background-color: transparent;
+    color: inherit;
+}
+.activity-details h3
+{
+    width: 90px;
+    padding: 0;
+    font-size: 1.5em;
+    padding-right: 20px;
+    text-shadow:none;
+}
+.activity-details dt
+{
+    font-weight: bold;
+}
+.field-validation-error
+{
+    position: absolute;
+    display: block;
+}
+* html .field-validation-error
+{
+    position: relative;
+}
+* + html .field-validation-error
+{
+    position: relative;
+}
+.field-validation-error span
+{
+    position: absolute;
+    white-space: nowrap;
+    color: red;
+    padding: 17px 5px 3px;
+    background: transparent url('<%= Url.Content("~/Content/Common/validation-error-message.png") %>') no-repeat 0 0;
+}
+/* in-form editing */.t-edit-form-container
+{
+    width: 350px;
+    margin: 1em;
+}
+.t-edit-form-container .editor-label, .t-edit-form-container .editor-field
+{
+    padding-bottom: 1em;
+    float: left;
+}
+.t-edit-form-container .editor-label
+{
+    width: 30%;
+    text-align: right;
+    padding-right: 3%;
+    clear: left;
+}
+.t-edit-form-container .editor-field
+{
+    width: 60%;
+}
+
+.rightSide
+{
+	font-weight:bold;
+}
+</style>
+
+<script type="text/javascript">
+    function GrdUsers_OnRequestComplete(e) {
+        UpdateTags();
+    }
+</script>
+<div id="tab-10" class="with-padding">
+    <div class="t-toolbar t-grid-toolbar t-grid-top">
+        <div class="float-left">
+            <p class="button-height">
+                <span class="button-group">
+                    <label for="display-Comment" class="button compact green-active">
+                        <span class="count blue-bg spcommentcount">@Html.Raw(Model.Count > 0 ? Model[0].commentCount.ToString() : "0")</span>
+                        <input type="checkbox" name="rbstatus" id="display-Comment" value="Comment" />
+                        Comments
+                    </label>
+                    <label for="display-ContactLog" class="button compact green-active">
+                        <span class="count blue-bg spContactLogcount">@Html.Raw(Model.Count > 0 ? Model[0].ContactLogCount.ToString() : "0")</span>
+                        <input type="checkbox" name="rbstatus" id="display-ContactLog" value="Contact Log" />
+                        Contacts
+                    </label>
+                    <label for="display-EventLog" class="button compact green-active">
+                        <span class="count blue-bg speventLogcount">@Html.Raw(Model.Count > 0 ? Model[0].EventLogCount.ToString() : "0")</span>
+                        <input type="checkbox" name="rbstatus" id="display-EventLog" value="Event Log" />
+                        Events
+                    </label>
+                </span>
+            </p>
+        </div>
+        <div class="clear">
+            &nbsp;</div>
+    </div>
+    @(Html.Telerik().Grid<Martex.DMS.DAL.ActivityList_Result>()
+            .Name("GrdActivity")
+             .DataKeys(keys =>
+             {
+                 keys.Add(p => p.ID);
+             })
+
+                        .DataBinding(dataBinding =>
+                        {
+                            dataBinding.Ajax()
+                                .Select("List", "Activity");
+                        })
+                .Columns(columns =>
+                {
+                    columns.Bound(a => a.Type).Title("Activity");
+
+                })
+                        .ClientRowTemplate(grid =>
+
+                                "<# if( Type == \"Event Log\") { #>" +
+                                "<div class='activity-details'>" +
+
+                                                                    "<h3 class='mid-margin-top'><span class='icon-calendar icon-size4 ie9 anthracite'></span></h3>" + "<dl style='width:45%'>" +
+                                    "<dd><#= Description #></dd>" +
+                                                    "<dd><#= TypeDescription #></dd>" +
+                                    "<dd><#= Comments #></dd> " +
+                            "</dl><dl style='width:38.05%'>" +
+                                                    "<dd><#= FormattedCreateDate #></dd>" +
+                                "<dd><#= CreateBy #>(<#= RoleName #>-<#= OrganizationName #>)</dd>" +
+                                    "</dl></div>" + "<# } else if(Type == \"Comment\") { #>" +
+                                            "<div class='activity-details'>" +
+                                                                                                    "<h3 class='mid-margin-top'><span class='icon-speech icon-size4 ie9 anthracite '></span></h3>" +
+                                                                "<dl style='width:45%'> <dd><#= Type #></dd> " +
+                                                         "<dd><#= Name #></dd>" +
+                                                          "<dd><#= Description #></dd>" +
+                                                                                  "</dl><dl style='width:38.05%'>" +
+                                                            "<dd><#= FormattedCreateDate #></dd>" +
+                                "<dd><#= CreateBy #>(<#= RoleName #>-<#= OrganizationName #>)</dd>" +
+                                    "</dl></div>" +
+
+                                        "<# } else if(Type == \"Contact Log\") {#>" +
+                                        "<div class='activity-details'>" +
+                                                                                "<h3 class='mid-margin-top'><span class='icon-card icon-size4 ie9 '></span> </h3>" +
+                                                "<dl style='width:45%'> <dd><#= Description #></dd> " +
+                                         "<dd><#= Company #></dd> " +
+                                         "<dd><#= TalkedTo #></dd> " +
+                                         "<dd><#= PhoneNumber #></dd> " +
+                                         "<dd><#= Comments #></dd> " +
+
+                                                                    "<dd><div class='QuestionAnswer_RP'><#= QuestionAnswer #></div></dd>" +
+                                            "</dl>" +
+                                                 "<dl style='width:38.05%'>" +
+                                                         "<dd><#= FormattedCreateDate #></dd>" +
+                                "<dd><#= CreateBy #>(<#= RoleName #>-<#= OrganizationName #>)</dd>" +
+                                         "<dd><strong>Reason:</strong></dd> " +
+                                                 "<dd><#= ContactReason #></dd> " +
+                                    "<dd><strong>Actions:</strong></dd>" +
+                                    "<dd><#= ContactAction #></dd></dl></div>" +
+
+                                    "<# } #>"
+
+                            )
+
+        .EnableCustomBinding(true)
+        .ClientEvents(events => {
+            events.OnComplete("GrdUsers_OnRequestComplete");
+        })
+        .Pageable()
+        .Scrollable()
+   )
+</div>
+<script type="text/javascript">
+    var srid = '@ViewData["srid"]';
+    function unescapeHTML(escapedHTML) {
+        return escapedHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace('&lt;br/&gt;','<br/>');
+    }
+    function UpdateTags() {
+
+        setTimeout(function () {
+            $('.QuestionAnswer_RP').each(function () {
+                $(this).html(unescapeHTML($(this).html()));
+            });
+        }, 1000);
+      
+    }
+
+    function LogActivity() {
+        var retVal = false;
+        
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateActivityStatus", "Activity", new { area = "Application" })',
+            traditional: true,
+            cache: false,
+            async: false,
+            success: function (msg) {
+                retVal = true;
+            }
+        });
+
+        return retVal;
+    }
+    
+    // See if this is rendered in SR popup and turn off setting tab status
+    if (typeof isInSRPopup == "undefined" || !isInSRPopup) {
+
+        fnSaveTab = LogActivity;
+    }
+
+    $(function () {
+        UpdateTags();
+      
+//        var gridContentHeight = GetWindowHeight() - (
+//                                        $("#menu-horizontal").height() +
+//                                        $(".t-toolbar").height() +
+//                                        $(".t-grid-header").height() +
+//                                        $(".t-grid-bottom").height() +
+//                                        $(".footer").height() +
+//                                        125
+//                                        );
+//        $(".t-grid-content").css("height", gridContentHeight + "px");
+
+        $('input[name="rbstatus"]').click(function () {
+            var filterValue = new Array();
+            $('input[name="rbstatus"]:checked').each(function () {
+                filterValue.push($(this).val());
+            });
+            var params = {
+                filterColumnName: "Type",
+                filterColumnValue: filterValue.join(),
+                srid : srid
+            };
+            
+            $('#GrdActivity').data('tGrid').rebind(params);
+            UpdateTags();
+
+            var label = $(this).parent("label");
+            if(label.hasClass("active"))
+            {
+                label.removeClass("active");
+            }
+            else
+            {
+                label.addClass("active");
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,130 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@model Martex.DMS.DAL.VendorInformation_Result
+@{
+    var visibleVendorRates = ViewBag.visibleVendorRates;
+    var vendorNumberName = "";
+    if (Model != null)
+    {
+        vendorNumberName = Model.VendorNumber + " - " + Model.VendorName;
+    }
+}
+<div>
+    <h5 class="blue small-margin-bottom">
+        <label class="label">
+            @{
+                var iconConfig = new VendorListIconConfig();
+                if (!string.IsNullOrEmpty(Model.ContractStatus))
+                {
+                    var contractStatusIconStyle = iconConfig.GetIconStyle(Model.ContractStatus);
+                    <span class="@contractStatusIconStyle.Class vendorinfostarred message-status with-tooltip" title="@contractStatusIconStyle.Title">
+                        &nbsp;
+                    </span>
+                }
+            }
+            @Html.DisplayFor(v => v.VendorName)
+            @Html.HiddenFor(v => v.VendorName)
+        </label>
+    </h5>
+    <p class="small-margin-bottom">
+        <label class="label">
+            <strong>ID: </strong> @Html.DisplayFor(v => v.VendorNumber)
+        </label>
+    </p>
+    <p class="small-margin-bottom">
+        <label class="label">
+            @Html.DisplayFor(v => v.Address1) @Html.DisplayFor(v => v.Address2)<br />
+            @Html.DisplayFor(v => v.VendorCityStateZipCountry)
+        </label>
+    </p>
+    <p class=" small-margin-bottom">
+        <label class="label">
+            <strong>24hr: </strong>
+            @if (Model.DispatchPhoneNumber != null)
+            {
+                @Html.Editor("DispatchPhoneNumber", "Phone", new { Value = Model.DispatchPhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+            }
+        </label>
+    </p>
+    <p class="  small-margin-bottom">
+        <label class="label">
+            <strong>Fax: </strong>
+            @if (Model.FaxPhoneNumber != null)
+            {
+                @Html.Editor("FaxPhoneNumber", "Phone", new { Value = Model.FaxPhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+                @Html.Hidden("vendorFax", Model.FaxPhoneNumber)
+            }
+        </label>
+    </p>
+    <p class="  small-margin-bottom">
+        <label class="label">
+            <strong>Office:</strong>
+            @if (Model.OfficePhoneNumber != null)
+            {
+                @Html.Editor("OfficePhoneNumber", "Phone", new { Value = Model.OfficePhoneNumber, ShowPhoneType = false, ReadOnly = true, CallType = "Vendor" })
+            }
+        </label>
+    </p>
+    <p class="  small-margin-bottom">
+        <label class="label">
+            <strong>Email: </strong>
+            @Html.DisplayFor(v => v.Email)
+            @Html.Hidden("VendorEmail", Model.Email)
+        </label>
+    </p>
+    <p class="small-margin-bottom">
+        <label class="label">
+            <strong>Vendor Tax ID: </strong>
+            @Html.DisplayFor(v => v.VendorTaxID)
+
+        </label>
+    </p>
+    <p class="small-margin-bottom">
+        <label class="label">
+            <strong>Contract: </strong>
+            @if (!string.IsNullOrEmpty(Model.ContractSignedBy))
+            {
+                @Model.ContractSignedDate.GetValueOrDefault().ToString("MM/dd/yyyy")@Html.Raw(" ")@Html.DisplayFor(a => a.ContractSignedBy)
+            }
+
+            </label>
+        </p>
+        <p class="  small-margin-bottom">
+            <a id="btnGetVendorRates" style="visibility:@visibleVendorRates">
+                View Vendor Rates
+            </a>
+        </p>
+    </div>
+    <!-- TODO: Phone number - use editor -->
+    <script type="text/javascript" language="javascript">
+        var vendorRatesDetailWindow
+        var windowTitle = "Vendor Rates for: " + '@vendorNumberName';
+        $('#btnGetVendorRates').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetVendorRate", "PO")',
+                traditional: true,
+                cache: false,
+                async: true,
+                success: function (msg) {
+                    vendorRatesDetailWindow = $("<div id='vendorRatesDetailWindow' />").appendTo(document.body);
+                    vendorRatesDetailWindow.kendoWindow({
+                        title: windowTitle,
+                        modal: true,
+                        width: 1020,
+                        height: GetPopupWindowHeight(),
+                        //height: 820,
+                        deactivate: function () {
+                            this.destroy();
+                        },
+                        close: function (e) {
+                            return true;
+                        }
+                    });
+                    vendorRatesDetailWindow.data('kendoWindow').content(msg).center().open();
+                }
+            });
+
+
+        });
+
+    </script>

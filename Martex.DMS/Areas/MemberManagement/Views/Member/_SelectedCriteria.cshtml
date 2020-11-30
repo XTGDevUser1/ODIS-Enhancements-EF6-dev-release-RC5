@@ -1,0 +1,219 @@
+﻿@model Martex.DMS.DAL.Entities.MemberManagementSearchCriteria
+@using Martex.DMS.DAL.Entities;
+@{
+    bool hasElement = false;
+    int i = 0;
+}
+@if (Model != null)
+{
+    <!-- ID Section -->
+    if (!string.IsNullOrEmpty(Model.MemberNumber))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="MemberNumber">X</a>
+        @Html.Raw("- Number : ")
+        @Html.DisplayFor(u => Model.MemberNumber)
+    </p>
+    }
+
+    <!-- Name Section -->
+    if (!string.IsNullOrEmpty(Model.FirstName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="FirstName" relatedCombo="FirstNameNameOperator">X</a>
+        @Html.Raw("- First Name :")
+        @Html.DisplayFor(u => Model.FirstName)
+    </p>                 
+    }
+    if (Model.FirstNameNameOperator.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="FirstNameNameOperator" relatedTexBox = "FirstName">
+            X</a>
+        @Html.Raw("- First Name Value That :")
+        @Html.DisplayFor(u => Model.FirstNameOperatorValue)
+    </p>
+                        
+    }
+
+    if (!string.IsNullOrEmpty(Model.LastName))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="LastName" relatedCombo="LastNameOperator">X</a>
+        @Html.Raw("- Last Name :")
+        @Html.DisplayFor(u => Model.LastName)
+    </p>                 
+    }
+    if (Model.LastNameOperator.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="LastNameOperator" relatedTexBox = "LastName">X</a>
+        @Html.Raw("- Last Name Value That :")
+        @Html.DisplayFor(u => Model.LastNameOperatorValue)
+    </p>
+                        
+    }
+    
+    <!-- City Section-->
+    if (!string.IsNullOrEmpty(Model.City))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="City">X</a> - City
+        : @Model.City
+    </p>
+                        
+    }
+    if (Model.StateProvinceID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="StateProvinceID">X</a>
+        - State : @Model.StateProvince
+    </p>
+                        
+    }
+    if (Model.CountryID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="CountryID">X</a>
+        - Country : @Model.Country
+    </p>
+                        
+    }
+
+    if (!string.IsNullOrEmpty(Model.PostalCode))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="PostalCode">X</a>
+        - Postal Code : @Model.PostalCode
+    </p>
+                        
+    }
+    
+    <!-- Phone Number Section -->
+    if (!string.IsNullOrEmpty(Model.PhoneNumber))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="PhoneNumber">X</a>
+        - Phone Number : @Model.PhoneNumber
+    </p>
+                        
+    }
+    
+    <!-- VIN Number Section -->
+    if (!string.IsNullOrEmpty(Model.VIN))
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="textBox" data="VIN">X</a> - VIN
+        : @Model.VIN
+    </p>
+                        
+    }
+    
+    <!-- Client and Program Section -->
+    if (Model.SearchClientID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Member_Search_ClientID">X</a>
+        - Client Name : @Model.SearchClientName
+    </p>
+                        
+    }
+
+    if (Model.SearchProgramID.HasValue)
+    {
+        hasElement = true;
+    <p>
+        <a href="javascript:void(0)" class="delete" role="combo" data="Member_Search_ProgramID">X</a>
+        - Program Name : @Model.SearchProgramName
+    </p>
+                        
+    }
+    
+    <!-- Status Secton -->
+    foreach (CheckBoxLookUp result in Model.Status)
+    {
+        if (result.Selected)
+        {
+            hasElement = true;
+            string id = "Status_" + i.ToString() + "__Selected";
+    <p>
+        <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+        Status : @result.Name
+    </p>
+        }
+        i = i + 1;
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+                var relatedCombo = $(this).attr('relatedCombo');
+                var relatedTexBox = $(this).attr('relatedTexBox');
+
+                if (role != undefined && element != undefined) {
+                    if (role == "checkBox") {
+                        $('#' + element).prop("checked", false);
+                        $('#' + element).parent().removeClass("checked");
+                    }
+                    else if (role == "textBox") {
+                        $('#' + element).val('');
+                        if (relatedCombo != undefined) {
+                            $('#' + relatedCombo).data('kendoComboBox').value('');
+                        }
+                    }
+                    if (role == "combo") {
+                        $('#' + element).data('kendoComboBox').value('');
+
+                        if (relatedTexBox != undefined) {
+                            $('#' + relatedTexBox).val('');
+                        }
+
+                        if (element == 'CountryID') {
+                            $('#' + element).data('kendoComboBox').trigger('change');
+                        }
+
+                        if (element == 'Member_Search_ClientID') {
+                            $('#' + element).data('kendoComboBox').trigger('change');
+                        }
+
+                    }
+                    LoadSelectedCriteria();
+                }
+            }
+
+            return false;
+        });
+
+        $('#btnSearchCriteriaClearAll').unbind("click");
+        $('#btnSearchCriteriaClearAll').click(function () {
+            $('#ResetModelCriteria').val('true');
+            LoadSearchCriteria();
+            $('#GrdSearchMemberList').data('kendoGrid').dataSource.read();
+            return false;
+        });
+    });
+</script>

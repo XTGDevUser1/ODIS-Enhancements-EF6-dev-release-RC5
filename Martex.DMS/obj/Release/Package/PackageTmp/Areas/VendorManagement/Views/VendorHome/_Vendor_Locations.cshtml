@@ -1,0 +1,132 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    var suffixVendorID = Model.ToString();
+    var functionHandler = "onclick=ManageVendorLocations(null," + suffixVendorID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>Add Location</a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function grdVendorLocations_OnDataBound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+
+        e.sender.table.find('tr').each(function () {
+            var $lat = $(this).find('.lat');
+            var $lang = $(this).find('.lang');
+            var $dispatchNote = $(this).find('.dispatchNote');
+            var $actions = $(this).find('.actions');
+            var $isActive = $(this).find('.isActive');
+            
+            var isActive = $isActive.html();
+            if (isActive == "false") {
+                //$actions.hide();
+                $actions.html(" ");
+            }
+            //Latitude
+            if ($lat == null || $lat == undefined || $lat.html() == "") {
+                $lat.html(" ");
+            }
+            else {
+                $lat.html(parseFloat($lat.html()).toFixed(4));
+            }
+
+            //Longitude
+            if ($lang == null || $lang == undefined || $lang.html() == "") {
+                $lang.html(" ");
+            }
+            else {
+                $lang.html(parseFloat($lang.html()).toFixed(4));
+            }
+
+            //Dispatch Note
+            if ($dispatchNote.html() == null || $dispatchNote.html() == undefined || $dispatchNote.html() == "") {
+                $dispatchNote.html("No");
+            }
+            else {
+                var toolTipContent = "<ul>";
+                toolTipContent += $dispatchNote.html();
+                toolTipContent += "</ul>";
+                $dispatchNote.html("Yes");
+                $dispatchNote.addClass("tpComments with-tooltip");
+                $dispatchNote.attr('title', toolTipContent);
+            }
+        });
+        AdjustTooltipDimensions();
+    }
+
+    function VendorSearchCriteria() {
+        return { VendorId: '@suffixVendorID' };
+    }
+</script>
+<div id="VendorDetailsLocationsTab_@suffixVendorID">
+    <div class="with-padding" id="divAddVendorLocation_@suffixVendorID" style="display: none;">
+    </div>
+    <div class="with-padding" id="divVendorLocationsTab_@suffixVendorID">
+        @(Html.Kendo().Grid<VendorLocations_Result>()
+        .Name("GrdVendorLocations_" + suffixVendorID)
+        .Columns(column =>
+        {
+            column.Bound(a => a.LocationAddress).Title("Location Address");
+            column.Bound(a => a.StateProvince).Title("State");
+            column.Bound(a => a.PostalCode).Title("Postal Code");
+            column.Bound(a => a.CountryCode).Title("Country");
+            column.Bound(a => a.Latitude).Title("Latitude").HtmlAttributes(new { @class = "lat" });
+            column.Bound(a => a.Longitude).Title("Longitude").HtmlAttributes(new { @class = "lang" });
+            column.Bound(a => a.ServiceIndicator).Title("Service Indicator");
+            column.Bound(a => a.VendorStatus).Title("Location Status");
+            column.Bound(a => a.PartsAndAccessoryCode).Title("P&A Code");
+            column.Bound(a => a.DispatchNote).Title("Dispatch Note").HtmlAttributes(new { @class = "dispatchNote" }).Filterable(false);
+            column.Bound(a => a.IsActive).Title("IsActive?").HtmlAttributes(new { @class = "isActive" }).Hidden();
+            column.Command(command =>
+            {
+                command.Custom("Edit").Click(@<text>function(e){ ManageVendorLocations(e,'@suffixVendorID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                command.Custom("Delete").Click(@<text>function(e){ ManageVendorLocations(e,'@suffixVendorID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+
+            }).Width(100).HtmlAttributes(new { @class = "actions" })
+            .Title("Action(s)");
+        })
+        .ToolBar(toolBar => toolBar.Template(@addTemplate))
+        .Events(e =>
+        {
+            e.DataBound("grdVendorLocations_OnDataBound");
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        .Filterable(filterable => filterable
+            .Extra(false)
+        )
+        .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetVendorLocations", "VendorHome").Data("VendorSearchCriteria"))
+            .Model(u => u.Id(p => p.VendorLocation))
+            .PageSize(10)
+        )
+        .Resizable(resize => resize.Columns(true))
+        .EnableCustomBinding(true)
+        )
+    </div>
+</div>
+<script type="text/javascript">
+    var suffixVendorID = '@suffixVendorID';
+    $(function () {
+        HandleDblClickOnGrid($("#GrdVendorLocations_@suffixVendorID"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        150
+                                        );
+        $("#GrdVendorLocations_@suffixVendorID>.k-grid-content").css("height", gridContentHeight + "px");
+    });    
+</script>

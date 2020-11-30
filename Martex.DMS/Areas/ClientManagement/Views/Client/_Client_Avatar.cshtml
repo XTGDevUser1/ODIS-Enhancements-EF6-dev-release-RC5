@@ -1,0 +1,365 @@
+﻿@using Kendo.Mvc.UI
+@model Martex.DMS.BLL.Model.ImageLoadModel
+
+@{
+    Layout = "";
+}
+<style>
+    .k-button {
+        width: 200px !important;
+    }
+</style>
+<style type="text/css">
+    /* Apply these styles only when #preview-pane has
+    been placed within the Jcrop widget */
+    /*.jcrop-holder {
+        width: 800px !important;
+        height: 600px !important;
+        position: relative;
+        background-color: rgb(0, 0, 0);
+    }*/
+
+    .jcrop-holder #preview-pane {
+        display: block;
+        position: absolute;
+        z-index: 2000;
+        top: 10px;
+        right: -280px;
+        padding: 6px;
+        border: 1px rgba(0,0,0,.4) solid;
+        background-color: white;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-radius: 6px;
+        -webkit-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+        -moz-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+        box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* The Javascript code will set the aspect ratio of the crop
+    area based on the size of the thumbnail preview,
+    specified here */
+    #preview-pane .preview-container {
+        width: 250px;
+        height: 250px;
+        overflow: hidden;
+    }
+</style>
+
+<script type="text/ecmascript">
+
+    // Global Variables
+    var Jcrop_Api_Referennce = null;
+    var
+        boundx,
+        boundy,
+
+        // Grab some information about the preview pane
+        $preview,
+        $pcnt,
+        $pimg,
+
+        xsize,
+        ysize;
+    function HandleImage(files) {
+
+        var fileReader = new FileReader();
+
+        fileReader.onload = function (event) {
+            if (Jcrop_Api_Referennce != null) {
+                Jcrop_Api_Referennce.destroy();
+                Jcrop_Api_Referennce = null;
+                $('#target').removeClass();
+            }
+
+            var img = new Image();
+            var mapImage = event.target.result;
+
+            var imageHeight = 0;
+            var imageWidth = 0;
+
+            img.onload = function () {
+                imageHeight = this.height;
+                imageWidth = this.width;
+            }
+
+            img.src = mapImage;
+            $("#target").attr('src', mapImage);
+            $pimg.attr('src', mapImage);
+
+            $('#target').Jcrop({
+                minSize: [200, 200],
+                maxSize: [200, 200],
+                onChange: updatePreview,
+                onSelect: updatePreview,
+            },
+                function () {
+                    Jcrop_Api_Referennce = this;
+                    // Use the API to get the real image size
+                    var bounds = this.getBounds();
+                    boundx = bounds[0];
+                    boundy = bounds[1];
+                    // Move the preview into the jcrop container for css positioning
+                    $preview.appendTo(Jcrop_Api_Referennce.ui.holder);
+                    @*alert(Jcrop_Api_Referennce);*@
+                });
+            var dim = Jcrop_Api_Referennce.getBounds();
+            Jcrop_Api_Referennce.setOptions({ setSelect: [20, 20, dim[0] - 20, dim[1] - 20] });
+            Jcrop_Api_Referennce.focus();
+        }
+
+        fileReader.readAsDataURL(files[0].rawFile);
+
+    }
+
+    function updatePreview(c) {
+        if (parseInt(c.w) > 0) {
+            var rx = xsize / c.w;
+            var ry = ysize / c.h;
+
+            $pimg.css({
+                width: Math.round(rx * boundx) + 'px',
+                height: Math.round(ry * boundy) + 'px',
+                marginLeft: '-' + Math.round(rx * c.x) + 'px',
+                marginTop: '-' + Math.round(ry * c.y) + 'px'
+            });
+
+            $('#X1').val(c.x);
+            $('#X2').val(c.x2);
+            $('#Y1').val(c.y);
+            $('#Y2').val(c.y2);
+            $('#Height').val(c.h);
+            $('#Width').val(c.w);
+
+        }
+    }
+
+    $(function () {
+
+        // Grab some information about the preview pane
+        $preview = $('#preview-pane'),
+        $pcnt = $('#preview-pane .preview-container'),
+        $pimg = $('#preview-pane .preview-container img'),
+
+        xsize = $pcnt.width(),
+        ysize = $pcnt.height();
+    });
+</script>
+
+<script language="javascript" type="text/javascript">
+    var isFileValid = true;
+    function ClearKendoUpload() {
+        $(".k-upload-files.k-reset").remove();
+        $(".k-upload-status.k-upload-status-total").remove();
+    }
+    function HandleImageSize(files) {
+
+
+        var fileReader = new FileReader();
+        var imageHeight = 0;
+        var imageWidth = 0;
+        fileReader.onload = function (event) {
+
+            var img = new Image();
+            var mapImage = event.target.result;
+
+
+            img.src = mapImage;
+            img.onload = function () {
+                imageHeight = this.height;
+                imageWidth = this.width;
+
+                if (imageHeight >= 200 && imageWidth >= 200) {
+                    isFileValid = true;
+                }
+                else {
+
+                    openAlertMessage("Minimum dimension should be 200 X 200. Selected image size is : " + imageHeight + " X " + imageWidth + "");
+                    isFileValid = false;
+                    $(".k-upload-action").click();
+
+
+                }
+                if (isFileValid) {
+                    HandleImage(files);
+                    setTimeout(function () {
+                        $(".k-button-bare").append("&nbsp;Remove").addClass("k-button-icontext").removeClass("k-button-bare");
+                    }, 500);
+                }
+            }
+        }
+        fileReader.readAsDataURL(files[0].rawFile);
+    }
+
+    function OnFileSelect(e) {
+        $('#target').removeClass();
+        isFileValid = true;
+        var files = e.files;
+
+        $.each(files, function (index, value) {
+            if (value.extension.toLowerCase() != ".jpg" && value.extension.toLowerCase() != ".png" && value.extension.toLowerCase() != ".jpeg" && value.extension.toLowerCase() != ".gif" && value.extension.toLowerCase() != ".bmp" && value.extension.toLowerCase() != ".tif") {
+                e.preventDefault();
+                openAlertMessage("Please upload a valid Image file. Minimum dimension should be 200 X 200");
+                isFileValid = false;
+
+            }
+        });
+        if (isFileValid) {
+            HandleImageSize(files);
+        }
+
+    }
+
+    function UploadApplication(e) {
+        var postData = $("#frmAvatar").serializeArray();
+        postData.push({ name: "entityID", value: $("#changeAvatarEntityID").val() });
+        postData.push({ name: "entity", value: $("#changeAvatarEntityName").val() });
+        var nvp = {};
+        for (var i = 0, l = postData.length; i < l; i++) {
+            nvp[postData[i].name] = postData[i].value;
+        }
+        e.data = nvp;
+    }
+
+    function UploadSuccess(e) {
+        if (e.response && e.response.Status && e.response.Status == "Error") {
+            openAlertMessage("An error occurred while saving the Avatar.");
+        } else {
+            clientDetailAvatarWindow.data('kendoWindow').close();
+            var entityName = $("#changeAvatarEntityName").val();
+            var suffixEntityID = $("#changeAvatarEntityID").val();
+            if (entityName == "Client") {
+                CleanMyContainer("frmClientContainerForDirtyFlag_" + suffixEntityID);
+                $('#ClientDetailsTab_' + suffixEntityID).tabs('load', 0);
+            }
+            else if (entityName == "ClientRep") {
+                CleanMyContainer('formClientRepMaintenanceDetails');
+                clientRepMaintenanceWindow.data('kendoWindow').close();
+                setTimeout(
+                function () { LoadClientRepDetails(suffixEntityID, "Edit", "Edit : " + suffixEntityID) }, 500);
+            }
+            openAlertMessage("Avatar updated successfully.");
+        }
+        ClearKendoUpload();
+    }
+
+    function UploadError(e) {
+        openAlertMessage("An error has occurred while uploading image. Possible reason could be invalid image dimension. Minimum required dimension is 200 X 200");
+        ClearKendoUpload();
+    }
+
+    function UploadComplete(e) {
+    }
+
+    function fnFileRemove(e) {
+        if (Jcrop_Api_Referennce != null) {
+            Jcrop_Api_Referennce.destroy();
+            Jcrop_Api_Referennce = null;
+            $('#target').removeClass();
+            $('#target').attr("src", "");
+            $("#target").attr('style', "width : 0px; height : 0px;");
+            $('#targetPreview').removeClass();
+            $('#targetPreview').attr("src", "");
+            $('#targetPreview').attr("style", "width : 0px; height : 0px;");
+        }
+    }
+
+</script>
+
+<div class="row">
+
+    <div class="col-md-12">
+        @Html.HiddenFor(a => a.entityID, new { id = "changeAvatarEntityID" })
+        @Html.HiddenFor(a => a.entity, new { id = "changeAvatarEntityName" })
+        <div class="form-group">
+            <p>Drag and drop the file in the grey box below or click "select image..."</p>
+            <h5>Minimum image size 200 x 200 pixels.</h5>
+
+
+            <div class="well">
+                @Html.Kendo().Upload().Name("ProfileImage").Multiple(false).ShowFileList(true).Messages(m => m.Select("Select image")).Async(a => a
+                .Save("UploadClientAvatar", "Client", new { area = "ClientManagement" })
+                .AutoUpload(false)
+                .RemoveUrl("/Remove")).Events(e => e.Select("OnFileSelect").Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete").Remove("fnFileRemove"))
+
+            </div>
+            <i>JPG, PNG, GIF, BMP, and TIF files allowed</i>
+        </div>
+
+        <img src="" id="target" alt="" />
+        <form action="javascript:void(0);" role="form" id="frmAvatar">
+            <input type="hidden" name="X1" id="X1" />
+            <input type="hidden" name="X2" id="X2" />
+            <input type="hidden" name="Y1" id="Y1" />
+            <input type="hidden" name="Y2" id="Y2" />
+            <input type="hidden" name="Width" id="Width" />
+            <input type="hidden" name="Height" id="Height" />
+            <div class="form-group">
+                <div class="fileinput fileinput-new margin-top-20 hidden hide" data-provides="fileinput">
+                    <div class="fileinput-new thumbnail" style="width: 200px; height: 200px;">
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="margin-top-10">
+                <div class="form-group pull-right">
+                    <a href="javascript:void(0);" class="button gray-gradient" onclick="fnChangeAvatarCancel();">Cancel </a>
+                    <a href="javascript:void(0);" class="button green-gradient" onclick="fnChangeAvatar();">Save </a>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div id="preview-pane">
+            <div class="preview-container">
+                <img src="" class="jcrop-preview" id="targetPreview" />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+
+
+
+    </div>
+
+
+</div>
+<script type="text/javascript">
+
+    function fnChangeAvatarCancel() {
+        if ($(".k-upload-selected").length > 0) {
+            var message = "Are you sure you want to undo the changes?";
+            $.modal.confirm(message, function () {
+                $(".k-upload-action").click();
+                clientDetailAvatarWindow.data('kendoWindow').close();
+
+
+            }, function () {
+                // Do Nothing
+            });
+
+            return false;
+        }
+        else {
+            clientDetailAvatarWindow.data('kendoWindow').close();
+        }
+
+    }
+
+    function fnChangeAvatar() {
+        if ($(".k-upload-selected").length > 0) {
+            $(".k-upload-selected").click();
+        }
+    }
+</script>
+
+
+
+
+

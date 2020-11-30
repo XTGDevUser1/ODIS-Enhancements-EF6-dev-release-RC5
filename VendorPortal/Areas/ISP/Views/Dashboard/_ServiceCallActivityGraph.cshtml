@@ -1,0 +1,60 @@
+﻿@using Martex.DMS.BLL.Model.VendorPortal;
+@model VendorDashboardModel
+@using Kendo.Mvc.UI;
+@{
+    double max = 10;
+    double seed = 5;
+    if (Model.VendorServiceCallActivity != null && Model.VendorServiceCallActivity.Count > 0)
+    {
+        double largest = Model.VendorServiceCallActivity.Max(u => u.TotalCalls);
+        double remainder = largest % 10;
+        if (largest > max)
+        {
+            if (remainder > 0)
+            {
+                remainder = 10 - remainder;
+            }
+            max = largest + remainder;
+            seed = max / 10;
+        }
+    }
+}
+
+<div class="with-padding">
+<h2 class="thin mid-margin-top large-margin-left mid-margin-bottom">Dispatch Calls Offered and Accepted</h2>
+    @(Html.Kendo().Chart(Model.VendorServiceCallActivity)
+        .Name("ServiceCallActivity")
+        .Theme("bootstrap")
+        //.Title("Dispatch Calls Offered and Accepted")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Bottom)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        )
+        .Series(series =>
+        {
+            series.Area("TotalCalls").Name("Total Calls Offered");
+            series.Area("AcceptedCalls").Name("Total Calls Accepted");
+        })
+        .CategoryAxis(axis => axis
+            .Categories(Model.VendorServiceCallActivity.Select(u => u.Months).ToList())
+            .MajorGridLines(lines => lines.Visible(false))
+            //.Labels(labels => labels.Rotation(-90))
+        )
+        .ValueAxis(axis => axis
+            .Numeric()
+            //.Title("Number of Calls")
+            .Labels(labels => labels.Format("{0}"))
+            .Max(max)
+            .MajorUnit(seed)
+            .AxisCrossingValue(0)
+            .Line(line => line.Visible(true))
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Format("{0}")
+            .Template("#= series.name #: #= value #")
+        )
+    )
+    </div>

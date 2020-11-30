@@ -1,0 +1,200 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@model int
+@{
+    bool isView = false;
+    string pageMode = ViewData["mode"].ToString();
+    if (pageMode != null && pageMode.ToString().Equals("view"))
+    {
+        isView = true;
+    }
+    
+    var suffixprogramID = Model.ToString();
+    var functionHandler = "onclick=ManageServices(null," + suffixprogramID + ")";
+    var addTemplate = "<a style = 'min-width:auto;', title='Add Service' , class='k-button k-button-icontext k-grid-add with-tooltip' href='javascript:void(0);' " + @functionHandler + "><span class='k-icon k-add'></span>Add Service</a>";
+}
+<script type="text/javascript" language="javascript">
+
+    function ProgramManagementServicesSearchCriteria() {
+        return { programID: '@suffixprogramID' };
+    }
+
+    function grdProgramServices_OnDataBound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+        if ('@isView' == 'true' || '@isView' == 'True') {
+            $("#GrdProgramManagementServices_@suffixprogramID").find(".k-grid-add").addClass("hidden");
+        }
+
+        var grid = e.sender;
+         e.sender.table.find('tr').each(function () {
+             var $programID = $(this).find('.programID');
+             var $programName = $(this).find('.programName');
+             
+             var editButton = $(this).find('.k-grid-Edit');
+             var deleteButton = $(this).find('.k-grid-Delete');
+             
+             if ($programID.html() != @suffixprogramID) {
+                 $programName.html($programName.html() + " (Parent)");
+                 $(editButton).addClass("hide");
+                 $(deleteButton).addClass("hide");
+             }
+         });
+
+    }
+
+    function ManageServices(e, suffixProgramID, grid) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = grid.dataItem($(e.currentTarget).closest("tr")).ProgramProductID;
+
+            if (e.data.commandName == 'Edit') {
+                //GetManageServices(recordID, 'edit', 'Program Service ID: ' + recordID);
+                openAlertMessage("Edit in progress");
+            }
+            else if (e.data.commandName == 'Delete') {
+                DeleteService(recordID);
+                //openAlertMessage("Delete in progress");
+            }
+        }
+        else {
+            //GetManageServices(null, 'add', 'New Program Service');
+            openAlertMessage("Add in progress");
+        }
+        return false;
+    }
+
+    function DeleteService(recordID) {
+        $.modal.confirm('Are you sure you want to delete this Service?', function () {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("_DeleteServiceInformation", "ProgramManagement", new { area = "Admin" })',
+                traditional: true,
+                cache: false,
+                data: { programServiceId: recordID },
+                async: false,
+                success: function (msg) {
+                    $('#GrdProgramManagementServices_@suffixprogramID').data('kendoGrid').dataSource.read();
+                    openAlertMessage('Record has been deleted successfully');
+
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function GetManageServices(recordID, mode, title) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("_ProgramServiceInformation", "ProgramManagement", new { area = "Admin" })',
+            traditional: true,
+            data: { programServiceId: recordID, mode: mode, programId: '@suffixprogramID' },
+            cache: false,
+            async: false,
+            success: function (msg) {
+                programServicesWindow = $("<div id='programServicesWindow' />").appendTo(document.body);
+                programServicesWindow.kendoWindow({
+                    title: title,
+                    modal: true,
+                    width: 500,
+                    height: 400,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        $('#form-ProgramServices').validationEngine('hideAll'); // to hide the validation message of the popup 
+
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('form-ProgramServices')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('form-ProgramServices');
+                            }
+                        }
+                        return true;
+                    }
+                });
+                programServicesWindow.data('kendoWindow').content(msg).center().open();
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <div id="divProgramManagementServicesTab_@suffixprogramID">
+        @(Html.Kendo().Grid<ProgramManagementServicesList_Result>()
+        .Name("GrdProgramManagementServices_" + suffixprogramID)
+        .Columns(column =>
+        {
+            column.Bound(a => a.ProgramID).Hidden().HtmlAttributes(new { @class = "programID" });
+            column.Bound(a => a.ProgramName).Title("Program Name").Width(200).HtmlAttributes(new { @class = "programName" });
+            column.Bound(a => a.Category).Title("Category").Width(100);
+            column.Bound(a => a.Service).Title("Service").Width(200);
+            column.Bound(a => a.StartDate).Title("Start Date").Format("{0:MM/dd/yy}").Width(100);
+            column.Bound(a => a.EndDate).Title("End Date").Format("{0:MM/dd/yy}").Width(100);
+            column.Bound(a => a.ServiceCoverageLimit).Title("Dollar Limit").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+            column.Bound(a => a.IsServiceCoverageBestValue).Title("Best Value").ClientTemplate("<input type='checkbox' #= IsServiceCoverageBestValue ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            column.Bound(a => a.MaterialsCoverageLimit).Title("Materials Limit").Format("{0:c}").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+            column.Bound(a => a.IsMaterialsMemberPay).Title("Mtls Mbr Pay").ClientTemplate("<input type='checkbox' #= IsMaterialsMemberPay ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            column.Bound(a => a.ServiceMileageLimit).Title("Mileage Limit").HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" }).Width(100);
+            column.Bound(a => a.IsServiceMileageUnlimited).Title("Mileage Unlimited").ClientTemplate("<input type='checkbox' #= IsServiceMileageUnlimited ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            column.Bound(a => a.IsServiceMileageOverageAllowed).Title("Overage Allowed").ClientTemplate("<input type='checkbox' #= IsServiceMileageOverageAllowed ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            column.Bound(a => a.IsReimbursementOnly).Title("Reimburse Only").ClientTemplate("<input type='checkbox' #= IsReimbursementOnly ? checked='checked' : '' # disabled='disabled' ></input>").Width(100);
+            if (!isView)
+            {
+                column.Command(command =>
+                {
+                    command.Custom("Edit").Click(@<text>function(e){ ManageServices(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                    command.Custom("Delete").Click(@<text>function(e){ ManageServices(e,'@suffixprogramID',this)}</text>).HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+
+                }).Width(100)
+                .Title("Action(s)");
+            }
+
+        })
+        .ToolBar(toolBar => toolBar.Template(@addTemplate))
+        .Events(e =>
+        {
+            e.DataBound("grdProgramServices_OnDataBound");
+        })
+        .Pageable()
+        .Sortable()
+        .Scrollable()
+        .Filterable(filterable => filterable
+            .Extra(false)
+        )
+        .Pageable(pager => pager
+            .Refresh(true)
+            .PageSizes(new int[] { 10, 20, 50, 100 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Single))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetProgramManagementServicesList", "ProgramManagement", new { area = "Admin" }).Data("ProgramManagementServicesSearchCriteria"))
+            .PageSize(50)
+        )
+        .Resizable(resize => resize.Columns(true))
+        .EnableCustomBinding(true)
+        )
+    </div>
+</div>
+<script type="text/javascript">
+    var suffixprogramID = '@suffixprogramID';
+    $(function () {
+        HandleDblClickOnGrid($("#GrdProgramManagementServices_@suffixprogramID"), '.k-grid-Edit');
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        350
+                                        );
+        $("#GrdProgramManagementServices_@suffixprogramID>.k-grid-content").css("height", gridContentHeight + "px");
+    });    
+</script>

@@ -1,0 +1,164 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@model List<Martex.DMS.DAL.ISPs_Result>
+@{
+    var iconConfig = new VendorListIconConfig();
+    var index = 0;
+}
+@if ((Model == null || Model.Count == 0) && (DMSCallContext.OrginalISPs != null && DMSCallContext.OrginalISPs.Count == 0)) // No vendors from db.
+{
+    if (ViewData["DispatchNA"] != null && (bool)ViewData["DispatchNA"])
+    {
+    <script language="javascript" type="text/javascript">
+        <!--
+        openAlertMessage("Dispatch is not allowed when Service type is set to Tech, Info or Concierge.");
+        //-->
+    </script>
+    }
+    else
+    {
+        // Enable options and present a message.
+    <script language="javascript" type="text/javascript">
+        <!--
+        $("#btnOptions").removeAttr("disabled");
+        $("#btnOptions").removeClass("disabled");
+        $("#btnAddVendor").removeAttr("disabled");
+        $("#btnAddVendor").removeClass("disabled");
+        openAlertMessage("No vendors were found.  You can click on <strong>show options</strong> and adjust the search and try again.  <br/> Or you can search outside the system and use the Add Vendor button to add a temporary vendor.");
+        //-->
+    </script>
+    }
+}
+else if ((Model == null || Model.Count == 0) && ((DMSCallContext.OrginalISPs != null && DMSCallContext.OrginalISPs.Count > 0) && DMSCallContext.VendorIndexInList <= 0 && DMSCallContext.IsDispatchThresholdReached)) // Vendors are in db, but the first not called vendor has a threshold violation.
+{
+    // Enable options and present a message.
+    <script language="javascript" type="text/javascript">
+        <!--
+        $("#btnOptions").removeAttr("disabled");
+        $("#btnOptions").removeClass("disabled");
+        $("#btnAddVendor").removeAttr("disabled");
+        $("#btnAddVendor").removeClass("disabled");
+        openAlertMessage("Search options are now available. You can click on “show options” and adjust the search and filter options.  Or you can search outside the system and use the Add Vendor button to add a temporary vendor.");
+        //-->
+    </script>
+}
+else
+{
+    if (Model != null && Model.Count > 0)
+    {    
+    
+    <ul class="vendor-list">
+        @foreach (var item in Model)
+        {
+            string vendorID = "VendorID_" + item.VendorID.ToString();
+            @Html.Hidden(vendorID, item.VendorID)
+            var callStatusIconStyle = iconConfig.GetIconStyle(item.CallStatus);
+            if (item.IsPossibleCallback.GetValueOrDefault())
+            {
+                callStatusIconStyle = iconConfig.GetIconStyle("PossibleRetry");
+            }
+            var contractStatusIconStyle = iconConfig.GetIconStyle(item.ContractStatus);
+
+            string[] services = (string.IsNullOrEmpty(item.AllServices) ? new string[] { } : item.AllServices.Split(','));
+            System.Text.StringBuilder servicesTooltip = new System.Text.StringBuilder("<ul>");
+            foreach (string s in services)
+            {
+                servicesTooltip.AppendFormat("<li>{0}</li>", s);
+            }
+            servicesTooltip.Append("</ul>");
+            
+            
+            <li><span class="message-status"><a href="javascript:void(0)" class="@callStatusIconStyle.Class with-tooltip" title="@callStatusIconStyle.Title">
+            </a><a href="javascript:void(0)" class="@contractStatusIconStyle.Class with-tooltip" title="@contractStatusIconStyle.Title">
+            </a><a href="javascript:void(0)" class="call-status-services with-tooltip tooltip-right" title="@servicesTooltip.ToString()">
+            </a>
+                @if (!string.IsNullOrEmpty(item.RejectComment))
+                {                    
+                    <a href="javascript:void(0)" class="tpComments call-status-notes with-tooltip tooltip-right" title="@item.RejectComment">
+                    </a>
+                }
+            </span><span class="vendor-info">
+                <div class="vendor-fact">
+                    <strong class="black">Estimate</strong><br />
+                    @item.EstimatedPrice.GetValueOrDefault().ToString("C")</div>
+                <div class="vendor-fact">
+                    <strong class="black">Miles</strong><br />
+                    @item.EnrouteMilesRounded</div>
+            </span><a href="javascript:void(0)" title="" class="aVendor" callStatus="@item.CallStatus" itemIndex ="@index">
+                <strong class="blue with-tooltip" title="@item.VendorName">
+                    @item.VendorName</strong></a><br />
+                <p class="small-margin-top">
+                    @item.Address1 @item.Address2<br />
+                    @item.City, @item.StateProvince, @item.PostalCode, @item.CountryCode</p>
+                @if (!string.IsNullOrEmpty(item.DispatchPhoneNumber))
+                { <strong>@Html.Editor(index.ToString() + "_ISPDispatchPhone", "Phone", new { Value = item.DispatchPhoneNumber, ReadOnly = true, ShowCallIcon = false, CallType = "Vendor" })</strong><br />
+                }
+                @item.Source<br />
+                @if (!string.IsNullOrEmpty(item.RejectReason))
+                {
+                    @item.RejectReason <br />
+                }
+            </li>
+        
+                index++;
+        }
+    </ul>
+    }
+
+    <script language="javascript" type="text/javascript">
+
+        
+
+        $(function () {
+            AdjustTooltipDimensions();
+            $(".aVendor").click(function () {
+
+                var callStatus = $(this).attr("callStatus");
+                var itemIndex = $(this).attr("itemIndex");
+                // Make an Ajax request to load the info.
+                if (callStatus != "DoNotUse" && currentVendorIndex != itemIndex) {
+
+                    var canGetNextVendor = true;
+                    if (isPrivileged && isCallMade && !isVendorDone) {
+                        openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                        canGetNextVendor = false;
+                    }
+                    else if (!isPrivileged) {
+                        if (callStatus != "NotCalled") {
+                            if (isCallMade && !isVendorDone) {
+                                openAlertMessage("You must record the results of the contact with this vendor before you can move to the next vendor");
+                                canGetNextVendor = false;
+                            }
+                        }
+
+                    }
+                    if (canGetNextVendor) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("LoadVendor", "Dispatch", new { area = "Application" })',
+                            traditional: true,
+                            cache: false,
+                            async: true,
+                            data: { itemIndex: itemIndex },
+                            success: function (msg) {
+                                if (msg.Status == "Success") {
+                                    RefreshVendorInfo(true);
+                                    currentVendorIndex = itemIndex;
+                                }
+                                else {
+                                    openAlertMessage(msg.ErrorMessage);
+                                    if (msg.Data == "OverThreshold") {
+                                        $("#btnOptions").removeAttr("disabled");
+                                        $("#btnOptions").removeClass("disabled");
+                                        $("#btnAddVendor").removeAttr("disabled");
+                                        $("#btnAddVendor").removeClass("disabled");
+                                    }
+                                }
+                            }
+                        });  // end of ajax.
+                    }
+                }
+                return false;
+            });
+        });
+    </script>
+}

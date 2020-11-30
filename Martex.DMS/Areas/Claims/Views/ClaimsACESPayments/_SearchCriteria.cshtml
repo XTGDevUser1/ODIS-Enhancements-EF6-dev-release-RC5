@@ -1,0 +1,168 @@
+﻿@model Martex.DMS.DAL.Entities.Claims.ClaimACESPaymentSearchCriteria
+@using Kendo.Mvc.UI
+@{
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "ClaimACESPaymentSearch";
+    string JSMethodNameToCollectData = "GetACESClaimSearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForACESPayment";
+    string applyCallBackFuntion = "LoadSearchPredefinedViews";   
+}
+<script type="text/javascript">
+    function rangeSliderChange(e) {
+        if (e.values) {
+            var minValue = e.values[0];
+            var maxValue = e.values[1];
+            $('#AmountFrom').val(minValue);
+            $('#AmountTo').val(maxValue);
+            GetSelectedCriteria();
+        }
+    }
+</script>
+<style type="text/css">
+    input.full-width
+    {
+        width: 90% !important;
+    }
+</style>
+<li>
+    <form id="frmACESPaymentSearchCriteria" method="post" action="javascript:void(0);">
+    @Html.Hidden("ACESPaymentViewID", string.Empty)
+    @Html.HiddenFor(u => u.PanelItemsSelected)
+    @Html.HiddenFor(u => u.PanelViewsSelected)
+    @Html.HiddenFor(u => u.PanelCheckNumberSelected)
+    @Html.HiddenFor(u => u.PanelCheckDateRangeSelected)
+    @Html.HiddenFor(u => u.PanelCheckAmountRangeSelected)
+    @Html.HiddenFor(u => u.PanelCreatedBySelected)
+    @Html.HiddenFor(u => u.PanelCreatedDateRangeSelected)
+    @Html.HiddenFor(u => u.ResetModelCriteria)
+    @(Html.Kendo().PanelBar()
+        .Name("panelbarSearchCriteria")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+        .Items(panelbar =>
+        {
+            panelbar.Add().Text("Views").Content(
+            @<div class="with-padding small-margin-right">
+                @Html.Editor("FilterView", "FilterView", new
+                {
+                    filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+                })
+            </div>
+             ).Expanded(Model.PanelViewsSelected).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+            panelbar.Add().Text("Items Selected").Content(
+             @<div class="with-padding" id="acesClaimPaymentSelectedSearchCriteria">
+                 @Html.Partial("_SelectedCriteria", Model)
+             </div>
+             ).Expanded(Model.PanelItemsSelected).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+            panelbar.Add().Text("Check #").Expanded(Model.PanelCheckNumberSelected).LinkHtmlAttributes(new { id = "Panel_PanelCheckNumberSelected" })
+                  .Content(@<div class="with-padding">
+                      <p class="inline-label">
+                          <label class="label">
+                              Check #
+                          </label>
+                          @Html.TextBoxFor(u => Model.CheckNumber, new { @class = "input full-width" })
+                      </p>
+                  </div>
+               );
+            panelbar.Add().Text("Check Date Range").Expanded(Model.PanelCheckDateRangeSelected).LinkHtmlAttributes(new { id = "Panel_PanelCheckDateRangeSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label">
+                       <label class="label">
+                           From</label>
+                       @(Html.Kendo().DatePickerFor(u => u.CheckFromDate)
+                    .HtmlAttributes(new { style = "width:90%" })
+                    )
+                   </div>
+                   <div class="button-height inline-label">
+                       <label class="label">
+                           To</label>
+                       @(Html.Kendo().DatePickerFor(u => u.CheckToDate)
+                            .HtmlAttributes(new { style = "width:90%" })
+                    )
+                   </div>
+               </div>
+            );
+            panelbar.Add().Text("Amount Range").Expanded(Model.PanelCheckAmountRangeSelected).LinkHtmlAttributes(new { id = "Panel_PanelCheckAmountRangeSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="small-margin-left">
+                       @(Html.Kendo().RangeSlider()
+            .Name("AmountRangeSlider")
+            .Min(0)
+            .Max(50000)
+            .SmallStep(2)
+            .LargeStep(5)
+            .Events(events => events
+            .Change("rangeSliderChange"))
+            )
+                       @Html.HiddenFor(u => u.AmountFrom)
+                       @Html.HiddenFor(u => u.AmountTo)
+                   </div>
+               </div>
+            );
+            panelbar.Add().Text("Created By").Expanded(Model.PanelCreatedBySelected).LinkHtmlAttributes(new { id = "Panel_PanelCreatedBySelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label">
+                       <label for="Client" class="label">
+                           Created By</label>
+                       @(Html.Kendo().ComboBoxFor(u => u.CreatedBy)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("ValidateInputForKendoCombo"))
+                            .HtmlAttributes(new { style = "width:90%;" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ClientPaymentCreatedBy.ToString()] as IEnumerable<SelectListItem>)
+                            )
+                   </div>
+               </div>
+            );
+            panelbar.Add().Text("Create Date Range").Expanded(Model.PanelCreatedDateRangeSelected).LinkHtmlAttributes(new { id = "Panel_PanelCreatedDateRangeSelected" })
+               .Content(@<div class="with-padding">
+                   <div class="button-height inline-label">
+                       <label class="label">
+                           From</label>
+                       @(Html.Kendo().DatePickerFor(u => u.CreatedDateFrom)
+                    .HtmlAttributes(new { style = "width:90%" })
+                    )
+                   </div>
+                   <div class="button-height inline-label">
+                       <label class="label">
+                           To</label>
+                       @(Html.Kendo().DatePickerFor(u => u.CreatedDateTo)
+                            .HtmlAttributes(new { style = "width:90%" })
+                    )
+                   </div>
+               </div>
+           );
+        })
+    )
+    </form>
+</li>
+<script type="text/javascript">
+    var defaultACESPaymentListDays = parseInt('@ViewData["DefaultACESPaymentListDays"]', 10);
+
+    $(function () {
+
+        var end = Date.now();
+        var start = Date.now().addDays(-1 * defaultACESPaymentListDays);
+        $("#CreatedDateFrom").data('kendoDatePicker').value(start);
+        $("#CreatedDateTo").data('kendoDatePicker').value(end);
+        GetSelectedCriteria();
+
+        $('#frmACESPaymentSearchCriteria :input').unbind("change");
+        $('#frmACESPaymentSearchCriteria :input').change(function () {
+            GetSelectedCriteria();
+        });
+    });
+    function LoadSearchPredefinedViews(recordID) {
+        $('#ACESPaymentViewID').val(recordID);
+        GetSearchCriteria();
+        var gridReference = $('#grdACESPayments').data('kendoGrid').dataSource;
+        gridReference.read();
+        setTimeout(function () {
+            $('#ACESPaymentViewID').val('');
+        }, 1000);
+    }
+</script>

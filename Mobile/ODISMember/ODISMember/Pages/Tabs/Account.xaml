@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             VerticalOptions="FillAndExpand"
+             x:Class="ODISMember.Pages.Tabs.Account">
+  <StackLayout>
+    <ScrollView Style="{StaticResource MainLayout}" VerticalOptions="FillAndExpand">
+      <StackLayout Spacing="10" BackgroundColor="{x:Static Resource:ColorResources.AccountPageBackgroundColor}" VerticalOptions="FillAndExpand">
+        <StackLayout BackgroundColor="{x:Static Resource:ColorResources.AccountPageBackgroundColor}" Padding="5">
+          <controls:ExtendedLabel Text="- PLAN DETAILS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+        <Grid ColumnSpacing="20" BackgroundColor="White" Padding="10,5,10,5">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <widget:LabelValueVertical x:Name="widgetMembershipPlan" LabelText="PLAN" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+          <widget:LabelValueVertical x:Name="widgetMemberShipNumber" LabelText="MEMBERSHIP NUMBER" Grid.Row="1" Grid.Column="0" />
+
+          <widget:LabelValueVertical x:Name="widgetExpires" LabelText="EXPIRES" Grid.Row="1" Grid.Column="1" />
+        </Grid>
+        <StackLayout BackgroundColor="{x:Static Resource:ColorResources.AccountPageBackgroundColor}" Padding="5">
+          <controls:ExtendedLabel Text="- BILLING ADDRESS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+        <StackLayout Spacing="10" BackgroundColor="White" Padding="10,5,10,5">
+          <controls:ExtendedLabel x:Name="lblAddress1" Style="{StaticResource LabelValueVertical_ValueStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+          <controls:ExtendedLabel x:Name="lblAddress2" Style="{StaticResource LabelValueVertical_ValueStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+          <controls:ExtendedLabel x:Name="lblCityStateProvince" Style="{StaticResource LabelValueVertical_ValueStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+        </StackLayout>
+        <StackLayout Padding="5" Spacing="10" x:Name="stackMembersList">
+          <controls:ExtendedLabel Text="- MEMBERS -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+          <ListView x:Name="MembersList" RowHeight="50">
+            <ListView.Footer>
+              <Label HeightRequest="10" ></Label>
+            </ListView.Footer>
+          </ListView>
+        </StackLayout>
+        <StackLayout Padding="5" x:Name="stackAddMember">
+          <Button x:Name="btnAddMember" Style="{StaticResource BaseButtonStyle}" Text="ADD MEMBER" VerticalOptions="End"/>
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+    
+  </StackLayout>
+</ContentView>

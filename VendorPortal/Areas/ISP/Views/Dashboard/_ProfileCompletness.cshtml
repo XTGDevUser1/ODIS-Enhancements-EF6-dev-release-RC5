@@ -1,0 +1,70 @@
+﻿@using Martex.DMS.BLL.Model.VendorPortal;
+@model VendorDashboardModel
+@{
+    Martex.DMS.DAL.Vendor_Dashboard_Profile_completeness_Result result = Model.Profile.FirstOrDefault();
+    if (result == null)
+    {
+        result = new Martex.DMS.DAL.Vendor_Dashboard_Profile_completeness_Result();
+    }
+}
+<style type="text/css">
+    .noBullets
+    {
+        list-style-type: none;
+        margin-left: 0px;
+        margin-bottom: 25px;
+    }
+    .noBullets li
+    {
+        display: inline;
+        padding-right: 20px;
+        margin-top: 5px;
+    }
+</style>
+<h3>
+    Path to Preferred - <span  class="thin">Complete each item to earn Preferred Status</span></h3>
+<ul class="stats split-on-mobile">
+    <li>
+       
+            <strong>@IsComplete(result.Registered)</strong>
+            Registered</li>
+
+           <li> <strong>@IsComplete(result.AddressPhoneEmail)</strong>
+            Address / Phone / Email</li>
+            <li><strong>@IsComplete(result.TaxID)</strong>
+            Tax ID on file</li>
+           <li> <strong>@IsComplete(result.ACH)</strong>
+            Direct Deposit</li>
+           <li> <strong>@IsComplete(result.Insurance)</strong>
+            Insurance</li>
+             <li><strong>@IsComplete(result.Contract)</strong>
+           Contracted</li>
+            
+      
+       
+            <li><strong>@ShowStatus(@result.PreferredStatus)</strong>
+            <span class="big-text">Preferred</span></li>
+      
+</ul>
+@helper IsComplete(int isCompleted)
+    {
+        if (isCompleted == 0)
+        {
+    <span class="icon-tick  silver margin-right"></span>
+        }
+        else
+        {
+    <span class="icon-tick  green text-shadow  margin-right"></span>
+        }
+}
+@helper ShowStatus(string status)
+    {
+        if (status.Equals("NotPreferred"))
+        {
+    <span class="icon-star  silver  margin-right"></span>
+        }
+        else
+        {
+    <span class="icon-star  yellow text-shadow  margin-right"></span>
+        }
+}

@@ -1,0 +1,211 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.Models
+@{string buildNumber = "Not Specified";
+string dbName = "Not Specified";
+if (System.Configuration.ConfigurationManager.AppSettings["BuildNumber"] != null)
+{
+    buildNumber = System.Configuration.ConfigurationManager.AppSettings["BuildNumber"].ToString();
+}
+if (System.Configuration.ConfigurationManager.ConnectionStrings["ApplicationServices"] != null)
+{
+    dbName = System.Configuration.ConfigurationManager.ConnectionStrings["ApplicationServices"].ConnectionString;
+    System.Data.SqlClient.SqlConnectionStringBuilder Builder = new System.Data.SqlClient.SqlConnectionStringBuilder(dbName);
+    dbName = Builder.DataSource;
+
+}
+RegisterUserModel userProfile = Session["LOGGED_IN_USER"] as RegisterUserModel;
+bool isPasswordExpired = false;
+if (userProfile != null)
+{
+    isPasswordExpired = userProfile.IsLoggedInUserPasswordExpired;
+}
+}
+<!DOCTYPE html>
+<!--[if IEMobile 7]><html class="no-js iem7 oldie"><![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html class="no-js ie7 oldie" lang="en"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html class="no-js ie8 oldie" lang="en"><![endif]-->
+<!--[if (IE 9)&!(IEMobile)]><html class="no-js ie9" lang="en"><![endif]-->
+<!--[if (gt IE 9)|(gt IEMobile 7)]><!-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>O.D.I.S. - Optimized Dispatch Information System</title>
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <!-- http://davidbcalhoun.com/2010/viewport-metatag -->
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- For all browsers -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/reset.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/style.css?v=2")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/colors.css?v=2")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/table.css?v=1")" />
+    <link rel="stylesheet" media="print" href="@Url.Content("~/Content/print.css?v=1")" />
+    <!-- For progressively larger displays -->
+    <link rel="stylesheet" media="only all and (min-width: 480px)" href="@Url.Content("~/Content/480.css?v=1")" />
+    <link rel="stylesheet" media="only all and (min-width: 768px)" href="@Url.Content("~/Content/768.css?v=1")" />
+    <link rel="stylesheet" media="only all and (min-width: 992px)" href="@Url.Content("~/Content/992.css?v=1")" />
+    <link rel="stylesheet" media="only all and (min-width: 1200px)" href="@Url.Content("~/Content/1200.css?v=1")" />
+    <!-- For Retina displays -->
+    <link rel="stylesheet" media="only all and (-webkit-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (min-device-pixel-ratio: 1.5)" href="@Url.Content("~/Content/2x.css?v=1")" />
+    <!-- Webfonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:700,300' rel='stylesheet'
+          type='text/css'>
+    <!-- Additional styles -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/agenda.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/dashboard.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/form.css?v=2")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/modal.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/progress-slider.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/styles/switches.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/libs/formValidator/developr.validationEngine.css?v=1")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/slidepanel/slide.css")" />
+    <link href="@Url.Content("~/Content/DMSTabs.css")" rel="stylesheet" type="text/css" />
+    <link href="~/Content/themes/base/jquery.ui.datepicker.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/jquery.timepicker.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/CustomTelerikStyle.css" rel="stylesheet" type="text/css" />
+    @*<link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />*@
+
+    <script src="@Url.Content("~/Scripts/libs/jquery-1.7.2.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/Knockout2.js")" type="text/javascript"></script>
+    <!-- JavaScript at bottom except for Modernizr -->
+    <script src="@Url.Content("~/Scripts/libs/modernizr.custom.js")" type="text/javascript"></script>
+    <!-- For Modern Browsers -->
+    <link rel="shortcut icon" href="@Url.Content("~/Content/img/favicons/favicon.png")" />
+    <!-- For everything else -->
+    <link rel="shortcut icon" href="@Url.Content("~/Content/img/favicons/favicon.ico")" />
+    <!-- For retina screens -->
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="@Url.Content("~/Content/img/favicons/apple-touch-icon-retina.png")" />
+    <!-- For iPad 1-->
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="@Url.Content("~/Content/img/favicons/apple-touch-icon-ipad.png")" />
+    <!-- For iPhone 3G, iPod Touch and Android -->
+    <link rel="apple-touch-icon-precomposed" href="@Url.Content("~/Content/img/favicons/apple-touch-icon.png")" />
+    <!-- iOS web-app metas -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- Startup image for web apps -->
+    <link rel="apple-touch-startup-image" href="@Url.Content("~/Content/img/splash/ipad-landscape.png")" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:landscape)" />
+    <link rel="apple-touch-startup-image" href="@Url.Content("~/Content/img/splash/ipad-portrait.png")" media="screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait)" />
+    <link rel="apple-touch-startup-image" href="@Url.Content("~/Content/img/splash/iphone.png")" media="screen and (max-device-width: 320px)" />
+    <!-- Microsoft clear type rendering -->
+    <meta http-equiv="cleartype" content="on" />
+    <!-- IE9 Pinned Sites: http://msdn.microsoft.com/en-us/library/gg131029.aspx -->
+    <meta name="application-name" content="O.D.I.S. - Optimized Dispatch Information System" />
+    <meta name="msapplication-tooltip" content="Cross-platform admin template." />
+    <!-- These custom tasks are examples, you need to edit them to show actual pages -->
+    <!-- Google Analytics (NMC, MARTEX account - needs to be switched to NMC owned account once NMC takes over service of the application) -->
+    <!-- Kendo UI -->
+    <!-- Common Kendo UI Web CSS -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/web/kendo.common.min.css")" />
+    <!-- Default Kendo UI Web theme CSS -->
+    <link rel="stylesheet" href="@Url.Content("~/Content/web/kendo.rtl.min.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/web/kendo.default-blue.css")" />
+    <link href="@Url.Content("~/Content/jquery.ui.combogrid.css")" rel="stylesheet" type="text/css" />
+    <!-- Kendo UI Web combined JavaScript -->
+    @*<script src="@Url.Content("~/Scripts/kendo.web.min.js")" type="text/javascript" language="javascript"></script>*@
+    <script src="@Url.Content("~/Scripts/2013.2.716.kendo.all.min.js")" type="text/javascript" language="javascript"></script>
+
+    <script src="@Url.Content("~/Scripts/kendo.aspnetmvc.min.js")" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.signalR-1.1.4.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script src="@Url.Content("~/Scripts/jquery.maskedinput.min.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ('@isPasswordExpired' == 'True') {
+                loadPasswordChange();
+            }
+        });
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-37416369-1']);
+        _gaq.push(['_setDomainName', 'motorcluboperations.com']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+<body class="clearfix with-menu">
+    <!-- Prompt IE 6 users to install Chrome Frame -->
+    <!--[if lt IE 7]><p class="message red-gradient simpler">Your browser is <em>ancient!</em> <a href="http://browsehappy.com/">Upgrade to a different browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to experience this site.</p><![endif]-->
+    <!-- Title bar -->
+    <header role="banner" id="title-bar">
+        <h2>O.D.I.S. @dbName (@buildNumber)</h2>
+
+        @Html.Partial("_AppMenu")
+    </header>
+    <!-- Button to open/hide menu -->
+    <a href="#" id="open-menu"><span>Menu</span></a>
+
+    <section role="main" id="main" class="pagecontainer">
+        @RenderBody()
+
+    </section>
+    <!-- Sidebar/drop-down menu -->
+    @Html.Partial("_RightSlidePanel")
+    <!-- End sidebar/drop-down menu -->
+    </span>
+    <!-- Side tabs shortcuts (menu) -->
+    @Html.Partial("_ShortcutsMenu")
+    @Html.Partial("_FooterSlider")
+    <!-- JavaScript at the bottom for fast page loading -->
+    <!-- Scripts -->
+    <script src="@Url.Content("~/Scripts/setup.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Scripts/developr.tooltip.js")" type="text/javascript"></script>
+    <!-- Template functions -->
+    <script src="@Url.Content("~/Scripts/developr.input.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.message.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.modal.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.navigable.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.notify.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.scroll.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.progress-slider.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.tooltip.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.confirm.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.agenda.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/developr.tabs.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/libs/formValidator/jquery.validationEngine.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/libs/formValidator/languages/jquery.validationEngine-en.js?v=1")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/slidePanel/slide.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery-ui-1.8.11.js")" type="text/javascript"></script>
+    <!-- Must be loaded last -->
+    <!-- Tinycon -->
+    <script src="@Url.Content("~/Scripts/libs/tinycon.min.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Scripts/jquery.blockUI.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/json2.js")" type="text/javascript"></script>
+    <!-- Google LibPhone scripts -->
+    <script src="~/Scripts/Closure-lib/base.js" type="text/javascript"></script>
+    <script>
+        goog.require('goog.dom');
+        goog.require('goog.json');
+        goog.require('goog.proto2.ObjectSerializer');
+        goog.require('goog.string.StringBuffer');
+    </script>
+    <script src="~/Scripts/libphonenumber/phonemetadata.pb.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/phonenumber.pb.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/metadata.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/phonenumberutil.js" type="text/javascript"></script>
+    <script src="~/Scripts/libphonenumber/asyoutypeformatter.js" type="text/javascript"></script>
+    @System.Web.Optimization.Scripts.Render("~/js")
+    <script src="@Url.Content("~/Scripts/jquery.ui.combogrid-1.6.3.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/CustomAddressLibrary.js")" type="text/javascript" language="javascript"></script>
+    <script src="@Url.Content("~/Scripts/CustomPhoneLibrary.js")" type="text/javascript" language="javascript"></script>
+    <script src="@Url.Content("~/Scripts/BlackListVendors.js")" type="text/javascript" language="javascript"></script>
+    <script src="@Url.Content("~/Scripts/MemberManagement_Membership.js")" type="text/javascript" language="javascript"></script>
+    <script src="@Url.Content("~/Scripts/LayoutManager.js?v=1")" type="text/javascript" language="javascript"></script>
+    <!-- Must be loaded last -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/date.js?v=1")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/timespan.js?v=1")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.timepicker.js")"></script>
+
+</body>
+</html>

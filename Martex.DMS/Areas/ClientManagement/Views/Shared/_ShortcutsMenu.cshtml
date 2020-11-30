@@ -1,0 +1,76 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right clientShortcuts">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_CLIENT) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_DashBoard"><a href="@Url.Action("Index", "Dashboard", new { area = "ClientManagement" })" class="shortcut-contacts" title="Dashboard" data="Dashboard">
+            Dashboard</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_CLIENT) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_Clients"><a href="@Url.Action("Index", "Client", new { area = "ClientManagement" })" class="shortcut-stats" title="Maintenance" data ="Client">
+            Maintenance</a></li>
+    }
+   @* @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_BILLING) == AccessType.ReadWrite)
+    {
+        <li><a href="@Url.Action("Index", "ClientBillableEventProcessing", new { area = "ClientManagement" })" class="shortcut-stats" title="Billable Event Processing" data ="ClientBillableEventProcessing">
+            Billable Event Processing</a></li>
+    }*@
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_INVOICEPROCESSING) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_InvoiceProcessing"><a href="@Url.Action("Index", "ClientInvoiceProcessing", new { area = "ClientManagement" })" class="shortcut-settings" title="Invoice Processing" data ="ClientInvoiceProcessing">
+            Invoice Processing</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_INVOICEBATCHES) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_ClientInvoiceBatches"><a href="@Url.Action("Index", "ClientInvoiceBatches", new { area = "ClientManagement" })" class="shortcut-settings" title="Invoice Batches" data ="ClientInvoiceBatches">
+            Invoice Batches</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_BILLING_INVOICEHISTORY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_InvoiceHistory"><a href="@Url.Action("Index", "ClientInvoiceHistory", new { area = "ClientManagement" })" class="shortcut-stats" title="Invoice History" data = "ClientInvoiceHistory">
+            Invoice History</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_BILLING_BILLINGHISTORY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_ClientBillableEventHistory"><a href="@Url.Action("Index", "ClientBillableEventHistory", new { area = "ClientManagement" })" class="shortcut-stats" title="Billable Event History" data ="ClientBillableEventHistory">
+            Billable Event History</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_CLIENTREP_MAINTENANCE) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_ClientRepMaintenance">
+            <a href="@Url.Action("Index", "ClientRep", new { area = "ClientManagement" })" class="shortcut-class="shortcut-settings" title="Client Rep Maintenance" data="ClientBillableEventHistory">
+                Client Rep Maintenance
+            </a>
+        </li>
+    }
+@*@if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_CLAIMS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_Claims"><a href="@Url.Action("Index", "ClientClaims", new { area = "ClientManagement" })" class="shortcut-notes" title="Claims" data ="ClientClaims">
+            Claims</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_MEMBERS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_Members"><a href="@Url.Action("Index", "ClientMembers", new { area = "ClientManagement" })" class="shortcut-stats" title="Members" data ="ClientMembers">
+            Members</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_CLIENT_TASKS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_ClientManagement_Tasks"><a href="@Url.Action("Index", "ClientTasks", new { area = "ClientManagement" })" class="shortcut-settings" title="Task" data ="ClientTasks">
+            Tasks</a></li>
+    }*@
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.clientShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.clientShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

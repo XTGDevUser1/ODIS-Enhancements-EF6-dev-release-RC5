@@ -1,0 +1,121 @@
+﻿@model Martex.DMS.DAL.Entities.CustomerFeedbackSurveySearchCirteria
+@using Martex.DMS.DAL.Entities;
+@{
+    int i = 0;
+    int r = 0;
+    bool hasElement = false;
+}
+<!--Service Request Section -->
+@if (Model != null)
+{
+
+    if (!string.IsNullOrEmpty(Model.NumberType))
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="combo" data="NumberType">X</a>
+            @Html.Raw("- Type : ")
+            @Html.DisplayFor(u => Model.NumberType)
+        </p>
+    }
+
+    if (!string.IsNullOrEmpty(Model.NumberValue))
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="NumberValue">X</a>
+            @Html.Raw("- ID : ")
+            @Html.DisplayFor(u => Model.NumberValue)
+        </p>
+    }
+
+
+    if (!string.IsNullOrEmpty(Model.NameType) && (!string.IsNullOrEmpty(Model.NameTypeOperator)))
+    {
+        hasElement = true;
+        <p id="PSelectedCriteriaNameType">
+            <a href="javascript:void(0)" class="delete" role="combo" data="NameType" relatedcombo="NameType">
+                X
+            </a> - Name : @Model.NameType
+        </p>
+
+        <p id="PSelectedCriteriaNameTypeOperator">
+            <a href="javascript:void(0)" class="delete" role="combo" data="NameTypeOperator"
+               relatedtexbox="NameTypeOperator">X</a> - Name Type Operator : @Model.NameTypeOperator
+        </p>
+
+  }
+
+  if (!string.IsNullOrEmpty(Model.NameValue))
+  {
+        <p id="PSelectedCriteriaNameValue">
+          <a href="javascript:void(0)" class="delete" role="textBox" data="NameValue"
+             relatedtexbox="NameValue">X</a> - Name Value : @Model.NameValue
+          </p>
+  }
+
+  if (Model.ContactFromDate.HasValue)
+  {
+    hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="ContactFromDate">
+                X
+            </a>
+            @Html.Raw("- Contact Date From  : ")
+            @Model.ContactFromDate.Value.ToShortDateString()
+        </p>
+    }
+    if (Model.ContactToDate.HasValue)
+    {
+        hasElement = true;
+        <p>
+            <a href="javascript:void(0)" class="delete" role="textBox" data="ContactToDate">X</a>
+            @Html.Raw("- Contact Date To  : ")
+            @Model.ContactToDate.Value.ToShortDateString()
+        </p>
+    }
+}
+@if (Model != null && hasElement)
+{
+    <div id="divClearAllSection">
+        <hr />
+        <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+    </div>
+}
+
+
+<script type="text/javascript">
+  $(function () {
+    $('.delete').live("click", function (e) {
+      if (!e.isDefaultPrevented()) {
+        e.preventDefault();
+
+        var role = $(this).attr('role');
+        var element = $(this).attr('data');
+            
+        if (role == "textBox") {
+          $('#' + element).val('');
+        }
+        if (role == "combo") {          
+          $('#' + element).data('kendoComboBox').value('');
+
+          if (element == 'NameType') {
+            $('#NameValue').val('');
+            $('#NameTypeOperator').data('kendoComboBox').value('');
+          }
+        }
+        GetSelectedCriteria();
+      }
+
+      return false;
+    });
+
+    $('#btnSearchCriteriaClearAll').unbind("click");
+    $('#btnSearchCriteriaClearAll').click(function () {
+      $('#ResetModelCriteria').val('true');
+      GetSearchCriteria();
+      $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource.read();
+      return false;
+    });
+  });    
+</script>

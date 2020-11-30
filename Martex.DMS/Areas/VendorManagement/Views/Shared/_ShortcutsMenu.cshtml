@@ -1,0 +1,69 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right vendorShortcuts">
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_TOP_VENDOR) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_DashBoard"><a href="@Url.Action("Index", "VendorDashboard", new { area = "VendorManagement" })" class="shortcut-stats" title="Dashboard" data="VendorDashboard">
+            Dashboard</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_VENDOR) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Vendor"><a href="@Url.Action("Index", "VendorHome", new { area = "VendorManagement" })" class="shortcut-messages" title="Maintenance" data ="VendorHome">
+            Vendor</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_INVOICES) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Invoices"><a href="@Url.Action("Index", "VendorInvoices", new { area = "VendorManagement" })" class="shortcut-medias" title="Payment Processing" data ="VendorInvoices">
+            Invoices</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_PAYHISTORY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_PaymentHistory"><a href="@Url.Action("Index", "VendorPaymentHistory", new { area = "VendorManagement" })" class="shortcut-notes" title="Payment History" data ="VendorPaymentHistory">
+            PaymentHistory</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_MERGE) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Merge"><a href="@Url.Action("Index", "VendorMerge", new { area = "VendorManagement" })" class="shortcut-contacts" title="Merge" data = "VendorMerge">
+            Merge</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_TEMPORARY_CC_PROCESSING) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Temporary_CC_Processing"><a href="@Url.Action("Index", "VendorTemporaryCCProcessing", new { area = "VendorManagement" })" class="shortcut-medias" title="CC Processing" data ="VendorTemporaryCCProcessing">
+            PaymentHistory</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_TEMPORARY_CC_HISTORY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Temporary_CC_History"><a href="@Url.Action("Index", "VendorTemporaryCCHistory", new { area = "VendorManagement" })" class="shortcut-notes" title="CC History" data = "VendorTemporaryCCHistory">
+            Merge</a></li>
+    }   
+@*
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_MARKETANALYSIS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_MarketAnalysis"><a href="@Url.Action("Index", "VendorMarketAnalysis", new { area = "VendorManagement" })" class="shortcut-stats" title="Market Analysis" data = "VendorMarketAnalysis">
+            Market Analysis</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_TASKS) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_Tasks"><a href="@Url.Action("Index", "VendorTask", new { area = "VendorManagement" })" class="shortcut-notes" title="Task" data ="VendorTask">
+            Tasks</a></li>
+    }*@
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_LEFT_VENDOR_LOCATION_GEOGRAPHY) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_VendorManagement_VendorLocation_Geography"><a href="@Url.Action("Index", "ManageVendorGeographyLocation", new { area = "VendorManagement" })" class="shortcut-dashboard" title="Vendor Geography" data = "ManageVendorGeographyLocation">
+            Vendor Geography</a></li>
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.vendorShortcuts li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.vendorShortcuts li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

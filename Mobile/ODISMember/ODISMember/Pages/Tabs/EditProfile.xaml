@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CustomContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+              xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:Resource="clr-namespace:ODISMember.Classes;assembly=ODISMember"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             x:Class="ODISMember.Pages.Tabs.EditProfile">
+  <StackLayout Spacing="0">
+    <StackLayout x:Name="stackActionBar">
+      <StackLayout x:Name="stackCustomActionBar"/>
+    </StackLayout>
+    <ScrollView Style="{StaticResource MainLayout}">
+      <StackLayout>
+        <StackLayout>
+          <StackLayout x:Name="stackProfileImageUpload"/>
+          <controls:ExtendedLabel x:Name="lblFullName" Style="{StaticResource ProfileUserLabelStyle}" HorizontalTextAlignment="Center"/>
+        </StackLayout>
+        <StackLayout>
+          <widget:ProfileLabelValueVertical x:Name="widgetMemberNumber" LabelText="- MEMBER NUMBER -"/>
+          <widget:ProfileLabelValueVertical x:Name="widgetUserName" LabelText="- USERNAME -"/>
+          <widget:LabelDateVertical x:Name="widgetDOB" LabelText="- DATE OF BIRTH -" IsEntryContentLeftAlign="true"/>
+          <widget:LabelDropdownEntryHorizontal x:Name="widgetContact" LabelText="- PHONE NUMBER -"  EntryHint="Number" EntryHintDropdown="Country" KeyboardEntry="Numeric" LabelTitleHorizontalTextAlignment="Center"/>
+          <widget:LabelEntryVertical x:Name="widgetEmail" LabelText="- EMAIL ADDRESS -" IsEntryContentLeftAlign="true"/>
+        </StackLayout>
+      </StackLayout>
+    </ScrollView>
+
+  </StackLayout>
+</CustomContentPage>

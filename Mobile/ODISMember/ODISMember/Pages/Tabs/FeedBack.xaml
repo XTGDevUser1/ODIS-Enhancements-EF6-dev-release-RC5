@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+              xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             x:Class="ODISMember.Pages.Tabs.FeedBack">
+  <ScrollView>
+  <StackLayout Padding="0,8,0,0">
+   <widget:LabelEntryVertical IsRemoveWhiteBackground="true" LabelText="Username" x:Name="widgetName"  IsLabelVisible="False" EntryHint="Name" IsLeftAlign="True"/>
+    <StackLayout Padding="8.5">
+    <StackLayout Padding="0.5" x:Name="mainStackEditorComments">
+    <Editor x:Name="EditorComments" BackgroundColor="White" HeightRequest="100" />
+    </StackLayout>
+    </StackLayout>
+      <controls:ExtendedLabel x:Name="lblCommentsRequirdText"/>
+    <StackLayout Padding="8">
+    <Image x:Name="ImgScreenShoot" VerticalOptions="FillAndExpand"/>
+    </StackLayout>
+  </StackLayout>
+  </ScrollView>
+</ContentPage>

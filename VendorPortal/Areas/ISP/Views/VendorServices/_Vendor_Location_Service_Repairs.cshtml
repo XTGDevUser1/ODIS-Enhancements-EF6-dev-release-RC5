@@ -1,0 +1,106 @@
+﻿@model Martex.DMS.BLL.Model.VendorPortalLocationServiceModel
+@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL.Entities;
+@{
+    var suffixVendorID = Model.VendorID.ToString();
+    var suffixVendorLocationID = Model.VendorLocationID.ToString();
+    int i = 0;
+    var categories = Model.DBServices.Where(t => !t.ServiceGroup.Equals("Repair")).GroupBy(t => t.ServiceGroup).Select(grp => grp.FirstOrDefault()).OrderBy(t => t.SortOrder).ToList<Martex.DMS.DAL.VendorPortalLocationServicesList_Result>();
+    var repairCategories = Model.DBServices.Where(t => t.ServiceGroup.Equals("Repair")).GroupBy(t => t.ServiceGroup).Select(grp => grp.FirstOrDefault()).OrderBy(t => t.SortOrder).ToList<Martex.DMS.DAL.VendorPortalLocationServicesList_Result>();
+    bool repairsStatred = false;
+    var visible = "";
+}
+@helper GetServiceItem(string vendorID, int index, string name, int productID, bool isSelected)
+    {
+    @Html.Hidden("Services[" + index.ToString() + "].Name", name, new { id = "Services[" + index.ToString() + "].Name_" + vendorID })
+    @Html.Hidden("Services[" + index.ToString() + "].ID", productID, new { id = "Services[" + index.ToString() + "].ID_" + vendorID })
+    @Html.CheckBox("Services[" + index.ToString() + "].Selected", isSelected, new { @class = "checkbox", id = "Services[" + index.ToString() + "].Selected_" + vendorID })
+    @Html.Raw(" " + name)
+    
+}
+<div class="with-padding">
+    <form id="frmVendorLocationServices_@suffixVendorID" method="post" action="javascript:void(0)" relatedbuttons="PlaceHolder_VendorLocation_Services_Buttons_@suffixVendorID">
+    @Html.HiddenFor(u => u.VendorID, new { id = "ServiceTab_VendorID_" + suffixVendorID })
+    @Html.HiddenFor(u => u.VendorLocationID, new { id = "ServiceTab_VendorID_" + suffixVendorLocationID })
+    <div class="columns">
+        <div class="twelve-columns">
+            <div class="columns">
+                <div class="clear">
+                </div>
+                @foreach (var item in categories)
+                {
+                    if (!repairsStatred)
+                    {
+                        if (item.ProductCategory == "Repair")
+                        {
+                            repairsStatred = true;
+                    <div class="clear">
+                    </div>
+                    <br />
+                        }
+                    }
+                    //NP 04/09: Hide the Repair groups (TFS 320)
+                     //if (item.ServiceGroup == "Client")
+                    if (item.ProductCategory == "Repair")
+                    {
+                        visible = "hidden";
+                    }
+                    else
+                    {
+                        visible = "";
+                    }
+                    <div class="block float-left small-margin-right @visible">
+                        <h3 class="block-title">
+                            @item.ServiceGroup
+                        </h3>
+                        <div class="with-small-padding">
+                            @{ 
+                    var productsForCategory = Model.DBServices.Where(x => x.ServiceGroup == item.ServiceGroup).ToList<Martex.DMS.DAL.VendorPortalLocationServicesList_Result>(); 
+                            }
+                            @foreach (var p in productsForCategory)
+                            {
+                                <div>
+                                    @GetServiceItem(suffixVendorID, i++, p.ServiceName, p.ProductID.GetValueOrDefault(), p.IsAvailByVendorLocation.GetValueOrDefault())
+                                </div>
+                            }
+                        </div>
+                    </div>
+                
+                }
+                <div class="clear">
+                </div>
+                @foreach (var item in repairCategories)
+                {
+                    <div class="block float-left small-margin-right hidden">
+                        <h3 class="block-title">
+                            @item.ServiceGroup
+                        </h3>
+                        <div class="with-small-padding">
+                            @{ 
+                    var productsForCategory = Model.DBServices.Where(x => x.ServiceGroup == item.ServiceGroup).ToList<Martex.DMS.DAL.VendorPortalLocationServicesList_Result>(); 
+                            }
+                            @foreach (var p in productsForCategory)
+                            {
+                                <div>
+                                    @GetServiceItem(suffixVendorID, i++, p.ServiceName, p.ProductID.GetValueOrDefault(), p.IsAvailByVendorLocation.GetValueOrDefault())
+                                </div>
+                            }
+                        </div>
+                    </div>
+                   
+                }
+            </div>
+        </div>
+        <div class="new-row twelve-columns hide" id="PlaceHolder_VendorLocation_Services_Buttons_@suffixVendorID">
+            <button id="btnSaveVendorLocationService_@suffixVendorLocationID" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                        type="button" onclick="SaveVendorLocationServices('@suffixVendorID','@suffixVendorLocationID')">
+                    Save
+                </button>
+            <button id="btnCancelVendorLocationService_@suffixVendorLocationID" class="button gray-gradient  float-right margin-bottom"
+                        type="button" onclick="CancelVendorLocationServices('@suffixVendorID','@suffixVendorLocationID')">
+                    Cancel
+                </button>
+        </div>
+    </div>
+    </form>
+</div>

@@ -1,0 +1,37 @@
+﻿@using Martex.DMS.BLL.Model.VendorPortal;
+@model VendorDashboardModel
+@using Martex.DMS.DAL;
+@using Kendo.Mvc.UI;
+@*@(Html.Kendo().Chart()
+        .Name("ServiceRatings")
+        .Title("Service Ratings")
+        .Legend(legend => legend
+            .Position(ChartLegendPosition.Bottom)
+        )
+        .ChartArea(chartArea => chartArea
+            .Background("transparent")
+        )
+        .Series(series =>
+        {
+            if (Model.ServiceRatings != null)
+            {
+                foreach (Vendor_Dashboard_ServiceRatings_Result result in Model.ServiceRatings)
+                {
+                    series.Column(new decimal[] { @result.AvgProductRating.GetValueOrDefault() }).Name(@result.ProductCategoryName);
+                }
+            }
+        })
+        .ValueAxis(axis => axis
+                           .Numeric().Labels(labels => labels.Format("{0}"))
+                           .Max(100)
+                           .AxisCrossingValue(0)
+                           .Min(0)
+                           .MajorUnit(10)
+                           .Title("Ratings")
+        )
+        .Tooltip(tooltip => tooltip
+            .Visible(true)
+            .Format("{0}")
+            .Template("#= series.name #: #= value #")
+        )
+    )*@

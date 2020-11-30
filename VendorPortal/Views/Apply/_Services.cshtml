@@ -1,0 +1,98 @@
+﻿@model VendorPortal.BLL.Models.VendorApplicationModel
+@using Martex.DMS.DAL
+@{
+    List<ServicesForVendorPortal_Result> services = ViewData["VendorServices"] as List<ServicesForVendorPortal_Result>;
+    var categories = services.GroupBy(t => t.ServiceGroup).Select(grp => grp.FirstOrDefault()).OrderBy(t => t.SortOrder).ToList<ServicesForVendorPortal_Result>();
+}
+<div class="clear">
+</div>
+<h3 class="underline margin-bottom">
+    Services
+</h3>
+
+<p class="button-height inline-large-label ">
+    <label for="noservices" class="label">
+        Total Number of Service Vehicles
+    </label>
+    @Html.TextBoxFor(v => v.TotalNumberOfVehicles, new { @class = "input full-width2" })
+</p>
+<p class="button-height inline-large-label ">
+    <label for="noservices" class="label">
+        Maximum GVW you can tow<span class="star red">*</span>
+    </label>
+    @Html.TextBoxFor(v => v.MaxGVW, new { @class = "input full-width2 validate[required, custom[integer]]" })
+</p>
+@* TFS : 947 *@
+@*<p class="button-height inline-large-label ">
+    <label for="keydrop" class="label">
+        Is key drop available?
+    </label>
+    @Html.CheckBoxFor(v => v.IsKeyDropAvailable, new { @class = "checkbox" })
+</p>*@
+<p class="button-height inline-large-label ">
+    <label for="overnightstay" class="label">
+        Is overnight stay allowed?
+    </label>
+    @Html.CheckBoxFor(v => v.IsOvernightStayAllowed, new { @class = "checkbox" })
+</p>
+<br />
+@foreach (var item in categories)
+{
+    <div class="block float-left small-margin-right">
+        <h3 class="block-title">
+            @item.ServiceGroup
+        </h3>
+        <div class="with-small-padding">
+            @{ var productsForCategory = services.Where(x => x.ServiceGroup == item.ServiceGroup).ToList<ServicesForVendorPortal_Result>(); }
+            @foreach (var p in productsForCategory)
+            {
+                <div>
+                    @Html.CheckBox("Services", false, new { @class = "checkbox", value = p.ProductID })
+                @p.ServiceName
+            </div>
+            }
+        </div>
+    </div>
+}
+<div class="clear">
+</div>
+@*@Html.Partial("_ZipCodes")*@
+
+@*<label for="ZipCodes" class="label">
+        Zip codes
+    </label>*@
+<h3 class="underline margin-bottom">
+    Zip Codes
+</h3>
+<div>
+    <p class="button-height inline-large-label ">
+        <label for="vendorCrossStates" class="label">
+            Do you cross state lines?
+        </label>
+        @Html.RadioButton("IsAbleToCrossStateLines", true, new { @class = "radio", id = "IsAbleToCrossStateLines"  })@Html.Raw(" <b>Yes</b>")
+        @Html.RadioButton("IsAbleToCrossStateLines", false, new { @class = "radio", id = "IsAbleToCrossStateLines" })@Html.Raw(" <b>No</b>")
+    </p>
+</div>
+<div>
+    <p class="button-height inline-large-label ">
+        <label for="vendorCrossNationalBorders" class="label">
+            Do you cross international borders?
+        </label>
+        @Html.RadioButton("IsAbleToCrossNationalBorders", true, new { @class = "radio", id = "IsAbleToCrossNationalBorders"  })@Html.Raw(" <b>Yes</b>")
+        @Html.RadioButton("IsAbleToCrossNationalBorders", false, new { @class = "radio", id = "IsAbleToCrossNationalBorders" })@Html.Raw(" <b>No</b>")
+    </p>
+</div>
+<p class="button-height">
+    @Html.Raw("Please provide us a list of zip codes you cover. Please identify which zip codes you can cover within 45 minutes and those that take over 45 minutes to respond.")
+</p>
+<p class="strong">Primary: zip codes covered in less than 45 mins</p>
+@Html.TextArea("PrimaryZipCodesAsCSV", new { @class = "validate[funcCall[checkZipCodes]] input textarea full-width", rows = "10", cols = "30" })
+<small>@Html.Raw("Please enter zip codes separated by a comma. Example: 76006, 76007, 76008")</small>
+
+<p class="strong">Secondary: zip codes covered in over 45 mins</p>
+@Html.TextArea("SecondaryZipCodesAsCSV", new { @class = "validate[funcCall[checkZipCodes]] input textarea full-width", rows = "10", cols = "30" })
+<small>@Html.Raw("Please enter zip codes separated by a comma. Example: 76006, 76007, 76008")</small>
+
+<div class="clear">
+</div>
+<br />

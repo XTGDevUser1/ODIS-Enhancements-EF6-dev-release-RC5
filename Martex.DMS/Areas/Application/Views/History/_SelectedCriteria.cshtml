@@ -1,0 +1,430 @@
+﻿@model Martex.DMS.DAL.Entities.HistorySearchCriteria
+@using Martex.DMS.DAL.Entities
+@using Kendo.Mvc.UI
+@{
+    Layout = "";
+    int i = 0;
+}
+<li>
+    <div>
+        @(Html.Kendo().PanelBar()
+        .Name("panelSelectedCriteria")
+        .ExpandMode(PanelBarExpandMode.Multiple)
+        .Events(events => events.Collapse("fnPanelCollapse"))
+        .Items(panelbar =>
+        {
+
+            panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="PerformSearch(this);">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+
+            panelbar.Add().Text("Items Selected")
+                .Expanded(true)
+                .Selected(true)
+                .Content(@<div class="with-padding" id="dynamicSelectionItems">
+                    <!-- ID Section -->
+                    @if (Model.IDSectionType.HasValue)
+                    {
+                        <p id="PSelectedCriteriaIDSectionType">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="IDSectionType">X</a>
+                            - Type : @Model.IDSectionTypeValue
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.IDSectionID))
+                    {
+                        <p id="PSelectedCriteriaIDSectionID">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="IDSectionID">X</a>
+                            - ID : @Model.IDSectionID
+                        </p>
+                    }
+                    <!-- Name Section-->
+                    @if (Model.NameSectionType.HasValue)
+                    {
+                        <p id="PSelectedCriteriaNameSectionType">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="NameSectionType">X</a>
+                            - Type : @Model.NameSectionTypeValue
+                        </p>
+                    }
+                    @if (!String.IsNullOrEmpty(Model.NameSectionTypeISP))
+                    {
+                        <p id="PSelectedCriteriaNameSectionTypeISP">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="NameSectionTypeISP">
+                                X</a> - ISP Name : @Model.NameSectionTypeISP
+                        </p>
+                    }
+                    @if (!String.IsNullOrEmpty(Model.NameSectionTypeMemberFirstName))
+                    {
+                        <p id="PSelectedCriteriaNameSectionTypeMemberFirstName">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="NameSectionTypeMemberFirstName">
+                                X</a> - First Name : @Model.NameSectionTypeMemberFirstName
+                        </p>
+                    }
+                    @if (!String.IsNullOrEmpty(Model.NameSectionTypeMemberLastName))
+                    {
+                        <p id="PSelectedCriteriaNameSectionTypeMemberLastName">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="NameSectionTypeMemberLastName">
+                                X</a> - Last Name : @Model.NameSectionTypeMemberLastName
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.NameSectionTypeUser))
+                    {
+                        <p id="PSelectedCriteriaNameSectionTypeUser">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="NameSectionTypeUser">
+                                X</a> - Filter : @Model.NameSectionTypeUser
+                        </p>
+                    }
+                    @if (Model.NameSectionFilter.HasValue)
+                    {
+                        <p id="PSelectedCriteriaNameSectionFilter">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="NameSectionFilter">X</a>
+                            - Filter : @Model.NameSectionFilterValue
+                        </p>
+                    }
+                    <!-- Date Range Section-->
+                    @if (Model.DateSectionFromDate.HasValue)
+                    {
+                        <p id="PSelectedCriteriaDateSectionFromDate">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="DateSectionFromDate">
+                                X</a> - From : @Model.DateSectionFromDate.Value.ToShortDateString()
+                        </p>
+                    }
+                    @if (Model.DateSectionToDate.HasValue)
+                    {
+                        <p id="PSelectedCriteriaDateSectionToDate">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="DateSectionToDate">
+                                X</a> - To : @Model.DateSectionToDate.Value.ToShortDateString()
+                        </p>
+                    }
+                    @if (Model.DateSectionPreset.HasValue)
+                    {
+                        <p id="PSelectedCriteriaDateSectionPreset">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="DateSectionPreset">X</a>
+                            - Preset : @Model.DateSectionPresetValue
+                        </p>
+                    }
+                    <!-- Client Section -->
+                    @if (Model.ClientIDValues != null)
+                    {
+                        int clientValueCount = Model.ClientIDValues.Count();
+                        string[] clientValues = Model.ClientIDValues;
+                        for (int clt = 0; clt < clientValueCount; clt++)
+                        {
+                        <p id="PSelectedCriteriaClientID_@clt">
+                            <a href="javascript:void(0)" class="delete" role="multiSelect" data="ClientID" index= "@clt">
+                                X</a> - Client : @clientValues[clt]
+                        </p>
+                        }
+                    }
+                    @if (Model.ProgramIDValues != null)
+                    {
+                        int programValueCount = Model.ProgramIDValues.Count();
+                        string[] programValues = Model.ProgramIDValues;
+                        for (int prog = 0; prog < programValueCount; prog++)
+                        {
+                        <p id="PSelectedCriteriaProgramID_@prog">
+                            <a href="javascript:void(0)" class="delete" role="multiSelect" data="ProgramID" index= "@prog">
+                                X</a> - Program : @programValues[prog]
+                        </p>
+                        }
+                    }
+                    <!--Service Request Section -->
+                    @if (Model.ServiceRequestStatus != null && Model.ServiceRequestStatus.Count > 0)
+                    {
+                        i = 0;
+                        foreach (CheckBoxLookUp result in Model.ServiceRequestStatus)
+                        {
+                            if (result.Selected)
+                            {
+                                string id = "ServiceRequestStatus_" + i.ToString() + "__Selected";
+                        <p id="PSelectedCriteria_@id">
+                            <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+                            SR Status : @result.Name
+                        </p>
+                            }
+                            i = i + 1;
+                        }
+                    }
+                    <!--Service Type Section -->
+                    @if (Model.ServiceType != null && Model.ServiceType.Count > 0)
+                    {
+                        i = 0;
+                        foreach (CheckBoxLookUp result in Model.ServiceType)
+                        {
+                            if (result.Selected)
+                            {
+                                string id = "ServiceType_" + i.ToString() + "__Selected";
+                        <p id="PSelectedCriteria_@id">
+                            <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+                            SR Type : @result.Name
+                        </p>
+                            }
+                            i = i + 1;
+                        }
+                    }
+                    <!--Special Section -->
+                    @if (Model.SpecialList != null && Model.SpecialList.Count > 0)
+                    {
+                        i = 0;
+                        foreach (CheckBoxLookUp result in Model.SpecialList)
+                        {
+                            if (result.Selected)
+                            {
+                                string id = "SpecialList_" + i.ToString() + "__Selected";
+                        <p id="PSelectedCriteria_@id">
+                            <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+                            Special : @result.Name
+                        </p>
+                            }
+                            i = i + 1;
+                        }
+                    }
+                    <!-- Vehicle Section -->
+                    @if (Model.VehicleType.HasValue)
+                    {
+                        <p id="PSelectedCriteriaVehicleType">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="VehicleType">X</a>
+                            - Vehicle Type : @Model.VehicleTypeValue
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.VehicleYear))
+                    {
+                        <p id="PSelectedCriteriaVehicleYear">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="VehicleYear">X</a>
+                            - Year : @Model.VehicleYear
+                        </p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.VehicleMake))
+                    {
+                        if (!Model.VehicleMake.Equals("Other"))
+                        { 
+                        <p id="PSelectedCriteriaVehicleMake">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="VehicleMake">X</a>
+                            - Make : @Model.VehicleMake
+                        </p>
+                        }
+                        else
+                        {
+                            if (!String.IsNullOrEmpty(Model.VehicleMakeOther))
+                            { 
+                        <p id="PSelectedCriteriaVehicleMakeOther">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="VehicleMakeOther">X</a>
+                            - Make : @Model.VehicleMakeOther
+                        </p>
+                            }
+                        }
+
+                    }
+                    @if (!string.IsNullOrEmpty(Model.VehicleModel))
+                    {
+                        if (!Model.VehicleModel.Equals("Other"))
+                        { 
+                        <p id="PSelectedCriteriaVehicleModel">
+                            <a href="javascript:void(0)" class="delete" role="combo" data="VehicleModel">X</a>
+                            - Model : @Model.VehicleModel
+                        </p>
+                        }
+                        else
+                        {
+                            if (!string.IsNullOrEmpty(Model.VehicleModelOther))
+                            { 
+                        <p id="PSelectedCriteriaVehicleModelOther">
+                            <a href="javascript:void(0)" class="delete" role="textBox" data="VehicleModelOther">
+                                X</a> - Model : @Model.VehicleModelOther
+                        </p>
+                            }
+                        }
+                    }
+                    <!--Payment Type Section -->
+                    @if (Model.PaymentType != null && Model.PaymentType.Count > 0)
+                    {
+                        i = 0;
+                        foreach (CheckBoxLookUp result in Model.PaymentType)
+                        {
+                            if (result.Selected)
+                            {
+                                string id = "PaymentType_" + i.ToString() + "__Selected";
+                        <p id="PSelectedCriteria_@id">
+                            <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+                            Payment : @result.Name
+                        </p>
+                            }
+                            i = i + 1;
+                        }
+
+                    }
+                    <!--Purchase Order Status Section -->
+                    @if (Model.PurchaseOrderStatus != null && Model.PurchaseOrderStatus.Count > 0)
+                    {
+                        i = 0;
+                        foreach (CheckBoxLookUp result in Model.PurchaseOrderStatus)
+                        {
+                            if (result.Selected)
+                            {
+                                string id = "PurchaseOrderStatus_" + i.ToString() + "__Selected";
+                        <p id="PSelectedCriteria_@id">
+                            <a href="javascript:void(0)" class="delete" role="checkBox" data = "@id">X</a> -
+                            PO : @result.Name
+                        </p>
+                            }
+                            i = i + 1;
+                        }
+                    }
+                    @if (Model != null)
+                    {
+                        <div id="divClearAllSection">
+                            <hr />
+                            <a href="javascript:void(0)" id="btnSearchCriteriaClearAll">Clear All</a>
+                        </div>
+                    }
+                </div>);
+            
+        })
+                        )
+    </div>
+</li>
+<script type="text/javascript">
+
+
+    function UpdateIfRequired() {
+        var element = $('#dynamicSelectionItems p')
+        var panelBar = $("#panelIndividualSelectedCriteria").data("kendoPanelBar");
+        if (element.length > 0) {
+            $('#divClearAllSection').show();
+        }
+        else {
+            $('#divClearAllSection').hide();
+        }
+
+    }
+    $(function () {
+        UpdateIfRequired();
+        $('.delete').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                var role = $(this).attr('role');
+                var element = $(this).attr('data');
+
+                if (role == "combo") {
+                    var value = $('#' + element).data('kendoComboBox').value();
+                    $('#' + element).data('kendoComboBox').value('');
+                    $('#PSelectedCriteria' + element).remove();
+                    if (element == "DateSectionPreset") {
+                        DatePresetOnChange(0);
+                    }
+                    if (element == "VehicleMake" || element == "VehicleYear" || element == "VehicleType") {
+                        vehicleMakeChange("Remove");
+                    }
+
+                }
+                else if (role == "textBox") {
+                    $('#' + element).val('');
+                    $('#PSelectedCriteria' + element).remove();
+                    if (element == "DateSectionFromDate") {
+                        $('#' + element).data('kendoDatePicker').value('')
+                    }
+                    if (element == "DateSectionToDate") {
+                        $('#' + element).data('kendoDatePicker').value('')
+                    }
+                }
+                else if (role == "checkBox") {
+                    $('#' + element).prop("checked", false);
+                    $('#' + element).parent().removeClass("checked");
+                    $('#PSelectedCriteria_' + element).remove();
+                }
+                else if (role == "multiSelect") {
+
+                    var index = $(this).attr('index');
+                    var currentIndex = 0;
+                    var details = $('#' + element + "_taglist").find("li");
+                    var closeIcon;
+                    details.each(function (i) {
+                        if (i == index) {
+                            currentIndex = i;
+                            closeIcon = $(this).find(".k-delete");
+                        }
+                    });
+
+                    $('#PSelectedCriteria' + element + "_" + currentIndex).remove();
+
+                    if (closeIcon != null) {
+                        closeIcon.click();
+                    }
+                }
+
+                ReLoadList();
+                UpdateIfRequired();
+
+            }
+            return false;
+        });
+
+
+        $('#btnSearchCriteriaClearAll').live("click", function (e) {
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+
+                $('.delete').each(function () {
+                    var role = $(this).attr('role');
+                    var element = $(this).attr('data');
+                    if (role == "combo") {
+                        $('#' + element).data('kendoComboBox').value('');
+                        $('#PSelectedCriteria' + element).remove();
+                        $('#PSelectedCriteriaDisplay' + element).remove();
+
+                        if (element != 'VehicleModel' && element != 'VehicleType' && element != 'VehicleYear' && element != 'VehicleMake') {
+                            $('#' + element).data('kendoComboBox').trigger('change');
+                        }
+
+                    }
+                    else if (role == "textBox") {
+                        $('#' + element).val('');
+                        $('#PSelectedCriteria' + element).remove();
+                        $('#PSelectedCriteriaDisplay' + element).remove();
+                    }
+                    else if (role == "checkBox") {
+                        $('#' + element).prop("checked", false);
+                        $('#' + element).parent().removeClass("checked");
+                        $('#PSelectedCriteria_' + element).remove();
+                        $('#PSelectedCriteriaDisplay_' + element).remove();
+                    }
+                    else if (role == "multiSelect") {
+
+                        var index = $(this).attr('index');
+                        var currentIndex = 0;
+                        var details = $('#' + element + "_taglist").find("li");
+                        var closeIcon;
+                        details.each(function (i) {
+                            if (i == index) {
+                                currentIndex = i;
+                                closeIcon = $(this).find(".k-delete");
+                            }
+                        });
+                        if (currentIndex) {
+                            $('#PSelectedCriteria' + element + "_" + currentIndex).remove();
+                            $('#PSelectedCriteriaDisplay' + element + "_" + currentIndex).remove();
+                        }
+                        if (closeIcon != null) {
+                            closeIcon.click();
+                        }
+                    }
+                    $('#divClearAllSection').hide();
+                });
+                if ($('#tabs-2').length > 0) {
+                    //openAlertMessage("No results found");
+                    $('#GrdHistoryList').data('kendoGrid').dataSource.data([]);
+                }
+                $('#divOtherVehicleMake').hide();
+                $('#divOtherVehicleModel').hide();
+            }
+            LoadSearchCriteria();
+            return false;
+        });
+
+    });
+</script>

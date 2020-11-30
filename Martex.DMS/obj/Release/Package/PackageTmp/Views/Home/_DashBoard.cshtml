@@ -1,0 +1,264 @@
+﻿@model Martex.DMS.BLL.Model.DispatchDashBoardModel
+@using Martex.DMS.BLL.Facade;
+@using Martex.DMS.DAL;
+@using Kendo.Mvc.UI;
+@using System.Globalization;
+@using Martex.DMS.BLL.Model;
+@{
+    ViewBag.Title = "_DashBoard";
+    var max = 100;
+    var seed = 10;
+    if (Model != null && Model.DashboardDispatchChart != null && Model.DashboardDispatchChart.Count > 0)
+    {
+        var allList = Model.DashboardDispatchChart.Select(x => new List<int> { x.Month1.GetValueOrDefault(), x.Month2.GetValueOrDefault(), x.Month3.GetValueOrDefault(), x.Month4.GetValueOrDefault(), x.Month5.GetValueOrDefault(), x.Month6.GetValueOrDefault(), x.Month7.GetValueOrDefault(), x.Month8.GetValueOrDefault(), x.Month9.GetValueOrDefault(), x.Month10.GetValueOrDefault(), x.Month11.GetValueOrDefault(), x.Month12.GetValueOrDefault() });
+        var largest = allList.SelectMany(c => c).Max(c => c);
+        var remainder = largest % 10;
+        if (remainder > 0)
+        {
+            remainder = 10 - remainder;
+        }
+        max = largest + remainder;
+        seed = max / 10;
+    }
+    var formatProvider = new CultureInfo("en-US");
+
+}
+<link href="@Url.Content("~/Content/DMSTabs.css")" rel="stylesheet" type="text/css" />
+<style type="text/css">
+    #basicMap {
+        width: 100%;
+        height: 400px;
+        border: 1px solid black;
+        padding-left: 200px;
+        position: absolute;
+    }
+</style>
+<script language="javascript" type="text/javascript">
+
+    var map;
+    function loadMap() {
+        try {
+            var lat = 37.964253;
+            var lon = -91.831833;
+            map = new OpenLayers.Map("basicMap",
+		{
+		    units: 'm',
+		    projection: new OpenLayers.Projection("EPSG:900913"),
+		    displayProjection: new OpenLayers.Projection("EPSG:4326")
+		}
+	   );
+
+            // Create overlays
+            //  OSM
+            var mapnik = new OpenLayers.Layer.OSM();
+            var opencyclemap = new OpenLayers.Layer.XYZ(
+		"opencyclemap",
+		"http://a.tile3.opencyclemap.org/landscape/${z}/${x}/${y}.png?appid=f7b582c69a1c5155e43def8da231f041",
+		{
+		    numZoomLevels: 18,
+		    sphericalMercator: true
+		}
+	    );
+            // Stations
+            var stations = new OpenLayers.Layer.Vector.OWMStations("Stations information", { units: 'imperial' });
+            stations.setVisibility(false);
+
+            var city = new OpenLayers.Layer.Vector.OWMWeather("Current weather", { units: 'imperial' });
+            //Addind maps
+            map.addLayers([mapnik, stations, city]);
+            // need for permalink
+            var precipitation = new OpenLayers.Layer.XYZ(
+		"Precipitation forecasts",
+		"http://tile.openweathermap.org/map/precipitation_new/${z}/${x}/${y}.png?appid=f7b582c69a1c5155e43def8da231f041",
+		{
+		    numZoomLevels: 19,
+		    isBaseLayer: false,
+		    opacity: 0.6,
+		    sphericalMercator: true
+		}
+	    );
+            map.addLayer(precipitation);
+            var clouds = new OpenLayers.Layer.XYZ(
+		"Clouds forecasts",
+		"http://tile.openweathermap.org/map/clouds_new/${z}/${x}/${y}.png?appid=f7b582c69a1c5155e43def8da231f041",
+		{
+		    numZoomLevels: 19,
+		    isBaseLayer: false,
+		    opacity: 0.7,
+		    sphericalMercator: true
+
+		}
+	    );
+            clouds.setVisibility(false);
+            map.addLayer(clouds);
+
+            var centre = new OpenLayers.LonLat(lon, lat);
+            centre.transform(
+		new OpenLayers.Projection("EPSG:4326"),
+		new OpenLayers.Projection("EPSG:900913"));
+            map.setCenter(centre, 4);
+
+            // Layers switcher
+            var ls = new OpenLayers.Control.LayerSwitcher({ 'ascending': false });
+            map.addControl(ls);
+            ls.minimizeControl();
+
+
+            selectControl = new OpenLayers.Control.SelectFeature([stations, city]);
+            map.addControl(selectControl);
+            selectControl.activate();
+
+        } catch (e) {
+            $('#basicMap').html("Map not available");
+        }
+    }
+
+
+
+</script>
+@helper GetServiceRequestCount()
+{
+List<DashboardServiceRequestCount_Result> result = Model.DashboardSRCount; //new ServiceFacade().GetDashboradServiceRequestCount();
+if (result != null && result.Count > 0)
+{
+    foreach (DashboardServiceRequestCount_Result request in result)
+    {
+            <li><a href="Javascript:void(0)"><strong>@request.SRCount.Value.ToString("N0")</strong>@request.Name</a></li>
+    }
+        <li>
+            <small>
+                Between : @result.ElementAt(0).StartDate.Value.ToString("MM/dd/yyyy") -
+                @result.ElementAt(0).EndDate.Value.ToString("MM/dd/yyyy")
+            </small>
+        </li>
+}
+}
+<noscript class="message black-gradient simpler">
+    Your browser does not support JavaScript! Some features won't work as expected...
+</noscript>
+<hgroup id="main-title" class="thin">
+    <h1>
+        Dashboard
+    </h1>
+    <h2>@DateTime.Now.ToString("MM/dd/yyyy")</h2>
+</hgroup>
+<div class="dashboard">
+    <div class="columns">
+        <div class="nine-columns twelve-columns-mobile chart-wrapper">
+            @(Html.Kendo().Chart(Model.DashboardDispatchChart)
+            .Name("DispatchChart")
+            .Title("Service Request Count")
+            .Legend(legend => legend
+                .Position(ChartLegendPosition.Top)
+            )
+            .Theme("HighContrast")
+            .ChartArea(chart => chart.Background("transparent"))
+            .Series(series =>
+            {
+                foreach (var result in Model.DashboardDispatchChart)
+                {
+                    series.Line(new double[] { @result.Month1.GetValueOrDefault(), @result.Month2.GetValueOrDefault(), @result.Month3.GetValueOrDefault(), @result.Month4.GetValueOrDefault(), @result.Month5.GetValueOrDefault(), @result.Month6.GetValueOrDefault(), @result.Month7.GetValueOrDefault(), @result.Month8.GetValueOrDefault(), @result.Month9.GetValueOrDefault(), @result.Month10.GetValueOrDefault(), @result.Month11.GetValueOrDefault(), @result.Month12.GetValueOrDefault() }).Name(@result.Client);
+                }
+
+            })
+            .CategoryAxis(axis => axis
+                //.Categories("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+                .Categories(Model.DashboardDispatchChartLabels.Select(u => u.Label1).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label2).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label3).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label4).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label5).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label6).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label7).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label8).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label9).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label10).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label11).FirstOrDefault(), Model.DashboardDispatchChartLabels.Select(u => u.Label12).FirstOrDefault())
+                //.Labels(labels => labels.Rotation(-90))
+                .MajorGridLines(lines => lines.Visible(false))
+            )
+            .ValueAxis(axis => axis.Numeric()
+                .Labels(labels => labels.Format("{0:N0}"))
+                .MajorUnit(seed)
+                .Max(max)
+                .AxisCrossingValue(0)
+            )
+            .Tooltip(tooltip => tooltip
+                .Visible(true)
+                .Template("#= series.name # - #= category #: #= value #")
+            )
+            )
+            <!-- This div will hold the chart generated in the footer -->
+        </div>
+        <div class="three-columns twelve-columns-mobile new-row-mobile">
+            <ul class="stats split-on-mobile">
+                @GetServiceRequestCount()
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="with-padding">
+    <div class="columns">
+        <div class="six-columns six-columns-tablet twelve-columns-mobile">
+            @*<h2 class="relative thin">
+                    Messages
+                </h2>*@ @*<ul class="bullet-list spaced margin-top margin-left">
+                    <li>Dashboard - now shows live counts of service requests by both customer group and status.
+                    </li>
+                    <li>Larger Fonts on entry screens.</li>
+                    <li> Request Tab - Call Summary now shows additional items in most of the categories.  There is now a “See More / See Less” link to show or hide the additional information.
+                    </li>
+                    <li>Dispatch Tab – Add Vendor now does a check to see if that phone number is already in the system and if it finds a match it displays that vendor location. Saving you time and insuring an accurate call. </li>
+                </ul>*@
+                <div id="WelcomeTabs" class="standard-tabs same-height">
+                    <ul class="tabs">
+                        <li id="tabMessages"><a href="#tabs-tabMessages">Messages</a></li>
+                    </ul>
+                    <div id="tabs-tabMessages">
+                        <div style="max-height: 420px; min-height: 420px;" class="scrollable">
+                            @Html.Partial("_Messages", Model.DashboardMessages)
+                        </div>
+                    </div>
+                </div>
+                @*<div class="block large-margin-bottom">
+                    <div class="block-title">
+                        <h3>
+                            Messages
+                        </h3>
+                        <span class="ribbon"><span class="ribbon-inner">New</span></span>
+                    </div>*@
+            </div>
+            <div class="six-columns six-columns-tablet twelve-columns-mobile">
+                <div class="block large-margin-bottom">
+                    <div class="block-title">
+                        <h3>
+                            Weather Map
+                        </h3>
+                    </div>
+                    <div id="basicMap">
+                    </div>
+                    @* <ul class="events">
+                            <li><span class="event-date orange">12</span> <a href="#" class="event-description">
+                                <h4>
+                                    Coming Soon in Version 2.0</h4>
+                                <p>
+                                   Updated events and alerts</p>
+                            </a></li>
+                            <li><span class="event-date">16</span> <span class="event-description">
+                                <h4>
+                                    Make sure to use Feedback</h4>
+                                <p>
+                                   If you experience any issues please use the feedback and let the development team know about the issue.</p>
+                            </span><span class="ribbon tiny"><span class="ribbon-inner red-gradient">High</span></span>
+                            </li>
+                            <li><span class="event-date with-month">31 </span>
+                                <h4>
+                                    O.D.I.S.</h4>
+                                <p>
+                                    Even more updates coming soon.</p>
+                            </li>
+                        </ul>*@
+                </div>
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+
+        $(function () {
+            $('#WelcomeTabs').tabs();
+        });
+
+        $(function () {
+            loadMap();
+        });
+    </script>

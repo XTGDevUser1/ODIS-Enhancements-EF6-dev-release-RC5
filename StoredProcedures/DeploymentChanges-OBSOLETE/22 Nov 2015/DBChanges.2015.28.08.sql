@@ -1,0 +1,1 @@
+Update [Event] SET IsShownOnScreen = 1 where Name='SaveFinishTab'

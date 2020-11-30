@@ -1,0 +1,78 @@
+﻿@model Martex.DMS.DAL.VendorWebAccountInfoModel
+@using Martex.DMS.DAL.Entities;
+@using Kendo.Mvc.UI;
+@{
+    string suffixVendorID = Model.VendorID.GetValueOrDefault().ToString();
+}
+<style type="text/css">
+    .inline-small-label > .label
+    {
+        width: 105px !important;
+    }
+</style>
+<form  method="post" action="javascript:void(0);" id="frmWebAccountInfo_@suffixVendorID" class="frmWebAccountInfoSection">
+@Html.HiddenFor(u => u.ApplicationId, new { id = "ApplicationId_" + suffixVendorID })
+@Html.HiddenFor(u => u.UserId, new { id = "UserId_" + suffixVendorID })
+<div class="small-margin-bottom inline-small-label">
+    <label class="label">
+        Email</label>
+    @Html.TextBoxFor(u => u.Email, new { @class = "validate[required,custom[email]] input", id = "Email_" + suffixVendorID })
+</div>
+<div class="inline-small-label small-margin-bottom">
+    <label class="label">
+        Is Approved</label>
+    @Html.CheckBox("IsApproved", @Model.IsApproved, new { @class = "checkbox full-width", id = "WebAccountIsApproved_" + @suffixVendorID })
+</div>
+<div class="inline-small-label small-margin-bottom">
+    <label class="label">
+        Is Locked Out</label>
+    @Html.CheckBox("IsLockedOut", @Model.IsLockedOut, new { @class = "checkbox full-width", id = "WebAccountIsLockedOut_" + @suffixVendorID })
+</div>
+<div class="inline-label small-margin-bottom">
+    <button  class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveVendorInfoWebAccountEditMode('@suffixVendorID');">
+        Save</button>
+    <button class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelVendorInfoWebAccountEditMode('@suffixVendorID');">
+        Cancel</button>
+</div>
+</form>
+<script type="text/javascript">
+
+    $(function () {
+        $('#frmWebAccountInfo_' + '@suffixVendorID').validationEngine({ promptPosition: "topLeft" });
+    });
+
+    function SaveVendorInfoWebAccountEditMode(vendorID) {
+        if ($('#frmWebAccountInfo_' + vendorID).validationEngine("validate") == true) {
+            var postData = $('#frmWebAccountInfo_' + vendorID).serializeArray();
+            $.ajax({
+                type: 'POST',
+                url: '/VendorManagement/VendorHome/SaveVendorInformationWebAccount',
+                data: postData,
+                cache: false,
+                success: function (msg) {
+                    CancelVendorInfoWebAccountEditMode(vendorID);
+
+                }
+            });
+        }
+        return false;
+    }
+
+    function CancelVendorInfoWebAccountEditMode(vendorID) {
+
+        $('#frmWebAccountInfo_' + vendorID).validationEngine("hide");
+
+        $.ajax({
+            type: 'GET',
+            url: '/VendorManagement/VendorHome/_VendorInformation_WebAccount',
+            data: { vendorID: vendorID },
+            cache: false,
+            success: function (msg) {
+                $('#PlaceHolder_Vendor_Info_Web_Account_' + vendorID).html(msg);
+
+            }
+        });
+    }
+</script>

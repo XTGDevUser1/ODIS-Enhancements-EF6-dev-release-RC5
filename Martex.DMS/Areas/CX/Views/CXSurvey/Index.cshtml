@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/CX/Views/Shared/_CXLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Survey
+    </h1>
+</hgroup>
+<div class="with-padding">
+    <div id="CXSurveyTab" class="standard-tabs same-height" data="CXSurveyDynamicTabs">
+        <ul class="tabs">
+            <li id="tbCXtestList"><a id="hypCXSurveyCriteria" href="#tabs-1">List</a> </li>
+        </ul>
+        <div id="tabs-1" class="CXSurveyDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult")
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    
+    var tabObject = null;
+    $(function () {
+        tabObject = $("#CXSurveyTab").tabs({
+            select: function (event, ui) {
+                $(".formError").each(function () {
+                    $(this).remove();
+                });
+            }
+        });
+        GetSearchCriteria();
+    });
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "CXSurvey")',
+            type: 'POST',
+            data: GetCustomerFeedbackSurveySearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulCXCustomerFeedbackSurveyCriteria').html(msg);
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "CXSurvey")',
+            type: 'POST',
+            data: GetCustomerFeedbackSurveySearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#CXCustomerFeedbackSurveySearchCriteria').html(msg);
+                $('#GrdCXCustomerFeedbackSurvey').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetCustomerFeedbackSurveySearchCriteria() {
+        var postData = $('#frmCXCustomerFeedbackSurveySearchCriteria').serializeArray();
+
+        // Get the grid object
+        var grid = $("#GrdCXCustomerFeedbackSurvey").data("kendoGrid");
+        // Get the datasource bound to the grid
+        var ds = grid.dataSource;
+        // Get current sorting
+        var sort = ds.sort();
+        // Display sorting fields and direction
+        if (sort && sort.length > 0) {
+            var propCounter = 0;
+            for (var i = 0, l = postData.length; i < l; i++) {
+                if (postData[i].name == "GridSortColumnName") {
+                    postData[i].value = sort[0].field;
+                    propCounter++;
+                }
+                if (postData[i].name == "GridSortOrder") {
+                    postData[i].value = sort[0].dir;
+                    propCounter++;
+                }
+                if (propCounter == 2) {
+                    break;
+                }
+            }
+        }
+
+      
+
+        if ($('#CXCustomerFeedbackSurveySearchViewID') != undefined) {
+            var value = parseInt($('#CXCustomerFeedbackSurveySearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+    function HandleCustomerfeedbackSurveyinformationStatus(e, CustomerFeedbackSurveyID) {
+
+        var combo = e.sender;
+
+        var relatedClaimReasonPlaceHolder = "#PlaceHolder_ClaimReason_" + claimID;
+        var relatedRejectCombo = $("#ClaimRejectReason_" + claimID).data('kendoComboBox');
+
+        var relatedClaimReasonOtherPlaceHolder = "#PlaceHolder_ClaimReasonOther_" + claimID;
+        var relatedClaimReasonOtherTextBox = "#ClaimRejectReasonOther_" + claimID;
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Denied") {
+            $(relatedClaimReasonPlaceHolder).show();
+        }
+        else {
+            relatedRejectCombo.value('');
+            $(relatedClaimReasonOtherTextBox).val('');
+            $(relatedClaimReasonPlaceHolder).hide();
+            $(relatedClaimReasonOtherPlaceHolder).hide();
+        }
+    }
+
+</script>

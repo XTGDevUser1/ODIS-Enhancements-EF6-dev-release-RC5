@@ -1,0 +1,134 @@
+﻿@model Martex.DMS.DAL.Entities.EmergencyAssistanceCallLogModel
+@using Telerik.Web.Mvc.UI
+<div class="with-padding-with-panels">
+    @using (Html.BeginForm("Save", "EmergencyAssistanceCallLog", FormMethod.Post, new { id = "frmEmergencyAssistanceCallLog" }))
+    {
+        <div>
+            <p class="inline-label">
+                <label for="PhoneNumber" class="label">
+                    Phone Number</label>
+                @Html.DisplayFor(u => u.PhoneNumber, new { @class = "input full-width2" })
+                @Html.HiddenFor(u => u.ContactLogID)
+                @Html.HiddenFor(u => u.ContactUpdateRequired)
+                @Html.HiddenFor(u => u.Direction)
+                @Html.HiddenFor(u => u.PhoneNumber)
+            </p>
+            <p class="inline-label">
+                <label for="Name" class="label">
+                    Company<span class="spanstar">*</span></label>
+                @if (Model.Source == 1)
+                {
+                    @Html.TextBoxFor(u => u.Company, new { @id = "Name", @class = "validate[required] input full-width2 disabled" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(u => u.Company, new { @id = "Name", @class = "validate[required] input full-width2" })
+                }
+            </p>
+            <p class="inline-label">
+                <label for="TalkedTo" class="label">
+                    Talked To</label>
+                @Html.TextBoxFor(u => u.TalkedTo, new { @id = "TalkedTo", @class = "input full-width2" })
+            </p>
+            <div>
+                <label for="Source" class="label-no-inline">
+                    Source<span class="spanstar">*</span></label>
+                @if (Model.Source != 1)
+                {
+                    @(Html.Telerik().ComboBoxFor(u => u.Source)
+                    .Name("Source")
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Filterable(filtering =>
+                    {
+                        filtering.FilterMode(AutoCompleteFilterMode.StartsWith);
+                        filtering.MinimumChars(0);
+                    })                    
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactSources.ToString()] as IEnumerable<SelectListItem>)
+                    )
+                }
+                else
+                {
+                    @(Html.Telerik().ComboBoxFor(u => u.Source)
+                    .Name("Source")
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Filterable(filtering =>
+                    {
+                        filtering.FilterMode(AutoCompleteFilterMode.StartsWith);
+                        filtering.MinimumChars(0);
+                    })
+                    .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactSources.ToString()] as IEnumerable<SelectListItem>).SelectedIndex(Model.Source).Enable(false)                    
+                    )
+                }
+            </div>
+            <div>
+                <label for="Outcome" class="label-no-inline">
+                    Outcome<span class="spanstar">*</span></label>
+                @(Html.Telerik().ComboBoxFor(u => u.Outcome)
+                .Name("Outcome")
+                .AutoFill(true)
+                .HighlightFirstMatch(true)
+                .Filterable(filtering =>
+                {
+                    filtering.FilterMode(AutoCompleteFilterMode.StartsWith);
+                    filtering.MinimumChars(0);
+                })
+                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.ContactActions.ToString()] as IEnumerable<SelectListItem>)
+                )
+            </div>
+            <p class="inline-label">
+                <label for="Comments" class="label full-width">
+                    <strong>Comments</strong></label>
+                @Html.TextAreaFor(a => a.Comments, new { @class = "input full-width", rows = "5", cols = "30", style = "width : 100%" })
+            </p>
+            <div>
+                <button id="btnSaveCommentsForEACLog" class="button green-gradient glossy float-right"
+                    type="submit">
+                    Save
+                </button>
+            </div>
+        </div>
+    }
+</div>
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $('#frmEmergencyAssistanceCallLog').validationEngine();
+        $("#btnSaveCommentsForEACLog").click(function () {
+            if ($('#frmEmergencyAssistanceCallLog').validationEngine('validate') == false) {
+                return false;
+            }
+
+            //Custom Validation 
+
+            if ($("#Outcome").data("tComboBox").value() == '') {
+                openAlertMessage('Outcome is required.');
+                return false;
+            }
+
+            if ($("#Source").data("tComboBox").value() == '') {
+                openAlertMessage('Source is required.');
+                return false;
+            }
+            // Submit the data
+            var postdata = $('#frmEmergencyAssistanceCallLog').serializeArray();
+            postdata.push({ name: "Source", value: $("#Source").data("tComboBox").value() })
+            postdata.push({ name: "ContactActionID", value: $("#Outcome").data("tComboBox").value() })
+            $.ajax('/emergencyassistancecalllog/save',
+                {
+                    type: 'post',
+                    data: postdata,
+                    success: function (json) {
+                        if (json.Status == "Success") {
+                            //return false;
+                            document.dialogResult = "CANCEL";
+                            callLogWindow.data('tWindow').close();
+                        }
+                    }
+
+                });
+
+            return false;
+        });
+    });
+</script>

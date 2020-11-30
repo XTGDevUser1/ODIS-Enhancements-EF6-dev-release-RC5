@@ -1,0 +1,294 @@
+﻿@using Kendo.Mvc.UI;
+@using Martex.DMS.DAL;
+@using Martex.DMS.Areas.Application.Models;
+@using models = Martex.DMS.Areas.Application.Models;
+@{
+    string currentUser = ViewData["LoggedInUser"].ToString();
+    DateTime presentDate = DateTime.Now;
+
+    bool canAdd = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.CLAIMS_ACES_BUTTON_ADDPAYMENT) == models.AccessType.ReadWrite;
+    bool canDelete = DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.CLAIMS_ACES_GRID_ACTION_DELETE) == models.AccessType.ReadWrite;
+    string cssDisplayForAdd = string.Empty;
+    string cssDisplayForDelete = "visbile";
+    if (!canAdd)
+    {
+        cssDisplayForAdd = "hidden";
+    }
+    if (!canDelete)
+    {
+        cssDisplayForDelete = "hidden";
+    }
+}
+<script type="text/javascript" language="javascript">
+
+    function GrdACESPayments_OnSave(e) {
+        CleanMyContainer('div_ACESPaymentsList');
+    }
+    function GrdACESPayments_RequestEnd(e) {
+        if (e.type == "create") {
+            openAlertMessage("Record Inserted Successfully", function (e) {
+                $('#grdACESPayments').data('kendoGrid').dataSource.read();
+            });
+        }
+        else {
+            if (e.type == "update") {
+                openAlertMessage("Record Updated Successfully");
+            }
+            else if (e.type == "destroy") {
+                openAlertMessage("Record Deleted Successfully");
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetPaymentAmount", "ClaimsACESPayments", new { area = "Claims" })',
+                traditional: true,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    //var val = "$" + msg.Data.toFixed(2);
+                    $("#txtPaymentBalance").data("kendoNumericTextBox").value(msg.Data);
+                }
+            });
+        }
+        CleanMyContainer('div_ACESPaymentsList');
+    }
+
+    function HandleEdits($btn) {
+        $btn.click(function (e) {
+
+
+            if (IsMyContainerDirty('div_ACESPaymentsList')) {
+
+                var allowEdit = confirm("There are pending changes in the grid. Click Cancel to stay on the row or OK to discard your changes");
+                if (!allowEdit) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+
+        });
+    }
+    function GrdACESPayments_onDataBound(e) {
+
+        $(e.sender.element).find(".k-grid-edit").each(function () {
+            HandleEdits($(this));
+        });
+
+
+
+        var defaultACESPaymentListDays = parseInt('@ViewData["DefaultACESPaymentListDays"]', 10);
+        $("#tooltips").html("");
+        $(".k-grid-add").addClass("with-tooltip").html("<span class='k-icon k-add'/>&nbsp;<label class='label'>Add ACES Payment</label>").attr("title", "Add ACES Payment");
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete");
+
+        $(".k-grid-add", ".k-grid-delete").click(function () {
+            $("#tooltips").html("");
+        });
+
+        var end = $("#CreatedDateTo").data('kendoDatePicker').value();
+        var start = $("#CreatedDateFrom").data('kendoDatePicker').value();
+        if (start != null && end != null) {
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start != null) {
+            var end = Date.now();
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (end != null) {
+            var start = Date.now().addDays(-1 * defaultACESPaymentListDays);
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start == null && end == null) {
+            var end = Date.now();
+            var start = Date.now().addDays(-1 * defaultACESPaymentListDays);
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+    }
+
+    function GrdACESPayments_OnEdit(e) {
+
+        console.log("IsMyContainerDirty('div_ACESPaymentsList') = " + IsMyContainerDirty('div_ACESPaymentsList'));
+
+
+        $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit").css("min-width", "26px");
+        $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete").css("min-width", "26px");
+
+        var btnUpdate = $(e.container.find(".k-grid-update"));
+        var btnCancel = $(e.container.find(".k-grid-cancel"));
+
+        btnUpdate.addClass("with-tooltip green-active2 active").html('<span class="k-icon k-update"/>').css("min-width", "26px");
+        btnCancel.addClass("with-tooltip red-active2 active").html('<span class="k-icon k-cancel"/>').css("min-width", "26px");
+
+        e.container.find(".text-box").each(function () {
+
+            var tb = $(this);
+            tb.addClass("input");
+            tb.css("width", "85%");
+            //tb.change(function (e) { e.stopPropagation(); });
+            if (tb.parent("td").hasClass("createdBy")) {
+                tb.attr("readonly", "readonly");
+                tb.parent("td").addClass("disabled", "disabled");
+                if (tb.val() == "") {
+                    tb.val("@currentUser");
+                }
+                firstTextBox = false;
+            }
+
+        });
+
+        var createDateDatePicker = e.container.find("#CreateDate");
+        if (createDateDatePicker.data("kendoDatePicker") != null) {
+
+            if (createDateDatePicker.val() == "") {
+                createDateDatePicker.data("kendoDatePicker").value(Date.today());
+            }
+        }
+
+        btnCancel.click(function () {
+
+            CleanMyContainer('div_ACESPaymentsList');
+            setTimeout(function () {
+                $(".k-grid-edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>").attr("title", "Edit").css("min-width", "26px");
+                $(".k-grid-delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>").attr("title", "Delete").css("min-width", "26px");
+
+            }, 500);
+        });
+        if (e.model.isNew()) {
+            var $combo = $(e.container.find("[data-role=combobox]")[0]).data().kendoComboBox;
+            $combo.select(0);
+        }
+
+    }
+
+    function ClaimGridSearchCriteria() {
+        if ($("#frmACESPaymentSearchCriteria").length > 0) {
+
+            var newArray = [];
+            if ($('#CreatedBy').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "CreatedBy", value: $('#CreatedBy').data('kendoComboBox').text() });
+                //newArray.push({ name: "LookUpTypeValue", value: $('#LookUpTypeValue').val() });
+            }
+
+            newArray.push({ name: "CheckFromDate", value: $('#CheckFromDate').val() });
+            newArray.push({ name: "CheckToDate", value: $('#CheckToDate').val() });
+
+            newArray.push({ name: "AmountFrom", value: $('#AmountFrom').val() });
+            newArray.push({ name: "AmountTo", value: $('#AmountTo').val() });
+
+            newArray.push({ name: "CheckNumber", value: $('#CheckNumber').val() });
+            newArray.push({ name: "CreatedDateFrom", value: $('#CreatedDateFrom').val() });
+            newArray.push({ name: "CreatedDateTo", value: $('#CreatedDateTo').val() });
+
+            var claimCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                claimCriteria[newArray[i].name] = newArray[i].value;
+            return claimCriteria;
+        }
+    }
+</script>
+<div class="with-padding" id="div_ACESPaymentsList">
+    <div class="tabs-content">
+        @(Html.Kendo().Grid<ACESPaymentList_Result>()
+        .Name("grdACESPayments")
+        .ToolBar(commands =>
+        {
+            if (canAdd)
+            {
+                commands.Create();
+            }
+
+        })
+        .DataSource(dataBinding =>
+        {
+            dataBinding.Ajax()
+                .Read(read => read.Action("_GetPaymentsList", "ClaimsACESPayments", new { area = "Claims" }).Data("ClaimGridSearchCriteria"))
+                .Create(insert => insert.Action("_InsertACESPayment", "ClaimsACESPayments", new { area = "Claims" }))//.Data("GetReadParams")) disabled ='disabled'
+                .Update("_UpdateACESPayment", "ClaimsACESPayments", new { area = "Claims" })
+                .Destroy(del => del.Action("_DeleteACESPayment", "ClaimsACESPayments", new { area = "Claims" }))
+                .Events(events => events
+                    .Error("KendoGridErrorHandler")
+                    .RequestEnd("GrdACESPayments_RequestEnd")
+                    )//GetPaymentAmount
+                .Model(u => u.Id(p => p.ID));
+        })
+        .Columns(columns =>
+        {
+            columns.Bound(pd => pd.ID).Hidden();
+            columns.Bound(pd => pd.PaymentBalance).Hidden();
+            columns.ForeignKey(pd => pd.PaymentType, (System.Collections.IEnumerable)ViewData["PaymentType"], "Value", "Text").Title("Type").Width("100px");
+            columns.Bound(pd => pd.CheckNumber).Title("Check #");
+
+            columns.Bound(pd => pd.CheckDate).Title("Date").Format("{0:MM/dd/yyyy}").EditorTemplateName("KendoDatePicker");
+            columns.Bound(pd => pd.TotalAmountRequired).Title("Amount").Format("{0:C}").HeaderHtmlAttributes(new { @style = "text-align:right; " }).HtmlAttributes(new { @style = "text-align:right; " }).EditorTemplateName("KendoMoneyPicker");
+            columns.Bound(pd => pd.RecievedDate).Title("Recieved Date").Format("{0:MM/dd/yyyy}").EditorTemplateName("KendoDatePicker");
+            columns.Bound(pd => pd.Comment).Title("Comment").Width(200);
+            columns.Bound(pd => pd.CreateBy).Title("Created By").HtmlAttributes(new { @class = "createdBy" });
+            columns.Bound(pd => pd.CreateDate).Title("Created Date").Format("{0:MM/dd/yyyy}").HtmlAttributes(new { @class = "createdDate" }).EditorTemplateName("KendoDatePicker").EditorViewData(new { Disabled = true });
+            columns.Command(commands =>
+                {
+                    commands.Edit().HtmlAttributes(new { style = "min-width:26px;" });
+                    if (canDelete)
+                    {
+                        commands.Destroy().HtmlAttributes(new { style = "min-width:26px;" });
+                    }
+                }).Title("Action(s)").Width(100);
+        })
+        .Events(events => events
+            .Edit("GrdACESPayments_OnEdit")
+            .DataBound("GrdACESPayments_onDataBound")
+            .Save("GrdACESPayments_OnSave")
+        )
+        .Editable(editing => editing
+            .CreateAt(Kendo.Mvc.UI.GridInsertRowPosition.Bottom)
+            .Mode(Kendo.Mvc.UI.GridEditMode.InLine)
+        )
+        .Sortable(p => { p.Enabled(true); })
+        .Filterable(p => { p.Enabled(false); })
+        .Pageable(pager => pager.Refresh(true).PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 }))
+        .EnableCustomBinding(true)
+        .Scrollable()
+        )
+        <br />
+        <div class="clear">
+        </div>
+        <div style="text-align: center">
+            <b class="gray-gradient float-left margin">Current Balance On Account : </b>
+            @(Html.Kendo().NumericTextBox()
+            .Name("txtPaymentBalance")
+                    //.Format("{0:N0}")
+            .Format("c")
+            .Min(0)
+            .HtmlAttributes(new { id = "txtPaymentBalance", @disabled = "disabled", @class = "black glossy float-left", @style = "text-align:right;" })
+            .Spinners(false)
+            .Value(0)
+            )
+            @*@Html.TextBox("txtPaymentBalance", 0, new { @readonly = "readonly", @class = "input black-gradient float-left", @style = "text-align:right;" })*@
+            <label for="TimePeriod" class="float-right mid-margin-left margin-bottom label">
+                Time Period : <strong><span id="spanTimePeriod"></span></strong>
+            </label>
+            <button id="btnApplyCash" class="button green-gradient glossy float-center mid-margin-left margin-bottom"
+                type="button" onclick="ApplyCash()">
+                Go To Apply Cash</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" language="javascript">
+
+    $(function () {
+        WatchMyContainer("div_ACESPaymentsList");
+
+        HandleEdits($("#div_ACESPaymentsList").find(".k-grid-add"));
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+    });
+
+</script>

@@ -1,0 +1,746 @@
+﻿@using Kendo.Mvc.UI
+@using Martex.DMS.DAL
+@using Martex.DMS.Areas.Application.Models
+@using models = Martex.DMS.Areas.Application.Models
+@model List<Martex.DMS.DAL.VendorInvoicesList_Result>
+@{
+    string gridName = "GrdVendorInvoices";
+}
+<script type="text/javascript" language="javascript">
+
+
+    function ManageVendorInvoices(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).ID;
+            var vendorInvoiceNumber = this.dataItem($(e.currentTarget).closest("tr")).InvoiceNumber;
+            var vendorID = this.dataItem($(e.currentTarget).closest("tr")).VendorID;
+            if (e.data.commandName == 'Edit') {
+                LoadVendorInformation('Edit', recordID, vendorInvoiceNumber, vendorID);
+            }
+            else if (e.data.commandName == 'Delete') {
+                var invoiceStatus = this.dataItem($(e.currentTarget).closest("tr")).InvoiceStatus;
+                if (invoiceStatus != null && invoiceStatus == "Paid") {
+                    var message = "Invoice has been paid and cannot be deleted.";
+                    openAlertMessage(message);
+                }
+                else {
+                    DeleteVendorInvoice(recordID);
+                }
+            }
+        }
+        else {
+            LoadVendorInformation('Add', null, 'In process ...', null);
+        }
+    }
+
+    function ManageVendorInvoices_Databound(e) {
+        $(".k-grid-Edit").addClass("with-tooltip").html("<span class='k-icon k-edit'/>");
+        $(".k-grid-Delete").addClass("with-tooltip").html("<span class='k-icon k-delete'/>");
+     
+        var rowCount = e.sender.dataSource.total();
+
+
+        if (rowCount == 0) {
+            $(".spVendorInvoiceRecivedcount").html("0");
+            $(".spVendorInvoiceReadyForPaymentCount").html("0");
+            $(".spVendorInvoiceExceptionCount").html("0");
+            $(".spVendorInvoicePaidCount").html("0");
+            $(".spVendorInvoiceCancelledCount").html("0");
+        }
+        if (rowCount > 0) {
+            var item = e.sender.dataSource.data()[0];
+            $(".spVendorInvoiceRecivedcount").html(item.RecivedCount);
+            $(".spVendorInvoiceReadyForPaymentCount").html(item.ReadyForPaymentCount);
+            $(".spVendorInvoiceExceptionCount").html(item.ExceptionCount);
+            $(".spVendorInvoicePaidCount").html(item.PaidCount);
+            $(".spVendorInvoiceCancelledCount").html(item.CancelledCount);
+        }
+
+        var grid = e.sender;
+        e.sender.table.find('tr').each(function () {
+            var $InvoiceStatus = $(this).find('.invoiceStatus');
+            var $InvoiceException = $(this).find('.invoiceException');
+            if ($InvoiceStatus.html() == "Exception") {
+                $InvoiceStatus.addClass("red redalert tpComments with-tooltip");
+                var exceptions = $InvoiceException.html().split(',');
+                var toolTipContent = "<ul>";
+                for (var e = 0, l = exceptions.length; e < l; e++) {
+                    toolTipContent += "<li>" + exceptions[e] + "</li>";
+                }
+                toolTipContent += "</ul>";
+                $InvoiceStatus.attr('title', toolTipContent);
+            }
+        });
+
+        AdjustTooltipDimensions();
+
+        //$("#spanTime").html(GetCurrentTime());
+                
+        var end = null;
+        var start = null;
+        if ($('#InvoiceTo').data('kendoDatePicker') != undefined) {
+            end = $("#InvoiceTo").data('kendoDatePicker').value();
+        }
+        if ($('#InvoiceFrom').data('kendoDatePicker') != undefined) {
+            start = $("#InvoiceFrom").data('kendoDatePicker').value();
+        }
+
+        if (start != null && end != null) {
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start != null) {
+            var end = Date.now();
+            $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (end != null) {
+            var end = Date.now();
+            $("#spanTimePeriod").html('Start to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+        else if (start == null && end == null) {
+            var end = Date.now();
+            $("#spanTimePeriod").html('Start to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+        }
+
+        // reset select all button 
+        var selectAllLabel = $('label[for="display-Select"]');
+        selectAllLabel.removeClass("active");
+        var chkSelectAll = selectAllLabel.find("input");
+        chkSelectAll.removeAttr("checked");
+    }
+
+
+    function VendorInvoiceSearchCriteria() {
+
+        if ($("#frmVendorInvoiceSearchCriteria").length > 0) {
+            var newArray = [];
+            newArray.push({ name: "IDValue", value: $("#frmVendorInvoiceSearchCriteria").find("#IDValue").val() });
+            newArray.push({ name: "NameValue", value: $("#frmVendorInvoiceSearchCriteria").find("#NameValue").val() });
+
+            if ($('#NameOperator').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "NameOperator", value: $('#NameOperator').data('kendoComboBox').value() });
+            }
+
+            if ($('#IDType').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "IDType", value: $('#IDType').data('kendoComboBox').value() });
+            }
+
+            if ($('#ExportType').data('kendoComboBox') != undefined) {
+                newArray.push({ name: "ExportType", value: $('#ExportType').data('kendoComboBox').value() });
+                newArray.push({ name: "ExportTypeName", value: $('#ExportType').data('kendoComboBox').text() });
+            }
+
+
+            if ($('#InvoiceTo').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "InvoiceTo", value: $("#frmVendorInvoiceSearchCriteria").find('#InvoiceTo').val() });
+            }
+
+            if ($('#InvoiceFrom').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "InvoiceFrom", value: $("#frmVendorInvoiceSearchCriteria").find('#InvoiceFrom').val() });
+            }
+
+            if ($('#ToBePaidTo').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "ToBePaidTo", value: $("#frmVendorInvoiceSearchCriteria").find('#ToBePaidTo').val() });
+            }
+
+            if ($('#ToBePaidFrom').data('kendoDatePicker') != undefined) {
+                newArray.push({ name: "ToBePaidFrom", value: $("#frmVendorInvoiceSearchCriteria").find('#ToBePaidFrom').val() });
+            }
+
+            $("#frmVendorInvoiceSearchCriteria").find("#pnlInvoiceStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "InvoiceStatuses[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "InvoiceStatuses[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "InvoiceStatuses[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmVendorInvoiceSearchCriteria").find("#pnlPOStatus input:checkbox").each(function (index) {
+                newArray.push({ name: "POStatuses[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "POStatuses[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "POStatuses[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmVendorInvoiceSearchCriteria").find("#pnlPayStatusCodes input:checkbox").each(function (index) {
+                newArray.push({ name: "PayStatusCodes[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "PayStatusCodes[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "PayStatusCodes[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+            $("#frmVendorInvoiceSearchCriteria").find("#pnlExceptionTypes input:checkbox").each(function (index) {
+                newArray.push({ name: "ExceptionTypes[" + index + "].Selected", value: $(this).is(':checked') });
+                newArray.push({ name: "ExceptionTypes[" + index + "].ID", value: $(this).attr('recorID') });
+                newArray.push({ name: "ExceptionTypes[" + index + "].Name", value: $(this).attr('recordName') });
+            });
+
+
+            var filterValue = new Array();
+            $('input[name="rbstatus"]:checked').each(function () {
+                filterValue.push($(this).val());
+            });
+
+            newArray.push({ name: "columnName", value: "Type" });
+            newArray.push({ name: "filterValue", value: filterValue.join() });
+
+            var vendorCriteria = {};
+            for (var i = 0; i < newArray.length; ++i)
+                vendorCriteria[newArray[i].name] = newArray[i].value;
+            return vendorCriteria;
+        }
+    }
+
+</script>
+<div class="with-padding">
+    <div class="float-left">
+        <p class="button-height">
+            <span class="button-group">
+                <label for="display-Select" class="button compact green-active">
+                    <input type="checkbox" name="chkSelectAll" id="display-Select" value="Select" gridID="@gridName"/>
+                    Select All
+                </label>
+            </span>
+        </p>
+    </div>
+    <div class="float-right">
+        <p class="button-height filterButtons" id="InvoiceFilterTopButtons">
+            <span class="button-group">
+                <label for="display-Received" class="button compact green-active">
+                    <span class="count blue-bg spVendorInvoiceRecivedcount" id="spVendorInvoiceRecivedcount ">@Html.Raw(Model.Count > 0 ? Model[0].RecivedCount.ToString() : "0")</span>
+                    <input type="checkbox" name="rbstatus" id="display-Received" value="Received" gridID="@gridName" class="rbStatus"/>
+                    Received
+                </label>
+                <label for="display-ReadyForPayment" class="button compact green-active">
+                    <span class="count blue-bg spVendorInvoiceReadyForPaymentCount" id="spanVendorInvoiceReadyForPaymentCount ">@Html.Raw(Model.Count > 0 ? Model[0].ReadyForPaymentCount.ToString() : "0")</span>
+                    <input type="checkbox" name="rbstatus" id="display-ReadyForPayment" value="ReadyForPayment" gridID="@gridName" class="rbStatus"/>
+                    Ready For Payment
+                </label>
+                <label for="display-Exception" class="button compact green-active">
+                    <span class="count blue-bg spVendorInvoiceExceptionCount" id="spanVendorInvoiceExceptionCount">@Html.Raw(Model.Count > 0 ? Model[0].ExceptionCount.ToString() : "0")</span>
+                    <input type="checkbox" name="rbstatus" id="display-Exception" value="Exception" gridID="@gridName" class="rbStatus"/>
+                    Exception
+                </label>
+                <label for="display-Paid" class="button compact green-active">
+                    <span class="count blue-bg spVendorInvoicePaidCount" id="spanVendorInvoicePaidCount">@Html.Raw(Model.Count > 0 ? Model[0].PaidCount.ToString() : "0")</span>
+                    <input type="checkbox" name="rbstatus" id="display-Paid" value="Paid" gridID="@gridName" class="rbStatus"/>
+                    Paid
+                </label>
+                <label for="display-Cancelled" class="button compact green-active">
+                    <span class="count blue-bg spVendorInvoiceCancelledCount" id="spanVendorInvoiceCancelledCount">@Html.Raw(Model.Count > 0 ? Model[0].CancelledCount.ToString() : "0")</span>
+                    <input type="checkbox" name="rbstatus" id="display-Cancelled" value="Cancelled" gridID="@gridName" class="rbStatus"/>
+                    Cancelled
+                </label>
+            </span>
+        </p>
+    </div>
+</div>
+<div class="clear">
+</div>
+<div class="with-padding" id="div_vendorManagementList">
+    <div class="tabs-content">
+        @(Html.Kendo().Grid(Model)
+        .Name("GrdVendorInvoices")
+        .Columns(column =>
+        {
+            //column.Bound(u => u.ContractStatus).Width(25).Title("").ClientTemplate("<span style='height: 16px;' ' #= ContractStatus=='Contracted' ? Class = 'class=starred' : Class = 'class=unstarred' # #= ContractStatus=='Contracted' ? Title = 'title=Contracted' : Title = 'title=NotContracted' # >&nbsp;</span>");
+            column.Bound(u => u.ID).Hidden().Title("ID");
+            column.Bound(u => u.VendorID).Hidden().Title("Vendor ID");
+            column.Bound(u => u.VendorNumber).Title("Vendor #").Width(100);
+            column.Bound(u => u.VendorName).Title("Vendor Name").Width(100);
+            column.Bound(u => u.PurchaseOrderNumber).Title("PO #").Width(100);
+            column.Bound(u => u.POStatus).Title("PO Status").Width(100);
+            column.Bound(u => u.IssueDate).Format("{0:MM/dd/yyyy}").Title("PO Date").Width(100);
+            column.Bound(u => u.InvoiceNumber).Title("Invoice #").Width(100);
+            column.Bound(u => u.ReceivedDate).Format("{0:MM/dd/yyyy}").Title("Rcv Date").Width(100);
+            column.Bound(u => u.RecieveMethod).Title("Rcv Method").Width(100);
+            column.Bound(u => u.InvoiceDate).Format("{0:MM/dd/yyyy}").Title("Inv Date").Width(100);
+            column.Bound(u => u.InvoiceAmount).Title("Inv Amount").Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.InvoiceStatus).Title("Inv Status").HtmlAttributes(new { @class = "invoiceStatus" }).Width(100);
+            column.Bound(u => u.VendorInvoiceException).Hidden().Title("VendorInvoiceException").HtmlAttributes(new { @class = "invoiceException" });
+            column.Bound(u => u.ToBePaidDate).Format("{0:MM/dd/yyyy}").Title("To Be Paid").Width(100);
+            column.Bound(u => u.PaymentType).Title("Method").Width(100);
+            column.Bound(u => u.ExportDate).Format("{0:MM/dd/yyyy}").Title("Export Date").Width(100);
+            column.Bound(u => u.PaymentDate).Format("{0:MM/dd/yyyy}").Title("Pay Date").Width(100);
+            column.Bound(u => u.PaymentAmount).Title("Pay Amount").Format("{0:c}").Width(100).HtmlAttributes(new { @style = "text-align:right;" }).HeaderHtmlAttributes(new { @style = "text-align:right;" });
+            column.Bound(u => u.PaymentNumber).Title("Payment #").Width(100);
+            column.Bound(u => u.CheckClearedDate).Format("{0:MM/dd/yyyy}").Title("Clear Date").Width(100);
+            column.Command(command =>
+            {
+                command.Custom("Edit").Click("ManageVendorInvoices").HtmlAttributes(new { style = "min-width:auto;", title = "Edit" });
+                command.Custom("Delete").Click("ManageVendorInvoices").HtmlAttributes(new { style = "min-width:auto;", title = "Delete" });
+            })
+            .Width(100)
+            .Title("Action(s)");
+        })
+        .ToolBar(toolBar => toolBar.Template("<a style = 'min-width:auto;', title='Add Vendor Invoice' , class='k-button k-button-icontext k-grid-invoice-add with-tooltip' href='javascript:void(0);' onclick='ManageVendorInvoices(null)'><span class='k-icon k-add'></span>Add Vendor Invoice</a>"))
+        .Events(e =>
+        {
+            e.DataBound("ManageVendorInvoices_Databound");
+        })
+        .Sortable()
+        .Scrollable()
+        .Filterable(filterable => filterable
+            .Extra(false)
+        )
+        .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100, 250, 500, 1000, 2000 })
+        )
+        .Selectable(select => select.Mode(GridSelectionMode.Multiple))
+        .DataSource(datasource => datasource
+            .Ajax()
+            .PageSize(1000)
+            .Events(events => events.Error("KendoGridErrorHandler"))
+            .Read(read => read.Action("_GetVendorInvoiceList", "VendorInvoices", new { area = "VendorManagement" })
+            .Data(@<text>function(e){return VendorInvoiceSearchCriteria()}</text>)
+
+        )
+        )
+        .Resizable(resize => resize.Columns(true))
+        )
+        <div class="align-center invoiceActionsContainer">
+            <p class="message">
+                <span class="big-stripes animated"></span><span class="block-arrow"></span>
+                <span class="statusMessage"></span>
+            </p>
+            <button id="btnVerifyInvoices" type="button" class="button orange-gradient small-margin-top">
+                Verify Invoices</button>
+                @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.VENDOR_BUTTON_PAY_INVOICES) == models.AccessType.ReadWrite)
+                {
+            <button id="btnPayInvoices" type="button" class="button green-gradient small-margin-top">
+                Post Invoices</button>
+                }
+        </div>
+        <div class="with-padding">
+            <p>
+                <label for="TimePeriod" class="float-right">
+                    Time Period : <strong><span id="spanTimePeriod"></span></strong>
+                </label>
+            </p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    function RefreshGridWith(status) {
+
+        var statusLabel = $('label[for="display-' + status + '"]');
+
+        var filterButtons = $(".filterButtons");
+        var labels = filterButtons.find("label");
+
+        labels.each(function () {
+            $(this).removeClass("active");
+            var chk = $(this).find("input");
+            chk.removeAttr("checked");
+        });
+
+        ResetCheckBoxesInSearchCriteria();
+
+        if (statusLabel.length > 0) {
+            statusLabel.addClass("active");
+            statusLabel.find("input").attr("checked", "checked");
+
+            CheckABoxInSearchCriteria(status);
+        }
+
+        $("#GrdVendorInvoices").data('kendoGrid').dataSource.read();
+
+    }
+
+    function ResetCheckBoxesInSearchCriteria() {
+        $("#frmVendorInvoiceSearchCriteria").find("#pnlInvoiceStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+
+            $(this).prop("checked", false);
+            $(this).parent().removeClass("checked");
+
+        });
+
+    }
+    function CheckABoxInSearchCriteria(status) {
+        $("#frmVendorInvoiceSearchCriteria").find("#pnlInvoiceStatus input:checkbox").each(function (index) {
+            var recordName = $(this).attr('recordName');
+            if (recordName == status) {
+                $(this).prop("checked", true);
+                $(this).parent().addClass("checked");
+            }
+        });
+
+    }
+    $(function () {
+        var $statusContainer = $(".invoiceActionsContainer");
+
+        HideStatus($statusContainer);
+
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdVendorInvoices").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-Edit').click();
+        });
+
+        $('input[name="rbstatus"]').click(function (e) {
+            var gridName = $(this).attr("gridID");
+            var invoiceStatus = $(this).attr('Value');
+            var IsRbStatusSelected = $(this).is(" :checked");
+            $("#frmVendorInvoiceSearchCriteria").find("#pnlInvoiceStatus input:checkbox").each(function (index) {
+                var recordName = $(this).attr('recordName');
+                if (recordName != undefined && invoiceStatus != undefined && IsRbStatusSelected != undefined) {
+                    if (recordName == invoiceStatus) {
+                        if (IsRbStatusSelected) {
+                            $(this).prop("checked", true);
+                            $(this).parent().addClass("checked");
+                        }
+                        else {
+                            $(this).prop("checked", false);
+                            $(this).parent().removeClass("checked");
+                        }
+                    }
+                }
+            });
+            $("#@gridName").data('kendoGrid').dataSource.read();
+        });
+
+        $('input[name="chkSelectAll"]').change(function (e) {
+
+            var gridName = $(this).attr("gridID");
+            var grid = $("#@gridName").data('kendoGrid');
+            if ($(this).is(":checked")) {
+                grid.select("tr");
+            }
+            else {
+                grid.clearSelection();
+            }
+        });
+
+        function GetSummaryDetailsAsHTML(summaryData) {
+
+            var summaryDetails = "<p>Verification Complete</p>";
+            summaryDetails += '<table class="table simple-table">';
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Ready for Payment</td>"
+            summaryDetails += "<td>" + summaryData.ReadyForPayment + "</td>";
+            summaryDetails += "<td>$" + summaryData.ReadyForPaymentAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Ready - future date</td>"
+            summaryDetails += "<td>" + summaryData.ReadyForPaymentInFuture + "</td>";
+            summaryDetails += "<td>$" + summaryData.ReadyForPaymentInFutureAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Exception</td>"
+            summaryDetails += "<td>" + summaryData.Exceptions + "</td>";
+            summaryDetails += "<td>$" + summaryData.ExceptionsAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Received</td>"
+            summaryDetails += "<td>" + summaryData.Received + "</td>";
+            summaryDetails += "<td>$" + summaryData.ReceivedAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Cancelled</td>"
+            summaryDetails += "<td>" + summaryData.Cancelled + "</td>";
+            summaryDetails += "<td>$" + summaryData.CancelledAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+            summaryDetails += "<tr>";
+            summaryDetails += "<td>Paid</td>"
+            summaryDetails += "<td>" + summaryData.Paid + "</td>";
+            summaryDetails += "<td>$" + summaryData.PaidAmount.toFixed(2) + "</td>";
+            summaryDetails += "</tr>";
+
+            summaryDetails += "</table>";
+
+            return summaryDetails;
+        }
+
+        $("#btnVerifyInvoices").click(function (e) {
+            var grid = $("#GrdVendorInvoices").data("kendoGrid");
+
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select invoices to verify");
+            }
+            else {
+
+                ShowStatus("inprogress", "Processing ...", $statusContainer);
+                var selectedInvoices = [];
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    //openAlertMessage("Selected Invoice ID : " + record.ID + " of Vendor # " + record.VendorNumber);
+                    selectedInvoices.push({ name: "invoices[" + i + "]", value: record.ID });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Verify", "VendorInvoices", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    data: selectedInvoices,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+
+                        if (msg.Status == "Success") {
+
+                            var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+
+                            $.modal.VerificationResults(summaryDetails, function () {
+                                //openAlertMessage("Work Exceptions clicked");
+
+                                RefreshGridWith("Exception");
+
+                            }, function () {
+                                //openAlertMessage("OK clicked");
+                                // Just refresh the grid.
+
+                                if ($(event.srcElement).text() != "Close") {
+                                    RefreshGridWith('');
+                                }
+                            });
+
+                            setTimeout(function () {
+                                if (msg.Data.Exceptions == 0) {
+
+                                    $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                }
+                            }, 500);
+                        }
+                        HideStatus($statusContainer);
+                    },
+                    error: function (err, errStatus) {
+
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+
+            return false;
+        });
+
+        var invoicesProcessedSoFar = [];
+
+        function IncrementPaidCounts(invoiceID, invoicesReadyForPayment, etlExecutionLogID, batchID) {
+            invoicesProcessedSoFar.push(invoiceID);
+            var statusMessage = "Processing ... [ Invoices Processed : " + invoicesProcessedSoFar.length + " ]";
+            console.log(statusMessage);
+            ShowStatus("inprogress", statusMessage, $statusContainer);
+
+            // Start the next steps when invoicesProcessedSoFar.length == invoicesReadyForPayment.length
+            if (invoicesProcessedSoFar.length == invoicesReadyForPayment.length) {
+                statusMessage = "Invoices created in staging, Creating export file ...";
+                console.log(statusMessage);
+                ShowStatus("success", statusMessage, $statusContainer);
+                var formData = [];
+
+                formData.push({ name: "etlExecutionLogID", value: etlExecutionLogID });
+                formData.push({ name: "batchID", value: batchID });
+
+                for (var k = 0, l = invoicesProcessedSoFar.length; k < l; k++) {
+                    formData.push({ name: "invoices[" + k + "]", value: invoicesProcessedSoFar[k] });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CreateExportFiles", "VendorInvoices", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    data: formData,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            HideStatus($statusContainer);
+                            var summary = "<p>Post invoices has completed</p>";
+                            summary += "<p>BatchId : " + batchID + "</p>";
+                            summary += "<p>Payments : " + msg.Data.Paid + "</p>";
+                            summary += "<p>Amount : $" + msg.Data.PaidAmount.toFixed(2) + "</p>";
+
+                            openAlertMessage(summary);
+                            RefreshGridWith("ReadyForPayment");
+                        }
+                    },
+                    error: function (err, errStatus) {
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+
+            }
+        }
+
+        function ProcessPayments(summaryData) {
+            if (summaryData.InvoicesReadyForPayment.length > 0) {
+                ShowStatus("inprogress", "Setting up the prerequisites", $statusContainer);
+                var invoicesReadyForPayment = summaryData.InvoicesReadyForPayment;
+                var etlExecutionLogID = 0;
+                var batchID = 0;
+                var timestamp = null;
+                setTimeout(function () {
+                    // Generate ETL ID.
+                    $.ajax({
+                        url: '@Url.Action("GetETLExecutionLogID", "VendorInvoices", new { area = "VendorManagement" })',
+                        type: 'POST',
+                        cache: false,
+                        async: false,
+                        global: false,
+                        success: function (msg) {
+                            if (msg.Status == "Success") {
+                                var ids = msg.Data;
+                                etlExecutionLogID = ids.ETLExecutionLogID;
+                                batchID = ids.BatchID;
+                                var date = new Date(parseInt(ids.CurrentDate.substr(6)));
+                                timestamp = date.toString("MM/dd/yyyy HH:mm:ss");
+                                console.log("ETL ID = " + etlExecutionLogID + ", Batch ID = " + batchID + ", Timestamp = " + timestamp);
+
+                                // Process each invoice that is readyforpayment
+                                invoicesProcessedSoFar.splice(0, invoicesProcessedSoFar.length);
+
+                                for (var p = 0, l = invoicesReadyForPayment.length; p < l; p++) {
+                                    var invoiceID = invoicesReadyForPayment[p];
+                                    console.log("Processing invoice ID : " + invoiceID);
+                                    $.ajax({
+                                        url: '@Url.Action("ProcessInvoice", "VendorInvoices", new { area = "VendorManagement" })',
+                                        type: 'POST',
+                                        data: { invoiceID: invoiceID, batchID: batchID, batchTimeStamp: timestamp },
+                                        cache: false,
+                                        async: true,
+                                        global: false,
+                                        success: function (msg) {
+                                            if (msg.Status == "Success") {
+                                                IncrementPaidCounts(msg.Data.InvoiceID, invoicesReadyForPayment, etlExecutionLogID, batchID);
+                                            }
+                                        },
+                                        error: function (err, errStatus) {
+                                            HandleAjaxErrors("error", err);
+                                            HideStatus($statusContainer);
+                                        }
+                                    });
+
+                                }
+                            }
+                            else {
+                                ShowStatus("error", "Unable to get ETL Execution LogID", $statusContainer);
+                            }
+                        },
+                        error: function (err, errStatus) {
+                            HandleAjaxErrors("error", err);
+                            HideStatus($statusContainer);
+                        }
+                    });
+
+                }, 200);
+            }
+            else {
+                HideStatus($statusContainer);
+            }
+
+            // Process invoices
+        }
+
+        $("#btnPayInvoices").click(function (e) {
+
+            var grid = $("#GrdVendorInvoices").data("kendoGrid");
+
+            var selectedRows = grid.select();
+
+            if (selectedRows.length == 0) {
+                openAlertMessage("Please select invoices to verify");
+            }
+            else {
+
+                ShowStatus("inprogress", "Processing ...", $statusContainer);
+                var selectedInvoices = [];
+                for (var i = 0, l = selectedRows.length; i < l; i++) {
+                    var record = grid.dataItem($(selectedRows[i]));
+                    //openAlertMessage("Selected Invoice ID : " + record.ID + " of Vendor # " + record.VendorNumber);
+                    selectedInvoices.push({ name: "invoices[" + i + "]", value: record.ID });
+                }
+
+                $.ajax({
+                    url: '@Url.Action("VerifyBeforePay", "VendorInvoices", new { area = "VendorManagement" })',
+                    type: 'POST',
+                    data: selectedInvoices,
+                    cache: false,
+                    async: true,
+                    global: false,
+                    success: function (msg) {
+
+                        if (msg.Status == "Success") {
+                            var summaryData = msg.Data;
+                            var summaryDetails = GetSummaryDetailsAsHTML(msg.Data);
+                            if (msg.Data.ReadyForPayment == 0) {
+                                $.modal.VerificationResults(summaryDetails, function () {
+                                    //openAlertMessage("Work Exceptions clicked");
+
+                                    RefreshGridWith("Exception");
+
+                                }, function () {
+                                    //openAlertMessage("OK clicked");
+                                    // Just refresh the grid.
+
+                                    if ($(event.srcElement).text() != "Close") {
+                                        RefreshGridWith('');
+                                    }
+                                });
+
+                                setTimeout(function () {
+                                    if (msg.Data.Exceptions == 0) {
+
+                                        $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                    }
+                                }, 500);
+                            }
+                            else {
+                                $.modal.VerificationResultsForPayment(summaryDetails, function () {
+                                    //openAlertMessage("Work Exceptions clicked");
+                                    RefreshGridWith("Exception");
+
+                                }, function () {
+                                    //openAlertMessage("OK clicked");
+                                    // Process payments.
+                                    if ($(event.srcElement).text() != "Close") {
+                                        setTimeout(function () { ProcessPayments(msg.Data); }, 300);
+                                    }
+                                });
+
+                                setTimeout(function () {
+                                    if (msg.Data.Exceptions == 0) {
+
+                                        $("#modals .workExceptions").attr("disabled", "disabled").addClass("disabled");
+                                    }
+                                }, 500);
+                            }
+
+                            HideStatus($statusContainer);
+                        }
+                        else {
+                            ShowStatus("error", msg.ErrorMessage, $statusContainer);
+                        }
+
+                    },
+                    error: function (err, errStatus) {
+
+                        HandleAjaxErrors("error", err);
+                        HideStatus($statusContainer);
+                    }
+                });
+            }
+
+            return false;
+        });
+
+    });
+    
+</script>

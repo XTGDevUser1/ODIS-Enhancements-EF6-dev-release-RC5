@@ -1,0 +1,102 @@
+﻿@using Kendo.Mvc.UI
+@if (ViewData["ReadOnly"] == null)
+{
+    <span class="phone-input">
+        @if (ViewData["ShowPhoneType"] == null || (bool)ViewData["ShowPhoneType"] == true)
+        {
+
+            @(Html.Kendo().ComboBox()
+            .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.PhoneType.ToString()] as IEnumerable<SelectListItem>)
+            .Name(ViewData.TemplateInfo.HtmlFieldPrefix + "_ddlPhoneType")
+            .Suggest(true)
+            .Filter(FilterType.StartsWith).MinLength(0)
+            .HighlightFirst(true)
+            .Events(events =>
+            {
+                events.Change("ValidateInputForKendoCombo").DataBound("DefaultDataBoundToAdjustContainerWidth");
+            })
+            .HtmlAttributes(new { style = "width:67px", @class = "phoneType" })
+            .SelectedIndex(0)
+            )
+            
+            @Html.Hidden("PhoneTypeID")
+        }
+
+        @(Html.Kendo().ComboBox()
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .BindTo(ViewData[VendorPortal.ActionFilters.StaticData.CountryCode.ToString()] as IEnumerable<SelectListItem>)
+        .Name(ViewData.TemplateInfo.HtmlFieldPrefix + "_ddlCountryCode")
+        .Suggest(true)
+        .Filter(FilterType.StartsWith).MinLength(0)
+        .HighlightFirst(true)
+        .Events(events =>
+        {
+            events.Change("ValidateInputForKendoCombo");
+        })
+        .HtmlAttributes(new { style = "width:50px", @class = "countryCode" })
+        .SelectedIndex(0)
+        )
+        <span class="input-unstyled">
+            @if (ViewData["IsRequired"] == null || ViewData["IsRequired"].Equals("false"))
+            {
+                @Html.TextBox("txtPhoneNumber", null, new { @class = "validate[funcCall[checkPhone]] input", size = 12, maxlength = 12, style = "width:80px;" })
+            }
+            else
+            {
+                @Html.TextBox("txtPhoneNumber", null, new { @class = "validate[required,funcCall[checkPhone]] input", size = 12, maxlength = 12, style = "width:80px;" })
+            }
+            <span>ext</span>
+            @Html.TextBox("txtExtension", null, new { @class = "validate[maxSize[10], minSize[2], custom[onlyNumberSp]] input", size = 4, maxlength = 8, style = "width:40px;" })
+            @Html.Hidden("PhoneNumber")
+            @Html.Hidden("ID", ViewData["ID"])
+        </span>
+        @if (ViewData["ShowCallIcon"] == null || (bool)ViewData["ShowCallIcon"] == true)
+        {
+           
+            <label for="pseudo-input-9" class="button compact orange-gradient">
+                <span class="icon-phone small-margin-left" id="@(ViewData.TemplateInfo.HtmlFieldPrefix + "_call")">
+                </span>
+            </label>
+        }
+    </span>
+}
+else
+{
+    string customClassName = ViewData["customClassName"] == null ? string.Empty : ViewData["customClassName"].ToString();
+    
+    <span>
+        @if (ViewData["Value"] == null)
+        {
+            ViewData["Value"] = string.Empty;
+        }
+        @Html.Label(ViewData["Value"] as string, new { id = @ViewData.TemplateInfo.HtmlFieldPrefix + "_lblPhoneNumber", datatype = "phone" })
+        @if (ViewData["ShowCallIcon"] == null || (bool)ViewData["ShowCallIcon"] == true)
+        {
+            <span class="icon-phone small-margin-left @customClassName" id="@(ViewData.TemplateInfo.HtmlFieldPrefix + "_call")" data = "@ViewData["Value"]">
+            </span>
+        }
+    </span>
+}
+<script language="javascript" type="text/javascript">
+<!--
+    $(function () {
+        var phoneType = '@ViewData["PhoneTypeValue"]';
+        var phoneNumber = '+@ViewData["Value"]';
+        var prefix = '#@ViewData.TemplateInfo.HtmlFieldPrefix';
+        var isControlReadonly = '@ViewData["ReadOnly"]';
+        try {
+
+            if (phoneNumber.length > 1) {
+                SetPhoneValues(prefix, phoneNumber, (isControlReadonly.length > 0));
+            }
+            if (phoneType.length > 0) {
+               $(prefix + "_ddlPhoneType").data('kendoComboBox').value(phoneType);
+            }
+        }
+        catch (error) {
+        }
+
+    });
+//-->
+</script>

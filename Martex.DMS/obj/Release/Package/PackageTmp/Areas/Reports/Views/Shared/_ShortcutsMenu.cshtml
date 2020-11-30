@@ -1,0 +1,41 @@
+﻿@using Martex.DMS.Models
+@using Martex.DMS.Areas.Application.Models
+@{
+    var currentController = ViewContext.RouteData.Values["controller"];
+}
+<ul id="shortcuts" role="complementary" class="children-tooltip tooltip-right qaReports">
+
+    @if (currentController.Equals("DepartmentReport"))
+    {
+        
+    }
+    else if (currentController.Equals("SystemReport"))
+    {
+        
+    }
+
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_DEPARTMENT) == AccessType.ReadWrite)
+    {
+        <li id="LMenu_Reports_Department"><a href="#" class="shortcut-contacts" title="Department Report" data="DepartmentReport">
+            Department</a></li>
+    }
+    @if (DMSSecurityProvider.GetAccessType(DMSSecurityProviderFriendlyName.MENU_SECOND_REPORTS_SYSTEM) == AccessType.ReadWrite)
+    {
+        @*<li id="LMenu_Reports_System"><a href="@Url.Action("Index", "SystemReport", new { area = "Reports" })" class="shortcut-stats" title="System Report" data ="SystemReport">
+            System</a></li>*@
+    }
+</ul>
+<script type="text/javascript">
+    $(function () {
+        $('.qaReports li').each(function () {
+            $(this).removeClass("current");
+        });
+
+        var currentController = '@ViewContext.RouteData.Values["controller"]';
+        $('.qaReports li a').each(function () {
+            if ($(this).attr("data") == currentController) {
+                $(this).parent().addClass("current");
+            }
+        });
+    });
+</script>

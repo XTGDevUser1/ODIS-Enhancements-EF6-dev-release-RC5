@@ -1,0 +1,186 @@
+﻿@using Kendo.Mvc.UI;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+}
+<script type="text/javascript">
+
+    function GrdSecurablesList_OnDataBound(e) {
+
+        $(".k-grid-View").addClass("with-tooltip").html("<span class='k-icon k-i-search'/>");
+
+        $(".spPermissions").each(function (i) {
+            var sb = "";
+            var text = $(this).text();
+            var tokensByPermissions = text.split(',');
+            for (var i = 0, l = tokensByPermissions.length; i < l; i++) {
+                var tokensByRoles = tokensByPermissions[i].split('|');
+                var rolesExist = false;
+                for (var j = 0, jl = tokensByRoles.length; j < jl; j++) {
+                    if (j == 0) {
+                        var permAndRole = tokensByRoles[j].split(':');
+                        var perm = permAndRole[0];
+                        var role = '';
+                        if (permAndRole.length > 0) {
+                            role = permAndRole[1];
+                        }
+                        sb += "<ul><li><strong>" + perm + "</strong></li>";
+
+                        if ($.trim(role).length > 0) {
+                            rolesExist = true;
+                            sb += "<ul><li>" + role + "</li>";
+                        }
+                    }
+                    else {
+                        if ($.trim(tokensByRoles[j]).length > 0) {
+                            rolesExist = true;
+                            sb += "<li>" + tokensByRoles[j] + "</li>";
+                        }
+                    }
+                }
+                if (rolesExist) {
+                    sb += "</ul>";
+                }
+                if (tokensByRoles.length > 0) {
+                    sb += "</li></ul>";
+                }
+            }
+
+            $(this).html(sb);
+
+        });
+    }
+    function ManageSecurableItem(e) {
+        if (e != null) {
+            e.preventDefault();
+            var recordID = this.dataItem($(e.currentTarget).closest("tr")).SecurableID;
+            var securableName = this.dataItem($(e.currentTarget).closest("tr")).FriendlyName;
+            if (e.data.commandName == 'View') {
+                GetManageSecurableItem(recordID, securableName);
+            }
+        }
+        return false;
+    }
+
+    function GetManageSecurableItem(recordID, securableName) {
+        var nameToCheck = securableName;
+        var tabNameExists = false;
+        var index = -1;
+
+        $('#AccessControlTabs ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+        if (!tabNameExists) {
+            addTab(securableName, recordID);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+    function addTab(securableName, recordID) {
+
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + securableName + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+        var numOfTabs = tabCounter - 1;
+
+        var lastTabId = $($("#AccessControlTabs").find(".accessControlDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+        console.log("Next tab index : " + newTabId);
+        var label = securableName || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+
+        $.ajax({
+            url: '@Url.Action("View", "SecurableAccessControl", new { area = "Admin" })',
+            data: { securableID: recordID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").first().append(li);
+                tabObject.append("<div id='" + id + "' class='ui-tabs-panel accessControlDynamicTabs ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+</script>
+<div class="with-padding">
+    <hgroup id="main-title" class="thin">
+        <h1>
+            Access Controls</h1>
+    </hgroup>
+    <div id="AccessControlTabs" class="standard-tabs same-height" data="accessControlDynamicTabs">
+        <ul class="tabs">
+            <li><a href="#tabs-1" class="icon-user">Access Control List</a></li>
+        </ul>
+        <div id="tabs-1" class="accessControlDynamicTabs">
+            <div class="with-padding">
+                <div class="columns">
+                    <div class="new-row twelveColumns">
+                        @(Html.Kendo().Grid<Martex.DMS.DAL.SecurablesList_Result>()
+                        .Name("GrdSecurablesList")
+                        .Columns(column =>
+                        {
+                            column.Bound(u => u.SecurableID).Width(100).Sortable(true);
+                            column.Bound(u => u.FriendlyName);
+                            column.Bound(u => u.Permissions).Encoded(false).HtmlAttributes(new { @class="spPermissions" });
+
+                            column.Command(command =>
+                            {
+                                command.Custom("View").Click("ManageSecurableItem").HtmlAttributes(new { style = "min-width:auto;", title = "View" });
+                            })
+                                .Width(150)
+                                .Title("Action(s)");
+                        })
+                        
+                        .Pageable()
+                        .Sortable()
+                        .Scrollable()
+                        .Filterable(filterable => filterable.Extra(false))
+                        .Pageable(pager => pager
+                        .Refresh(true).PageSizes(new int[] { 10, 20, 50, 100 }))
+                        .Selectable(select => select.Mode(GridSelectionMode.Single))
+                        .DataSource(datasource => datasource
+                        .Ajax()
+                        .PageSize(50)
+                        .Events(events => events.Error("KendoGridErrorHandler"))
+                        .Read(read => read.Action("SecurablesAccessList", "SecurableAccessControl", new { area = "Admin" })))
+                        .Resizable(resize => resize.Columns(true))
+                        .Events(e => e.DataBound("GrdSecurablesList_OnDataBound"))
+                        )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var tabObject = null;
+    $(function () {
+        tabObject = $('#AccessControlTabs').tabs();
+    });
+</script>
+<script type="text/javascript">
+    $(function () {
+        var gridContentHeight = GetWindowHeight() - (
+                                        $("#menu-horizontal").height() +
+                                        $(".k-toolbar").height() +
+                                        $(".k-grid-header").height() +
+                                        $(".k-grid-bottom").height() +
+                                        $(".footer").height() +
+                                        250
+                                        );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+
+        $("#GrdSecurablesList").delegate("tbody>tr", "dblclick", function () {
+            $(this).find('.k-grid-View').click();
+        });
+    });   
+</script>

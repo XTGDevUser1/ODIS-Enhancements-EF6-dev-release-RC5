@@ -1,0 +1,64 @@
+﻿<!-- Lightweight grid for managing zip codes -->
+<script language="javascript" type="text/javascript">
+<!--
+    /* View model for ZipCodes */
+
+    function ZipCodesViewModel() {
+        self = this;
+        self.itemToAdd = ko.observable("");
+        self.ZipCodes = ko.observableArray([]);
+        self.addZipCode = function () {
+            if ((this.itemToAdd() != "") && (this.ZipCodes.indexOf(this.itemToAdd()) < 0)) // Prevent blanks and duplicates
+            {
+                self.ZipCodes.push(self.itemToAdd());
+            }
+            self.itemToAdd("");
+        };
+
+        self.removeZipCode = function (zipCode) {
+            self.ZipCodes.remove(zipCode);
+        };
+
+        self.getZipCodes = ko.computed(function () {
+            return self.ZipCodes().join(",");
+        });
+    }
+
+//-->
+</script>
+<div class="clear"></div>
+
+<div id="divZipCodes">
+<input type="hidden" data-bind="value: getZipCodes" name="ZipCodesAsCSV"/>
+<h3 class="thin"> Zip Codes</h3>
+<table class="table responsive-table" style="width:50%">
+    <thead></thead>    
+    <tbody data-bind='foreach: ZipCodes'>
+        <tr>
+            <td style="width:40%">
+            <p name="ZipCodes" data-bind="text : $data"></p>
+            @*<input type="text" id="ZipCodes" name="ZipCodes" data-bind="value : $data"/>                *@
+            </td>
+            <td style="width:10%" class="align-center">
+                <a href='#' class="icon-cross icon-size2 red with-tooltip" data-bind='click: $root.removeZipCode'></a>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2">
+                <input type="text" class="input" data-bind='value:itemToAdd, valueUpdate: "afterkeydown"' />
+                <button type="button" class="icon-plus icon-size2 with-tooltip" data-bind="enable: itemToAdd().length > 0,click:addZipCode">
+                </button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+</div>
+
+<script language="javascript" type="text/javascript">
+    
+    ko.applyBindings(new ZipCodesViewModel(),document.getElementById('divZipCodes'));
+
+</script>

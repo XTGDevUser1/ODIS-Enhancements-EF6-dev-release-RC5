@@ -1,0 +1,360 @@
+﻿@using Martex.DMS.Areas.Application.Models
+@using Martex.DMS.Common
+@using Martex.DMS.DAL
+@model Martex.DMS.DAL.ISPs_Result
+@if (Model != null && !Model.CallStatus.Equals("DoNotUse"))
+{
+    DMSCallContext.RejectVendorOnDispatch = false;
+    var iconConfig = new VendorListIconConfig();
+    var contractStatusIconStyle = iconConfig.GetIconStyle(Model.ContractStatus);
+
+    <style type="text/css">
+        .breakWord {
+            word-wrap: break-word;
+        }
+    </style>
+    <div class="columns">
+        <div class="four-columns">
+            <div class="boxed left-border">
+                <span class="@contractStatusIconStyle.Class message-status dispatchstar with-tooltip" title="@contractStatusIconStyle.Title">
+                    &nbsp;
+                </span>
+                <h4 class="underline thin blue no-margin-top no-margin-bottom">@Model.VendorName</h4>
+                <p>
+                    ID : @Model.VendorNumber
+                </p>
+                <p class="small-margin-top">
+                    @Model.Address1 @Model.Address2<br />
+                    @Model.City, @Model.StateProvince, @Model.PostalCode, @Model.CountryCode
+                </p>
+                @if (!string.IsNullOrEmpty(Model.DispatchPhoneNumber))
+                {
+                    <p class="small-margin-top">
+                        24HR @Html.Editor("ISPPhone", "Phone", new { Value = Model.DispatchPhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                    </p>
+                }
+                <!-- TFS : 105 -->
+                @if (!string.IsNullOrEmpty(Model.AlternateDispatchPhoneNumber))
+                {
+                    <p class="small-margin-top">
+                        Alt Disp @Html.Editor("ISPAltPhone", "Phone", new { Value = Model.AlternateDispatchPhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                    </p>
+                }
+                <!-- CR : 1226 -->
+                @if (!string.IsNullOrEmpty(Model.CellPhoneNumber))
+                {
+                    <p class="small-margin-top">
+                        Cell @Html.Editor("ISPCell", "Phone", new { Value = Model.CellPhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                    </p>
+                }
+                @if (!string.IsNullOrEmpty(Model.OfficePhoneNumber))
+                {
+                    <p class="small-margin-bottom">
+                        Office @Html.Editor("ISPOffice", "Phone", new { Value = Model.OfficePhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                    </p>
+                }
+                @if (!string.IsNullOrEmpty(Model.FaxPhoneNumber))
+                {
+                    <p>
+                        Fax @Html.Editor("ISPFax", "Phone", new { Value = Model.FaxPhoneNumber, ReadOnly = true, CallType = "Vendor" })
+                    </p>
+                }
+                <p>
+                    Hours : @Model.BusinessHours
+                </p>
+                <p>
+                    Insurance status : @Model.InsuranceStatus
+                </p>
+                <p class="breakWord">
+                    <strong>Notes</strong><br />
+                    @Model.Comment
+                </p>
+                <!-- CallHistory -->
+                @Html.Partial("_VendorNotes", ViewData["VendorNotes"] as List<Comment>)
+                <p>
+                    <strong>Services</strong><br />
+                    @{
+                        string[] services = (string.IsNullOrEmpty(Model.AllServices) ? new string[] { } : Model.AllServices.Split(','));
+                        System.Text.StringBuilder servicesTooltip = new System.Text.StringBuilder("<ul>");
+                        foreach (string s in services)
+                        {
+                            servicesTooltip.AppendFormat("<li>{0}</li>", s);
+                        }
+                        servicesTooltip.Append("</ul>");
+                    }
+                    @Html.Raw(servicesTooltip.ToString())
+                </p>
+            </div>
+        </div>
+        <div class="eight-columns">
+            <div class="with-padding">
+                <div>
+                    <p class="button-height inline-medium-label">
+                        @if (Model.ContractStatus.Equals("Contracted", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            <label for="Cost" class="big-text label">
+                                Contracted Price
+                            </label>
+
+                        }
+                        else
+                        {
+                            <label for="Cost" class="big-text label">
+                                Estimated Price
+                            </label>
+                        }
+                        <span class="fact-value green">@Model.EstimatedPrice.GetValueOrDefault().ToString("C")</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label margin-top">
+                        <label for="EnrouteMiles" class=" big-text label">
+                            Enroute Miles
+                        </label>
+                        <span class="fact-value">@Model.EnrouteMilesRounded</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label margin-top">
+                        <label for="TowMiles" class=" big-text label">
+                            Tow Miles
+                        </label>
+                        <span class="fact-value">@Model.ServiceMilesRounded</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label margin-top">
+                        <label for="ReturnMiles" class=" big-text label">
+                            Return Miles
+                        </label>
+                        <span class="fact-value">@Model.ReturnMilesRounded</span>
+                    </p>
+                </div>
+                <div>
+                    <p class="button-height inline-medium-label margin-top">
+                        <label for="Service" class=" big-text label">
+                            Service
+                        </label>
+                        <span class="fact-value">@Model.ProductName</span>
+                    </p>
+                </div>
+                <div>
+                    <form id="frmGoToPo" action="JavaScript:void(0)">
+                        <p class="button-height inline-medium-label margin-top margin-bottom">
+                            <label for="TalkedTo" class=" big-text label">
+                                Talked To
+                            </label>
+                            @Html.TextBox("DispatchTalkedTo", null, new { @class = "input full-width2" })
+                        </p>
+                    </form>
+                </div>
+                <div class="align-center">
+                    <button id="btnGoToPO" class="button huge green-gradient " type="button">
+                        Go to PO
+                    </button>
+                    <button id="btnReject" class="button huge red-gradient margin-left" type="button">
+                        Reject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+<!--
+    var winRejectVendor = null;
+    var currentVendorID = '@Model.VendorID';
+    var currentVendorLocationID = '@Model.VendorLocationID';
+    var currentVendorSource = '@Model.Source';
+    var currentVendorName = '@Model.VendorName';
+    var phoneNumber = '@DMSCallContext.VendorPhoneNumber';
+    var phoneType = '@DMSCallContext.VendorPhoneType';
+    var currentVendorIndex = '@DMSCallContext.VendorIndexInList';
+    var totalInList = '@DMSCallContext.ISPs.Count';
+    var currentVendorCallStatus = '@Model.CallStatus';
+
+
+    function LaunchRejectPopup()
+    {
+    winRejectVendor = $("<div id='winRejectVendor' />").appendTo(document.body);
+                document.dialogResult = null;
+                winRejectVendor.kendoWindow({
+                    title: "Reject",
+                    content : "@Url.Action("RejectVendor", "Dispatch", new { area = "Application" })",
+                    modal: true,
+                    actions: [],
+                    width: 500,
+                   height: 400,
+                    deactivate: function () {
+                        document.dialogResult = null;
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        HideValidationMessage($('input[name="ContactAction_input"]'));
+                        HideValidationMessage($("#RejectTalkedTo"));
+                        if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                            document.dialogResult = null;
+                            if (IsMyContainerDirty('frmRejectVendor')) {
+                                var prompt = PromptForDirtyFlag();
+                                if (!prompt) {
+                                    e.preventDefault();
+                                    return false;
+                                }
+                                CleanMyContainer('frmRejectVendor');
+                            }
+                        }
+                        isdirty = false;
+                        if(document.dialogResult == "OK")
+                        {
+                            //ClearDirtyFlag("popupcontainer");
+                            //ClearDirtyFlag("pagecontainer");
+
+                            CleanMyContainer("frmRejectVendor");
+
+                            RefreshVendorList(true);
+                            RefreshVendorInfo(true);
+                            isCallMade = false;
+                            isVendorDone = true;
+                            TrackCallToVendor();
+                            GetNextVendor();
+                            document.dialogResult = null;
+                        }
+                        return true;
+                    }
+                });
+                winRejectVendor.data('kendoWindow').center().open();
+    }
+    function ExtractPhoneDetails(callId)
+    {
+            var elements = callId.split('_');
+
+            phoneNumber = GetPhoneNumberForDB(elements[0]);
+            if(callId == "ISPPhone_call")
+            {
+                phoneType = "Dispatch";
+            }
+            else if(callId == "ISPFax_call")
+            {
+                phoneType = "Fax";
+            }
+            else if(callId == "ISPAltPhone_call")
+            {
+                phoneType = "AlternateDispatch";
+            }
+            else if(callId == "ISPCell_call")
+            {
+                phoneType = "Cell";
+            }
+            else
+            {
+                phoneType = "Office";
+            }
+            isCallMade = true;
+            TrackCallToVendor();
+            $("#btnReject").removeAttr("disabled");
+            $("#btnGoToPO").removeAttr("disabled");
+    }
+    $(function () {
+
+        rejectVendorOnDispatch = @ViewData[StringConstants.REJECT_VENDOR_ON_DISPATCH].ToString().ToLower();
+        isPrivileged  = @((DMSCallContext.IsAllowedToSeeISPNotCalled || DMSCallContext.IsDispatchThresholdReached).ToString().ToLower());
+        ClearDirtyFlag("pagecontainer");
+
+        // Enable next and previous buttons if we loaded a vendor details.
+        $("#btnNextVendor").removeAttr("disabled");
+        $("#btnNextVendor").removeClass("disabled");
+        // Tab launched from PO tab  -> Reject and Clear.
+        if(!rejectVendorOnDispatch && !isCallMade)
+        {
+            // Disable the reject button
+            $("#btnReject").attr("disabled","disabled");
+             $("#btnGoToPO").attr("disabled","disabled");
+        }
+        else if(isCallMade)
+        {
+            // Enable the reject button
+            $("#btnReject").removeAttr("disabled","disabled");
+             $("#btnGoToPO").removeAttr("disabled","disabled");
+        }
+
+        if(rejectVendorOnDispatch)
+        {
+         $("#DispatchTalkedTo").val('@DMSCallContext.TalkedTo');
+            isCallMade = true;
+            isVendorDone = false;
+            TrackCallToVendor();
+            /*if($("#ISPPhone_call").length > 0)
+            {
+                ExtractPhoneDetails("ISPPhone_call");
+            }
+            else if($("#ISPFax_call").length > 0)
+            {
+                ExtractPhoneDetails("ISPFax_call");
+            }
+            else if($("#ISPOffice_call").length > 0)
+            {
+                ExtractPhoneDetails("ISPOffice_call");
+            }
+            else if($("#ISPAltPhone_call").length > 0)
+            {
+                ExtractPhoneDetails("ISPAltPhone_call");
+            }
+            else if($("#ISPCell_call").length > 0)
+            {
+                ExtractPhoneDetails("ISPCell_call");
+            }*/
+            LaunchRejectPopup();
+        }
+
+        $("#btnGoToPO").click(function (e) {
+
+            // This is to avoid multiple handlers getting invoked due the way the partial view is loaded dynamically.
+            if (!e.isDefaultPrevented()) {
+
+                e.preventDefault();
+               var formData = $("#frmGoToPo").serializeArray();
+
+
+            formData.push({ name: "VendorID", value: currentVendorID });
+            formData.push({ name: "VendorLocationID", value: currentVendorLocationID });
+            formData.push({ name: "VendorSource", value: currentVendorSource });
+            formData.push({ name: "VendorName", value: currentVendorName });
+            formData.push({ name: "TalkedTo", value: $("#DispatchTalkedTo").val() });
+            formData.push({ name: "PhoneNumber", value: phoneNumber });
+            formData.push({ name: "PhoneType", value: phoneType });
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GoToPO", "Dispatch")',
+                data:formData,
+                traditional: true,
+                cache: false,
+                async: false,
+                success: function (msg) {
+                    if (msg.Status == "Success") {
+                        $("#hypPO").click();
+                    }
+                }
+            });
+         }
+       });
+
+
+        $('span[id$="ISPPhone_call"], span[id$="ISPFax_call"], span[id$="ISPOffice_call"],span[id$="ISPAltPhone_call"],span[id$="ISPCell_call"]').click(function () {
+            //openAlertMessage("Flag set to remember that a call is made.");
+
+            var callId = $(this).attr("id");
+            ExtractPhoneDetails(callId);
+
+        });
+
+
+        $("#btnReject").click(function (e) {
+            // This is to avoid multiple handlers getting invoked due the way the partial view is loaded dynamically.
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                LaunchRejectPopup();
+            }
+        });
+    });
+//-->
+    </script>
+                        }

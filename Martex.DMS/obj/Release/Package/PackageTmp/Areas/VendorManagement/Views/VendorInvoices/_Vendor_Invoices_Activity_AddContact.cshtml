@@ -1,0 +1,127 @@
+﻿@using Kendo.Mvc.UI;
+@model Martex.DMS.DAL.Entities.Activity_AddContact
+@using System.Collections
+@using Martex.DMS.ActionFilters;
+@{
+    var suffixVendorInvoiceID = ViewData["VendorInvoiceID"].ToString();
+    var suffixVendorID = ViewData["VendorID"].ToString();
+}
+<form id="formAddVendorInvoiceActivityContact_@suffixVendorInvoiceID" action="javascript:void(0)" method="post">
+<fieldset class="fieldset">
+    <legend class="legend">Add Contact</legend>
+    <div class="with-padding">
+        <div class="columns">
+            <div class="seven-columns">
+                <p class="button-height inline-label small-margin-bottom">
+                    <label for="VendorIsDispatchOrServiceLocation" class="label">
+                        Direction <span class="star">*</span></label>
+                    @Html.RadioButtonFor(u => u.IsInbound, true, new { @class = "radio", id = "IsInbound_" + suffixVendorInvoiceID })
+                    <b>Inbound</b>
+                    @Html.RadioButtonFor(u => u.IsInbound, false, new { @class = "radio", id = "IsInbound_" + suffixVendorInvoiceID })
+                    <b>Outbound</b>
+                </p>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContactCategory" class="label">
+                        Contact Category<span class="star"> *</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .BindTo(ViewData[StaticData.ContactCategory.ToString()] as IEnumerable<SelectListItem>)
+                    .Name("ContactCategory_" + suffixVendorInvoiceID)
+                    .SelectedIndex(0)
+                    .HtmlAttributes(new { style = "width:100%" })
+                    .HighlightFirst(true)
+                            .Suggest(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change(@<text>function(e){HandleVendorInvoiceContactCategoryChange(e,'@suffixVendorInvoiceID','@suffixVendorID');}</text>))
+                    .Value(Model.ContactMethod == null ? string.Empty : Model.ContactMethod.Value.ToString())
+                    )
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContractReasonID" class="label">
+                        Reason(s)<span class="star"> *</span>
+                    </label>
+                    @(Html.Kendo().MultiSelectFor(u => u.ContactReasonID)
+                    .Placeholder("Select Contact Reason")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .HtmlAttributes(new { id = "ContactReasonID_" + suffixVendorInvoiceID })
+                    .Value(Model.ContactReasonIDValuesForCombo)
+                    )
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContractActionID" class="label">
+                        Action(s)<span class="star"> *</span>
+                    </label>
+                    @(Html.Kendo().MultiSelectFor(u => u.ContactActionID)
+                    .Placeholder("Select Contact Action")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .HtmlAttributes(new { id = "ContactActionID_" + suffixVendorInvoiceID })
+                    .Value(Model.ContactActionIDValuesForCombo)
+                    )
+                </div>
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="ContactMethod" class="label">
+                        Contact Method<span class="star"> *</span>
+                    </label>
+                    @(Html.Kendo().ComboBox()
+                    .BindTo(ViewData[StaticData.ContactMethod.ToString()] as IEnumerable<SelectListItem>)
+                    .Name("ContactMethod_" + suffixVendorInvoiceID)
+                    .SelectedIndex(0)
+                    .Suggest(true)
+                    .HtmlAttributes(new { style = "width:100%" })
+                    .HighlightFirst(true)
+                    .Filter(FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change(@<text>function(e){HandleContactMethodChange(e,'@suffixVendorInvoiceID');}</text>))
+                    .Value(Model.ContactMethod == null ? string.Empty : Model.ContactMethod.Value.ToString())
+                    )
+                </div>
+                <div id="divVendorInvoiceActivityAddContactMethodPhone_@suffixVendorInvoiceID" style="display:none">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="TalkedTo" class="label">
+                            Talked To<span class="star"> *</span>
+                        </label>
+                        @Html.TextBox("TalkedTo_" + suffixVendorInvoiceID, Model.TalkedTo, new { @class = "validate[required] input full-width2", style = "width : 100%" })
+                    </div>
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="PhoneNumber" class="label">
+                            Phone Number <span class="star">*</span></label>
+                        @Html.Editor("PhoneNumber_" + suffixVendorInvoiceID, "Phone", new { ShowPhoneType = true, IsRequired = true })
+                    </div>
+                </div>
+                <div id="divVendorInvoiceActivityAddContactMethodEmail_@suffixVendorInvoiceID" style="display:none">
+                    <div class="button-height inline-label small-margin-bottom">
+                        <label for="Email" class="label">
+                            Email<span class="star"> *</span>
+                        </label>
+                        @Html.TextBox("Email_" + suffixVendorInvoiceID, Model.Email, new { @class = "validate[required,custom[email]] input full-width2", style = "width : 100%" })
+                    </div>
+                </div>
+            </div>
+            <div class="five-columns">
+                <div class="button-height inline-label small-margin-bottom">
+                    <label for="Notes" class="label">
+                        Notes
+                    </label>
+                </div>
+                <div class="button-height small-margin-bottom">
+                    @Html.TextArea("Notes_" + suffixVendorInvoiceID, new { @class = "input full-width2", rows = "10", cols = "30", style = "width : 100%" })
+                </div>
+                <div>
+                    <button id="btnSaveVendorInvoiceActivityContact_@suffixVendorInvoiceID" class="button green-gradient float-right" type="button" onclick="saveAddVendorInvoiceActivityContact(this,@suffixVendorInvoiceID,@suffixVendorID)">
+                        Save
+                    </button>
+                    <button id="btnCancelVendorInvoiceActivityContact_@suffixVendorInvoiceID" class="button white-gradient float-right" type="button" onclick="closeAddVendorInvoiceActivityContactWindow(this,@suffixVendorInvoiceID)">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</fieldset>
+</form>
+<script type="text/javascript" language="javascript">
+    $(function () {
+        $("#formAddVendorInvoiceActivityContact_@suffixVendorInvoiceID").validationEngine();
+    });
+</script>

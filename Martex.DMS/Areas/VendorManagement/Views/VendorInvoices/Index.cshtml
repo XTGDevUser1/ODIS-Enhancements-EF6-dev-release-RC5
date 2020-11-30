@@ -1,0 +1,180 @@
+﻿@model List<Martex.DMS.DAL.VendorInvoicesList_Result>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/VendorManagement/Views/Shared/_VendorLayout.cshtml";
+}
+<hgroup id="main-title" class="thin">
+    <h1>
+        Vendor Invoice Payment Processing
+    </h1>
+</hgroup>
+<div class="with-padding">
+    <div id="VendorInvoicesTab" class="standard-tabs same-height" data="vendorInvoicesDynamicTabs">
+        <ul class="tabs vendorDetails">
+            <li id="tbVendorInvoiceList"><a id="hypVendorSearchCriteria" href="#tabs-1">List</a>
+            </li>
+        </ul>
+        <div id="tabs-1" class="vendorInvoicesDynamicTabs">
+            <div class="with-padding">
+                @Html.Partial("_SearchResult", Model)
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    var tabObject = null;
+    $(function () {
+        tabObject = $("#VendorInvoicesTab").tabs();
+        GetSearchCriteria();
+        //GetSelectedCriteria();
+
+    });
+
+    function GetSearchCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SearchCriteria", "VendorInvoices", new { area = "VendorManagement" })',
+            type: 'POST',
+            data: GetVendorSearchCriteria(),
+            cache: false,
+            async: false,
+            success: function (msg) {
+                $('#ulVendorSearchCriteria').html(msg);
+                //KB: do we need to put the list tab in focus?
+                //tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetSelectedCriteria() {
+        $.ajax({
+            url: '@Url.Action("_SelectedCriteria", "VendorInvoices", new { area = "VendorManagement" })',
+            type: 'POST',
+            data: GetVendorSearchCriteria(),
+            traditional: true,
+            cache: false,
+            async: false,
+            global: false,
+            success: function (msg) {
+                $('#vendorInvoiceSelectedSearchCriteria').html(msg);
+                $('#GrdVendorInvoices').data('kendoGrid').dataSource.read();
+                tabObject.tabs('select', 0);
+            }
+        })
+    }
+
+    function GetVendorSearchCriteria() {
+        var postData = $('#frmVendorInvoiceSearchCriteria').serializeArray();
+        if ($('#VendorNameOperator').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VendorNameOperatorValue", value: $('#VendorNameOperator').data('kendoComboBox').text() });
+        }
+        if ($('#VendorNameOperator').data('kendoComboBox') != undefined) {
+            postData.push({ name: "VendorNameOperator", value: $('#VendorNameOperator').data('kendoComboBox').value() });
+        }
+        if ($('#InvoiceType').data('kendoComboBox') != undefined) {
+            postData.push({ name: "InvoiceTypeValue", value: $('#InvoiceTypeValue').data('kendoComboBox').text() });
+        }
+        if ($('#ExportType').data('kendoComboBox') != undefined) {
+            postData.push({ name: "ExportTypeName", value: $('#ExportType').data('kendoComboBox').text() });
+            postData.push({ name: "ExportType", value: $('#ExportType').data('kendoComboBox').value() });
+        }
+        // Get the grid object
+        var grid = $("#GrdVendorInvoices").data("kendoGrid");
+        // Get the datasource bound to the grid
+        var ds = grid.dataSource;
+
+        // Get current sorting
+        var sort = ds.sort();
+        // Display sorting fields and direction
+        if (sort && sort.length > 0) {
+
+            var propCounter = 0;
+
+            for (var i = 0, l = postData.length; i < l; i++) {
+
+                if (postData[i].name == "GridSortColumnName") {
+                    postData[i].value = sort[0].field;
+                    propCounter++;
+                }
+                if (postData[i].name == "GridSortOrder") {
+                    postData[i].value = sort[0].dir;
+                    propCounter++;
+                }
+                if (propCounter == 2) {
+                    break;
+                }
+
+            }
+        }
+        if ($('#VendorInvoiceSearchViewID') != undefined) {
+            var value = parseInt($('#VendorInvoiceSearchViewID').val());
+            if (value > 0) {
+                postData.push({ name: "FilterToLoadID", value: value });
+            }
+        }
+        return postData;
+    }
+
+    function LoadVendorInformation(mode, recordId, vendorInvoiceNumber, vendorID) {
+
+        var nameToCheck = vendorInvoiceNumber;
+        var tabNameExists = false;
+        var index = -1;
+        if (vendorInvoiceNumber == null) {
+            nameToCheck = "Invoice for Vendor - " + vendorID;
+        }
+        $('#VendorInvoicesTab ul li a').each(function (i) {
+            if (this.text == nameToCheck) {
+                tabNameExists = true;
+                index = i;
+            }
+        });
+
+        if (!tabNameExists) {
+            addTab(nameToCheck, vendorInvoiceNumber, recordId, vendorID);
+        }
+        else {
+            tabObject.tabs('select', index);
+        }
+    }
+
+    function DeleteTab(containerName) {
+        deleteGenericTab(containerName, tabObject);
+    }
+
+    function addTab(tabTitle, vendorInvoiceNumber, vendorInvoiceID, vendorID) {
+        var tabTemplate = '<li><a href="#{href}" class="with-tooltip" title="' + tabTitle + '">#{label}</a> <span class="ui-icon ui-icon-close">X</span></li>';
+        var tabCounter = $(tabObject).tabs("length") + 1;
+
+        var numOfTabs = tabCounter - 1;
+
+        var lastTabId = $($("#VendorInvoicesTab").find(".vendorInvoicesDynamicTabs")[numOfTabs - 1]);
+        var newTabId = parseInt(lastTabId.attr("id").replace("tabs-", "")) + 1;
+        if (isNaN(newTabId)) {
+            newTabId = 2;
+        }
+        console.log("Next tab index : " + newTabId);
+        var label = tabTitle || "Tab " + tabCounter,
+        id = "tabs-" + newTabId,
+        li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label)),
+        tabContentHtml = "Loading Details....";
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("_VendorInvoiceDetails", "VendorInvoices", new { area = "VendorManagement" })',
+            traditional: true,
+            data: { vendorInvoiceID: vendorInvoiceID, vendorID: vendorID },
+            cache: false,
+            async: true,
+            success: function (msg) {
+
+                tabContentHtml = msg;
+                tabObject.find(".ui-tabs-nav").first().append(li);
+                tabObject.append("<div id='" + id + "' class='ui-tabs-panel vendorInvoicesDynamicTabs ui-widget-content ui-corner-bottom ui-tabs-hide'>" + tabContentHtml + "</div>");
+                tabObject.tabs("refresh");
+                tabObject.tabs('option', 'active', false);
+                tabObject.tabs('select', tabCounter - 1);
+            }
+        });
+    }
+
+</script>

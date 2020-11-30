@@ -1,0 +1,68 @@
+﻿@using Martex.DMS.DAL.Entities;
+@using Martex.DMS.DAL;
+@model FilterViewEntity
+@{
+    FilterViewEntity filterModel = ViewData["filterView"] as FilterViewEntity;
+}
+<div style="margin-left: 5px; margin-bottom: 5px;">
+    <a class="icon-list-add icon-size2 with-tooltip" title="Save Search Criteria" href="javascript:void(0);"
+        onclick="AddFilterView('@filterModel.PageName', '@filterModel.EventHandlerCallBack','@filterModel.UniqueID','@filterModel.SaveMethodName','@filterModel.JSCollectDataHandler');">
+    </a>
+</div>
+<div style="margin-left: 5px; margin-bottom: 5px;" id="@filterModel.UniqueID">
+    @Html.Partial("_FilterViewList", filterModel)
+</div>
+<script type="text/javascript">
+
+    var placeHolderForFilterViewAdd = null;
+    function CallBackHandlerForFilterView(recordID, callBackFunctionName) {
+        var function_name = callBackFunctionName;
+        function_name = window[function_name];
+        function_name(recordID);
+    }
+    function DeleteFilterViewRecord(recordID, pageName, eventHandlerCallBackForApply, uniqueID, targetSaveMethodName, eventHandlerToCollectData) {
+        $.modal.confirm('The View will be permanently removed; are you sure you want to delete this View?', function () {
+            $.ajax({
+                url: '@Url.Action("DeleteView", "FilterView", new { area = "Common" })',
+                type: 'POST',
+                data: { recordID: recordID },
+                success: function () {
+                    RelaodFilterViewList(pageName, eventHandlerCallBackForApply, uniqueID, targetSaveMethodName, eventHandlerToCollectData);
+                }
+            });
+        }, function () {
+
+        });
+    }
+
+    function RelaodFilterViewList(pageName, eventHandlerCallBackForApply, uniqueID, targetSaveMethodName, eventHandlerToCollectData) {
+        $.ajax({
+            url: '@Url.Action("_FilterViewList", "FilterView", new { area = "Common" })',
+            data: { pageName: pageName, eventHandlerCallBackForApply: eventHandlerCallBackForApply, uniqueID: uniqueID, targetSaveMethodName: targetSaveMethodName, eventHandlerToCollectData: eventHandlerToCollectData },
+            success: function (msg) {
+                $('#' + uniqueID).html(msg);
+            }
+        });
+    }
+
+    function AddFilterView(pageName, eventHandlerCallBackForApply, uniqueID, targetSaveMethodName, eventHandlerToCollectData) {
+        $.ajax({
+            url: '@Url.Action("_FilterViewAdd", "FilterView", new { area = "Common" })',
+            data: { pageName: pageName, eventHandlerCallBackForApply: eventHandlerCallBackForApply, uniqueID: uniqueID, targetSaveMethodName: targetSaveMethodName, eventHandlerToCollectData: eventHandlerToCollectData },
+            success: function (msg) {
+                placeHolderForFilterViewAdd = $("<div id='POPUP_View_Add' />").appendTo(document.body);
+                placeHolderForFilterViewAdd.kendoWindow({
+                    title: 'Save Search Criteria',
+                    modal: true,
+                    deactivate: function () {
+                        this.destroy();
+                    },
+                    close: function (e) {
+                        return true;
+                    }
+                });
+                placeHolderForFilterViewAdd.data('kendoWindow').content(msg).center().open();
+            }
+        })
+    }
+</script>

@@ -1,0 +1,456 @@
+﻿@using Martex.DMS.BLL.Model;
+@using Kendo.Mvc.UI;
+@using VendorPortal.ActionFilters;
+@model Martex.DMS.DAL.VendorACH
+@{
+    bool isActive = Model.IsActive.GetValueOrDefault();
+}
+<script type="text/javascript">
+    function LicenseStateCountryChangeGroupACH(e) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var vehicleState = $('#BankAddressStateProvinceID').data('kendoComboBox');
+        $.ajax({
+            type: 'POST',
+            url: '/Common/ReferenceData/StateProvinceRelatedToCountryWithSelect',
+            traditional: true,
+            data: { countryId: combo.value() },
+            cache: false,
+            async: true,
+            success: function (msg) {
+                vehicleState.setDataSource(msg);
+                vehicleState.select(0);
+                var elementState = "input[name='BankAddressStateProvinceID_input]";
+                $(elementState).focus();
+                $(elementState).select();
+
+            }
+        });
+    }
+
+    function ValidateABA(field, rules, i, options) {
+        var input = field.val();
+        if (!ValidateABANumber(input)) {
+            return "* Not a valid ABA Number";
+        }
+    }
+
+    function UploadApplication(e) {
+        var postData = $("#frmVendorACHDetails").serializeArray();
+
+        var nvp = {};
+        var serviceIndex = 0;
+        for (var i = 0, l = postData.length; i < l; i++) {
+            nvp[postData[i].name] = postData[i].value;
+        }
+        nvp["BankPhoneNumber"] = GetPhoneNumberForDB('ACHBankPhoneNumber');
+        e.data = nvp;
+    }
+
+    function UploadSuccess(e) {
+        HideLoadingIndicator();
+        HideMessageClearDirtyFlag();
+        location.href = '@Url.Action("Index", "ACH", new { area = "ISP" })';
+    }
+
+    function UploadError(e) {
+
+        HideLoadingIndicator();
+        $(".k-upload-files.k-reset").find("li").remove();
+        openAlertMessage("An error occurred while processing the application. Possible reasons : Uploaded file is too large. Please contact administrator for more information");
+    }
+
+    function UploadComplete(e) {
+        HideLoadingIndicator();
+    }
+</script>
+<style type="text/css">
+    .k-upload-selected
+    {
+        display: none;
+    }
+</style>
+<div class="with-padding">
+    <form id="frmVendorACHDetails" method="post" action="javascript:void(0);">
+    @Html.HiddenFor(u => u.VendorID)
+    @Html.HiddenFor(u => u.ID)
+    <div class="with-padding">
+        <fieldset class="fieldset">
+            <legend class="legend">ACH</legend>
+            <div class="columns">
+                @*<div class="ten-columns">
+                    <div class="button-height inline-medium-label small-margin-bottom with-padding" id="RadioButtons">
+                        Use ACH
+                        @Html.RadioButtonFor(u => u.IsActive, true, new { @class = "small-margin-left radio full-width achStatus", id = "achStatus_true" })
+                        @Html.Raw(" Yes")
+                        @Html.RadioButtonFor(u => u.IsActive, false, new { @class = "radio full-width small-margin-left achStatus", id = "achStatus_false" })
+                        @Html.Raw(" No")
+                    </div>
+                </div>*@
+                <div class="ten-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Account Information</legend>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="NameOnAccount" class="label">
+                                Name on Account <span class="spanstar">*</span>
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.NameOnAccount, new { @class = "input full-width validate[required]", maxLength = "50" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.NameOnAccount, new { @class = "input full-width validate[required]", maxLength = "50", @disabled = "disabled" })
+                            }
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="BankABANumber" class="label">
+                                Bank ABA Number <span class="spanstar">*</span>
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankABANumber, new { @class = "input full-width validate[required,minSize[9],custom[integer],funcCall[ValidateABA]]", maxLength = "9" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankABANumber, new { @class = "input full-width validate[required,minSize[9],custom[integer],funcCall[ValidateABA]]", maxLength = "9", @disabled = "disabled" })
+                            }
+                        </p>
+                         <div class="inline-medium-label small-margin-bottom">
+                            <label class="label">
+                                &nbsp;
+                            </label>
+                            <a href="javascript:void(0)" onclick="ShowHelpForABANumber();" id="lnkHelper">Help finding ABA number</a>
+                            <div class="closeImage" id="PlaceHolder_Helper">
+                                <div class="with-padding">
+                                    <img src="@Url.Content("~/Images/ABANumberHelp.jpg")" alt="Help"/>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="BankAccountNumber" class="label">
+                                Bank Account Number <span class="spanstar">*</span>
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.AccountNumber, new { @class = "input full-width validate[required,minSize[4],custom[onlyLetterNumber]]", maxLength = "17" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.AccountNumber, new { @class = "input full-width validate[required,minSize[4],custom[onlyLetterNumber]]", maxLength = "17", @disabled = "disabled" })
+                            }
+                        </p>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label for="AccountType" class="label">
+                                Account Type <span class="spanstar">*</span>
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(u => u.AccountType)
+                     .BindTo(ViewData[StaticData.ACHAccountType.ToString()] as IEnumerable<SelectListItem>)
+                     .SelectedIndex(0)
+                     .HighlightFirst(true)
+                     .Suggest(true)
+                     .Enable(isActive)
+                     .Filter(FilterType.StartsWith).MinLength(0)
+                     .Events(events => events.Change("ValidateInputForKendoCombo"))
+                     .Value(Model.AccountType)
+                    )
+                        </div>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="BankAccountNumber" class="label">
+                                Email for receipt
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.ReceiptEmail, new { @class = "input full-width validate[custom[email]]", maxLength = "50" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.ReceiptEmail, new { @class = "input full-width validate[custom[email]]", maxLength = "50", @disabled = "disabled" })
+                            }
+                        </p>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label for="BankAccountNumber" class="label">
+                                Upload Voided Check
+                            </label>
+                            @(Html.Kendo().Upload()
+                                  .Name("ACHVoidedCheck")
+                                  .Enable(isActive)
+                                  .Async(a => a
+                                  .Save("UpdateACHDetails", "ACH", new { area = "ISP" })
+                                  .RemoveUrl("/Remove")
+                                  .AutoUpload(false))
+                                  .Events(e => e.Upload("UploadApplication").Success("UploadSuccess").Error("UploadError").Complete("UploadComplete").Select("OnSelectFile"))
+                                  .Multiple(false)
+                                  .ShowFileList(true)
+
+                              )
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="new-row ten-columns">
+                    <fieldset class="fieldset">
+                        <legend class="legend">Bank Information</legend>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="BankName" class="label">
+                                Bank Name
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankName, new { @class = "input full-width", maxLength = "50" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankName, new { @class = "input full-width", maxLength = "50", @disabled = "disabled" })
+                            }
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="AddressLine1" class="label">
+                                Address 1
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine1, new { @class = "input full-width", maxLength = "100" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine1, new { @class = "input full-width", maxLength = "100", @disabled = "disabled" })
+                            }
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="AddressLine2" class="label">
+                                Address 2
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine2, new { @class = "input full-width", maxLength = "100" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine2, new { @class = "input full-width", maxLength = "100", @disabled = "disabled" })
+                            }
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="AddressLine3" class="label">
+                                Address 3
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine3, new { @class = "input full-width", maxLength = "100" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressLine3, new { @class = "input full-width", maxLength = "100", @disabled = "disabled" })
+                            }
+                        </p>
+                        <p class="button-height inline-medium-label small-margin-bottom">
+                            <label for="City" class="label">
+                                City
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressCity, new { @class = "input full-width", maxLength = "100" })
+                            }
+                            else
+                            { 
+                                @Html.TextBoxFor(u => u.BankAddressCity, new { @class = "input full-width", maxLength = "100", @disabled = "disabled" })
+                            }
+                        </p>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label for="StatePostal" class="label">
+                                State / Postal
+                            </label>
+                            @(Html.Kendo().ComboBoxFor(u => u.BankAddressCountryID)
+                                      .BindTo(ViewData[StaticData.Country.ToString()] as IEnumerable<SelectListItem>)
+                                      .Events(events =>
+                                      {
+                                          events.Change(@<text> function(e){ LicenseStateCountryChangeGroupACH(e);}</text>);
+                                      })
+                                  .DataTextField("Text")
+                                  .DataValueField("Value")
+                                  .Suggest(true)
+                                  .Enable(isActive)
+                                  .Filter(FilterType.StartsWith).MinLength(0)
+                                  .HighlightFirst(true)
+                                  .SelectedIndex(0)
+                                  .Value(Model.BankAddressCountryID.HasValue ? Model.BankAddressCountryID.Value.ToString() : "")
+                                            )
+                            @(Html.Kendo().ComboBoxFor(u => u.BankAddressStateProvinceID)
+                              .Suggest(true)
+                              .Filter(FilterType.StartsWith).MinLength(0)
+                              .SelectedIndex(0)
+                              .BindTo(ViewData[StaticData.Province.ToString()] as IEnumerable<SelectListItem>)
+                              .Events(events =>
+                              {
+                                  events.Change("ValidateInputForKendoCombo");
+                                  events.DataBound("DefaultDataBoundToAdjustContainerWidth");
+                              })
+                              .HighlightFirst(true)
+                              .Enable(isActive)
+                              .HtmlAttributes(new { id = "BankAddressStateProvinceID" })
+                              .Value(Model.BankAddressStateProvinceID.HasValue ? Model.BankAddressStateProvinceID.Value.ToString() : string.Empty)
+                     )
+                            @if (isActive)
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressPostalCode, new { @class = "input", maxLength = "20", style = "width:36%" })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(u => u.BankAddressPostalCode, new { @class = "input", maxLength = "20", style = "width:36%", @disabled = "disabled" })
+                            }
+                        </div>
+                        <div class="button-height inline-medium-label small-margin-bottom">
+                            <label for="Phone" class="label">
+                                Phone
+                            </label>
+                            @if (isActive)
+                            {
+                                @Html.Editor("ACHBankPhoneNumber", "Phone", new { ShowPhoneType = false, ShowCallIcon = false, Value = Model.BankPhoneNumber })
+                            }
+                            else
+                            {
+                                @Html.Editor("ACHBankPhoneNumber", "Phone", new { ShowPhoneType = false, ShowCallIcon = false, Value = Model.BankPhoneNumber, Readonly = true })
+                            }
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="new-row five-columns">
+                <a href="javascript:void(0);" onclick="TurnOffACH();">Stop ACH</a>
+                </div>
+                <div class="five-columns">
+                    @if (isActive)
+                    {
+                        <button class="button green-gradient  float-right mid-margin-left margin-bottom"
+                            type="button" onclick="UpdateACHInformation()">
+                            Update ACH Information</button>
+                        <button class="button gray-gradient  float-right margin-bottom" type="button" onclick="CancelChanges()">
+                            Cancel Changes</button>
+                    }
+                    else
+                    {
+                        <button class="button green-gradient  float-right mid-margin-left margin-bottom"
+                            disabled="disabled" type="button" onclick="UpdateACHInformation()">
+                            Update ACH Information</button>
+                        <button class="button gray-gradient  float-right margin-bottom" type="button" onclick="CancelChanges()"
+                            disabled="disabled">
+                            Cancel Changes</button>
+                    }
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('#frmVendorACHDetails').validationEngine();
+
+        //        $('input[name="IsACHActive"]').change(function (e) {
+        //            var isSelected = $(this).val().toLowerCase();
+        //            ChangeACHStatus(isSelected, e);
+        //        });
+
+        WatchMyContainer('frmVendorACHDetails', 'RadioButtons');
+    });
+
+
+    function HideMessageClearDirtyFlag() {
+        $('#frmVendorACHDetails').validationEngine("hideAll");
+        CleanMyContainer('frmVendorACHDetails');
+    }
+
+    function TurnOffACH() {
+        message = "This will turn off ACH for your account and delete the bank information.  You will receive payment in the mail by check.Are you sure you want to stop ACH?";
+        $.modal.confirm(message, function () {
+            ProcessChangeACHStatus();
+        }, function () {
+            // Do Nothing
+        });
+        return false;
+    }
+
+    function ProcessChangeACHStatus() {
+        var postData = $('#frmVendorACHDetails').serializeArray();
+        $.ajax({
+            url: '@Url.Action("TurnOnorOffACH", "ACH", new { area = "ISP" })',
+            type: 'POST',
+            data: postData,
+            success: function (msg) {
+                if (msg.Status == "Success") {
+                    location.href = '@Url.Action("Index", "ACH", new { area = "ISP" })'
+                }
+            }
+        })
+    }
+
+    function ChangeACHStatus(status, e) {
+        var message = "";
+        if (status == "true") {
+            message = "This will turn ACH back on for your account and you will receive payments by direct deposit.  Are you sure you want to turn on ACH?";
+
+            if (!window.confirm(message)) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(event.srcElement).find("input:radio").removeAttr("checked");
+            }
+            else {
+                HideMessageClearDirtyFlag();
+                ProcessChangeACHStatus();
+            }
+        }
+        else {
+            message = "This will turn off ACH for your account and you will receive payment in the mail by check.  Are you sure you want to turn off ACH?";
+            if (!window.confirm(message)) {
+                e.preventDefault();
+                e.stopPropagation();
+                $(event.srcElement).find("input:radio").removeAttr("checked");
+            }
+            else {
+                HideMessageClearDirtyFlag();
+                ProcessChangeACHStatus();
+            }
+        }
+    }
+
+    function CancelChanges() {
+        var message = "Changes have not been saved; do you want to continue and lose the changes or cancel and go back to the page?";
+        if (IsMyContainerDirty('frmVendorACHDetails')) {
+            $.modal.confirm(message, function () {
+                HideMessageClearDirtyFlag();
+                location.href = '@Url.Action("Index", "ACH", new { area = "ISP" })';
+            }, function () {
+                // Do Nothing
+            });
+        }
+    }
+    function UpdateACHInformation() {
+        var isRegistrationValid = true;
+        if ($('#frmVendorACHDetails').validationEngine("validate") == false) {
+            isRegistrationValid = false;
+        }
+        if (isRegistrationValid) {
+            if ($(".k-upload-selected").length > 0) {
+                ShowLoadingIndicator();
+                console.log("File uploaded so going via Kendo Upload");
+                $(".k-upload-selected").click();
+            }
+            else {
+                var postData = $('#frmVendorACHDetails').serializeArray();
+                postData.push({ name: "BankPhoneNumber", value: GetPhoneNumberForDB('ACHBankPhoneNumber') });
+                $.ajax({
+                    url: '@Url.Action("UpdateACHDetails", "ACH", new { area = "ISP" })',
+                    type: 'POST',
+                    data: postData,
+                    success: function (msg) {
+                        if (msg.Status == "Success") {
+                            HideMessageClearDirtyFlag();
+                            openAlertMessage('ACH Details Updated successfully');
+                        }
+                    }
+                })
+            }
+        }
+        return false;
+    }
+</script>

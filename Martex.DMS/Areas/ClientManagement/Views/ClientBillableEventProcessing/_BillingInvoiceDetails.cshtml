@@ -1,0 +1,761 @@
+﻿@using Martex.DMS.BLL.Model.Clients;
+@using Kendo.Mvc.UI;
+@model BillingDetailMaintenanceModel
+@{
+    int selectedIndex = Model.BillingInvoiceDetails.Excludable.GetValueOrDefault() ? 1 : 0;
+    string suffix = Model.BillingInvoiceDetails.BillingInvoiceDetailID.ToString();
+    bool isEdit = Model.DisplayMode.Equals("Edit");
+    bool isQuantityAndAmountEditable = false;
+    string cssClassForAdjustmentReason = "hide";
+    string cssClassForExcludeReason = "hide";
+
+    if (!string.IsNullOrEmpty(Model.BillingInvoiceDetails.AdjustmentReasonOther))
+    {
+        cssClassForAdjustmentReason = string.Empty;
+    }
+    if (!string.IsNullOrEmpty(Model.BillingInvoiceDetails.ExcludeReasonOther))
+    {
+        cssClassForExcludeReason = string.Empty;
+    }
+
+    bool canEditSectionExclude = false;
+    bool canEditSectionAdjustment = false;
+
+    if (Model.BillingInvoiceDetails.Excludable.GetValueOrDefault() == true && isEdit)
+    {
+        canEditSectionExclude = true;
+    }
+
+    if (Model.BillingInvoiceDetails.Adjustable.GetValueOrDefault() == true && isEdit)
+    {
+        canEditSectionAdjustment = true;
+    }
+    if (isEdit)
+    {
+        if (Model.BillingInvoiceDetails.IsQuantityAndAmountEditable == null || Model.BillingInvoiceDetails.IsQuantityAndAmountEditable != true || Model.BillingInvoiceDetails.InvoiceStatus == "Posted")
+        {
+            isQuantityAndAmountEditable = false;
+        }
+        else
+        {
+            isQuantityAndAmountEditable = true;
+        }
+    }
+
+}
+<script type="text/javascript">
+    function HandleAdjustmentReasonID(e, suffix) {
+        var combo = e.sender;
+        var relatedOtherPlaceHolder = "#PlaceHolder_Adjustment_Reason_Other_" + suffix;
+        var relatedOtherTextBox = "#AdjustmentReasonOther_" + suffix;
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $(relatedOtherPlaceHolder).show();
+        }
+        else {
+            $(relatedOtherPlaceHolder).hide();
+            $(relatedOtherTextBox).val('');
+        }
+    }
+
+    function HandleExcludeReasonID(e, suffix) {
+        var combo = e.sender;
+        var relatedOtherPlaceHolder = "#PlaceHolder_Exclude_Reason_Other_" + suffix;
+        var relatedOtherTextBox = "#ExcludeReasonOther_" + suffix;
+        var billingStatus = $('#BillingStatusID_' + suffix).data('kendoComboBox').text();
+
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        if ($.trim(combo.text()).length > 0 && combo.text() == "Other") {
+            $(relatedOtherPlaceHolder).show();
+            if (billingStatus != undefined && billingStatus != null) {
+                $(relatedOtherTextBox).addClass('validate[required]');
+            }
+        }
+        else {
+            $(relatedOtherPlaceHolder).hide();
+            $(relatedOtherTextBox).val('');
+            if (billingStatus != undefined && billingStatus != null) {
+                $(relatedOtherTextBox).removeClass('validate[required]');
+            }
+        }
+    }
+
+    function InvoiceDetailStatusIDChange(e, suffix) {
+        var combo = e.sender;
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        var previousValue = $('#OldValueInvoiceDetailStatusID_' + suffix).val();
+        var currentValue = combo.value();
+
+        if (previousValue != currentValue) {
+            if ($.trim(combo.text()).length > 0) {
+                if (combo.text() == "Deleted") {
+                    openAlertMessage("Users cannot change status to Deleted");
+                    combo.value(previousValue);
+                }
+                else if (combo.text() == "Posted") {
+                    openAlertMessage("Users cannot change status to Posted");
+                    combo.value(previousValue);
+                }
+                else if (combo.text() == "Exception") {
+                    openAlertMessage("Users cannot change status to Exception");
+                    combo.value(previousValue);
+                }
+            }
+        }
+    }
+
+</script>
+<div class="with-padding">
+    <div class="columns">
+        <div class="six-columns">
+            <p>@Model.BillingInvoiceDetails.InvoiceDescription</p>
+            <p>@Model.BillingInvoiceDetails.LineDescription</p>
+        </div>
+        <div class="one-columns" style="float: right;">
+            <div style="min-height: 25px; margin: 5px;" id="divClaimDetails_@suffix">
+                <div style="display: inline-block; vertical-align: top; float: right;">
+                    <a href="javascript:void(0)" class="with-tooltip" title="Close" onclick="DeleteTab('formBillingDetailMaintenance_@suffix','@Model.ParentGridName','@Model.ParentTabName');">
+                        X
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<form id="formBillingDetailMaintenance_@suffix" action="javascript:void(0);" relatedbuttons="PlaceHolder_ClientBillableEventProcessing_Buttons_@suffix">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="twelve-columns">
+                <div class="columns">
+                    <div class="six-columns">
+                        <fieldset class="fieldset">
+                            <legend class="legend">Billable Event</legend>
+                            @Html.Hidden("IsQuantityAndAmountEditable_" + suffix, isQuantityAndAmountEditable)
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Status
+                                </label>
+                                @Html.Hidden("OldValueInvoiceDetailStatusID_" + suffix, Model.BillingInvoiceDetails.DetailsStatusID.GetValueOrDefault())
+                                @(Html.Kendo().ComboBox()
+                                          .Name("InvoiceDetailStatusID_" + suffix)
+                                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingInvoiceDetailStatus.ToString()] as IEnumerable<SelectListItem>)
+                                          .SelectedIndex(0)
+                                          .HighlightFirst(true)
+                                          .Suggest(true)
+                                          .Enable(isEdit)
+                                          .Filter(FilterType.StartsWith).MinLength(0)
+                                          .Events(events => events.Change(@<text>function(e){InvoiceDetailStatusIDChange(e,'@suffix')}</text>))
+                                                                                                                                                                                                                .Value(Model.BillingInvoiceDetails.DetailsStatusID.ToString())
+                                                                                                                                                                                                                .HtmlAttributes(new { id = "BillingStatusID_" + @suffix, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </div>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Disposition
+                                </label>
+                                @(Html.Kendo().ComboBox()
+                                .Name("BillingDispositionStatusID_" + suffix)
+                                .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingDispositionStatus.ToString()] as IEnumerable<SelectListItem>)
+                                .SelectedIndex(0)
+                                .HighlightFirst(true)
+                                .Suggest(true)
+                                .Enable(isEdit)
+                                .Filter(FilterType.StartsWith).MinLength(0)
+                                .Events(events => events.Change("ValidateInputForKendoCombo"))
+                                .Value(Model.BillingInvoiceDetails.DispositionID.HasValue ? Model.BillingInvoiceDetails.DispositionID.Value.ToString() : string.Empty)
+                                .HtmlAttributes(new { id = "BillingDispositionStatusID_" + @suffix, style = "width:90%;", dmsrole = "Combo" })
+                                )
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Entity Type
+                                </label>
+                                @Model.BillingInvoiceDetails.EntityType
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Entity Number
+                                </label>
+                                @Model.BillingInvoiceDetails.EntityKey
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Entity Date
+                                </label>
+                                @if (Model.BillingInvoiceDetails.EntityDate.HasValue)
+                                {
+                                    @Model.BillingInvoiceDetails.EntityDate.Value.ToShortDateString()
+                                }
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Service Code
+                                </label>
+                                @Model.BillingInvoiceDetails.ServiceCode
+                            </p>
+                            @if (isQuantityAndAmountEditable == false)
+                            {
+                                <p class="button-height inline-medium-label small-margin-bottom">
+                                    <label class="label">
+                                        Quantity
+                                    </label>
+                                    @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.Quantity)
+                        .Format("{0:N0}")
+                        .Min(0)
+                        .Value(Model.BillingInvoiceDetails.Quantity)
+                        .Spinners(false)
+                        .Enable(false)
+                        .HtmlAttributes(new { id = "Quantity_" + suffix, style = "width:90%;", dmsrole = "numericTextBox" })
+                                    )
+                                </p>
+                                <p class="button-height inline-medium-label small-margin-bottom">
+                                    <label class="label">
+                                        Amount
+                                    </label>
+                                    @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.EventAmount)
+                        .Format("c")
+                        .Min(0)
+                        .Value(Model.BillingInvoiceDetails.EventAmount)
+                        .Spinners(false)
+                        .Enable(false)
+                        .HtmlAttributes(new { id = "EventAmount_" + suffix, style = "width:90%;", dmsrole = "numericTextBox" })
+                                    )
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="button-height inline-medium-label small-margin-bottom">
+                                    <label class="label">
+                                        Quantity<span class="star"> *</span>
+                                    </label>
+                                    @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.Quantity)
+                        .Format("{0:N0}")
+                        .Min(0)
+                        .Value(Model.BillingInvoiceDetails.Quantity)
+                        .Spinners(false)
+                        .HtmlAttributes(new { id = "Quantity_" + suffix, style = "width:90%;", dmsrole = "numericTextBox" })
+                                    )
+                                </p>
+                                <p class="button-height inline-medium-label small-margin-bottom">
+                                    <label class="label">
+                                        Amount <span class="star">*</span>
+                                    </label>
+                                    @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.EventAmount)
+                        .Format("c")
+                        .Min(0)
+                        .Value(Model.BillingInvoiceDetails.EventAmount)
+                        .Spinners(false)
+                        .HtmlAttributes(new { id = "EventAmount_" + suffix, style = "width:90%;", dmsrole = "numericTextBox" })
+                                    )
+                                </p>
+                            }
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Program
+                                </label>
+                                @Model.BillingInvoiceDetails.Program
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Membership#
+                                </label>
+                                @Model.BillingInvoiceDetails.MembershipNumber
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Name
+                                </label>
+                                @Model.BillingInvoiceDetails.MemberName
+                            </p>
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    &nbsp;
+                                </label>
+                                <button class="button green-gradient margin-bottom" onclick="ClientBillingViewSource_('@Model.BillingInvoiceDetails.EntityType','@Model.BillingInvoiceDetails.EntityKey')">
+                                    View Source Record
+                                </button>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="six-columns">
+                        <fieldset class="fieldset">
+                            <legend class="legend">Invoice Information</legend>
+                            <div class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Invoice Status
+                                </label>
+                                @Model.BillingInvoiceDetails.InvoiceStatus
+                            </div>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Invoice#
+                                </label>
+                                @Model.BillingInvoiceDetails.InvoiceNumber
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Invoice Date
+                                </label>
+                                @if (Model.BillingInvoiceDetails.InvoiceDate.HasValue)
+                                {
+                                    @Model.BillingInvoiceDetails.InvoiceDate.Value.ToShortDateString()
+                                }
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Client
+                                </label>
+                                @Model.BillingInvoiceDetails.ClientName
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Schedule
+                                </label>
+                                @Model.BillingInvoiceDetails.BillingSchedule
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Invoice
+                                </label>
+                                @Model.BillingInvoiceDetails.InvoiceName
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Invoice Line
+                                </label>
+                                @Model.BillingInvoiceDetails.LineName
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Product
+                                </label>
+                                @Model.BillingInvoiceDetails.ProductName
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Event
+                                </label>
+                                @Model.BillingInvoiceDetails.EventName
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Description
+                                </label>
+                                @Model.BillingInvoiceDetails.EventDescription
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    Rate Type
+                                </label>
+                                @Model.BillingInvoiceDetails.Rate
+                            </p>
+                            <p class="button-height inline-medium-label small-margin-bottom">
+                                <label class="label">
+                                    G/L Code
+                                </label>
+                                @Model.BillingInvoiceDetails.GLCode
+                            </p>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="new-row twelve-columns">
+                <div class="columns">
+                    <div class="six-columns">
+                        <div id="ClientBillableTabDepthDetails_@suffix" class="standard-tabs same-height">
+                            <ul class="tabs">
+                                <li>
+                                    <a href="#tabs-1-@suffix" id="ClientBillableTabDepthDetails_ADJS_@suffix">Adjustment</a>
+                                </li>
+                                <li>
+                                    <a href="#tabs-2-@suffix" id="ClientBillableTabDepthDetails_EXCD_@suffix">Exclude</a>
+                                </li>
+                                <li>
+                                    <a href="#tabs-3-@suffix" id="ClientBillableTabDepthDetails_Commments_@suffix">Comment</a>
+                                </li>
+                                <li>
+                                    <a href="#tabs-4-@suffix" id="ClientBillableTabDepthDetails_ClientNote_@suffix">Client Note</a>
+                                </li>
+                            </ul>
+                            <div id="tabs-1-@suffix">
+                                <div class="with-padding">
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Adjustable
+                                        </label>
+                                        @if (@Model.BillingInvoiceDetails.Adjustable.GetValueOrDefault())
+                                        {
+                                            @Html.Raw("Yes")
+                                        }
+                                        else
+                                        {
+                                            @Html.Raw("No")
+                                        }
+                                    </p>
+                                    <div class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Adjust
+                                        </label>
+                                        @if (canEditSectionAdjustment)
+                                        {
+                                            @Html.CheckBox("IsAdjusted", Model.BillingInvoiceDetails.IsAdjusted.GetValueOrDefault(), new { id = "IsAdjusted_" + suffix, @class = "checkbox" })
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("IsAdjusted", Model.BillingInvoiceDetails.IsAdjusted.GetValueOrDefault(), new { id = "IsAdjusted_" + suffix, disabled = "disabled", @class = "checkbox" })
+                                        }
+                                    </div>
+                                    <div class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Adjusted Amount <span class="info-spot">
+                                                <span class="icon-info-round"></span><span class="info-bubble">
+                                                    Adjusted amount will override the event amount and be used on
+                                                    the invoice.
+                                                </span>
+                                            </span>
+                                        </label>
+                                        @if (canEditSectionAdjustment)
+                                        {
+                                            @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.AdjustmentAmount)
+                                          .Format("c")
+                                          .Min(0)
+                                          .Value(Model.BillingInvoiceDetails.AdjustmentAmount)
+                                          .Spinners(false)
+                                          .HtmlAttributes(new { id = "AdjustmentAmount_" + suffix, style = "width:90%;", dmsrole = "numericTextBox" })
+                                            )
+                                        }
+                                        else
+                                        {
+                                            @(Html.Kendo().NumericTextBoxFor(u => u.BillingInvoiceDetails.AdjustmentAmount)
+                                          .Format("c")
+                                          .Min(0)
+                                          .Value(Model.BillingInvoiceDetails.AdjustmentAmount)
+                                          .Spinners(false)
+                                          .HtmlAttributes(new { id = "AdjustmentAmount_" + suffix, style = "width:90%;", dmsrole = "numericTextBox", @readonly = "true" })
+                                            )
+                                        }
+                                    </div>
+                                    <div class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Reason
+                                        </label>
+                                        @(Html.Kendo().ComboBoxFor(u => u.BillingInvoiceDetails.AdjustmentReasonID)
+                                          .Name("AdjustmentReasonID_" + suffix)
+                                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingAdjustmentReason.ToString()] as IEnumerable<SelectListItem>)
+                                          .SelectedIndex(0)
+                                          .HighlightFirst(true)
+                                          .Suggest(true)
+                                          .Enable(canEditSectionAdjustment)
+                                          .Filter(FilterType.StartsWith).MinLength(0)
+                                          .Events(events => events.Change(@<text>function(e){HandleAdjustmentReasonID(e,'@suffix')}</text>))
+                                                                                            .Value(Model.BillingInvoiceDetails.AdjustmentReasonID.HasValue ? Model.BillingInvoiceDetails.AdjustmentReasonID.Value.ToString() : string.Empty)
+                                                                                                          .HtmlAttributes(new { id = "AdjustmentReasonID_" + @suffix, style = "width:90%;", dmsrole = "Combo" })
+                                        )
+                                    </div>
+                                    <div class="button-height inline-medium-label small-margin-bottom @cssClassForAdjustmentReason" id="PlaceHolder_Adjustment_Reason_Other_@suffix">
+                                        <label class="label">
+                                            <i>Other</i>
+                                        </label>
+                                        @if (canEditSectionAdjustment)
+                                        {
+                                            @Html.TextBoxFor(u => u.BillingInvoiceDetails.AdjustmentReasonOther, new { @class = "input full-width validate[maxSize[50]]", style = "width:90%;", id = "AdjustmentReasonOther_" + suffix })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(u => u.BillingInvoiceDetails.AdjustmentReasonOther, new { @class = "input full-width", style = "width:90%;", @readonly = true, id = "AdjustmentReasonOther_" + suffix })
+                                        }
+                                    </div>
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Comments
+                                        </label>
+                                        @if (canEditSectionAdjustment)
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.AdjustmentComment, new { @class = "input full-width", style = "width:90%;", id = "AdjustmentComment_" + suffix })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.AdjustmentComment, new { @class = "input full-width", style = "width:90%;", @readonly = true, id = "AdjustmentComment_" + suffix })
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="tabs-2-@suffix">
+                                <div class="with-padding">
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Excludable
+                                        </label>
+                                        @if (@Model.BillingInvoiceDetails.Excludable.GetValueOrDefault())
+                                        {
+                                            @Html.Raw("Yes")
+                                        }
+                                        else
+                                        {
+                                            @Html.Raw("No")
+                                        }
+                                    </p>
+                                    <div class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Exclude
+                                        </label>
+                                        @if (canEditSectionExclude)
+                                        {
+                                            @Html.CheckBox("IsExcluded", Model.BillingInvoiceDetails.IsExcluded.GetValueOrDefault(), new { id = "IsExcluded_" + suffix, @class = "checkbox" })
+                                        }
+                                        else
+                                        {
+                                            @Html.CheckBox("IsExcluded", Model.BillingInvoiceDetails.IsExcluded.GetValueOrDefault(), new { id = "IsExcluded_" + suffix, @class = "checkbox", disabled = "disabled" })
+                                        }
+                                    </div>
+                                    <div class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Reason
+                                        </label>
+                                        @(Html.Kendo().ComboBoxFor(u => u.BillingInvoiceDetails.ExcludeReasonID)
+                                    .Name("BillingExcludeReasonID_" + @suffix)
+                                          .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingExcludeReason.ToString()] as IEnumerable<SelectListItem>)
+                                          .SelectedIndex(0)
+                                          .HighlightFirst(true)
+                                          .Suggest(true)
+                                          .Events(events => events.Change(@<text>function(e){HandleExcludeReasonID(e,'@suffix')}</text>))
+                                                                                                          .Enable(canEditSectionExclude)
+                                                                                                          .Filter(FilterType.StartsWith).MinLength(0)
+                                                                                                          .Value(Model.BillingInvoiceDetails.ExcludeReasonID.HasValue ? Model.BillingInvoiceDetails.ExcludeReasonID.Value.ToString() : string.Empty)
+                                                                                                          .HtmlAttributes(new { id = "BillingExcludeReasonID_" + @suffix, style = "width:90%;", dmsrole = "Combo" })
+                                        )
+                                    </div>
+                                    <div class="button-height inline-medium-label small-margin-bottom @cssClassForExcludeReason" id="PlaceHolder_Exclude_Reason_Other_@suffix">
+                                        <label class="label">
+                                            <i>Other</i>
+                                        </label>
+                                        @if (canEditSectionExclude)
+                                        {
+                                            if (string.IsNullOrEmpty(cssClassForExcludeReason))
+                                            {
+                                                @Html.TextBoxFor(u => u.BillingInvoiceDetails.ExcludeReasonOther, new { @class = "input full-width validate[required]", style = "width:90%;", id = "ExcludeReasonOther_" + suffix })
+                                            }
+                                            else
+                                            {
+                                                @Html.TextBoxFor(u => u.BillingInvoiceDetails.ExcludeReasonOther, new { @class = "input full-width", style = "width:90%;", id = "ExcludeReasonOther_" + suffix })
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(u => u.BillingInvoiceDetails.ExcludeReasonOther, new { @class = "input full-width", style = "width:90%;", @readonly = true, id = "ExcludeReasonOther_" + suffix })
+                                        }
+                                    </div>
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Comments
+                                        </label>
+                                        @if (canEditSectionExclude)
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.ExcludeComment, new { @class = "input full-width", style = "width:90%;", id = "ExcludeComment_" + suffix })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.ExcludeComment, new { @class = "input full-width", style = "width:90%;", @readonly = true, id = "ExcludeComment_" + suffix })
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="tabs-3-@suffix">
+                                <div class="with-padding">
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Comment:
+                                        </label>
+                                        @if (isEdit)
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.InternalComment, new { @class = "input full-width", style = "width:90%;", id = "InternalComment_" + suffix })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.InternalComment, new { @class = "input full-width", style = "width:90%;", id = "InternalComment_" + suffix, @readonly = true })
+                                        }
+                                        This comment is for internal use only and will not be visible to the client.
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="tabs-4-@suffix">
+                                <div class="with-padding">
+                                    <p class="button-height inline-medium-label small-margin-bottom">
+                                        <label class="label">
+                                            Client Note:
+                                        </label>
+                                        @if (isEdit)
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.ClientNote, new { @class = "input full-width", style = "width:90%;", id = "ClientNotesComment_" + suffix })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextAreaFor(u => u.BillingInvoiceDetails.ClientNote, new { @class = "input full-width", style = "width:90%;", id = "ClientNotesComment_" + suffix, @readonly = true })
+
+                                        }
+                                        ***This note will be visible to the client on the billing details.***
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="six-columns">
+                        <fieldset class="fieldset">
+                            <legend class="legend">Exceptions </legend>
+                            @(Html.Kendo().Grid(Model.Exceptions)
+                               .Name("GrdClientBillableEventProcessingExceptions_" + suffix)
+                               .Columns(column =>
+                               {
+                                   column.Bound(u => u.Type).Title("Exception Type");
+                                   column.Bound(u => u.Status).Title("Status");
+                                   column.Bound(u => u.Severity).Title("Severity");
+                                   column.Bound(u => u.Comment).Template(i => { if ("yes".Equals(i.Comment, StringComparison.InvariantCultureIgnoreCase)) { return "<span class='with-tooltip' title='" + i.InvoiceDetailExceptionComment + "'>" + i.Comment + "</span>"; } else { return i.Comment; } }).Title("Comment").HtmlAttributes(new { @class = "comments" });
+                               })
+
+                            )
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="new-row six-columns">
+                <div class="with-padding">
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="DateLastUsed" class="label">
+                            Source
+                        </label>
+                        <small>TODO</small>
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Last Updated
+                        </label>
+                        <small>@Html.DisplayFor(u => u.BillingInvoiceDetails.ModifyBy)</small> <small>@Html.DisplayFor(u => u.BillingInvoiceDetails.ModifyDate)</small>
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        <label for="Source" class="label">
+                            Create Date
+                        </label>
+                        <small>@Html.DisplayFor(u => u.BillingInvoiceDetails.CreateBy)</small> <small>@Html.DisplayFor(u => u.BillingInvoiceDetails.CreateDate)</small>
+                    </p>
+                </div>
+            </div>
+            <div class="six-columns hide" id="PlaceHolder_ClientBillableEventProcessing_Buttons_@suffix">
+                <div class="with-padding">
+                    <p class="button-height inline-label small-margin-bottom">
+                        &nbsp;
+                    </p>
+                    <p class="button-height inline-label small-margin-bottom">
+                        &nbsp;
+                    </p>
+                    <button class="button green-gradient  float-right mid-margin-left margin-bottom" onclick="SaveBillableEventProcessingDetails_('@suffix','@Model.ParentGridName','@Model.ParentTabName')"
+                            type="button">
+                        Save
+                    </button>
+                    <button class="button gray-gradient  float-right margin-bottom" type="button" onclick="CancelBillableEventProcessingDetails_('@suffix','@Model.ParentGridName','@Model.ParentTabName');">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+    var fnbuttonHandlerBillingDetails = function (sender) {
+        var cloestForm = $(sender).closest('form');
+        if (cloestForm != undefined) {
+            var formName = cloestForm.attr("id");
+            var buttonPlaceHolder = "#" + cloestForm.attr("relatedButtons");
+            if (buttonPlaceHolder != undefined && buttonPlaceHolder.length > 0) {
+                $(buttonPlaceHolder).show();
+            }
+        }
+    }
+
+    $(function () {
+
+        //Please note that this option got renamed in jqueryui 1.9,
+        //active: index -- selected
+
+        $('#ClientBillableTabDepthDetails_@suffix').tabs();
+
+        $('#formBillingDetailMaintenance_@suffix').validationEngine();
+
+        CleanMyContainer('formBillingDetailMaintenance_@suffix');
+        WatchMyContainer('formBillingDetailMaintenance_@suffix', null, fnbuttonHandlerBillingDetails);
+
+        $('#formBillingDetailMaintenance_@suffix').validationEngine();
+
+        $("#IsExcluded_@suffix").change(function (e) {
+            var suffix = $(this).attr("id").split('_')[1];
+            var isExcluded = $('#IsExcluded_' + suffix).is(':checked');
+            var billingExcludeReason = $('#BillingExcludeReasonID_' + suffix).val();
+            if (!isExcluded) {
+                if ($.trim($('#ExcludeReasonOther_' + suffix).val()).length > 0
+                || $.trim($('#ExcludeComment_' + suffix).val()).length > 0
+                || ($.trim($('#BillingExcludeReasonID_' + suffix).data("kendoComboBox").value()).length > 0)) {
+                    var messageNotification = "Unchecking this box will delete the reason and comments.Are you sure you want to uncheck this box and delete this data?";
+                    $.modal.confirm(messageNotification, function () {
+                        $('#ExcludeComment_' + suffix).val('');
+                        $('#ExcludeReasonOther_' + suffix).val('');
+                        $("#BillingExcludeReasonID_" + suffix).data("kendoComboBox").select(0);
+                        $("#BillingExcludeReasonID_" + suffix).data("kendoComboBox").trigger("change");
+
+                    }, function () {
+                        $('#IsExcluded_' + suffix).attr('checked', true);
+                        $('#IsExcluded_' + suffix).parent().addClass("checked");
+                    });
+                }
+            }
+        });
+
+        $("#IsAdjusted_@suffix").change(function (e) {
+            var suffix = $(this).attr("id").split('_')[1];
+            var isAdjusted = $('#IsAdjusted_' + suffix).is(':checked');
+
+            if (!isAdjusted) {
+                if ($.trim($('#AdjustmentReasonOther_' + suffix).val()).length > 0
+                || $.trim($('#AdjustmentAmount_' + suffix).data('kendoNumericTextBox').value()).length > 0
+                || $.trim($('#AdjustmentComment_' + suffix).val()).length > 0
+                || ($.trim($('#AdjustmentReasonID_' + suffix).data("kendoComboBox").value()).length > 0)) {
+                    var messageNotification = "Unchecking this box will delete the amount, reason and comments.Are you sure you want to uncheck this box and delete this data?";
+                    $.modal.confirm(messageNotification, function () {
+                        $('#AdjustmentComment_' + suffix).val('');
+                        $('#AdjustmentReasonOther_' + suffix).val('');
+                        $('#AdjustmentAmount_' + suffix).data('kendoNumericTextBox').value('');
+                        $("#AdjustmentReasonID_" + suffix).data("kendoComboBox").select(0);
+                        $("#AdjustmentReasonID_" + suffix).data("kendoComboBox").trigger("change");
+
+                    }, function () {
+                        $('#IsAdjusted_' + suffix).attr('checked', true);
+                        $('#IsAdjusted_' + suffix).parent().addClass("checked");
+                    });
+                }
+            }
+        });
+    });
+
+    function ClientBillingViewSource_(entityName, entityKey) {
+        ClientBillingViewSource(entityName, entityKey, tabObject);
+    }
+    function DeleteTab(containerName, gridName, tabName) {
+        deleteGenericTab(containerName, tabObject, gridName, tabName);
+    }
+
+    function SaveBillableEventProcessingDetails_(recordID, gridName, tabName) {
+
+        SaveBillableEventProcessingDetails(recordID, tabObject, gridName, tabName);
+    }
+
+    function CancelBillableEventProcessingDetails_(recordID, gridName, tabName) {
+        CancelBillableEventProcessingDetails(recordID, tabObject, gridName, tabName);
+    }
+</script>

@@ -1,0 +1,187 @@
+﻿@model Martex.DMS.BLL.Model.MemberMergeDetails
+@using Kendo.Mvc.UI;
+@using Martex.DMS.Areas.Application.Models
+@{
+    string mergeActionType = ViewData["mergeSection"].ToString();
+    
+}
+<script type="text/javascript">
+    function GetTransactionSearchParams(mergeSection) {
+        var $div = $("#div_" + mergeSection);
+        var val = $div.find("#hdnMemberId").val();
+        return {
+            memberId: val.toString()
+        };
+
+    }
+    function ddlMembers_OnChange(e, mergeSection) {
+        var combo = $('#ddlMembers_' + mergeSection).data('kendoComboBox');
+        // PV: Validate user input on Telerik dropdowns
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        else {
+            if ($("#ddlMembers").data) {
+
+                if (combo.value() != null && combo.value() != '' && combo.value() != 'Select') {
+                    var memberId = combo.value();
+                    ShowMergeDetails(memberId, mergeSection);
+                }
+            }
+        }
+    }
+</script>
+<div class="boxed left-border">
+@if ("Source".Equals(mergeActionType, StringComparison.InvariantCultureIgnoreCase))
+{ 
+    <button id="btnFindMatchedMembers" class="button blue-gradient float-right  mid-margin-left margin-bottom"
+        type="button">
+        Find Matches</button>
+}
+    <p>
+        <strong class="blue">@Model.MemberDetailsResult.MemberName</strong></p>
+    <p>
+        @Html.Hidden("hdnMemberStatus", @Model.MemberDetailsResult.Status)
+        @if (@Model.MemberDetailsResult.Status == "Active")
+        {
+            <small class="tag green-bg">@Model.MemberDetailsResult.Status</small>
+        }
+        else if (@Model.MemberDetailsResult.Status == "Inactive")
+        {
+            <small class="tag red-bg">@Model.MemberDetailsResult.Status</small>
+        }
+        else
+        { 
+            <small class="tag black-bg">@Model.MemberDetailsResult.Status</small>
+        }
+    </p>
+    <p>@Model.MemberDetailsResult.MembershipNumber</p>
+    <p>
+        Client: @Model.MemberDetailsResult.Client</p>
+    <p>
+        Program: @Model.MemberDetailsResult.Program</p>
+    <p>@Model.MemberDetailsResult.Line1</p>
+    <p>@Model.MemberDetailsResult.CityStateZipCountry</p>
+    @foreach (var phone in Model.PhonesList)
+    {
+        <p>@phone.PhoneTypeName: @Html.Editor("PhoneNumber_" + phone.PhoneID.ToString(), "Phone", new { Value = @phone.PhoneNumber, ReadOnly = true })</p>
+    }
+    <p>
+        Client Ref #: @Model.MemberDetailsResult.ClientReferenceNumber</p>
+    <p>
+        Member Since:
+        @if (Model.MemberDetailsResult.MemberSinceDate.HasValue)
+        {
+            @Model.MemberDetailsResult.MemberSinceDate.Value.ToString("MM/dd/yyyy")
+        }
+    </p>
+    <p>
+        Effective:
+        @if (Model.MemberDetailsResult.EffectiveDate.HasValue)
+        {
+            @Model.MemberDetailsResult.EffectiveDate.Value.ToString("MM/dd/yyyy")
+        }
+    </p>
+    <p>
+        Expiration:
+        @if (Model.MemberDetailsResult.ExpirationDate.HasValue)
+        {
+            @Model.MemberDetailsResult.ExpirationDate.Value.ToString("MM/dd/yyyy")
+        }
+    </p>
+    <p>
+        VIN: @Model.MemberDetailsResult.VIN
+    </p>
+    <br />
+    <div class="grey">
+        <p>
+            Source: @Model.MemberDetailsResult.SourceSystem
+        </p>
+        <p>
+            Created: @Model.MemberDetailsResult.CreateBy @Model.MemberDetailsResult.CreateDate.Value.ToString("MM/dd/yyyy hh:mm:ss tt")
+        </p>
+        <p>
+            Last Update:
+            @if (Model.MemberDetailsResult.ModifyDate.HasValue)
+            {
+                @Model.MemberDetailsResult.ModifyBy <text>&nbsp;</text> @Model.MemberDetailsResult.ModifyDate.Value.ToString("MM/dd/yyyy hh:mm:ss tt")
+            }
+            else
+            {
+                @Model.MemberDetailsResult.ModifyBy
+            }
+        </p>
+    </div>
+</div>
+<br />
+<div>
+    <div class="button-height">
+        <label for="memberProgram" class="label">
+            Members</label>
+        @(Html.Kendo().ComboBox()
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.MemberShipMembers.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model.MemberId))
+                        .Name("ddlMembers")
+                        .Suggest(true)
+                        .Filter(FilterType.StartsWith).MinLength(0)
+                        .Enable(true)
+                        .HighlightFirst(true)
+                        .Events(events => events
+                              .Change(@<text> function(e){ return ddlMembers_OnChange(e,'@mergeActionType');
+        }</text>).DataBound("DefaultDataBoundToAdjustContainerWidth"))
+                        .HtmlAttributes(new { @class = "selectlabel", id = "ddlMembers_" + mergeActionType, style = "width:250px;" })
+                       )
+    </div>
+    <br />
+    <p>
+        <strong>Transactions</strong>
+    </p>
+    @(Html.Kendo().Grid(Model.Transactions)
+    .Name("GrdTransactions_" + mergeActionType)
+    .Columns(columns =>
+    {
+        columns.Bound(a => a.Type).Title("Type").Filterable(false);
+        columns.Bound(a => a.Number).Title("Number").Filterable(false);
+        columns.Bound(a => a.Date).Title("Date").Format("{0:MM/dd/yyyy}").Filterable(false);
+        columns.Bound(a => a.Status).Title("Status").Filterable(false);
+
+    })
+    .Sortable(p => { p.Enabled(true); })
+    .Resizable(a => a.Columns(true))
+    .Scrollable()
+    .DataSource(datasource => datasource
+        .Ajax()
+        .Events(events => events.Error("KendoGridErrorHandler"))
+        .Read(read => read.Action("_SearchTransactions", "MemberMerge").Data(@<text>function()
+    { return GetTransactionSearchParams ( '@mergeActionType' ); }</text>))
+    )
+    )
+</div>
+@Html.Hidden("hdnMemberId", @ViewData["MemberId"])
+@Html.Hidden("hdnMemberName",Model.MemberDetailsResult.MemberName)
+<script language="javascript" type="text/javascript">
+
+    $(function () {
+
+        $("#btnFindMatchedMembers").click(function (e) {
+
+            if (!e.isDefaultPrevented()) {
+                e.preventDefault();
+                e.stopPropagation(); // ensure that this event doesn't bubble up nor execute previously registered handlers.
+
+                var memberSearchForm = $("#frmMemberSearch");
+                var hdnMemberID = memberSearchForm.find("#MemberID");
+
+                var currentMemberID = $("#div_Source > #hdnMemberId").val();
+
+                hdnMemberID.val(currentMemberID);
+                //openAlertMessage("Finding matches for " + currentMemberID);
+                //TODO: Rebind grid.
+                RefreshMemberSearchGrid();
+            }
+
+            return false;
+        });
+
+    });
+
+</script>

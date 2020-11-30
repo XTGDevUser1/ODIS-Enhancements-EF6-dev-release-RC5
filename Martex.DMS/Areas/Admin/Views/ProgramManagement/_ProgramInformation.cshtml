@@ -1,0 +1,150 @@
+﻿@using Martex.DMS.DAL;
+@using Kendo.Mvc.UI
+@model ProgramManagementInformation_Result
+@{
+    string identifier = ViewData["ProgramID"].ToString(); //System.Guid.NewGuid().ToString();
+    string programID = ViewData["ProgramID"].ToString();
+
+
+    bool isView = false;
+    string pageMode = Model.PageMode;
+    if (pageMode != null && pageMode.ToString().Equals("view"))
+    {
+        isView = true;
+    }
+}
+<form id="frmProgramDetailsInformationSection_@identifier" action="javascript:void(0)" method="post" relatedButtons = "PlaceHolder_Program_InfoSection_Buttons_@identifier">
+<div class="with-padding">
+    <div class="columns">
+        <div class="new-row eight-columns">
+            <div class="with-padding">
+                <p class="button-height inline-medium-label">
+                    <label class="label">
+                        Client Name
+                    </label>
+                    @Html.TextBoxFor(u => u.ClientName, new { @class = "input full-width", id = "TxtClientName_" + identifier, disabled = "disabled" })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label class="label">
+                        Parent Name
+                    </label>
+                    @if (isView)
+                    {
+                        @(Html.Kendo().ComboBoxFor(u => u.ParentID)
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                            .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model != null && Model.ParentID != null ? Model.ParentID.ToString() : ""))
+                        .SelectedIndex(0)
+                        .HtmlAttributes(new { id = "ParentID_" + identifier, style = "width:100%;" })
+                        .Enable(false)
+                    )
+                    }
+                    else
+                    {
+                        @(Html.Kendo().ComboBoxFor(u => u.ParentID)
+                        .Filter(Kendo.Mvc.UI.FilterType.Contains).MinLength(0)
+                        .Events(events => events.Change("ValidateInputForKendoCombo"))
+                        .Suggest(true)
+                            .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ProgramsForClient.ToString()] as IEnumerable<SelectListItem>, "Value", "Text", Model != null && Model != null && Model.ParentID != null ? Model.ParentID.ToString() : ""))
+                        .SelectedIndex(0)
+                        .HtmlAttributes(new { id = "ParentID_" + identifier, style = "width:100%;" })
+                        )
+                    }
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label class="label">
+                        Program Name
+                    </label>
+                    @Html.TextBoxFor(u => u.ProgramName, new { @class = "input full-width", id = "TxtProgramName_" + identifier })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label class="label">
+                        Program Description
+                    </label>
+                    @Html.TextBoxFor(u => u.ProgramDescription, new { @class = "input full-width", id = "TxtProgramDescription_" + identifier })
+                </p>
+                <p class="button-height inline-medium-label">
+                    <label class="label">
+                        Code
+                    </label>
+                    @Html.TextBoxFor(u => u.Code, new { @class = "input full-width", id = "TxtCode_" + identifier })
+                </p>
+            </div>
+        </div>
+        
+        <div class="four-columns">
+            <fieldset class="fieldset">
+                <legend class="legend">Program Settings</legend>
+                <div class="with-padding">
+                    <p class="button-height inline-medium-label">
+                        <label class="label">
+                            Service Guarantee
+                        </label>
+                        @Html.CheckBox("IsServiceGuaranteed", Model.IsServiceGuaranteed.HasValue ? Model.IsServiceGuaranteed.Value : false, new { @class = "checkbox full-width", id = "ChkIsServiceGuaranteed_" + identifier })
+                    </p>
+                   
+                    <p class="button-height inline-medium-label">
+                        <label class="label">
+                            Audited
+                        </label>
+                        @Html.CheckBox("IsAudited", Model.IsAudited.HasValue ? Model.IsAudited.Value : false, new { @class = "checkbox full-width", id = "ChkIsAudited_" + identifier })
+                    </p>
+                    <p class="button-height inline-medium-label">
+                        <label class="label">
+                            Is Group
+                        </label>
+                        @Html.CheckBoxFor(u => u.IsGroup, new { @class = "full-width checkbox", id = "ChkIsGroup_" + identifier })
+                    </p>
+                    <p class="button-height inline-medium-label">
+                        <label class="label">
+                            Is Web Registration Enabled
+                        </label>
+                        @Html.CheckBox("IsWebRegistrationEnabled", Model.IsWebRegistrationEnabled.HasValue ? Model.IsWebRegistrationEnabled.Value : false, new { @class = "checkbox full-width", id = "ChkIsWebRegistrationEnabled_" + identifier })
+                    </p> <p class="button-height inline-medium-label">
+                        <label class="label">
+                            IsActive
+                        </label>
+                        @Html.CheckBoxFor(u => u.IsActive, new { @class = "full-width checkbox", id = "ChkIsActive_" + identifier })
+                    </p>
+                </div>
+            </fieldset>
+        </div>
+        <div class="new-row six-columns">
+            <div class="with-padding">
+                <p class="inline-label small-margin-bottom">
+                    <label for="CreateBy" class="label">
+                        Created:</label>
+                    @Html.DisplayFor(u => u.CreateBy)
+                    @Html.Raw("")
+                    @Html.DisplayFor(u => u.CreateDate)
+                </p>
+                <p class="inline-label small-margin-bottom">
+                    <label for="ModifyBy" class="label">
+                        Modified:</label>
+                    @Html.DisplayFor(u => u.ModifyBy)
+                    @Html.Raw("")
+                    @Html.DisplayFor(u => u.ModifyDate)
+                </p>
+            </div>
+        </div>
+        <div class="six-columns hide" id="PlaceHolder_Program_InfoSection_Buttons_@identifier">
+            <button id="btnSaveProgramInfoSection_@identifier" class="button green-gradient  float-right mid-margin-left margin-bottom"
+                    type="button" onclick="SaveProgramInfoTabInformation(this,'@identifier');">
+                Save</button>
+            <button id="btnCancelProgramInfoSection_@identifier" class="button gray-gradient  float-right margin-bottom"
+                    type="button" onclick="CancelProgramInfoTabInformation('@identifier');">
+                Cancel</button>
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $('#frmProgramDetailsInformationSection_@identifier').validationEngine();
+        
+        if ('@isView' == 'True') {
+            $('#frmProgramDetailsInformationSection_@identifier').addClass("disabled", "disabled");
+        }
+    });
+</script>

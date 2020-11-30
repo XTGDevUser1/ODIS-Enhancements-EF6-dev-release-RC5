@@ -1,0 +1,728 @@
+﻿@using Kendo.Mvc.UI
+@model List<Martex.DMS.DAL.Queue_Result>
+@{
+    ViewBag.Title = "Queue";
+    Layout = "~/Views/Shared/_ContentMaster.cshtml";
+}
+<link href="@Url.Content("~/Content/CustomTelerikStyle.css")" rel="stylesheet" type="text/css" />
+<script language="javascript" type="text/javascript">
+    function cmbClosedLoopStatus_OnChange(e) {
+        var combo = $('#cmbClosedLoopStatus').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function cmbNextActionID_OnChange(e) {
+        var combo = $('#cmbNextActionID').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function cmbPriority_OnChange(e) {
+        var combo = $('#cmbPriority').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function cmbClient_OnChange(e) {
+        var combo = $('#cmbClient').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+
+    function cmbServiceType_OnChange(e) {
+        var combo = $('#cmbServiceType').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+    }
+
+    function drpdwnCommon_OnChange(e) {
+        var combo = $('#CmbbxQueueColumnName').data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+        //PV
+        if (combo.value() == "NextAction") {
+            $("#txtInput").hide();
+            $("#divClosedLoopStatus").hide();
+            $("#divServiceType").hide();
+            $("#divNextActionID").show();
+            $("#divPriority").hide();
+            $("#divClient").hide();
+        }
+        else if (combo.value() == "ClosedLoop") {
+            $("#txtInput").hide();
+            $("#divServiceType").hide();
+            $("#divNextActionID").hide();
+            $("#divClosedLoopStatus").show();
+            $("#divPriority").hide();
+            $("#divClient").hide();
+        }
+        else if (combo.value() == "ServiceType") {
+            $("#txtInput").hide();
+            $("#divClosedLoopStatus").hide();
+            $("#divServiceType").show();
+            $("#divNextActionID").hide();
+            $("#divPriority").hide();
+            $("#divClient").hide();
+        }
+        else if (combo.value() == "Priority") {
+            $("#txtInput").hide();
+            $("#divClosedLoopStatus").hide();
+            $("#divServiceType").hide();
+            $("#divNextActionID").hide();
+            $("#divPriority").show();
+            $("#divClient").hide();
+        }
+        else if (combo.value() == "Client") {
+            $("#txtInput").hide();
+            $("#divClosedLoopStatus").hide();
+            $("#divServiceType").hide();
+            $("#divNextActionID").hide();
+            $("#divPriority").hide();
+            $("#divClient").show();
+        }
+        else {
+            $("#divClosedLoopStatus").hide();
+            $("#divNextActionID").hide();
+            $("#divServiceType").hide();
+            $("#divPriority").hide();
+            $("#txtInput").show();
+            $("#divClient").hide();
+        }
+        ClearDirtyFlag("pagecontainer");
+    }
+
+    function ViewServiceRequest(e) {
+        var dataRow = this.dataItem($(e.target).closest("tr"));
+        ShowServiceRequestDetails('@Url.Action("Get", "Queue")', dataRow.RequestNumber, "Service Request Details", true, true);
+    }
+
+    function GridRebind() {
+        $('#GrdQueue').data('kendoGrid').dataSource.read();
+    }
+
+    function ReloadGridafresh() {
+        var grid = $('#GrdQueue').data('kendoGrid');
+        grid.dataSource.read();
+        grid.dataSource.page(1);
+    }
+
+    function GetQueueFilterParams() {
+        var combo = $('#CmbbxQueueColumnName').data('kendoComboBox');
+        if (combo != undefined) {
+            var filterValue = new Array();
+            $('input[name="rbstatus"]:checked').each(function () {
+                filterValue.push($(this).val());
+            });
+
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                // Modify options, control originalOptions, store jqXHR, etc
+                // Set global to false to avoid overlays
+                options.global = false;
+            });
+            var fColumnVaue = $('#txtInput').val();
+            switch (combo.value()) {
+                case "ClosedLoop":
+                    {
+                        fColumnVaue = $('#cmbClosedLoopStatus').data('kendoComboBox').value();
+                        break;
+                    }
+                case "NextAction":
+                    {
+                        fColumnVaue = $('#cmbNextActionID').data('kendoComboBox').value();
+                        break;
+                    }
+                case "ServiceType":
+                    {
+                        fColumnVaue = $('#cmbServiceType').data('kendoComboBox').value();
+                        break;
+                    }
+                case "Priority":
+                    {
+                        fColumnVaue = $('#cmbPriority').data('kendoComboBox').value();
+                        break;
+                    }
+                case "Client":
+                    {
+                        fColumnVaue = $('#cmbClient').data('kendoComboBox').value();
+                        break;
+                    }
+            }
+            ClearDirtyFlag("pagecontainer");
+
+            return { filterColumnName: combo.value(), filterColumnValue: fColumnVaue, statusValues: filterValue.join() };
+
+        }
+    }
+
+    function btnSearchClick() {
+
+        // Sanghi : Validation before making any search.
+        var isValid = true;
+        var searchType = $('#CmbbxQueueColumnName-input');
+        var mainCombo = $('#CmbbxQueueColumnName').data("kendoComboBox");
+        if ($.trim($('#CmbbxQueueColumnName').data("kendoComboBox").value()).length == 0) {
+
+            ShowValidationMessage($('input[name="CmbbxQueueColumnName_input"]'), "Please select a search type");
+            $("html").scrollTop(0);
+            isValid = false;
+        }
+        else {
+            HideValidationMessage($('input[name="CmbbxQueueColumnName_input"]'));
+        }
+
+        switch (mainCombo.value()) {
+            case "ClosedLoop":
+                $('#txtInput').val("");
+                $('#cmbNextActionID').data('kendoComboBox').value("");
+                $('#cmbServiceType').data('kendoComboBox').value("");
+                $('#cmbPriority').data('kendoComboBox').value("");
+                $('#cmbClient').data('kendoComboBox').value("");
+
+                if ($.trim($('#cmbClosedLoopStatus').data("kendoComboBox").value()).length == 0) {
+                    ShowValidationMessage($('input[name="cmbClosedLoopStatus_input"]'), "Please select search text");
+                    $("html").scrollTop(0);
+                    HideValidationMessage($('#txtInput'));
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                }
+                break;
+
+            case "NextAction":
+
+                $('#txtInput').val("");
+                $('#cmbClosedLoopStatus').data('kendoComboBox').value("");
+                $('#cmbServiceType').data('kendoComboBox').value("");
+                $('#cmbPriority').data('kendoComboBox').value("");
+                $('#cmbClient').data('kendoComboBox').value("");
+                if ($.trim($('#cmbNextActionID').data("kendoComboBox").value()).length == 0) {
+                    ShowValidationMessage($('input[name="cmbNextActionID_input"]'), "Please select search text");
+                    $("html").scrollTop(0);
+                    HideValidationMessage($('#txtInput'));
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                }
+                break;
+
+            case "ServiceType":
+
+                $('#txtInput').val("");
+                $('#cmbClosedLoopStatus').data('kendoComboBox').value("");
+                $('#cmbNextActionID').data('kendoComboBox').value("");
+                $('#cmbPriority').data('kendoComboBox').value("");
+                $('#cmbClient').data('kendoComboBox').value("");
+                if ($.trim($('#cmbServiceType').data("kendoComboBox").value()).length == 0) {
+                    ShowValidationMessage($('input[name="cmbServiceType_input"]'), "Please select search text");
+                    $("html").scrollTop(0);
+                    HideValidationMessage($('#txtInput'));
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                }
+                break;
+
+            case "Priority":
+
+                $('#txtInput').val("");
+                $('#cmbClosedLoopStatus').data('kendoComboBox').value("");
+                $('#cmbNextActionID').data('kendoComboBox').value("");
+                $('#cmbServiceType').data('kendoComboBox').value("");
+                $('#cmbClient').data('kendoComboBox').value("");
+
+                if ($.trim($('#cmbPriority').data("kendoComboBox").value()).length == 0) {
+                    ShowValidationMessage($('input[name="cmbPriority_input"]'), "Please select search text");
+                    $("html").scrollTop(0);
+                    HideValidationMessage($('#txtInput'));
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                }
+                break;
+            case "Client":
+
+                $('#txtInput').val("");
+                $('#cmbClosedLoopStatus').data('kendoComboBox').value("");
+                $('#cmbNextActionID').data('kendoComboBox').value("");
+                $('#cmbServiceType').data('kendoComboBox').value("");
+                $('#cmbPriority').data('kendoComboBox').value("");
+
+                if ($.trim($('#cmbClient').data("kendoComboBox").value()).length == 0) {
+                    ShowValidationMessage($('input[name="cmbClient_input"]'), "Please select search text");
+                    $("html").scrollTop(0);
+                    HideValidationMessage($('#txtInput'));
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                    isValid = false;
+                }
+                else {
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                }
+                break;
+            default:
+
+                if ($('#txtInput').val() == '') {
+                    ShowValidationMessage($('#txtInput'), "Please enter search text");
+                    HideValidationMessage($('input[name="cmbServiceType_input"]'));
+                    HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+                    HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+                    HideValidationMessage($('input[name="cmbPriority_input"]'));
+                    HideValidationMessage($('input[name="cmbClient_input"]'));
+                    isValid = false;
+                }
+                else {
+                    if (mainCombo.value() == "RequestNumber") {
+                        var input = $.trim($('#txtInput').val());
+                        if (isNaN(input)) {
+                            isValid = false;
+                            ShowValidationMessage($('#txtInput'), "Please enter a number");
+                        }
+                        else {
+                            HideValidationMessage($('#txtInput'));
+                        }
+                    }
+                    else {
+                        HideValidationMessage($('#txtInput'));
+                    }
+                }
+                break;
+
+        }
+
+        if (!isValid) {
+            return false;
+        }
+
+        ReloadGridafresh();
+    }
+
+    function btnResetClick() {
+        $('#CmbbxQueueColumnName').data('kendoComboBox').value('');
+        $('#txtInput').val("");
+        $('#cmbClosedLoopStatus').data('kendoComboBox').value("");
+        $('#cmbNextActionID').data('kendoComboBox').value("");
+        $('#cmbServiceType').data('kendoComboBox').value("");
+        $("#cmbPriority").data('kendoComboBox').value("");
+        $('#cmbClient').data('kendoComboBox').value("");
+
+        //Clear off validation messages
+        HideValidationMessage($('input[name="cmbServiceType_input"]'));
+        HideValidationMessage($('input[name="cmbNextActionID_input"]'));
+        HideValidationMessage($('input[name="cmbClosedLoopStatus_input"]'));
+        HideValidationMessage($('input[name="cmbPriority_input"]'));
+        HideValidationMessage($('#txtInput'));
+        HideValidationMessage($('input[name="CmbbxQueueColumnName_input"]'));
+        HideValidationMessage($('input[name="cmbClient_input"]'));
+
+        $('input[name="rbstatus"]:checked').attr("checked", false);
+        var grid = $('#GrdQueue').data('kendoGrid');
+        grid.dataSource.pageSize(100);
+        grid.refresh();
+        grid.dataSource.sort({});
+        $('label.active').each(function () {
+            $(this).removeClass("active");
+        });
+    }
+
+    function btnStartCallClick() {
+        //Sanghi : #935
+        window.location.href = "@Url.Action("Index", "Request", new { area = "Application", id = "startCall" })";
+    }
+
+    $(function () {
+        handleDirtyPage = false;
+
+        $('input[name="rbstatus"]').click(function () {
+
+            GridRebind();
+            var grid = $('#GrdQueue').data('kendoGrid');
+            grid.dataSource.page(1);
+
+        });
+        var queueDetailWindow;
+        var gridContentHeight = GetWindowHeight() - (
+                                            $("#menu-horizontal").height() +
+                                            $(".k-toolbar").height() +
+                                            $(".k-grid-header").height() +
+                                            $(".k-grid-bottom").height() +
+                                            $(".footer").height() +
+                                            250
+                                            );
+        $(".k-grid-content").css("height", gridContentHeight + "px");
+    });
+
+    function GrdQueue_OnDatabound(e) {
+
+        // Lakshmi
+
+        var grid = $("#GrdQueue").data("kendoGrid");
+        var data = grid.dataSource.view();
+
+        $.each(data, function (i, row) {
+            //Sanghi : TFS #367 added find(".elapsedColumn")
+            $('tr[data-uid="' + row.uid + '"]').find(".elapsedColumn").css("background-color", row.StatusColor);
+            //Sanghi : TFS #386
+            $('tr[data-uid="' + row.uid + '"]').find(".scheduledColumn").css("background-color", row.ScheduledColumnBackGroundColor);
+
+            var $priorityColumn = $('tr[data-uid="' + row.uid + '"]').find(".priorityColumn");
+            if ($priorityColumn.html() == 'Critical') {
+                $priorityColumn.css("background-color", '#d18a8a');
+            }
+            else if ($priorityColumn.html() == 'High') {
+                $priorityColumn.css("background-color", '#F2DEDE');
+            }
+        });
+        //End
+
+        $("#spanTime").html(GetCurrentTime());
+        var end = Date.now();
+        var start = Date.now().addHours(-1 * queueDisplayHours);
+        $("#spanTimePeriod").html(start.toString('MM/dd/yyyy  hh:mm:ss tt') + ' to ' + end.toString('MM/dd/yyyy  hh:mm:ss tt'));
+
+        var rowCount = e.sender.dataSource.total();
+        var isFHT = false;
+        var isCHT = false;
+
+        $('input[name="rbstatus"]:checked').each(function () {
+            var val = $(this).val();
+            if (val == "FHT") {
+                isFHT = true;
+            }
+            if (val == "CHT") {
+                isCHT = true;
+            }
+        });
+
+        //if (isFHT && rowCount == 0) {
+        //    $(".spManagerCount").html("0");
+        //    $(".spDispatcherCount").html("0");
+        //    $(".spTechCount").html("0");
+        //    $(".spRepairCount").html("0");
+        //    //$(".sprecancelledcount").html("0");
+        //}
+        //if (rowCount > 0) {
+        //    var item = e.sender.dataSource.data()[0];
+        //    $(".spManagerCount").html(item.ManagerCount);
+        //    $(".spDispatcherCount").html(item.dispatcherCount);
+        //    $(".spTechCount").html(item.TechCount);
+        //    $(".spRepairCount").html(item.repairCount);
+        //    //$(".sprecancelledcount").html(item.CancelledCount);
+
+        //}
+
+    }
+</script>
+<form method="post" action="" id="form-Queue">
+    <div class="with-padding">
+        <div class="columns">
+            <div class="eight-columns">
+                <hgroup id="main-title" class="thin">
+                    <h1>
+                        Queue
+                    </h1>
+                </hgroup>
+            </div>
+            <div class="four-columns">
+                <button type="button" class="button margin-top huge green-gradient full-width" id="btnStartCall"
+                        onclick="return btnStartCallClick()" value="Search">
+                    Start Call
+                </button>
+            </div>
+            <div class="new-row twelve-columns no-margin-bottom">
+                <div class="k-toolbar k-grid-toolbar k-grid-top mid-padding-bottom">
+                    <div class="float-left mid-margin-top margin-left">
+                        <p class="button-height">
+                            <span class="button-group">
+                                <label for="displayManager" class="button compact green-active">
+                                    <input type="radio" name="rbstatus" id="displayManager" value="Manager" />
+                                    Manager
+                                </label>
+                                <label for="displayDispatcher" class="button compact green-active">
+                                    <input type="radio" name="rbstatus" id="displayDispatcher" value="Dispatcher" />
+                                    Dispatcher
+                                </label>
+                                <label for="displayTech" class="button compact green-active">
+                                    <input type="radio" name="rbstatus" id="displayTech" value="RVTech" />
+                                    Tech
+                                </label>
+                                <label for="displayRepair" class="button compact green-active">
+                                    @*<span class="count blue-bg spRepairCount">@Html.Raw(Model.Count > 0 ? Model[0].repairCount.ToString() : "0")</span>*@
+                                    <input type="radio" name="rbstatus" id="displayRepair" value="Repair" />
+                                    Repair
+                                </label>
+                                <label for="display-fht" class="button compact green-active">
+                                    <input type="radio" name="rbstatus" id="display-fht" value="FHT" />
+                                    FHT
+                                </label>
+                                <label for="display-cht" class="button compact green-active">
+                                    <input type="radio" name="rbstatus" id="display-cht" value="CHT" />
+                                    CHT
+                                </label>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="float-right mid-margin-top margin-right">
+                        <span class="margin-right"><strong>Select search type</strong></span>
+                        @(Html.Kendo().ComboBox()
+                    .Name("CmbbxQueueColumnName")
+                    .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                    .Events(events => events.Change("drpdwnCommon_OnChange"))
+                    .Suggest(true)
+                    .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.QueueFilterItems.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                    .HtmlAttributes(new { @class = "small-margin-right" })
+                        )
+                        <input type="text" id="txtInput" class="input button-height small-margin-right" />
+                        <span id="divClosedLoopStatus">
+                            @(Html.Kendo().ComboBox()
+                        .Name("cmbClosedLoopStatus")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("cmbClosedLoopStatus_OnChange"))
+                        .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ClosedLoopStatus.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                                .HtmlAttributes(new { @class = "small-margin-right" })
+                            )
+                        </span><span id="divNextActionID">
+                            @(Html.Kendo().ComboBox()
+                        .Name("cmbNextActionID")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("cmbNextActionID_OnChange"))
+                        .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.NextAction.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                                .HtmlAttributes(new { @class = "small-margin-right" })
+                            )
+                        </span><span id="divServiceType">
+                            @(Html.Kendo().ComboBox()
+                        .Name("cmbServiceType")
+                        .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                        .Events(events => events.Change("cmbServiceType_OnChange"))
+                        .Suggest(true)
+                        .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.ServiceType.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                                .HtmlAttributes(new { @class = "small-margin-right" })
+                            )
+                        </span><span id="divPriority">
+                            @(Html.Kendo().ComboBox()
+                     .Name("cmbPriority")
+                     .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                     .Events(events => events.Change("cmbPriority_OnChange"))
+                     .Suggest(true)
+                     .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Priorities.ToString()] as IEnumerable<SelectListItem>, "Value", "Text"))
+                             .HtmlAttributes(new { @class = "small-margin-right" })
+                            )
+                        </span>
+                        <span id="divClient">
+                            @(Html.Kendo().ComboBox()
+                     .Name("cmbClient")
+                     .Filter(Kendo.Mvc.UI.FilterType.StartsWith).MinLength(0)
+                             .Events(events => events.Change("cmbClient_OnChange"))
+                     .Suggest(true)
+                     .BindTo(new SelectList(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>, "Text", "Text"))
+                             .HtmlAttributes(new { @class = "small-margin-right" })
+                            )
+                        </span>
+                        <button type="button" class="button blue-gradient  compact" id="btnSearch" value="Search">
+                            Search
+                        </button>
+                        <button type="button" class="button grey-gradient  compact" id="btnReset" value="Reset">
+                            Reset
+                        </button>
+                    </div>
+                    <div class="clear">
+                        &nbsp;
+                    </div>
+                </div>
+            </div>
+            <div class="new-row twelve-columns">
+                @(Html.Kendo().Grid(Model)
+            .Name("GrdQueue")
+            .HtmlAttributes(new { @class = "full-width" })
+            .EnableCustomBinding(true)
+            .DataSource(dataBinding =>
+             {
+                 dataBinding.Ajax()
+                     .Events(events => events.Error("KendoGridErrorHandler"))
+                     .Read(read => read.Action("List", "Queue").Data("GetQueueFilterParams"))
+                     .PageSize(100)
+                     .Total(Model != null && Model.Count > 0 ? Model[0].TotalRows : 0);
+             })
+             .Columns(columns =>
+             {
+                 columns.Bound(a => a.RequestNumber).Title("Req #");
+                 columns.Bound(a => a.Client).Title("Client");
+                 columns.Bound(a => a.Member).Title("Member");
+                 columns.Bound(a => a.Submitted).Title("Created");
+                 columns.Bound(a => a.FormattedElapsedTime).Title("Elapsed").HtmlAttributes(new { @class = "elapsedColumn" });
+                 columns.Bound(a => a.ServiceType).Title("ServiceType");
+                 columns.Bound(a => a.Status).Title("Status");
+                 columns.Bound(a => a.NextAction).Title("NextAction");
+                 columns.Bound(a => a.AssignedTo).Title("AssignedTo");
+                 columns.Bound(a => a.Scheduled).Title("Scheduled").HtmlAttributes(new { @class = "scheduledColumn" });
+                 columns.Bound(a => a.Priority).Title("Priority").HtmlAttributes(new { @class = "priorityColumn" });
+                 columns.Bound(a => a.ClosedLoop).Title("ClosedLoop");
+                 columns.Command(commands =>
+                 {
+                     commands
+                         .Custom("viewQueueDetails")
+                         .Text("View")
+                         .HtmlAttributes(new { @class = "with-tooltip", style = "min-width:auto;", title = "View" })
+                         .Click("ViewServiceRequest");
+                 }).Visible(false);
+             })
+             .Events(events =>
+             {
+                 events.DataBound("GrdQueue_OnDatabound");
+             })
+
+            .Sortable()
+            .Resizable(a => a.Columns(true))
+            .Scrollable()
+            .Pageable(pager => pager
+                .Refresh(true)
+                .PageSizes(new int[] { 10, 20, 50, 100 })
+                )
+            .Selectable(select => select.Mode(GridSelectionMode.Single))
+                )
+            </div>
+        </div>
+    </div>
+    @Html.Hidden("hdnRefreshTime", ViewData["RefreshTime"])
+    <br />
+    <div class="with-padding">
+        <p>
+            <label for="Time" class="">
+                Data refreshed at <strong><span id="spanTime"></span></strong>
+            </label>
+            <label for="TimePeriod" class="float-right">
+                Time Period : <strong><span id="spanTimePeriod"></span></strong>
+            </label>
+        </p>
+    </div>
+    <br />
+</form>
+<script language="javascript" type="text/javascript">
+    handleDirtyPage = false;
+    var int = self.setInterval("GridRebind()", 1000 * $("#hdnRefreshTime").val());
+    var queueDisplayHours = parseInt('@ViewData["QueueDisplayHours"]', 10);
+
+    function GetCurrentTime() {
+        var date = new Date;
+        var h = date.getHours();
+        var ampm = 'AM';
+        if (h < 10) {
+            h = "0" + h;
+        }
+        if (h >= 12) {
+            ampm = "PM";
+            if (h > 12) {
+                h = h - 12;
+            }
+        }
+        var m = date.getMinutes();
+        if (m < 10) {
+            m = "0" + m;
+        }
+        var s = date.getSeconds();
+        if (s < 10) {
+            s = "0" + s;
+        }
+        return h + ":" + m + ":" + s + " " + ampm;
+    }
+
+    $(function () {
+        $("#cmbNextActionID").data("kendoComboBox").list.width(250);
+        $("#divClosedLoopStatus").hide();
+        $("#divNextActionID").hide();
+        $("#divServiceType").hide();
+        $("#divPriority").hide();
+        $("#divClient").hide();
+
+        SearchOnEnter('form-Queue', 'btnSearch');
+
+        $("#btnSearch").click(function (e) {
+            btnSearchClick();
+            return false;
+        });
+
+        $("#btnReset").click(function (e) {
+            btnResetClick();
+            return false;
+        });
+
+        $("#GrdQueue").delegate("tbody>tr", "dblclick", function (e) {
+            if (e != null && !e.isDefaultPrevented()) {
+                e.preventDefault();
+                if ($('td:eq(0)', $(this)).text() == "No records to display.") {
+                    return false;
+                }
+                var id = $('td:eq(0)', $(this)).text();
+                mode = "edit";
+                title = "Service Request ID: " + id;
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Get", "Queue")',
+                    traditional: true,
+                    data: { queueId: id, isEditRequired: true },
+                    cache: false,
+                    async: true,
+                    success: function (msg) {
+                        queueDetailWindow = $("<div id='queueDetailWindow' />").appendTo(document.body);
+                        queueDetailWindow.kendoWindow({
+                            title: title,
+                            modal: true,
+                            width: 1000,
+                            height: GetPopupWindowHeight(),
+                            deactivate: function () {
+                                this.destroy();
+                            },
+                            close: function (e) {
+                                if (document.dialogResult == null || document.dialogResult == "CANCEL") {
+                                    document.dialogResult = null;
+                                    if (!IsPageDirty()) {
+                                        e.preventDefault();
+                                        return false;
+                                    }
+                                }
+                                isdirty = false;
+                                if (typeof isInSRPopup != "undefined") {
+                                    isInSRPopup = false;
+                                }
+                                return true;
+                            }
+                        });
+                        queueDetailWindow.data('kendoWindow').content(msg).center().open();
+                    }
+                }); // end of ajax
+            }
+        });
+
+    });
+</script>

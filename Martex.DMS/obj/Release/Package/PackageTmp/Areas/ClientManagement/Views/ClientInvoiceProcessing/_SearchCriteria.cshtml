@@ -1,0 +1,251 @@
+﻿@using Martex.DMS.DAL.Entities.Clients;
+@using Kendo.Mvc.UI
+@using Martex.DMS.DAL;
+@model ClientBillableInvoiceSearchCriteria
+@{
+    int i = 0;
+    string userId = System.Web.Security.Membership.GetUser(true).ProviderUserKey.ToString();
+    string uniqueID = System.Guid.NewGuid().ToString();
+    string pageName = "ClientInvoiceProcessing";
+    string JSMethodNameToCollectData = "GetClientInvoiceProcessingSearchCriteria";
+    string tragetSaveMethodName = "SaveFilterSearchCriteriaForClientInvoiceProcessing";
+    string applyCallBackFuntion = "LoadClientInvoiceProcessingPredefinedViews"; 
+}
+<script type="text/javascript">
+    function Client_onChange(e) {
+        var combo = $("#Client_Search_ClientID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        var comboBillingDefinition = $("#Billing_Definition_InvoiceID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("GetBillingDefinitionInvoice", "ReferenceData", new { area = "Common" })',
+            data: { clientID: combo.value() },
+            success: function (msg) {
+                comboBillingDefinition.setDataSource(msg);
+                comboBillingDefinition.select(0);
+                SetFocusOnField("Billing_Definition_InvoiceID");
+                ReloadBillingDefinitionInvoice();
+            }
+
+        })
+
+
+    }
+
+    function ReloadBillingDefinitionInvoice() {
+        var comboBillingDefinition = $("#Billing_Definition_InvoiceID").data('kendoComboBox');
+        $.ajax({
+            url: '@Url.Action("_BillingDefinitionInvoiceLine", "ClientInvoiceProcessing", new { area = "ClientManagement" })',
+            data: { recordID: comboBillingDefinition.value() },
+            success: function (msg) {
+                $('#chkBillingDefinitionInvoiceLines').html(msg);
+            }
+
+        })
+    }
+
+    function BillingDefinition_onChange(e) {
+        var combo = $("#Billing_Definition_InvoiceID").data('kendoComboBox');
+        if (!IsUserInputValidForChangeOnKendoCombo(combo)) {
+            e.preventDefault();
+        }
+
+        ReloadBillingDefinitionInvoice();
+    }
+</script>
+<form id="frmClientInvoiceProcessingSearchCriteria" action="javascript:void(0)"
+method="post">
+@Html.Hidden("ClientInvoiceProcessingViewID", string.Empty)
+@Html.HiddenFor(u => u.GridSortOrder)
+@Html.HiddenFor(u => u.GridSortColumnName)
+@Html.HiddenFor(u => u.ResetModelCriteria)
+@Html.HiddenFor(u => u.PanelItemsSelected)
+@Html.HiddenFor(u => u.PanelViewsSelected)
+@Html.HiddenFor(u => u.PanelScheduleDateSelected)
+@Html.HiddenFor(u => u.PanelInvoiceDefinitionSelected)
+@Html.HiddenFor(u => u.PanelInvoiceStatusSelected)
+@Html.HiddenFor(u => u.PanelLineStatusSelected)
+@(Html.Kendo().PanelBar()
+    .Name("panelbarSearchCriteria")
+    .ExpandMode(PanelBarExpandMode.Multiple)
+    .Events(events => events.Collapse("fnPanelCollapseR").Expand("fnPanelExpandR"))
+    .Items(panelbar =>
+    {
+        panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="GetSelectedCriteria();">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+        panelbar.Add().Text("Views").Content(
+        @<div class="with-padding small-margin-right">
+            @Html.Editor("FilterView", "FilterView", new
+           {
+               filterView = new Martex.DMS.DAL.Entities.FilterViewEntity(pageName, userId, applyCallBackFuntion, uniqueID, tragetSaveMethodName, JSMethodNameToCollectData)
+           })
+        </div>
+).Expanded(Model.PanelViewsSelected.HasValue ? Model.PanelViewsSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelViewsSelected" });
+
+
+        panelbar.Add().Text("Items Selected").Content(
+              @<div class="with-padding" id="clientInvoiceProcessingSelectedSearchCriteriaDetails">
+                  @Html.Partial("_SelectedCriteria", Model)
+              </div>
+    ).Expanded(Model.PanelItemsSelected.HasValue ? Model.PanelItemsSelected.Value : true).LinkHtmlAttributes(new { id = "Panel_PanelItemsSelected" });
+
+        panelbar.Add().Text("Schedule Date").Content(
+              @<div class="with-padding">
+                  <div class="button-height inline-label small-margin-right">
+                    <label for="NameSectionTypeMemberLastName" class="label">
+                        From</label>
+                    @(Html.Kendo().DatePickerFor(u => u.ScheduleDateFrom)
+                            // .Events(e => e.Change("StartDateChange"))
+                    .HtmlAttributes(new { style = "width:90%" })
+                    )
+                </div>
+                <div class="clear">
+                </div>
+                <div class="button-height inline-label small-margin-left">
+                    <label for="DateSectionToDate" class="label">
+                        To</label>
+                    @(Html.Kendo().DatePickerFor(u => u.ScheduleDateTo)
+                            //.Events(e => e.Change("EndDateChange"))
+                            .HtmlAttributes(new { style = "width:90%" })
+                    )
+                </div>
+              </div>
+        ).Expanded(Model.PanelScheduleDateSelected).LinkHtmlAttributes(new { id = "Panel_PanelScheduleDateSelected" });
+
+        panelbar.Add().Text("Invoice Def / Line").Content(
+              @<div class="with-padding">
+                  <div class="button-height inline-label small-margin-bottom">
+                      <label for="Client" class="label">
+                          Client</label>
+                      @(Html.Kendo().ComboBoxFor(u => u.ClientID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                                    .Events(events => events.Change("Client_onChange").DataBound("DefaultDataBoundToAdjustContainerWidth"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "Client_Search_ClientID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.Clients.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.ClientID.HasValue ? Model.ClientID.Value.ToString() : string.Empty)
+                            )
+                  </div>
+                  <div class="button-height inline-label small-margin-bottom">
+                      <label class="label">
+                          Definition</label>
+                      @(Html.Kendo().ComboBoxFor(u => u.BillingDefinitionInvoiceID)
+                            .Filter(FilterType.StartsWith).MinLength(0)
+                            .Suggest(true)
+                            .SelectedIndex(0)
+                            .Events(events => events.Change("BillingDefinition_onChange").DataBound("DefaultDataBoundToAdjustContainerWidth"))
+                            .HtmlAttributes(new { style = "width:90%;", id = "Billing_Definition_InvoiceID" })
+                            .BindTo(ViewData[Martex.DMS.ActionFilters.StaticData.BillingDefinitionInvoice.ToString()] as IEnumerable<SelectListItem>)
+                            .Value(Model.BillingDefinitionInvoiceID.HasValue ? Model.BillingDefinitionInvoiceID.Value.ToString() : string.Empty)
+                            )
+                  </div>
+                  <div class="button-height inline-label small-margin-bottom">
+                      <label class="label">
+                          Line</label>
+                  </div>
+                  <div id="chkBillingDefinitionInvoiceLines">
+                      @if (Model.BillingDefinitionInvoiceLine != null && Model.BillingDefinitionInvoiceLine.Count > 0)
+                      {
+                          for (i = 0; i < Model.BillingDefinitionInvoiceLine.Count; i++)
+                          {
+                          <div class="with-small-padding">
+                              @Html.HiddenFor(u => Model.BillingDefinitionInvoiceLine[i].ID)
+                              @Html.HiddenFor(u => Model.BillingDefinitionInvoiceLine[i].Name)
+                              @Html.CheckBoxFor(u => Model.BillingDefinitionInvoiceLine[i].Selected, new { @class = "checkbox billingDefinitionInvoiceLines", recorID = Model.BillingDefinitionInvoiceLine[i].ID, recordName = Model.BillingDefinitionInvoiceLine[i].Name })
+                              @Model.BillingDefinitionInvoiceLine[i].Name
+                          </div>
+                    
+                          }
+
+                      }
+                  </div>
+              </div>
+        ).Expanded(Model.PanelInvoiceDefinitionSelected).LinkHtmlAttributes(new { id = "Panel_PanelInvoiceDefinitionSelected" });
+
+
+       @* panelbar.Add().Text("Invoice Status").Content(
+              @<div class="with-padding">
+                  @if (Model.InvoiceStatus != null && Model.InvoiceStatus.Count > 0)
+                  {
+                      <div id="chkInvoiceStatus">
+                      @for (i = 0; i < Model.InvoiceStatus.Count; i++)
+                      {
+                      <div class="with-small-padding">
+                          
+                              @Html.HiddenFor(u => Model.InvoiceStatus[i].ID)
+                              @Html.HiddenFor(u => Model.InvoiceStatus[i].Name)
+                              @Html.CheckBoxFor(u => Model.InvoiceStatus[i].Selected, new { @class = "checkbox", recorID = Model.InvoiceStatus[i].ID, recordName = Model.InvoiceStatus[i].Name })
+                              @Model.InvoiceStatus[i].Name
+                          
+                      </div>
+                        }
+                  </div>
+
+                  }
+              </div>
+        ).Expanded(Model.PanelInvoiceStatusSelected).LinkHtmlAttributes(new { id = "Panel_PanelInvoiceStatusSelected" });*@
+
+        panelbar.Add().Text("Line Status").Content(
+              @<div class="with-padding">
+                  @if (Model.LineStatus != null && Model.LineStatus.Count > 0)
+                  {
+                      <div id="chkLineStatus">
+                      @for (i = 0; i < Model.LineStatus.Count; i++)
+                      {
+                      <div class="with-small-padding">
+                          
+                              @Html.HiddenFor(u => Model.LineStatus[i].ID)
+                              @Html.HiddenFor(u => Model.LineStatus[i].Name)
+                              @Html.CheckBoxFor(u => Model.LineStatus[i].Selected, new { @class = "checkbox", recorID = Model.LineStatus[i].ID, recordName = Model.LineStatus[i].Name })
+                              @Model.LineStatus[i].Name
+                          
+                      </div>
+                    }
+                    </div>
+
+                  }
+              </div>
+            ).Expanded(Model.PanelLineStatusSelected).LinkHtmlAttributes(new { id = "Panel_PanelLineStatusSelected" });
+            
+       panelbar.Add().Text("Search").Content(
+             @<div class="with-padding">
+                 <p class="button-height">
+                     <a href="javascript:void(0)" class="button icon-search big green-gradient full-width" onclick="GetSelectedCriteria();">Search
+                     </a>
+                 </p>
+             </div>
+             ).Expanded(true).LinkHtmlAttributes(new { id = "Panel_PanelSearch" });
+
+    }))
+</form>
+<script type="text/javascript">
+
+    function LoadClientInvoiceProcessingPredefinedViews(recordID) {
+
+        $('#ClientInvoiceProcessingViewID').val(recordID);
+        GetSearchCriteria();
+
+        var gridReference = $('#grdInvoices').data('kendoGrid').dataSource;
+
+        var sortOrder = $('#GridSortOrder').val();
+        var sortColumn = $('#GridSortColumnName').val();
+        if (sortOrder != undefined && sortColumn != undefined) {
+            gridReference.sort({ field: sortColumn, dir: sortOrder });
+        }
+        gridReference.read();
+        setTimeout(function () {
+            $('#ClientInvoiceProcessingViewID').val('');
+        }, 1000);
+    }
+</script>
+

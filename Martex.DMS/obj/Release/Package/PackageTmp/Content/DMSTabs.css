@@ -1,0 +1,215 @@
+﻿/*.ui-tabs {
+	zoom: 1;
+}
+.ui-tabs .ui-tabs-nav {
+	list-style: none;
+	position: relative;
+	padding: 0;
+	margin: 0;
+}
+.ui-tabs .ui-tabs-nav li {
+	position: relative;
+	float: left;
+	margin: 0 3px -2px 0;
+	padding: 0;	
+}
+.ui-tabs .ui-tabs-nav li a {
+	display: block;
+	padding: 10px 20px;
+	
+
+	border: 2px #ccc solid;
+	border-bottom-color: #ccc;
+	outline: none;
+	border-width : 0;
+	
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
+	padding: 10px 20px 12px 20px;
+	background: #fff;
+	border-bottom-style: none;	
+	
+	
+	box-shadow : 0 1px 4px rgba(0, 0, 0, 0.25);
+	border-radius : 5px 5px 0 0;
+	border-color:#CCCCCC #CCCCCC -moz-use-text-color;
+	border-width : 1px 1px 0 0;
+	border-style: solid solid none none;
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a,
+.ui-tabs .ui-tabs-nav li.ui-state-disabled a,
+.ui-tabs .ui-tabs-nav li.ui-state-processing a {
+	cursor: default;
+}
+.ui-tabs .ui-tabs-nav li a,
+.ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
+	cursor: pointer;
+}
+.ui-tabs .ui-tabs-panel {
+	display: block;
+	clear: both;
+	border: 2px #ccc solid;
+	padding: 10px;
+}
+.ui-tabs .ui-tabs-hide {
+	display: none;
+}
+.ui-widget-header
+{
+    background-color:#ffffff;
+    background-image:none;    
+}
+.ui-state-default
+{
+    background-color:transparent;
+    background-image:none;
+}*/
+
+.standard-tabs > .tabs > li.active, .standard-tabs > .tabs > li.ui-state-active + li {
+    border-left-color: transparent;
+}
+.standard-tabs > .tabs > li.ui-state-active > a {
+						margin-left: -13px;
+						margin-right: -13px;
+						padding: 6px 12px 7px;
+						border: 1px solid #cccccc;
+						border-bottom: 0;
+						background: white;
+						color: #0059a0;
+						-webkit-border-top-left-radius: 5px;
+						-webkit-border-top-right-radius: 5px;
+						-moz-border-radius: 5px 5px 0 0;
+						border-radius: 5px 5px 0 0;
+						-webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+						-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+						box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+						}
+.standard-tabs > .ui-widget-content {
+		position: static;
+		left: auto;
+		right: auto;
+		overflow: visible;
+		width: auto;
+		border: 1px solid #cccccc;
+		-webkit-border-radius: 6px;
+		-webkit-border-top-left-radius: 0;
+		-moz-border-radius: 0 6px 6px 6px;
+		border-radius: 0 6px 6px 6px;
+		-webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+		-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+		}
+.csstransforms .standard-tabs > .ui-widget-content,
+		.csstransforms .side-tabs > .ui-widget-content {
+			-webkit-transform: none;
+			-moz-transform: none;
+			-ms-transform: none;
+			-o-transform: none;
+			transform: none;
+		}
+		.standard-tabs > .ui-widget-content {
+			min-height: auto !important;
+			background:white;
+		}	
+		
+	#tabs-1 .standard-tabs > .ui-widget-content {
+			min-height: auto !important;
+			background:white;
+			/*min-height:850px;*/
+		}	
+		
+/* Back button */
+	.standard-tabs > .ui-widget-content > .tabs-back
+	 {
+		display: none;
+	}
+.ui-tabs-hide
+{
+    display:none;
+}
+.callScriptItem
+{
+    border : 1px dotted #cccccc;
+    -webkit-border-radius: 6px;	
+	-moz-border-radius: 6px 6px 6px 6px;
+	border-radius: 6px 6px 6px 6px;
+	-webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+	margin-bottom : 5px;
+	padding : 5px;
+}
+#callScriptList
+{
+    min-height:240px;
+}
+.programDataFields
+{
+    height:auto;
+    margin-top:10px;
+}
+#programDetails
+{
+    height : 240px;
+}
+
+/* Timer CSS */
+.timer
+        {
+            font-size: 52px;
+            color: #333;
+            text-shadow: 1px 1px 1px #fff;
+            text-align: center;
+            background-color: transparent;
+            /*margin: 5px;
+            box-shadow: 2px 2px 8px #999;*/
+            padding: 5px;
+            height: auto;
+        }
+/* DatePicker */
+#ui-datepicker-div
+{
+    border: 1px solid #AAAAAA;
+    border-radius : 4px 4px 4px 4px;  
+    background-color:#ffffff;  
+}
+
+.ui-state-disabled > .ui-state-default
+{
+    text-decoration:line-through;
+}
+
+.ui-icon.ui-icon-circle-triangle-w, .ui-icon.ui-icon-circle-triangle-e
+{
+    background:none;    
+}
+
+.ui-state-active .ui-icon {
+background-image: url(/content/themes/base/images/ui-icons_454545_256x240.png);
+}
+
+.ui-icon
+{
+    width:16px;
+    height:16px;
+    display: block;
+    text-indent: -99999px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+}
+
+.ui-icon-close
+{
+    background-position : -80px -128px;
+}
+
+/* Sanghi */
+/* DO NOT REMOVED USED IN VENDOR */
+.hide
+{
+    display:none;
+}
+
+/* TFS 1710 - Styling the Service coverage limit message */
+#limitStatus {font-weight: 600; font-size: 14px;}
+.limitStatus {font-weight: 600; font-size: 14px;}

@@ -1,0 +1,36 @@
+﻿@using ClientPortal.Models
+<ul class="tabs scrollable">
+   @* @if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin) || User.IsInRole(ClientPortal.Common.RoleConstants.ClientAdmin))
+    { *@
+        <li id="Users" class="active"><a href="@Url.Action("Index", "Home")" class="icon-user">
+            User</a></li>
+        @*<li id="Organizations"><a href="@Url.Action("Index", "Organizations", new { area = "admin" })" class="icon-user">
+            Organization</a></li>
+        
+        if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin)) //CR # 335: Accessible only to Sys admin
+        {
+        <li id="Clients"><a href="@Url.Action("Index", "Clients", new { area = "admin" })" class="icon-user">
+            Client</a></li>
+        }
+        if (User.IsInRole(ClientPortal.Common.RoleConstants.SysAdmin)) //CR # 335: Accessible only to Sys admin ; CR # 380 : Moveed this tab after Client tab
+        {
+        <li id="ProgramMaintenance"><a href="@Url.Action("Index", "ProgramMaintenance", new { area = "admin" })" class="icon-map">
+            Program</a></li>
+        }
+        <li id="DataGroups"><a href="@Url.Action("Index", "DataGroups", new { area = "admin" })" class="icon-user">
+            Data Groups</a></li>
+        
+        <li id="PhoneSystemConfiguration"><a href="@Url.Action("Index", "PhoneSystemConfiguration", new { area = "admin" })" class="icon-compass">
+            Phone System</a></li>
+        
+        
+    }*@
+</ul>
+<script type="text/javascript">
+
+    $(function () {
+        //Highlight the tab.
+        var currentTab = '@ViewContext.RouteData.Values["controller"]';
+        $('li[id="' + currentTab + '"]').addClass("active");
+    });
+</script>

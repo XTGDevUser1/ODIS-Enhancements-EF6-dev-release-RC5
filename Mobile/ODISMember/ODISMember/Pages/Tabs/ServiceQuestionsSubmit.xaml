@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<BaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:XLabs.Forms.Controls;assembly=XLabs.Forms"
+             xmlns:widget="clr-namespace:ODISMember.Widgets;assembly=ODISMember"
+             x:Class="ODISMember.Pages.Tabs.ServiceQuestionsSubmit">
+  <RelativeLayout x:Name="mainLayout">
+    <ScrollView RelativeLayout.WidthConstraint="{ConstraintExpression Type=RelativeToParent, Property=Width}" RelativeLayout.HeightConstraint="{ConstraintExpression Type=RelativeToParent, Property=Height}" BackgroundColor="White" Padding="5">
+      <StackLayout Padding="5">
+        <StackLayout x:Name="maplayout" Padding="0,0,0,5" HeightRequest="200" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"></StackLayout>
+        <StackLayout  Padding="5">
+          <controls:ExtendedLabel Text="- SERVICE REQUEST REVIEW -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+        </StackLayout>
+          <StackLayout Padding="5,5,5,0">
+          <controls:ExtendedLabel x:Name="labelService" Style="{StaticResource RequestTypeHeadLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+          </StackLayout>
+        <StackLayout Padding="5,0,5,5">
+          <controls:ExtendedLabel x:Name="labelYearMakeModel" Style="{StaticResource RequestTypeHeadLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+          </StackLayout>
+          <StackLayout Padding="0,5,0,5">
+              <StackLayout x:Name="LocationLayout" Padding="0,0,0,5">
+              <controls:ExtendedLabel Text="LOCATION" Style="{StaticResource ServiceRequestLabelsHeadLineStyle}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+              <controls:ExtendedLabel x:Name="labelLocationAddress" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+              </StackLayout>
+              <StackLayout x:Name="stackTowDestination">
+                <controls:ExtendedLabel Text="DESTINATION" Style="{StaticResource ServiceRequestLabelsHeadLineStyle}" FontAttributes="Bold" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+                <controls:ExtendedLabel x:Name="labelDestinationAddress" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+              </StackLayout>
+            
+          </StackLayout>
+          <StackLayout  Padding="5,5,5,3" Spacing="0">
+            <controls:ExtendedLabel Text="- CONTACT PHONE NUMBER -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+            </StackLayout>
+            <StackLayout Padding="0,1,0,0">
+          <controls:ExtendedLabel Text="Please verify your contact phone number so that we may contact you as needed during the service." Style="{StaticResource BaseLabelStyle}" FontSize="14" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+          </StackLayout>
+          <StackLayout Spacing="0" Padding="0,0,0,0">
+            <widget:LabelDropdownEntryHorizontal x:Name="widgetContact"  EntryHint="Phone Number" EntryHintDropdown="Country" Padding="0" KeyboardEntry="Numeric"/>
+          </StackLayout>
+          <StackLayout  Padding="5">
+            <controls:ExtendedLabel Text="- SERVICE NOTES -" Style="{StaticResource HeaderLineStyle}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
+          </StackLayout>
+        <StackLayout Padding="0,0,0,2">
+             <controls:ExtendedLabel Text="Add any additional notes that will help the service provider with your service." Style="{StaticResource BaseLabelStyle}" FontSize="14" HorizontalTextAlignment="Start" VerticalOptions="Start"/>
+          </StackLayout>
+          <StackLayout Padding="0">
+            <StackLayout x:Name="NoteLayout"  Padding="1">
+              <StackLayout.BackgroundColor>
+                <OnPlatform x:TypeArguments="Color"
+                                        Android="Black"
+                                        iOS="Silver"></OnPlatform>
+        </StackLayout.BackgroundColor>
+              <StackLayout  BackgroundColor="White" Padding="3,5,3,5">
+            <controls:ExtendedLabel x:Name="lblNote" Style="{StaticResource BaseLabelStyle}" HorizontalTextAlignment="Start" VerticalOptions="Start" FontSize="14"/>
+            </StackLayout>
+                        </StackLayout>
+              <Button x:Name="btnAddNote" Style="{StaticResource LabledButtonStyle}"  Text="Add Note +" HorizontalOptions="StartAndExpand" TextColor="#5C5C5C" />
+          </StackLayout>
+       <StackLayout Padding="0">
+          <Button  Text="SUBMIT" Style="{StaticResource BaseButtonStyle}" VerticalOptions="Center" HorizontalOptions="FillAndExpand" x:Name="btnSubmit"/>
+          <Button  Text="CANCEL" Style="{StaticResource LabledButtonStyle}" VerticalOptions="Center" x:Name="btnCancel" HorizontalOptions="FillAndExpand" TextColor="#5C5C5C"/>
+       </StackLayout>
+      </StackLayout>
+    </ScrollView>
+  </RelativeLayout>
+</BaseContentPage>

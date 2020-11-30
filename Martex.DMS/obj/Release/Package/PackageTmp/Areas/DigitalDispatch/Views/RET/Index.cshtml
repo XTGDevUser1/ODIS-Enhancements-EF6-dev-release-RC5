@@ -1,0 +1,203 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/DigitalDispatch/Views/Shared/_DigitalDipatchLayout.cshtml";
+}
+@model Martex.DMS.BLL.Model.DigitalDispatch.RETModel
+<form id="formRET">
+
+    <div class="columns">
+        <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+
+            <fieldset class="fieldset">
+                <legend class="legend">RET</legend>
+                <div>
+                    <h4>Message Header</h4>
+                    <p class="inline-label">
+                        <label for="HeaderVersion" class="label">
+                            Header Version
+                        </label>
+                        @Html.TextBoxFor(a => a.HeaderVersion, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="Key" class="label">
+                            Key
+                        </label>
+                        @Html.TextBoxFor(a => a.Key, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ContractorID" class="label">
+                            Contractor ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ContractorID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseID" class="label">
+                            Response ID
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseID, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="TransType" class="label">
+                            Trans Type
+                        </label>
+                        @Html.TextBoxFor(a => a.TransType, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="MsgVersion" class="label">
+                            Msg Version
+                        </label>
+                        @Html.TextBoxFor(a => a.MsgVersion, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ConRequired" class="label">
+                            Con Required
+                        </label>
+                        @Html.TextBoxFor(a => a.ConRequired, new { @class = "input full-width2" })
+                    </p>
+                    <p class="inline-label">
+                        <label for="ResponseType" class="label">
+                            Response Type
+                        </label>
+                        @Html.TextBoxFor(a => a.ResponseType, new { @class = "input full-width2" })
+                    </p>
+                    <h4>RET Message</h4>
+                    <p class="inline-label">
+                        <label for="JobID" class="label">
+                            Job ID
+                        </label>
+                        @Html.TextBoxFor(a => a.JobID, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="ServiceProviderResponse" class="label">
+                            Service Provider Response
+                        </label>
+                        @Html.TextBoxFor(a => a.ServiceProviderResponse, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="ETA" class="label">
+                            ETA
+                        </label>
+                        @Html.TextBoxFor(a => a.ETA, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="MilesToVehicle" class="label">
+                            Miles to Vehicle
+                        </label>
+                        @Html.TextBoxFor(a => a.MilesToVehicle, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="MilesLoaded" class="label">
+                            Miles Loaded
+                        </label>
+                        @Html.TextBoxFor(a => a.MilesLoaded, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="EstimatedPrice" class="label">
+                            Estimated Price
+                        </label>
+                        @Html.TextBoxFor(a => a.EstimatedPrice, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="ColorOfTruck" class="label">
+                            Color of Truck
+                        </label>
+                        @Html.TextBoxFor(a => a.ColorOfTruck, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="ContactName" class="label">
+                            Contact Name
+                        </label>
+                        @Html.TextBoxFor(a => a.ContactName, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="RejectDescription" class="label">
+                            Reject Description
+                        </label>
+                        @Html.TextBoxFor(a => a.RejectDescription, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="CurrentTemperature" class="label">
+                            Current Temperature
+                        </label>
+                        @Html.TextBoxFor(a => a.CurrentTemperature, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="PrecipitationType" class="label">
+                            Precipitation Type
+                        </label>
+                        @Html.TextBoxFor(a => a.PrecipitationType, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="RoadCondition" class="label">
+                            Road Condition
+                        </label>
+                        @Html.TextBoxFor(a => a.RoadCondition, new { @class = "input full-width2" })
+                    </p>
+
+                    <p class="inline-label">
+                        <label for="Remarks" class="label">
+                            Remarks
+                        </label>
+                        @Html.TextBoxFor(a => a.Remarks, new { @class = "input full-width2" })
+                    </p>
+                    <div>
+                        <button id="btnSubmitRET" class="button green-gradient float-right" type="button">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</form>
+<div class="columns" id="divRETResponse">
+    <div class="with-padding-with-panels eleven-columns twelve-columns-tablet">
+        <p class="inline-label">
+            <label class="label">
+                Response
+            </label>
+            @Html.TextArea("RETResponseMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+        <p class="inline-label">
+            <label class="label">
+                Request
+            </label>
+            @Html.TextArea("RETRequestMessage", new { @class = "input full-width", @readonly = "readonly", style = "height:300px;" })
+        </p>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btnSubmitRET").click(function () {
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SubmitRET", "RET", new { area = "DigitalDispatch" })',
+            data: $("#formRET").serializeArray(),
+            traditional: true,
+            cache: false,
+            async: true,
+            success: function (msg) {
+                $("#RETResponseMessage").html(msg.Data.Response);
+                $("#RETRequestMessage").html(msg.Data.Request);
+                $("#divRETResponse").show();
+            }
+
+        });
+
+    });
+    $(function () {
+        $("#divRETResponse").hide();
+    });
+</script>
