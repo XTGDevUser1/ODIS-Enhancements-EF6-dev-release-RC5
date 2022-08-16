@@ -66,12 +66,12 @@ BEGIN
 								 FROM TemporaryCreditCard tcc
 								 --- Get Last Issue matching the last 6 digits of the CC
 								 JOIN (
-									SELECT right(CreditCardNumber, 4) Last6OfCC, MAX(IssueDate) MaxIssueDate
+									SELECT right(CreditCardNumber, 6) Last6OfCC, MAX(IssueDate) MaxIssueDate
 									FROM TemporaryCreditCard
-									GROUP BY right(CreditCardNumber, 4)
-									) LastIssueEntry ON LastIssueEntry.Last6OfCC = right(tcc.CreditCardNumber, 4) 
+									GROUP BY right(CreditCardNumber, 6)
+									) LastIssueEntry ON LastIssueEntry.Last6OfCC = right(tcc.CreditCardNumber, 6) 
 										AND LastIssueEntry.MaxIssueDate = tcc.IssueDate
-								 WHERE right(tcc.CreditCardNumber, 4) = right(@creditCardNumber,4)
+								 WHERE right(tcc.CreditCardNumber, 6) = right(@creditCardNumber,6)
 								 ---- Removed this condition since the PO number does not always make it into the Charge transaction
 								 AND ltrim(rtrim(isnull(tcc.OriginalReferencePurchaseOrderNumber,''))) = ltrim(rtrim(isnull(@purchaseOrderNumber,'')))
 								 AND Cast(Convert(varchar, tcc.IssueDate,101) as datetime) <= @chargedDate
@@ -95,8 +95,8 @@ BEGIN
 						   FROM TemporaryCreditCard tcc
 						   JOIN TemporaryCreditCardDetail tccd
 						   ON tcc.ID = tccd.TemporaryCreditCardID
-						   WHERE right(isnull(tcc.CreditCardNumber,''), 4) = 
-						   right(isnull(@creditCardNumber,''), 4)
+						   WHERE right(isnull(tcc.CreditCardNumber,''), 6) = 
+						   right(isnull(@creditCardNumber,''), 6)
 						   AND tccd.TransactionDate = @transactionDate
 						   AND tccd.ChargeDate = @chargedDate
 						   AND tccd.TransactionType = 'Charge'
